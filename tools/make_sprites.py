@@ -111,84 +111,84 @@ CHARS = {
     skin='#ffdcc0', skin2='#e5a184', skin3='#c98166', blush='#ff9db0',
     eye='#3fc9ff', eye2='#12608f', brow='#2a4fa8',
     cloth='#f2f6ff', cloth2='#ffffff', cloth3='#98abd8', trim='#3fc9ff', accent='#ff5fa2',
-    leg='#4a5f96', leg2='#6d83bd', boot='#2a3358',
+    leg='#4a5f96', leg2='#7388bf', boot='#283053',
     metal='#eaf0ff', grip='#2a2440', sleeve=0.52, face=dict(ew=5, eh=4, lash=2, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
     style='ponytail', wep='katana'),
  'kagura': dict(ink='#160d2c', hair='#4d2478', hair2='#8e51cc', hair3='#c79cf5', shine='#e7d2ff',
     skin='#ffe0c6', skin2='#daa385', skin3='#b8815f', blush='#ff9db0',
     eye='#ffd24d', eye2='#a86c12', brow='#4d2478',
     cloth='#33215e', cloth2='#5b3f9c', cloth3='#1b1136', trim='#8e51cc', accent='#ffcc4d',
-    leg='#2b1a4f', leg2='#463079', boot='#1b1136',
+    leg='#5c38a9', leg2='#876dc5', boot='#2f1d5d',
     metal='#4a3672', grip='#241a3e', sleeve=0.80, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
     style='long', wep='staff'),
  'ren': dict(ink='#0d0a17', hair='#201b38', hair2='#453c78', hair3='#7d70ae', shine='#a99ddb',
     skin='#f0cba9', skin2='#c2967a', skin3='#9c745c', blush='#e8807f',
     eye='#ff4d5d', eye2='#8f1d2c', brow='#201b38',
     cloth='#332b56', cloth2='#524791', cloth3='#191430', trim='#ff4d5d', accent='#ff4d5d',
-    leg='#201c3a', leg2='#38315e', boot='#12101f',
+    leg='#534997', leg2='#8379b9', boot='#2f2a51',
     metal='#d5cdfa', grip='#141020', sleeve=0.58, face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
     style='spiky', wep='daggers'),
  'suzume': dict(ink='#123a2a', hair='#2f7a5c', hair2='#57bd8f', hair3='#a6f0cd', shine='#dcffee',
     skin='#ffe0c2', skin2='#dfab84', skin3='#b8825f', blush='#ff9db0',
     eye='#ffc247', eye2='#9c6c0e', brow='#2f7a5c',
     cloth='#eaf7f0', cloth2='#ffffff', cloth3='#9fc7b4', trim='#57bd8f', accent='#ffc247',
-    leg='#3c6b58', leg2='#5b9179', boot='#20443a',
+    leg='#519076', leg2='#7ab89c', boot='#275347',
     metal='#c9a06a', grip='#4a3320', sleeve=0.62, face=dict(ew=6, eh=4, lash=1, droop=0, brow='flat',   brow_h=2, nose=2, mouth=1),
     style='braid', wep='bow'),
  'gorou': dict(ink='#1b1a26', hair='#5a3a1e', hair2='#8f5f2f', hair3='#c99a5c', shine='#e8c99a',
     skin='#e8b98e', skin2='#c08f66', skin3='#96694a', blush='#e08a6a',
     eye='#ff9d3d', eye2='#8a4410', brow='#5a3a1e',
     cloth='#5a6478', cloth2='#8892ab', cloth3='#363d4d', trim='#e0a52c', accent='#e0a52c',
-    leg='#3b4252', leg2='#5a6478', boot='#22262f',
+    leg='#53658d', leg2='#7a8fb8', boot='#2c374e',
     metal='#cfd8e8', grip='#3a2a1a', sleeve=0.74, face=dict(ew=4, eh=3, lash=0, droop=0, brow='thick',  brow_h=1, nose=3, mouth=2),
     style='crop', wep='hammer'),
  'hinata': dict(ink='#38290f', hair='#c99527', hair2='#ffdc7f', hair3='#fff5cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0ad88', skin3='#bd8a66', blush='#ffa8a8',
     eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
     cloth='#fffaf0', cloth2='#ffffff', cloth3='#dcc59a', trim='#7cffa8', accent='#7cffa8',
-    leg='#f0dfc0', leg2='#fff6e4', boot='#c9a86e',
+    leg='#b5842b', leg2='#ffbb33', boot='#594521',
     metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, face=dict(ew=6, eh=5, lash=2, droop=0, brow='soft',   brow_h=2, nose=2, mouth=1),
     style='bob', wep='tome'),
  'yura': dict(ink='#16324a', hair='#5f8fc9', hair2='#a8d4f5', hair3='#e0f4ff', shine='#ffffff',
     skin='#fff0e2', skin2='#e6c3ad', skin3='#c09680', blush='#ffb0c0',
     eye='#7fe0ff', eye2='#1d6f96', brow='#5f8fc9',
     cloth='#dff2ff', cloth2='#ffffff', cloth3='#8fb4d4', trim='#5fe6ff', accent='#5fe6ff',
-    leg='#46708f', leg2='#6f9fd8', boot='#254559',
+    leg='#4a7697', leg2='#5e94d4', boot='#244356',
     metal='#7fc9ec', grip='#2c4358', sleeve=0.72, face=dict(ew=5, eh=4, lash=2, droop=1, brow='flat',   brow_h=2, nose=2, mouth=1),
     style='long', wep='icelance'),
  'kaito': dict(ink='#171628', hair='#8a7a20', hair2='#ffe14d', hair3='#fff6a8', shine='#ffffff',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e88a7a',
     eye='#ffe14d', eye2='#8a6410', brow='#8a7a20',
     cloth='#2b2a3c', cloth2='#4a4866', cloth3='#191826', trim='#ffe14d', accent='#ffe14d',
-    leg='#232231', leg2='#3d3b52', boot='#141320',
+    leg='#57538d', leg2='#807ab8', boot='#2f2c4e',
     metal='#cfd8e8', grip='#2b2a14', sleeve=0.45, face=dict(ew=6, eh=4, lash=0, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
     style='spiky', wep='gauntlet'),
  'momo': dict(ink='#33220f', hair='#7a4a1e', hair2='#c78a45', hair3='#e8c08a', shine='#fff0d0',
     skin='#ffd9bd', skin2='#dda989', skin3='#b8825f', blush='#ff9db0',
     eye='#ffcc4d', eye2='#8a6410', brow='#7a4a1e',
     cloth='#7d5a33', cloth2='#a67f4c', cloth3='#4a3320', trim='#ffcc4d', accent='#ffcc4d',
-    leg='#4a3a28', leg2='#6b5540', boot='#2a2018',
+    leg='#92724f', leg2='#b8987a', boot='#4e3b2c',
     metal='#eae2c8', grip='#241a0e', sleeve=0.50, face=dict(ew=6, eh=5, lash=1, droop=0, brow='thick',  brow_h=2, nose=3, mouth=2),
     style='twin', wep='glaive'),
  'chiyo': dict(ink='#2a1014', hair='#96311f', hair2='#ff8b4d', hair3='#ffc79f', shine='#ffe8d0',
     skin='#ffdcc0', skin2='#e0ab88', skin3='#b8815f', blush='#ff9db0',
     eye='#ff8b4d', eye2='#8a3a12', brow='#96311f',
     cloth='#3a2028', cloth2='#5e3440', cloth3='#241318', trim='#ff8b4d', accent='#ff8b4d',
-    leg='#2e1c22', leg2='#4a2e38', boot='#1a1014',
+    leg='#8d5366', leg2='#b87a90', boot='#4e2c3a',
     metal='#c9563a', grip='#3a2018', sleeve=0.55, face=dict(ew=6, eh=5, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
     style='bob', wep='bombs'),
  'nari': dict(ink='#241428', hair='#7a3f8a', hair2='#d68ae6', hair3='#f4c2ff', shine='#ffffff',
     skin='#ffe6cf', skin2='#e2b492', skin3='#bd8a66', blush='#ffa8c0',
     eye='#ffd24d', eye2='#96690e', brow='#7a3f8a',
     cloth='#3a2246', cloth2='#5e3a6e', cloth3='#241428', trim='#ffd24d', accent='#ffd24d',
-    leg='#2e1c36', leg2='#4a2e56', boot='#1a1020',
+    leg='#7e4d94', leg2='#a57ab8', boot='#422952',
     metal='#c9a05a', grip='#4a3320', sleeve=0.60, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
     style='braid', wep='lute'),
  'seryn': dict(ink='#1a2338', hair='#b8912f', hair2='#ffe08a', hair3='#fff6cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0b48f', skin3='#b8886a', blush='#ffa8b8',
     eye='#5fe0a8', eye2='#12704f', brow='#b8912f',
     cloth='#cfd8ea', cloth2='#f2f6ff', cloth3='#6f7f9c', trim='#3f6fd0', accent='#ffcc4d',
-    leg='#3f4a63', leg2='#5f6d8c', boot='#232b3d',
+    leg='#53658d', leg2='#7a8db8', boot='#2c374e',
     metal='#eef3ff', grip='#2b3350',
     face=dict(ew=5, eh=4, lash=1, droop=0, brow='flat', brow_h=2, nose=2, mouth=1),
     sleeve=0.86, style='braid', wep='greatsword'),
@@ -196,7 +196,7 @@ CHARS = {
     skin='#c9906a', skin2='#a3714f', skin3='#7d5439', blush='#c96a5a',
     eye='#a8b4c8', eye2='#4a5568', brow='#8a8a96',
     cloth='#8f2020', cloth2='#c33a3a', cloth3='#4a1010', trim='#2b2b33', accent='#2b2b33',
-    leg='#2b2b33', leg2='#45454f', boot='#16161c',
+    leg='#53538d', leg2='#7a7ab8', boot='#2c2c4e',
     metal='#e8ecf5', grip='#2b2b33',
     face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
     sleeve=0.70, style='spiky', wep='twinswords'),
@@ -204,7 +204,7 @@ CHARS = {
     skin='#ffdcc0', skin2='#e0a184', skin3='#b87f62', blush='#ff8fa8',
     eye='#ffcc4d', eye2='#8a5a10', brow='#8f1f33',
     cloth='#3a1420', cloth2='#5e2436', cloth3='#220c14', trim='#e04a63', accent='#ffcc4d',
-    leg='#2b0f18', leg2='#452030', boot='#180810',
+    leg='#a63a5d', leg2='#be7494', boot='#5c1f3d',
     metal='#ffd0d8', grip='#3a1420',
     face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
     sleeve=0.55, style='ponytail', wep='spear'),
@@ -212,7 +212,7 @@ CHARS = {
     skin='#f0dcd0', skin2='#cbb0a4', skin3='#a08878', blush='#d68a9c',
     eye='#b07cff', eye2='#4a2578', brow='#2a1c40',
     cloth='#1e142e', cloth2='#3a2a56', cloth3='#120c1c', trim='#b07cff', accent='#b07cff',
-    leg='#181026', leg2='#2e2040', boot='#0d0816',
+    leg='#64429e', leg2='#9577bb', boot='#35215a',
     metal='#4a2f6b', grip='#241634',
     face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft', brow_h=2, nose=2, mouth=1),
     sleeve=0.88, style='long', wep='grimoire'),
@@ -220,7 +220,7 @@ CHARS = {
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e8907a',
     eye='#ffe14d', eye2='#8a6410', brow='#6b6320',
     cloth='#3a3a2a', cloth2='#5a5a40', cloth3='#22221a', trim='#ffe14d', accent='#ffe14d',
-    leg='#2e2e22', leg2='#4a4a36', boot='#1a1a14',
+    leg='#8d8d53', leg2='#b8b87a', boot='#4e4e2c',
     metal='#8a8030', grip='#2b2a14', sleeve=0.68, face=dict(ew=4, eh=3, lash=0, droop=0, brow='flat',   brow_h=1, nose=2, mouth=1),
     style='crop', wep='staff'),
 }
@@ -272,6 +272,11 @@ def hand(pose, back):
     d = pose['hb'] if back else pose['hf']
     return (sx + d[0], sy + d[1])
 
+def shade(col, f):
+    """same colour, dimmed - used to push the far limb back in depth"""
+    r, g, b = (int(col[i:i+2], 16) for i in (1, 3, 5))
+    return '#%02x%02x%02x' % (int(r*f), int(g*f), int(b*f))
+
 def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
     """two-segment limb with a knee/elbow pushed out perpendicular to the line"""
     dx, dy = x1-x0, y1-y0
@@ -285,11 +290,14 @@ def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
 
 # --------------------------------------------------------------- body parts --
 def draw_legs(c, p, pose):
-    lg, lg2, bt = p['leg'], p['leg2'], p['boot']
     hipy = HIP + pose['bob']
     hipdx = pose['lean']*0.25 + TURN*0.5
     for i, (fx, lift) in enumerate(pose['feet']):
         side = -1 if i == 0 else 1
+        far = i == 0                                          # trailing leg, in shadow
+        lg  = shade(p['leg'],  0.62) if far else p['leg']
+        lg2 = shade(p['leg2'], 0.62) if far else p['leg2']
+        bt  = shade(p['boot'], 0.66) if far else p['boot']
         hx = CX + hipdx + side*4
         # trailing foot sits further back than the lead one on a turned body
         fxx = CX + fx + TURN*0.35 + (-1.2 if side < 0 else 1.2)

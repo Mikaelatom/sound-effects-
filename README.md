@@ -217,7 +217,11 @@ hair, outfit, sleeve length and weapon layer on top.
 The walk is a real 4-frame cycle — contact, passing, contact mirrored,
 passing mirrored — with the arms swinging opposite the legs. Arms swing from a
 shaded deltoid through an elbow cuff, legs carry a thigh mass and a lit knee,
-so a limb reads as a limb rather than a tapered stick.
+so a limb reads as a limb rather than a tapered stick. The **trailing** arm and
+leg are drawn in a dimmed copy of their own colours, which is what stops the
+two legs merging into one column — and every character's leg palette is held
+at a readable mid-tone against their outfit, so the cycle reads on a witch in
+black robes as clearly as it does on Aoi.
 
 **Attacks are animated, not sprites in flight.** Every projectile is drawn from
 scratch each frame against its own age, so it *plays*: a slash sweeps its arc
