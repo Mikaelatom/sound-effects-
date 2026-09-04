@@ -150,11 +150,19 @@ hair, outfit, sleeve length and weapon layer on top.
 The walk is a real 4-frame cycle — contact, passing, contact mirrored,
 passing mirrored — with the arms swinging opposite the legs.
 
-Heads are drawn in **three-quarter view**, turned toward the lead side, with a
-nose on the leading edge and the far eye foreshortened. A straight-on face
-just mirrored left and right reads as facing nowhere — the turn is what sells
-which way a character is going. Hair, tails and scarves trail the opposite way
-to the direction of travel.
+Figures are drawn in **true side profile** facing +x, and mirrored for left.
+This matters more than it sounds: a front-facing sprite that is merely
+mirrored reads as facing *nowhere*, no matter how much the features are
+nudged. In profile there is one visible eye, a nose on the leading edge, the
+ear behind, a torso narrowed to about 62% of its head-on width, shoulders
+close together, and hair and scarves trailing behind. Press D and the head,
+torso and legs all lead with the front of the body.
+
+Every character has their own **face parameters** — eye width and height,
+lash thickness, whether the outer corner droops, brow shape and height, nose
+length, mouth width — so Ren's narrow hard stare, Hinata's wide soft one and
+Gorou's heavy brow are all the same code with different numbers. Mouths are
+deliberately tiny, 1–2 pixels.
 
 Faces carry a full anime eye at this size: sclera, iris with its own floor,
 pupil, catchlight, a lash line that thickens at the outer corner, brows that

@@ -28,7 +28,8 @@ FEET  = 92         # baseline every actor stands on
 HEADY = 16         # head centre
 SHOULDER = 29      # top of the torso
 HIP   = 50         # where the legs start
-TURN  = 2.5        # three-quarter head turn toward the lead side (+x)
+TURN  = 2.5        # how far the figure leads with its front (+x)
+PROFILE = 0.62     # a body seen from the side is far narrower than head-on
 
 # ------------------------------------------------------------------ canvas ---
 class Cv:
@@ -111,73 +112,85 @@ CHARS = {
     eye='#3fc9ff', eye2='#12608f', brow='#2a4fa8',
     cloth='#f2f6ff', cloth2='#ffffff', cloth3='#98abd8', trim='#3fc9ff', accent='#ff5fa2',
     leg='#4a5f96', leg2='#6d83bd', boot='#2a3358',
-    metal='#eaf0ff', grip='#2a2440', sleeve=0.52, style='ponytail', wep='katana'),
+    metal='#eaf0ff', grip='#2a2440', sleeve=0.52, face=dict(ew=5, eh=4, lash=2, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
+    style='ponytail', wep='katana'),
  'kagura': dict(ink='#160d2c', hair='#4d2478', hair2='#8e51cc', hair3='#c79cf5', shine='#e7d2ff',
     skin='#ffe0c6', skin2='#daa385', skin3='#b8815f', blush='#ff9db0',
     eye='#ffd24d', eye2='#a86c12', brow='#4d2478',
     cloth='#33215e', cloth2='#5b3f9c', cloth3='#1b1136', trim='#8e51cc', accent='#ffcc4d',
     leg='#2b1a4f', leg2='#463079', boot='#1b1136',
-    metal='#4a3672', grip='#241a3e', sleeve=0.80, style='long', wep='staff'),
+    metal='#4a3672', grip='#241a3e', sleeve=0.80, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
+    style='long', wep='staff'),
  'ren': dict(ink='#0d0a17', hair='#201b38', hair2='#453c78', hair3='#7d70ae', shine='#a99ddb',
     skin='#f0cba9', skin2='#c2967a', skin3='#9c745c', blush='#e8807f',
     eye='#ff4d5d', eye2='#8f1d2c', brow='#201b38',
     cloth='#332b56', cloth2='#524791', cloth3='#191430', trim='#ff4d5d', accent='#ff4d5d',
     leg='#201c3a', leg2='#38315e', boot='#12101f',
-    metal='#d5cdfa', grip='#141020', sleeve=0.58, style='spiky', wep='daggers'),
+    metal='#d5cdfa', grip='#141020', sleeve=0.58, face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
+    style='spiky', wep='daggers'),
  'suzume': dict(ink='#123a2a', hair='#2f7a5c', hair2='#57bd8f', hair3='#a6f0cd', shine='#dcffee',
     skin='#ffe0c2', skin2='#dfab84', skin3='#b8825f', blush='#ff9db0',
     eye='#ffc247', eye2='#9c6c0e', brow='#2f7a5c',
     cloth='#eaf7f0', cloth2='#ffffff', cloth3='#9fc7b4', trim='#57bd8f', accent='#ffc247',
     leg='#3c6b58', leg2='#5b9179', boot='#20443a',
-    metal='#c9a06a', grip='#4a3320', sleeve=0.62, style='braid', wep='bow'),
+    metal='#c9a06a', grip='#4a3320', sleeve=0.62, face=dict(ew=6, eh=4, lash=1, droop=0, brow='flat',   brow_h=2, nose=2, mouth=1),
+    style='braid', wep='bow'),
  'gorou': dict(ink='#1b1a26', hair='#5a3a1e', hair2='#8f5f2f', hair3='#c99a5c', shine='#e8c99a',
     skin='#e8b98e', skin2='#c08f66', skin3='#96694a', blush='#e08a6a',
     eye='#ff9d3d', eye2='#8a4410', brow='#5a3a1e',
     cloth='#5a6478', cloth2='#8892ab', cloth3='#363d4d', trim='#e0a52c', accent='#e0a52c',
     leg='#3b4252', leg2='#5a6478', boot='#22262f',
-    metal='#cfd8e8', grip='#3a2a1a', sleeve=0.74, style='crop', wep='hammer'),
+    metal='#cfd8e8', grip='#3a2a1a', sleeve=0.74, face=dict(ew=4, eh=3, lash=0, droop=0, brow='thick',  brow_h=1, nose=3, mouth=2),
+    style='crop', wep='hammer'),
  'hinata': dict(ink='#38290f', hair='#c99527', hair2='#ffdc7f', hair3='#fff5cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0ad88', skin3='#bd8a66', blush='#ffa8a8',
     eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
     cloth='#fffaf0', cloth2='#ffffff', cloth3='#dcc59a', trim='#7cffa8', accent='#7cffa8',
     leg='#f0dfc0', leg2='#fff6e4', boot='#c9a86e',
-    metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, style='bob', wep='tome'),
+    metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, face=dict(ew=6, eh=5, lash=2, droop=0, brow='soft',   brow_h=2, nose=2, mouth=1),
+    style='bob', wep='tome'),
  'yura': dict(ink='#16324a', hair='#5f8fc9', hair2='#a8d4f5', hair3='#e0f4ff', shine='#ffffff',
     skin='#fff0e2', skin2='#e6c3ad', skin3='#c09680', blush='#ffb0c0',
     eye='#7fe0ff', eye2='#1d6f96', brow='#5f8fc9',
     cloth='#dff2ff', cloth2='#ffffff', cloth3='#8fb4d4', trim='#5fe6ff', accent='#5fe6ff',
     leg='#46708f', leg2='#6f9fd8', boot='#254559',
-    metal='#7fc9ec', grip='#2c4358', sleeve=0.72, style='long', wep='icelance'),
+    metal='#7fc9ec', grip='#2c4358', sleeve=0.72, face=dict(ew=5, eh=4, lash=2, droop=1, brow='flat',   brow_h=2, nose=2, mouth=1),
+    style='long', wep='icelance'),
  'kaito': dict(ink='#171628', hair='#8a7a20', hair2='#ffe14d', hair3='#fff6a8', shine='#ffffff',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e88a7a',
     eye='#ffe14d', eye2='#8a6410', brow='#8a7a20',
     cloth='#2b2a3c', cloth2='#4a4866', cloth3='#191826', trim='#ffe14d', accent='#ffe14d',
     leg='#232231', leg2='#3d3b52', boot='#141320',
-    metal='#cfd8e8', grip='#2b2a14', sleeve=0.45, style='spiky', wep='gauntlet'),
+    metal='#cfd8e8', grip='#2b2a14', sleeve=0.45, face=dict(ew=6, eh=4, lash=0, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
+    style='spiky', wep='gauntlet'),
  'momo': dict(ink='#33220f', hair='#7a4a1e', hair2='#c78a45', hair3='#e8c08a', shine='#fff0d0',
     skin='#ffd9bd', skin2='#dda989', skin3='#b8825f', blush='#ff9db0',
     eye='#ffcc4d', eye2='#8a6410', brow='#7a4a1e',
     cloth='#7d5a33', cloth2='#a67f4c', cloth3='#4a3320', trim='#ffcc4d', accent='#ffcc4d',
     leg='#4a3a28', leg2='#6b5540', boot='#2a2018',
-    metal='#eae2c8', grip='#241a0e', sleeve=0.50, style='twin', wep='glaive'),
+    metal='#eae2c8', grip='#241a0e', sleeve=0.50, face=dict(ew=6, eh=5, lash=1, droop=0, brow='thick',  brow_h=2, nose=3, mouth=2),
+    style='twin', wep='glaive'),
  'chiyo': dict(ink='#2a1014', hair='#96311f', hair2='#ff8b4d', hair3='#ffc79f', shine='#ffe8d0',
     skin='#ffdcc0', skin2='#e0ab88', skin3='#b8815f', blush='#ff9db0',
     eye='#ff8b4d', eye2='#8a3a12', brow='#96311f',
     cloth='#3a2028', cloth2='#5e3440', cloth3='#241318', trim='#ff8b4d', accent='#ff8b4d',
     leg='#2e1c22', leg2='#4a2e38', boot='#1a1014',
-    metal='#c9563a', grip='#3a2018', sleeve=0.55, style='bob', wep='bombs'),
+    metal='#c9563a', grip='#3a2018', sleeve=0.55, face=dict(ew=6, eh=5, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
+    style='bob', wep='bombs'),
  'nari': dict(ink='#241428', hair='#7a3f8a', hair2='#d68ae6', hair3='#f4c2ff', shine='#ffffff',
     skin='#ffe6cf', skin2='#e2b492', skin3='#bd8a66', blush='#ffa8c0',
     eye='#ffd24d', eye2='#96690e', brow='#7a3f8a',
     cloth='#3a2246', cloth2='#5e3a6e', cloth3='#241428', trim='#ffd24d', accent='#ffd24d',
     leg='#2e1c36', leg2='#4a2e56', boot='#1a1020',
-    metal='#c9a05a', grip='#4a3320', sleeve=0.60, style='braid', wep='lute'),
+    metal='#c9a05a', grip='#4a3320', sleeve=0.60, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
+    style='braid', wep='lute'),
  'toma': dict(ink='#22221a', hair='#6b6320', hair2='#b8ab3d', hair3='#e8e0a8', shine='#fff8d0',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e8907a',
     eye='#ffe14d', eye2='#8a6410', brow='#6b6320',
     cloth='#3a3a2a', cloth2='#5a5a40', cloth3='#22221a', trim='#ffe14d', accent='#ffe14d',
     leg='#2e2e22', leg2='#4a4a36', boot='#1a1a14',
-    metal='#8a8030', grip='#2b2a14', sleeve=0.68, style='crop', wep='staff'),
+    metal='#8a8030', grip='#2b2a14', sleeve=0.68, face=dict(ew=4, eh=3, lash=0, droop=0, brow='flat',   brow_h=1, nose=2, mouth=1),
+    style='crop', wep='staff'),
 }
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma']
@@ -217,7 +230,7 @@ POSES = [
 
 def shoulder(pose, back):
     # a turned body foreshortens: lead shoulder swings forward, trailing one hides
-    dx = (-7 + TURN*0.2) if back else (9 + TURN*1.1)
+    dx = (-3 + TURN*0.4) if back else (4 + TURN*1.0)
     return (CX + dx + pose['lean']*0.4, SHOULDER + 2 + pose['bob'] + (1 if back else 0))
 
 def hand(pose, back):
@@ -264,34 +277,33 @@ def draw_torso(c, p, pose):
         y = SHOULDER + i + dy
         # the turn eases from shoulders down to hips, and the body foreshortens
         t = 1 - i/len(TORSO)*0.45
-        x = CX + pose['lean']*0.4*t + TURN*0.75*t
-        w = hw*0.93
+        x = CX + pose['lean']*0.4*t + TURN*0.9*t
+        w = hw*PROFILE
         c.rect(x-w, y, w*2, 1, cl)
-        c.rect(x-w, y, 3, 1, cl3)                            # trailing edge in shadow
-        c.rect(x+w-1, y, 1, 1, cl2)                          # lead edge catches light
-        if i < 5: c.rect(x-w+3, y, w*2-4, 1, cl2)
+        c.rect(x-w, y, 2, 1, cl3)                            # spine side in shadow
+        c.rect(x+w-1, y, 1, 1, cl2)                          # chest edge catches light
+        if i < 5: c.rect(x-w+2, y, w*2-3, 1, cl2)
     x = CX + pose['lean']*0.5 + TURN*0.8
-    c.rect(x-3, 25+dy, 6, 5, p['skin'])                       # neck
-    c.rect(x-3, 25+dy, 6, 2, p['skin3'])
-    c.rect(x-8, SHOULDER+1+dy, 17, 2, cl2)                    # collar
+    c.rect(x-2, 25+dy, 5, 5, p['skin'])                       # neck
+    c.rect(x-2, 25+dy, 5, 2, p['skin3'])
+    c.rect(x-6, SHOULDER+1+dy, 12, 2, cl2)                    # collar
     c.rect(x, SHOULDER+2+dy, 2, 16, tr)                       # seam rides the turn
     c.rect(x-7, 46+dy, 14, 4, p['accent'])                    # sash
     c.rect(x-7, 46+dy, 14, 1, cl2)
     xh = CX + pose['lean']*0.25 + TURN*0.5                    # skirts sit on the hips
-    if p['style'] == 'bob':
-        c.rect(xh-11, HIP+dy, 22, 6, cl)
-        c.rect(xh-13, HIP+5+dy, 26, 4, cl2)
-        c.rect(xh-13, HIP+8+dy, 26, 2, cl3)
-        for i in range(0, 26, 5): c.rect(xh-13+i, HIP+8+dy, 2, 2, tr)
+    if p['style'] == 'bob':                                   # skirts narrow too
+        c.rect(xh-7, HIP+dy, 15, 6, cl)
+        c.rect(xh-9, HIP+5+dy, 18, 4, cl2)
+        c.rect(xh-9, HIP+8+dy, 18, 2, cl3)
+        for i in range(0, 18, 5): c.rect(xh-9+i, HIP+8+dy, 2, 2, tr)
     elif p['style'] == 'long':
-        c.rect(xh-10, HIP+dy, 20, 9, cl)
-        c.rect(xh-11, HIP+7+dy, 22, 3, cl3)
-        for i in range(0, 22, 6): c.rect(xh-11+i, HIP+4+dy, 2, 6, tr)
+        c.rect(xh-7, HIP+dy, 14, 9, cl)
+        c.rect(xh-8, HIP+7+dy, 16, 3, cl3)
+        for i in range(0, 16, 5): c.rect(xh-8+i, HIP+4+dy, 2, 6, tr)
     else:
-        c.rect(xh-10, HIP+dy, 20, 4, cl)
-        c.rect(xh-10, HIP+3+dy, 7, 10, cl3)
-        c.rect(xh+3, HIP+3+dy, 7, 10, cl3)
-        c.rect(xh-10, HIP+3+dy, 7, 2, tr); c.rect(xh+3, HIP+3+dy, 7, 2, tr)
+        c.rect(xh-7, HIP+dy, 14, 4, cl)
+        c.rect(xh-8, HIP+3+dy, 6, 11, cl3)                    # coat tail streams back
+        c.rect(xh-8, HIP+3+dy, 6, 2, tr)
 
 def draw_arm(c, p, pose, back):
     sk  = p['skin2'] if back else p['skin']
@@ -309,66 +321,74 @@ def draw_arm(c, p, pose, back):
     c.ellipse(hxp, hyp+1, 3.2, 3.4, sk)
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
 
-def eye(c, p, x, y, outer, mode, narrow=False):
-    """a 5x5 anime eye. outer = -1 for the left eye, +1 for the right.
-       narrow squashes it to 4 wide for the far eye in three-quarter view."""
+def eye_profile(c, p, x, y, mode):
+    """The single visible eye of a head seen from the side, facing +x.
+       Shape comes from the character's own face parameters, so nobody
+       shares an expression."""
     ink, ec, ed = p['ink'], p['eye'], p['eye2']
-    W2 = 4 if narrow else 5
+    F = p['face']
+    w, hgt = F['ew'], F['eh']
     if mode == 'closed':
-        for i in range(W2): c.set(x+i, y+2, ink)
-        c.set(x+(0 if outer < 0 else W2-1), y+1, ink)
+        for i in range(w): c.set(x+i, y+hgt//2, ink)
+        c.set(x+w-1, y+hgt//2-1, ink)
         return
     if mode == 'hurt':
-        for i in range(W2):
-            c.set(x+i, y+1, ink); c.set(x+i, y+3, ink)
+        for i in range(w):
+            c.set(x+i, y, ink); c.set(x+i, y+hgt-1, ink)
         return
-    c.rect(x, y+1, W2, 3, '#ffffff')                      # sclera
-    c.rect(x+1, y+1, W2-2, 3, ec)                         # iris
-    c.rect(x+1, y+3, W2-2, 1, ed)                         # iris floor
-    c.rect(x+2, y+1, 1, 3, ink)                           # pupil
-    for i in range(W2): c.set(x+i, y, ink)                # upper lash
-    c.set(x+(0 if outer < 0 else W2-1), y+1, ink)         # outer corner
-    hx2 = x + (W2-2 if outer < 0 else 1)
-    c.set(hx2, y+1, '#ffffff')                            # catchlight
-    c.set(x+(1 if outer < 0 else W2-2), y+3, '#ffffff')   # lower glint
-    for i in range(1, W2-1): c.set(x+i, y+4, p['skin2'])  # lower lid
+    c.rect(x, y, w, hgt, '#ffffff')                       # sclera
+    c.rect(x+w-3, y, 3, hgt, ec)                          # iris sits toward the front
+    c.rect(x+w-3, y+hgt-1, 3, 1, ed)
+    c.rect(x+w-2, y+1, 1, max(1, hgt-2), ink)             # pupil
+    for i in range(w): c.set(x+i, y-1, ink)               # upper lash
+    for k in range(F['lash']):                            # lash thickness at the back
+        c.set(x, y+k, ink); c.set(x+1, y-1-k, ink)
+    if F['droop']:
+        c.set(x, y+1, ink); c.set(x+1, y+1, ink)          # outer corner falls
+    c.set(x+w-1, y, '#ffffff')                            # catchlight
+    for i in range(1, w-1): c.set(x+i, y+hgt, p['skin2']) # lower lid
 
 def draw_head(c, p, pose):
-    """Head drawn in three-quarter view, turned toward screen-right.
-
-    Every pose is authored facing right and mirrored for left, so the turn is
-    always toward +x. A straight-on face mirrored left/right reads as facing
-    nowhere - this is what actually sells the direction of travel."""
+    """Head in TRUE profile facing +x: one eye, a nose on the leading edge,
+       the ear behind. A front-facing head mirrored left and right cannot read
+       as facing anywhere, which is the whole reason this exists."""
     sk, sk2, sk3 = p['skin'], p['skin2'], p['skin3']
+    F = p['face']
     dy = pose['bob']
     cx = CX + pose['lean']*0.55
     cy = HEADY + dy
-    T = TURN
-    c.ellipse(cx, cy, 8.2, 9.2, sk)                       # skull
-    c.ellipse(cx + T*0.5, cy+3, 7.0, 6.6, sk)             # cheeks swing forward
-    c.rect(cx+7.5, cy+1, 2, 4, sk)                        # nose/brow ridge on the lead edge
-    c.set(cx+9, cy+3, sk2)
-    c.set(cx+9, cy+4, sk3)
-    c.rect(cx-9, cy-1, 2, 5, sk2)                         # only the trailing ear shows
-    for x in range(int(cx-5), int(cx+7)): c.set(x, cy+7, sk3)   # jaw shadow
+    c.ellipse(cx-1, cy, 8.0, 9.2, sk)                     # skull, set back
+    c.ellipse(cx+1, cy+3, 6.6, 6.2, sk)                   # cheek/muzzle forward
+    # nose and lips on the leading edge
+    nx = cx + 6
+    c.rect(nx, cy+1, F['nose'], 2, sk)
+    c.set(nx+F['nose'], cy+2, sk)
+    c.set(nx+F['nose'], cy+3, sk2)
+    c.rect(cx+4, cy+5, 3, 2, sk)                          # chin
+    c.set(cx+6, cy+6, sk3)
+    for x in range(int(cx-4), int(cx+6)): c.set(x, cy+8, sk3)   # jaw shadow
+    c.rect(cx-6, cy+1, 3, 4, sk2)                         # ear, behind
+    c.set(cx-5, cy+2, sk3)
+    c.rect(cx-2, cy+9, 6, 4, sk)                          # neck
+    c.rect(cx-2, cy+9, 6, 1, sk3)
     m = pose['eye']
-    ey = cy - 1
-    # both eyes shift toward the lead side; the trailing eye foreshortens
-    eye(c, p, cx-5.5+T, ey, -1, m, narrow=True)
-    eye(c, p, cx+2.5+T, ey, +1, m)
-    if m != 'closed':                                     # brows follow the eyes
-        for i in range(3):
-            c.set(cx-5+T+i, ey-3 + (1 if m == 'fierce' and i > 1 else 0), p['brow'])
-        for i in range(4):
-            c.set(cx+2.5+T+i, ey-3 + (1 if m == 'fierce' and i < 2 else 0), p['brow'])
-    mouth = ey+7
+    eye_profile(c, p, cx+1, cy, m)
+    if m != 'closed':                                     # brow, per character
+        by = cy - 3 - F['brow_h']
+        for i in range(F['ew']):
+            lift = 0
+            if F['brow'] == 'angled': lift = -1 if i > F['ew']-3 else 0
+            if F['brow'] == 'soft':   lift =  1 if i > F['ew']-3 else 0
+            c.set(cx+1+i, by+lift, p['brow'])
+            if F['brow'] == 'thick': c.set(cx+1+i, by+1+lift, p['brow'])
+    mw = F['mouth']                                       # mouths stay small
     if m == 'fierce':
-        c.rect(cx+T-1, mouth, 4, 2, p['ink']); c.rect(cx+T, mouth+1, 2, 1, '#ffffff')
+        c.rect(cx+5, cy+5, mw, 1, p['ink'])
+        c.set(cx+5, cy+6, p['ink'])
     else:
-        c.rect(cx+T, mouth, 2, 1, sk3)
-    for i in range(3):                                    # blush
-        c.set(cx-6+T+i, ey+3, p['blush']); c.set(cx+5+T+i, ey+3, p['blush'])
-        c.set(cx-5+T+i, ey+4, p['blush']); c.set(cx+4+T+i, ey+4, p['blush'])
+        c.rect(cx+5, cy+5, mw, 1, sk3)
+    c.rect(cx+1, cy+3, 3, 1, p['blush'])                  # blush on the cheek
+    c.rect(cx+1, cy+4, 2, 1, p['blush'])
     return cx, cy
 
 # --------------------------------------------------------------------- hair --
@@ -425,19 +445,19 @@ def hair_front(c, p, pose, cx, cy):
     sh, ac = p['shine'], p['accent']
     sway = -pose['sway']          # trail: opposite the direction of travel
     top = cy - 4                                          # never below the brows
-    c.ellipse(cx+T*0.4, cy-3, 9.0, 9.4, h1, ymax=int(top))
-    c.ellipse(cx+T*0.6, cy-5, 7.4, 7.2, h2, ymax=int(top-2))
-    for i, (sx, w) in enumerate(((-7,3), (-3,4), (2,3), (5,2))):   # shine band
-        c.rect(cx+sx+T, cy-9+abs(i-1)*0.5, w, 1, h3)
-        c.rect(cx+sx+T, cy-10+abs(i-1)*0.5, max(1, w-1), 1, sh)
-    for fx, fl in ((-9,4), (-5,7), (-1,8), (3,7), (7,4)):          # fringe
-        c.rect(cx+fx+T, cy-11, 2, fl, h1)
-        c.set(cx+fx+T, cy-11+fl, h1)
-        c.set(cx+fx+T, cy-9, h2)
-    # trailing lock is broad, leading lock is thin - that is what a turn looks like
-    c.rect(cx-11, cy-5, 4, 12, h1); c.rect(cx+9, cy-5, 2, 10, h1)
-    c.rect(cx-11, cy-5, 2, 9, h2)
-    c.set(cx-9, cy+7, h1)
+    c.ellipse(cx-1, cy-3, 8.8, 9.4, h1, ymax=int(top))
+    c.ellipse(cx-1.5, cy-5, 7.2, 7.2, h2, ymax=int(top-2))
+    # a swept fringe mass over the forehead, stopping above the eye. Drawing
+    # it as separate vertical strands made a comb of spikes on the crown.
+    c.ellipse(cx-1, cy-6.5, 8.4, 5.6, h1, ymax=int(cy-5))
+    c.ellipse(cx-2.5, cy-7.5, 6.2, 3.8, h2, ymax=int(cy-7))
+    c.taper(cx+4, cy-8, cx+7, cy-4, h1, 3, 2)                      # one swept tip
+    for sx, w in ((-7,4), (-1,5), (5,3)):                          # soft shine streak
+        c.rect(cx+sx, cy-9, w, 1, h3)
+        c.rect(cx+sx+1, cy-10, max(1, w-2), 1, sh)
+    c.rect(cx-10, cy-5, 4, 13, h1)                                 # lock hangs behind
+    c.rect(cx-10, cy-5, 2, 10, h2)
+    c.set(cx-8, cy+8, h1)
     if st == 'ponytail':
         c.rect(cx-9, cy-13, 5, 4, ac); c.rect(cx-8, cy-14, 3, 1, ac)
     elif st == 'long':
@@ -483,7 +503,7 @@ def draw_weapon(c, p, pose):
     elif w == 'staff':
         # the shaft runs THROUGH the hand, so she is actually gripping it
         tilt = ux*4
-        top = (hxp + tilt*1.6, hyp - 30)
+        top = (hxp + tilt*1.6 + 5, hyp - 30)   # orb rides clear of her face
         bot = (hxp - tilt*0.8, min(hyp + 20, FEET-2))
         c.taper(bot[0], bot[1], top[0], top[1], p['metal'], 5, 5)
         c.line(bot[0]+1, bot[1]-2, top[0]+1, top[1]+2, p['grip'], 2)
@@ -492,7 +512,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(ox, oy, 6.4, 6.4, p['accent'])
         c.ellipse(ox, oy, 4.0, 4.0, '#ffe9a8')
         c.ellipse(ox-1.5, oy-1.5, 1.8, 1.8, '#ffffff')
-        for dx2, dy2 in ((-9,0), (9,0), (0,-9), (0,9)): c.rect(ox+dx2, oy+dy2, 2, 2, p['hair3'])
+        for dx2, dy2 in ((0,-9), (0,9), (8,-5)): c.rect(ox+dx2, oy+dy2, 2, 2, p['hair3'])
     elif w == 'daggers':
         c.taper(hxp+nx*2, hyp+ny*2, hxp+ux*14+nx*1.5, hyp+uy*14+ny*1.5, p['ink'], 3, 2)
         c.taper(hxp, hyp, hxp+ux*14, hyp+uy*14, p['metal'], 4, 2)
