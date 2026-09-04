@@ -6,37 +6,42 @@ Draws every character and enemy frame pixel by pixel, packs them into one
 atlas PNG, and patches the base64 data URI straight into index.html.
 
     python3 tools/make_sprites.py            # atlas + patch index.html
-    python3 tools/make_sprites.py closeup    # tools/closeup.png, heroes at 10x
-    python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 5x
+    python3 tools/make_sprites.py closeup    # tools/closeup.png, heroes at 6x
+    python3 tools/make_sprites.py mobs       # tools/mobs.png, enemies at 5x
+    python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 3x
 
-Frames are 36x48. Row = actor, column = frame.
+Frames are 56x96. Row = actor, column = frame.
   Characters  0 idle-a  1 idle-b  2-5 walk  6 windup  7 strike  8 recover
               9 dash  10 cast  11 hurt
   Enemies     0-1 idle  2-5 move  6 telegraph  7 attack  8 special  9 hurt
+
+Figures are drawn at roughly 4.7 heads, so proportions read as anime rather
+than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 """
 import zlib, struct, base64, os, sys, math
 
-W, H = 36, 52
-PAD = 4        # every actor draws 4px lower, leaving room for hair and horns
+W, H = 56, 96
 FRAMES = 12
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FEET = 46          # baseline every actor stands on
-CX   = 18.0        # centre column
+CX    = 28.0       # centre column
+FEET  = 92         # baseline every actor stands on
+HEADY = 16         # head centre
+SHOULDER = 29      # top of the torso
+HIP   = 50         # where the legs start
 
 # ------------------------------------------------------------------ canvas ---
 class Cv:
-    def __init__(s, w, h, pad=0):
+    def __init__(s, w, h):
         s.w, s.h = w, h
-        s.pad = pad
         s.px = [[None]*w for _ in range(h)]
     def set(s, x, y, c):
-        # floor(v+.5), not round(): round() is banker's rounding, which collapses
-        # the .5 offsets a taper limb emits onto even rows and stripes the sprite
-        x, y = int(math.floor(x + 0.5)), int(math.floor(y + 0.5)) + s.pad
+        # floor(v+.5), never round(): round() is banker's rounding, which
+        # collapses the half-pixel offsets a tapered limb emits onto even rows
+        x, y = int(math.floor(x + 0.5)), int(math.floor(y + 0.5))
         if c is None or x < 0 or y < 0 or x >= s.w or y >= s.h: return
         s.px[y][x] = c
     def get(s, x, y):
-        x, y = int(x), int(y)        # raw atlas coords; pad is already applied
+        x, y = int(x), int(y)
         if x < 0 or y < 0 or x >= s.w or y >= s.h: return None
         return s.px[y][x]
     def rect(s, x, y, w, h, c):
@@ -56,8 +61,8 @@ class Cv:
             for dy in range(thick):
                 for dx in range(thick): s.set(x+dx, y+dy, c)
     def taper(s, x0, y0, x1, y1, c, w0, w1):
-        """a limb: thick at the shoulder, thinner at the hand"""
-        n = int(max(abs(x1-x0), abs(y1-y0))) + 1
+        """a limb: thick at the joint, thinner at the tip"""
+        n = int(max(abs(x1-x0), abs(y1-y0))) * 2 + 1
         for i in range(n):
             t = i/max(1, n-1)
             x, y = x0+(x1-x0)*t, y0+(y1-y0)*t
@@ -101,217 +106,231 @@ def hx(c):
 # ----------------------------------------------------------------- palettes --
 CHARS = {
  'aoi': dict(ink='#191338', hair='#2a4fa8', hair2='#5a86ea', hair3='#a8caff', shine='#dbe8ff',
-    skin='#ffdcc0', skin2='#e5a184', blush='#ff9db0', eye='#3fc9ff', eye2='#12608f', brow='#2a4fa8',
-    cloth='#f2f6ff', cloth2='#ffffff', cloth3='#8fa4d6', trim='#3fc9ff', accent='#ff5fa2',
-    metal='#eaf0ff', grip='#2a2440', style='ponytail', wep='katana'),
+    skin='#ffdcc0', skin2='#e5a184', skin3='#c98166', blush='#ff9db0',
+    eye='#3fc9ff', eye2='#12608f', brow='#2a4fa8',
+    cloth='#f2f6ff', cloth2='#ffffff', cloth3='#98abd8', trim='#3fc9ff', accent='#ff5fa2',
+    leg='#4a5f96', leg2='#6d83bd', boot='#2a3358',
+    metal='#eaf0ff', grip='#2a2440', sleeve=0.52, style='ponytail', wep='katana'),
  'kagura': dict(ink='#160d2c', hair='#4d2478', hair2='#8e51cc', hair3='#c79cf5', shine='#e7d2ff',
-    skin='#ffe0c6', skin2='#daa385', blush='#ff9db0', eye='#ffd24d', eye2='#a86c12', brow='#4d2478',
+    skin='#ffe0c6', skin2='#daa385', skin3='#b8815f', blush='#ff9db0',
+    eye='#ffd24d', eye2='#a86c12', brow='#4d2478',
     cloth='#33215e', cloth2='#5b3f9c', cloth3='#1b1136', trim='#8e51cc', accent='#ffcc4d',
-    metal='#4a3672', grip='#241a3e', style='long', wep='staff'),
+    leg='#2b1a4f', leg2='#463079', boot='#1b1136',
+    metal='#4a3672', grip='#241a3e', sleeve=0.80, style='long', wep='staff'),
  'ren': dict(ink='#0d0a17', hair='#201b38', hair2='#453c78', hair3='#7d70ae', shine='#a99ddb',
-    skin='#f0cba9', skin2='#c2967a', blush='#e8807f', eye='#ff4d5d', eye2='#8f1d2c', brow='#201b38',
+    skin='#f0cba9', skin2='#c2967a', skin3='#9c745c', blush='#e8807f',
+    eye='#ff4d5d', eye2='#8f1d2c', brow='#201b38',
     cloth='#332b56', cloth2='#524791', cloth3='#191430', trim='#ff4d5d', accent='#ff4d5d',
-    metal='#d5cdfa', grip='#141020', style='spiky', wep='daggers'),
+    leg='#201c3a', leg2='#38315e', boot='#12101f',
+    metal='#d5cdfa', grip='#141020', sleeve=0.58, style='spiky', wep='daggers'),
  'hinata': dict(ink='#38290f', hair='#c99527', hair2='#ffdc7f', hair3='#fff5cf', shine='#ffffff',
-    skin='#ffe6cf', skin2='#e0ad88', blush='#ffa8a8', eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
-    cloth='#fffaf0', cloth2='#ffffff', cloth3='#d9c398', trim='#7cffa8', accent='#7cffa8',
-    metal='#c04a6a', grip='#8d2f4c', style='bob', wep='tome'),
+    skin='#ffe6cf', skin2='#e0ad88', skin3='#bd8a66', blush='#ffa8a8',
+    eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
+    cloth='#fffaf0', cloth2='#ffffff', cloth3='#dcc59a', trim='#7cffa8', accent='#7cffa8',
+    leg='#f0dfc0', leg2='#fff6e4', boot='#c9a86e',
+    metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, style='bob', wep='tome'),
 }
 ORDER = ['aoi', 'kagura', 'ren', 'hinata']
 
+# torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
+# nipped waist, hips again -- the shape that reads as a figure and not a box.
+TORSO = [8, 9, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 9, 9]
+
 # -------------------------------------------------------------------- poses --
-# bob = vertical bounce, lean = upper-body shift, hb/hf = back/front hand
 POSES = [
- dict(bob=0,  lean=0,  legs='stand',   hb=(11,32), hf=(25,32), wep=0.00, eye='open',   sway=0),
- dict(bob=1,  lean=0,  legs='stand',   hb=(11,33), hf=(25,33), wep=0.05, eye='open',   sway=1),
- dict(bob=0,  lean=1,  legs='walk0',   hb=(9,31),  hf=(27,30), wep=0.10, eye='open',   sway=3),
- dict(bob=1,  lean=0,  legs='walk1',   hb=(11,33), hf=(25,33), wep=0.00, eye='open',   sway=0),
- dict(bob=0,  lean=-1, legs='walk2',   hb=(11,30), hf=(26,31), wep=0.10, eye='open',   sway=-3),
- dict(bob=1,  lean=0,  legs='walk3',   hb=(11,33), hf=(25,33), wep=0.00, eye='open',   sway=0),
- dict(bob=0,  lean=-3, legs='brace',   hb=(8,30),  hf=(13,23), wep=-1.0, eye='fierce', sway=-4),
- dict(bob=0,  lean=4,  legs='lunge',   hb=(13,33), hf=(29,21), wep=1.00, eye='fierce', sway=5),
- dict(bob=1,  lean=2,  legs='lunge',   hb=(12,33), hf=(29,34), wep=0.55, eye='fierce', sway=3),
- dict(bob=2,  lean=6,  legs='dash',    hb=(8,34),  hf=(28,29), wep=0.25, eye='fierce', sway=7),
- dict(bob=-1, lean=0,  legs='stand',   hb=(9,23),  hf=(27,23), wep=-0.6, eye='closed', sway=-2),
- dict(bob=2,  lean=-4, legs='stagger', hb=(7,28),  hf=(28,28), wep=0.20, eye='hurt',   sway=-6),
+ dict(bob=0,  lean=0,  legs='stand',   hb=(17,58), hf=(39,58), wep=0.00, eye='open',   sway=0),
+ dict(bob=1,  lean=0,  legs='stand',   hb=(17,60), hf=(39,60), wep=0.05, eye='open',   sway=2),
+ dict(bob=0,  lean=2,  legs='walk0',   hb=(14,56), hf=(42,54), wep=0.10, eye='open',   sway=5),
+ dict(bob=2,  lean=0,  legs='walk1',   hb=(17,60), hf=(39,60), wep=0.00, eye='open',   sway=0),
+ dict(bob=0,  lean=-2, legs='walk2',   hb=(17,54), hf=(41,56), wep=0.10, eye='open',   sway=-5),
+ dict(bob=2,  lean=0,  legs='walk3',   hb=(17,60), hf=(39,60), wep=0.00, eye='open',   sway=0),
+ dict(bob=0,  lean=-5, legs='brace',   hb=(12,54), hf=(20,40), wep=-1.0, eye='fierce', sway=-7),
+ dict(bob=0,  lean=7,  legs='lunge',   hb=(22,60), hf=(46,36), wep=1.00, eye='fierce', sway=9),
+ dict(bob=2,  lean=3,  legs='lunge',   hb=(20,60), hf=(46,62), wep=0.55, eye='fierce', sway=5),
+ dict(bob=3,  lean=10, legs='dash',    hb=(12,62), hf=(44,52), wep=0.25, eye='fierce', sway=12),
+ dict(bob=-2, lean=0,  legs='stand',   hb=(14,40), hf=(42,40), wep=-0.6, eye='closed', sway=-3),
+ dict(bob=3,  lean=-7, legs='stagger', hb=(10,50), hf=(45,50), wep=0.20, eye='hurt',   sway=-10),
 ]
 
 # --------------------------------------------------------------- body parts --
-def draw_legs(c, p, kind):
-    sk, sk2 = p['skin'], p['skin2']
-    boot, boot2 = p['cloth3'], p['cloth2']
-    def leg(x, top, fdx, bend=0):
-        c.rect(x, top, 4, FEET-3-top, sk)
-        c.rect(x, top, 1, FEET-3-top, sk2)              # inner shading
-        c.rect(x, FEET-3, 4, 3, boot)                   # boot
-        c.rect(x, FEET-3, 4, 1, boot2)                  # boot cuff
-        c.rect(x+fdx, FEET-1, 5, 2, boot)               # toe
-    if kind == 'stand':     leg(12, 36, -1); leg(20, 36, 0)
-    elif kind == 'walk0':   leg(9,  36, -2); leg(22, 38, 1)
-    elif kind == 'walk1':   leg(13, 38, -1); leg(19, 38, 0)
-    elif kind == 'walk2':   leg(22, 36, 1);  leg(10, 38, -2)
-    elif kind == 'walk3':   leg(13, 38, -1); leg(19, 38, 0)
-    elif kind == 'lunge':   leg(8,  38, -2); leg(23, 35, 1)
-    elif kind == 'brace':   leg(10, 36, -2); leg(21, 36, 1)
-    elif kind == 'stagger': leg(10, 38, -2); leg(21, 38, 1)
+def draw_legs(c, p, kind, dy):
+    lg, lg2, bt = p['leg'], p['leg2'], p['boot']
+    def leg(hipx, kneedx, footdx, lift=0):
+        hy = HIP + dy
+        ky, ay = 70 - lift, 84 - lift                     # knee, ankle
+        c.taper(hipx, hy, hipx+kneedx, ky, lg, 8, 6)      # thigh
+        c.taper(hipx+kneedx, ky, hipx+kneedx+footdx, ay, lg, 6, 5)   # calf
+        c.taper(hipx-1, hy, hipx+kneedx-1, ky, lg2, 3, 2)  # lit edge
+        c.rect(hipx+kneedx+footdx-3, ay, 7, 92-ay-lift, bt)          # boot
+        c.rect(hipx+kneedx+footdx-3, ay, 7, 2, lg2)                  # cuff
+        c.rect(hipx+kneedx+footdx-4, 90-lift, 9, 2, bt)              # sole
+    if kind == 'stand':     leg(24, -1, 0); leg(32, 1, 0)
+    elif kind == 'walk0':   leg(20, -3, -2); leg(35, 4, 2, 2)
+    elif kind == 'walk1':   leg(26, -1, -1); leg(31, 1, 1)
+    elif kind == 'walk2':   leg(36, 3, 2);  leg(21, -4, -2, 2)
+    elif kind == 'walk3':   leg(26, -1, -1); leg(31, 1, 1)
+    elif kind == 'lunge':   leg(18, -5, -3); leg(37, 6, 3, 1)
+    elif kind == 'brace':   leg(21, -3, -2); leg(35, 3, 2)
+    elif kind == 'stagger': leg(22, -4, -1); leg(35, 4, 1)
     elif kind == 'dash':
-        c.rect(8, 39, 7, 4, sk); c.rect(5, FEET-3, 8, 3, boot)
-        c.rect(20, 35, 5, 6, sk); c.rect(20, FEET-3, 8, 3, boot)
+        hy = HIP + dy
+        c.taper(24, hy, 14, 74, lg, 8, 6);  c.rect(9, 74, 9, 6, bt)   # trailing
+        c.taper(33, hy, 40, 66, lg, 8, 6);  c.rect(38, 64, 9, 6, bt)  # tucked
 
 def draw_torso(c, p, pose):
     cl, cl2, cl3, tr = p['cloth'], p['cloth2'], p['cloth3'], p['trim']
-    dx, dy = pose['lean']//2, pose['bob']
-    x0 = 12 + dx
-    c.rect(x0, 24+dy, 12, 12, cl)                        # chest
-    c.rect(x0, 24+dy, 12, 3, cl2)                        # lit shoulders
-    c.rect(x0, 30+dy, 12, 6, cl3)                        # shadow under the ribs
-    c.rect(x0+2, 24+dy, 8, 12, cl)
-    c.rect(x0+4, 23+dy, 4, 3, p['skin2'])                # collarbone shadow
-    c.rect(x0+1, 25+dy, 1, 11, tr)                       # piping
-    c.rect(x0+10, 25+dy, 1, 11, tr)
-    c.rect(x0, 33+dy, 12, 3, p['accent'])                # sash / belt
-    c.rect(x0, 33+dy, 12, 1, cl2)
-    if p['style'] == 'bob':                              # dress
-        c.rect(x0-2, 36+dy, 16, 4, cl)
-        c.rect(x0-3, 39+dy, 18, 2, cl2)
-        c.rect(x0-3, 40+dy, 18, 1, cl3)
-        for i in range(0, 18, 4): c.set(x0-3+i, 40+dy, tr)
-    elif p['style'] == 'long':                           # robe
-        c.rect(x0-1, 36+dy, 14, 5, cl)
-        c.rect(x0-2, 40+dy, 16, 2, cl3)
-        for i in range(0, 16, 5): c.rect(x0-2+i, 39+dy, 1, 3, tr)
-    else:                                                # coat tails
-        c.rect(x0-1, 36+dy, 14, 2, cl)
-        c.rect(x0-1, 37+dy, 5, 5, cl3)
-        c.rect(x0+9, 37+dy, 5, 5, cl3)
-        c.rect(x0-1, 37+dy, 5, 1, tr); c.rect(x0+9, 37+dy, 5, 1, tr)
+    dx, dy = pose['lean']*0.4, pose['bob']
+    for i, hw in enumerate(TORSO):
+        y = SHOULDER + i + dy
+        x = CX + dx*(1 - i/len(TORSO))                    # lean tapers to the hips
+        c.rect(x-hw, y, hw*2, 1, cl)
+        c.rect(x-hw, y, 2, 1, cl3)                        # shaded left edge
+        c.rect(x+hw-2, y, 2, 1, cl3)
+        if i < 5: c.rect(x-hw+2, y, hw*2-4, 1, cl2)       # lit shoulders
+    x = CX + dx
+    c.rect(x-3, 25+dy, 6, 5, p['skin'])                   # neck
+    c.rect(x-3, 25+dy, 6, 2, p['skin3'])
+    c.rect(x-9, SHOULDER+1+dy, 18, 2, cl2)                # collar
+    c.rect(x-1, SHOULDER+2+dy, 2, 16, tr)                 # centre seam
+    c.rect(x-7, 46+dy, 14, 4, p['accent'])                # sash
+    c.rect(x-7, 46+dy, 14, 1, cl2)
+    if p['style'] == 'bob':                               # layered dress
+        c.rect(x-11, HIP+dy, 22, 6, cl)
+        c.rect(x-13, HIP+5+dy, 26, 4, cl2)
+        c.rect(x-13, HIP+8+dy, 26, 2, cl3)
+        for i in range(0, 26, 5): c.rect(x-13+i, HIP+8+dy, 2, 2, tr)
+    elif p['style'] == 'long':                            # robe panels
+        c.rect(x-10, HIP+dy, 20, 9, cl)
+        c.rect(x-11, HIP+7+dy, 22, 3, cl3)
+        for i in range(0, 22, 6): c.rect(x-11+i, HIP+4+dy, 2, 6, tr)
+    else:                                                 # coat tails
+        c.rect(x-10, HIP+dy, 20, 4, cl)
+        c.rect(x-10, HIP+3+dy, 7, 10, cl3)
+        c.rect(x+3, HIP+3+dy, 7, 10, cl3)
+        c.rect(x-10, HIP+3+dy, 7, 2, tr); c.rect(x+3, HIP+3+dy, 7, 2, tr)
 
 def draw_arm(c, p, pose, hand, back):
     sk  = p['skin2'] if back else p['skin']
     cl  = p['cloth3'] if back else p['cloth']
     cl2 = p['cloth3'] if back else p['cloth2']
     dy  = pose['bob']
-    sx  = (14 if back else 22) + pose['lean']//2
-    sy  = 26 + dy
+    sx  = (CX - 9 if back else CX + 9) + pose['lean']*0.4
+    sy  = SHOULDER + 2 + dy
     hxp, hyp = hand[0], hand[1] + dy
-    mx, my = (sx+hxp)/2, (sy+hyp)/2 - 1
-    c.taper(sx, sy, mx, my, cl, 5, 4)                    # sleeve
-    c.taper(sx, sy, mx, my-1, cl2, 2, 1)                 # sleeve highlight
-    c.taper(mx, my, hxp, hyp, sk, 4, 3)                  # forearm
-    c.rect(hxp-1, hyp-1, 3, 3, sk)                       # hand
-    c.set(hxp-1, hyp+1, p['skin2'])
+    t = p['sleeve']
+    ex, ey = sx+(hxp-sx)*t + (1 if back else -1), sy+(hyp-sy)*t - 1   # elbow / cuff
+    c.taper(sx, sy, ex, ey, cl, 8, 6)                     # sleeve
+    c.taper(sx, sy+1, ex, ey, cl2, 4, 2)                  # sleeve highlight
+    c.taper(ex, ey, hxp, hyp, sk, 6, 5)                   # forearm
+    c.taper(ex+1, ey, hxp+1, hyp, p['skin3'], 2, 2)       # forearm shade
+    c.ellipse(hxp, hyp+1, 3.2, 3.4, sk)                   # hand
+    c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
 
 def eye(c, p, x, y, outer, mode):
-    """a 5x6 anime eye. outer = -1 for the left eye, +1 for the right"""
+    """a 5x5 anime eye. outer = -1 for the left eye, +1 for the right"""
     ink, ec, ed = p['ink'], p['eye'], p['eye2']
     if mode == 'closed':
-        for i in range(5): c.set(x+i, y+3, ink)
-        c.set(x+(0 if outer < 0 else 4), y+2, ink)
-        c.set(x+(1 if outer < 0 else 3), y+2, ink)
+        for i in range(5): c.set(x+i, y+2, ink)
+        c.set(x+(0 if outer < 0 else 4), y+1, ink)
+        c.set(x+(1 if outer < 0 else 3), y+1, ink)
         return
     if mode == 'hurt':
-        for i in range(5): c.set(x+i, y+2, ink); c.set(x+i, y+4, ink)
+        for i in range(5):
+            c.set(x+i, y+1, ink); c.set(x+i, y+3, ink)
         return
-    c.rect(x, y+1, 5, 4, '#ffffff')                      # sclera
-    c.rect(x+1, y+1, 3, 4, ec)                           # iris
-    c.rect(x+1, y+3, 3, 2, ed)                           # iris shadow
-    c.rect(x+2, y+2, 1, 3, ink)                          # pupil
-    for i in range(5): c.set(x+i, y, ink)                # upper lash
-    c.set(x+(0 if outer < 0 else 4), y+1, ink)           # outer corner, thicker
-    c.set(x+(0 if outer < 0 else 4), y+2, ink)
-    hx2 = x + (3 if outer < 0 else 1)                    # catchlight
-    c.set(hx2, y+1, '#ffffff'); c.set(hx2, y+2, '#ffffff')
-    c.set(x+(3 if outer > 0 else 1), y+4, ed)            # small lower glint
-    for i in range(1, 4): c.set(x+i, y+5, p['skin2'])    # lower lid
+    c.rect(x, y+1, 5, 3, '#ffffff')                       # sclera
+    c.rect(x+1, y+1, 3, 3, ec)                            # iris
+    c.rect(x+1, y+3, 3, 1, ed)                            # iris floor
+    c.rect(x+2, y+1, 1, 3, ink)                           # pupil
+    for i in range(5): c.set(x+i, y, ink)                 # upper lash
+    c.set(x+(0 if outer < 0 else 4), y+1, ink)            # outer corner
+    hx2 = x + (3 if outer < 0 else 1)
+    c.set(hx2, y+1, '#ffffff')                            # catchlight
+    c.set(x+(1 if outer < 0 else 3), y+3, '#ffffff')      # lower glint
+    for i in range(1, 4): c.set(x+i, y+4, p['skin2'])     # lower lid
 
 def draw_head(c, p, pose):
-    sk, sk2 = p['skin'], p['skin2']
+    sk, sk2, sk3 = p['skin'], p['skin2'], p['skin3']
     dy = pose['bob'] + (-1 if pose['legs'] in ('walk0','walk2') else 0)
     cx = CX + pose['lean']*0.55
-    cy = 12 + dy
-    c.ellipse(cx, cy, 9.6, 10.2, sk)
-    c.ellipse(cx, cy+3, 8.2, 7.4, sk)                    # cheeks
+    cy = HEADY + dy
+    c.ellipse(cx, cy, 8.2, 9.2, sk)                       # skull
+    c.ellipse(cx, cy+3, 7.0, 6.6, sk)                     # cheeks
     c.rect(cx-9, cy-1, 2, 4, sk2); c.rect(cx+7, cy-1, 2, 4, sk2)   # ears
-    for x in range(int(cx-6), int(cx+7)): c.set(x, cy+8, sk2)      # jaw shadow
-    c.rect(cx-3, cy+10, 6, 3, sk)                                   # neck
-    c.rect(cx-3, cy+10, 6, 1, sk2)
+    for x in range(int(cx-5), int(cx+6)): c.set(x, cy+7, sk3)      # jaw shadow
     m = pose['eye']
     ey = cy - 1
-    eye(c, p, cx-8, ey, -1, m)
-    eye(c, p, cx+3, ey, +1, m)
-    if m != 'closed':                                    # brows
+    eye(c, p, cx-7, ey, -1, m)
+    eye(c, p, cx+2, ey, +1, m)
+    if m != 'closed':                                     # brows
         for i in range(4):
-            c.set(cx-8+i, ey-3 + (1 if m == 'fierce' and i > 1 else 0), p['brow'])
-            c.set(cx+4+i, ey-3 + (1 if m == 'fierce' and i < 2 else 0), p['brow'])
-    c.set(cx-0.5, ey+4, sk2)                             # nose
+            c.set(cx-7+i, ey-3 + (1 if m == 'fierce' and i > 1 else 0), p['brow'])
+            c.set(cx+3+i, ey-3 + (1 if m == 'fierce' and i < 2 else 0), p['brow'])
+    c.set(cx-1, ey+4, sk2); c.set(cx-1, ey+5, sk3)        # nose
     mouth = ey+7
     if m == 'fierce':
-        c.rect(cx-1.5, mouth, 3, 2, p['ink']); c.rect(cx-1, mouth+1, 2, 1, '#ffffff')
+        c.rect(cx-2, mouth, 4, 2, p['ink']); c.rect(cx-1, mouth+1, 2, 1, '#ffffff')
     else:
-        c.rect(cx-1, mouth, 2, 1, p['skin2'])
-    for i in range(3):                                   # blush
-        c.set(cx-9+i, ey+4, p['blush']); c.set(cx+6+i, ey+4, p['blush'])
-        c.set(cx-8+i, ey+5, p['blush']); c.set(cx+5+i, ey+5, p['blush'])
+        c.rect(cx-1, mouth, 2, 1, sk3)
+    for i in range(3):                                    # blush
+        c.set(cx-8+i, ey+3, p['blush']); c.set(cx+5+i, ey+3, p['blush'])
+        c.set(cx-7+i, ey+4, p['blush']); c.set(cx+4+i, ey+4, p['blush'])
     return cx, cy
 
 # --------------------------------------------------------------------- hair --
 def hair_back(c, p, pose, cx, cy):
     st, h1, h2, sway = p['style'], p['hair'], p['hair2'], pose['sway']
     if st == 'ponytail':
-        c.taper(cx+6, cy-6, cx+11+sway, cy+1, h1, 7, 6)
-        c.taper(cx+10+sway//2, cy, cx+13+sway, cy+18, h1, 6, 4)
-        c.taper(cx+11+sway//2, cy+1, cx+13+sway, cy+14, h2, 3, 2)
-        c.taper(cx+12+sway, cy+16, cx+14+sway, cy+22, h1, 3, 2)
+        c.taper(cx+6, cy-8, cx+13+sway*0.5, cy+2, h1, 9, 8)
+        c.taper(cx+12+sway*0.4, cy, cx+16+sway, cy+30, h1, 8, 5)
+        c.taper(cx+13+sway*0.4, cy+2, cx+16+sway, cy+24, h2, 4, 3)
+        c.taper(cx+15+sway, cy+28, cx+18+sway*1.3, cy+38, h1, 4, 2)
     elif st == 'long':
-        c.rect(cx-11, cy-6, 5, 26, h1)                   # left curtain
-        c.rect(cx+6, cy-6, 5, 26, h1)                    # right curtain
-        c.rect(cx-7, cy-6, 14, 14, h1)                   # mass behind the head
-        c.rect(cx-10, cy+4, 3, 14, h2)
-        c.rect(cx+7, cy+4, 3, 14, h2)
-        c.taper(cx-9, cy+18, cx-11+sway, cy+25, h1, 5, 3)
-        c.taper(cx+8, cy+18, cx+10+sway, cy+25, h1, 5, 3)
+        c.rect(cx-13, cy-8, 7, 44, h1)
+        c.rect(cx+6, cy-8, 7, 44, h1)
+        c.rect(cx-9, cy-8, 18, 22, h1)
+        c.rect(cx-12, cy+8, 4, 24, h2)
+        c.rect(cx+8, cy+8, 4, 24, h2)
+        c.taper(cx-11, cy+34, cx-14+sway, cy+44, h1, 6, 3)
+        c.taper(cx+11, cy+34, cx+14+sway, cy+44, h1, 6, 3)
     elif st == 'spiky':
-        for sx, sy in ((-10,-4), (-6,-9), (0,-12), (6,-9), (10,-4)):
-            c.taper(cx+sx*0.7, cy+sy*0.5, cx+sx+sway*0.4, cy+sy-2, h1, 5, 2)
-        c.rect(cx-11, cy-4, 4, 12, h1); c.rect(cx+7, cy-4, 4, 12, h1)
-        c.taper(cx-5, cy+11, cx-11+sway, cy+17, p['accent'], 4, 3)   # scarf
-        c.taper(cx-9+sway//2, cy+15, cx-13+sway, cy+22, p['accent'], 3, 2)
+        for sx, sy in ((-13,-5), (-8,-12), (0,-16), (8,-12), (13,-5)):
+            c.taper(cx+sx*0.6, cy+sy*0.45, cx+sx+sway*0.35, cy+sy-2, h1, 7, 3)
+        c.rect(cx-13, cy-5, 5, 18, h1); c.rect(cx+8, cy-5, 5, 18, h1)
+        c.taper(cx-7, cy+16, cx-15+sway, cy+26, p['accent'], 6, 4)   # scarf
+        c.taper(cx-13+sway*0.5, cy+24, cx-19+sway, cy+36, p['accent'], 4, 3)
     elif st == 'bob':
-        c.ellipse(cx, cy-1, 11.6, 11.4, h1)
-        c.rect(cx-11, cy-2, 4, 12, h1); c.rect(cx+7, cy-2, 4, 12, h1)
+        c.ellipse(cx, cy+1, 12.4, 12.6, h1)
+        c.rect(cx-13, cy-2, 5, 18, h1); c.rect(cx+8, cy-2, 5, 18, h1)
 
 def hair_front(c, p, pose, cx, cy):
     st, h1, h2, h3 = p['style'], p['hair'], p['hair2'], p['hair3']
     sh, ac, sway = p['shine'], p['accent'], pose['sway']
-    top = cy - 5                                          # never below the brows
-    c.ellipse(cx, cy-2.5, 10.6, 10.2, h1, ymax=int(top))
-    c.ellipse(cx, cy-4.5, 9.0, 8.0, h2, ymax=int(top-2))
-    # the anime hair-shine band: broken segments across the crown
-    for i, (sx, w) in enumerate(((-8,3), (-3,4), (2,3), (6,2))):
-        c.rect(cx+sx, cy-8+abs(i-1)*0.5, w, 1, h3)
-        c.rect(cx+sx, cy-9+abs(i-1)*0.5, max(1, w-1), 1, sh)
-    # fringe strands, pointed, hanging between and beside the eyes
-    for fx, fl in ((-10,4), (-6,6), (-1,7), (3,6), (8,4)):
-        c.rect(cx+fx, cy-9, 2, fl, h1)
-        c.set(cx+fx, cy-9+fl, h1)
-        c.set(cx+fx, cy-8, h2)
-    # side locks framing the face
-    c.rect(cx-11, cy-5, 3, 9, h1); c.rect(cx+8, cy-5, 3, 9, h1)
-    c.rect(cx-11, cy-5, 1, 7, h2); c.rect(cx+10, cy-5, 1, 7, h2)
-    c.set(cx-10, cy+4, h1); c.set(cx+9, cy+4, h1)
+    top = cy - 4                                          # never below the brows
+    c.ellipse(cx, cy-3, 9.0, 9.4, h1, ymax=int(top))
+    c.ellipse(cx, cy-5, 7.4, 7.2, h2, ymax=int(top-2))
+    for i, (sx, w) in enumerate(((-7,3), (-3,4), (2,3), (5,2))):   # shine band
+        c.rect(cx+sx, cy-9+abs(i-1)*0.5, w, 1, h3)
+        c.rect(cx+sx, cy-10+abs(i-1)*0.5, max(1, w-1), 1, sh)
+    for fx, fl in ((-9,4), (-5,7), (-1,8), (3,7), (7,4)):          # fringe
+        c.rect(cx+fx, cy-11, 2, fl, h1)
+        c.set(cx+fx, cy-11+fl, h1)
+        c.set(cx+fx, cy-9, h2)
+    c.rect(cx-10, cy-5, 3, 12, h1); c.rect(cx+7, cy-5, 3, 12, h1)  # side locks
+    c.rect(cx-10, cy-5, 1, 9, h2);  c.rect(cx+9, cy-5, 1, 9, h2)
+    c.set(cx-9, cy+7, h1); c.set(cx+8, cy+7, h1)
     if st == 'ponytail':
-        c.rect(cx+4, cy-10, 4, 3, ac); c.rect(cx+5, cy-11, 2, 1, ac)
+        c.rect(cx+4, cy-13, 5, 4, ac); c.rect(cx+5, cy-14, 3, 1, ac)
     elif st == 'long':
-        c.rect(cx-2, cy-12, 5, 3, ac)
-        c.rect(cx-1, cy-13, 3, 1, ac)
-        c.rect(cx-13, cy-4, 3, 13, h1); c.rect(cx+10, cy-4, 3, 13, h1)
+        c.rect(cx-3, cy-16, 6, 3, ac); c.rect(cx-2, cy-17, 4, 1, ac)
+        c.rect(cx-14, cy-5, 3, 20, h1); c.rect(cx+11, cy-5, 3, 20, h1)
     elif st == 'spiky':
-        for sx, sy in ((-9,-7), (-4,-10), (1,-11), (6,-9)):
-            c.taper(cx+sx, cy+sy+4, cx+sx+sway//3, cy+sy-1, h2, 4, 2)
+        for sx, sy in ((-11,-9), (-5,-13), (2,-14), (8,-11)):
+            c.taper(cx+sx, cy+sy+5, cx+sx+sway*0.25, cy+sy-1, h2, 5, 2)
     elif st == 'bob':
-        c.rect(cx-13, cy-5, 3, 11, h1); c.rect(cx+10, cy-5, 3, 11, h1)
-        c.rect(cx-14, cy-8, 3, 5, ac);  c.rect(cx+11, cy-8, 3, 5, ac)
-        c.rect(cx-14, cy-8, 3, 1, '#ffffff'); c.rect(cx+11, cy-8, 3, 1, '#ffffff')
+        c.rect(cx-14, cy-6, 4, 17, h1); c.rect(cx+10, cy-6, 4, 17, h1)
+        c.rect(cx-16, cy-10, 4, 7, ac); c.rect(cx+12, cy-10, 4, 7, ac)
+        c.rect(cx-16, cy-10, 4, 2, '#ffffff'); c.rect(cx+12, cy-10, 4, 2, '#ffffff')
 
 # ------------------------------------------------------------------ weapons --
 def draw_weapon(c, p, pose):
@@ -321,55 +340,51 @@ def draw_weapon(c, p, pose):
     deg = -25 + (ph * 70 if ph >= 0 else ph * 110)
     ang = math.radians(deg)
     ux, uy = math.cos(ang), math.sin(ang)
+    nx, ny = -uy, ux
     if w == 'katana':
-        L = 15
-        hxp = min(hxp, 27)
-        c.taper(hxp-ux*6, hyp-uy*6, hxp, hyp, p['grip'], 3, 3)              # tsuka
-        c.line(hxp-ux*2-uy*2, hyp-uy*2+ux*2, hxp-ux*2+uy*2, hyp-uy*2-ux*2, p['accent'], 2)
-        nx, ny = -uy, ux                                                    # blade normal
-        c.taper(hxp+ux*2+nx*1.6, hyp+uy*2+ny*1.6,
-                hxp+ux*L+nx*1.2, hyp+uy*L+ny*1.2, p['ink'], 2, 2)            # spine
-        c.taper(hxp+ux*2, hyp+uy*2, hxp+ux*L, hyp+uy*L, p['metal'], 3, 2)   # blade
-        c.line(hxp+ux*3-nx, hyp+uy*3-ny, hxp+ux*(L-1)-nx, hyp+uy*(L-1)-ny, '#ffffff', 1)
-        c.set(hxp+ux*L, hyp+uy*L, '#ffffff')
+        L, hxp = 26, min(hxp, 44)
+        c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)               # tsuka
+        c.line(hxp-ux*3-nx*4, hyp-uy*3-ny*4, hxp-ux*3+nx*4, hyp-uy*3+ny*4, p['accent'], 3)
+        c.taper(hxp+ux*3+nx*2.4, hyp+uy*3+ny*2.4,
+                hxp+ux*L+nx*1.8, hyp+uy*L+ny*1.8, p['ink'], 3, 2)              # spine
+        c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)      # blade
+        c.line(hxp+ux*5-nx, hyp+uy*5-ny, hxp+ux*(L-2)-nx, hyp+uy*(L-2)-ny, '#ffffff', 1)
     elif w == 'staff':
-        sx = min(max(hxp + 5, 24), 32)      # never let the shaft cross her face
-        tilt = ux*3
-        c.taper(sx, min(hyp+11, FEET-1), sx+tilt, hyp-15, p['metal'], 3, 3)
-        c.line(sx+1, min(hyp+10, FEET-2), sx+tilt+1, hyp-14, p['grip'], 1)
-        ox, oy = sx+tilt, hyp-19
-        c.ellipse(ox, oy, 4.2, 4.2, p['accent'])
-        c.ellipse(ox, oy, 2.6, 2.6, '#ffe9a8')
-        c.ellipse(ox-1, oy-1, 1.2, 1.2, '#ffffff')
-        for dx2, dy2 in ((-6,0), (6,0), (0,-6), (0,6)): c.set(ox+dx2, oy+dy2, p['hair3'])
+        sx = min(max(hxp + 8, 40), 50)
+        tilt = ux*5
+        c.taper(sx, min(hyp+20, FEET-2), sx+tilt, hyp-26, p['metal'], 5, 5)
+        c.line(sx+1, min(hyp+18, FEET-4), sx+tilt+1, hyp-24, p['grip'], 2)
+        ox, oy = sx+tilt, hyp-32
+        c.ellipse(ox, oy, 6.4, 6.4, p['accent'])
+        c.ellipse(ox, oy, 4.0, 4.0, '#ffe9a8')
+        c.ellipse(ox-1.5, oy-1.5, 1.8, 1.8, '#ffffff')
+        for dx2, dy2 in ((-9,0), (9,0), (0,-9), (0,9)): c.rect(ox+dx2, oy+dy2, 2, 2, p['hair3'])
     elif w == 'daggers':
-        nx, ny = -uy, ux
-        c.taper(hxp+nx*1.4, hyp+ny*1.4, hxp+ux*8+nx, hyp+uy*8+ny, p['ink'], 2, 2)
-        c.taper(hxp, hyp, hxp+ux*8, hyp+uy*8, p['metal'], 3, 2)
-        c.line(hxp+ux*2, hyp+uy*2, hxp+ux*7, hyp+uy*7, '#ffffff', 1)
-        c.rect(hxp-1, hyp, 3, 2, p['grip'])
+        c.taper(hxp+nx*2, hyp+ny*2, hxp+ux*14+nx*1.5, hyp+uy*14+ny*1.5, p['ink'], 3, 2)
+        c.taper(hxp, hyp, hxp+ux*14, hyp+uy*14, p['metal'], 4, 2)
+        c.line(hxp+ux*4, hyp+uy*4, hxp+ux*12, hyp+uy*12, '#ffffff', 1)
+        c.rect(hxp-2, hyp, 5, 3, p['grip'])
         bx, by = pose['hb'][0], pose['hb'][1] + dy
-        c.taper(bx, by, bx-abs(ux)*7, by-uy*5, p['metal'], 3, 2)
-        c.rect(bx-1, by, 3, 2, p['grip'])
+        c.taper(bx, by, bx-abs(ux)*12, by-uy*8, p['metal'], 4, 2)
+        c.rect(bx-2, by, 5, 3, p['grip'])
     elif w == 'tome':
-        bx, by = min(hxp-2, 26), hyp - 5
-        c.rect(bx, by, 10, 9, p['metal'])                 # cover
-        c.rect(bx+1, by+1, 8, 7, '#fffaf0')               # pages
-        for k in range(2, 8): c.set(bx+2, by+k-1, p['cloth3'])
-        for k in range(2, 8): c.set(bx+7, by+k-1, p['cloth3'])
-        c.rect(bx+4, by, 2, 9, p['grip'])                 # spine
-        c.rect(bx+4, by-1, 2, 1, p['accent'])
-        c.rect(bx+4, by+9, 2, 1, p['accent'])
-        c.set(bx+2, by+3, p['accent']); c.set(bx+7, by+5, p['accent'])
+        bx, by = min(hxp-3, 42), hyp - 8
+        c.rect(bx, by, 15, 15, p['metal'])
+        c.rect(bx+1, by+1, 13, 13, '#fffaf0')
+        for k in range(2, 13): c.rect(bx+3, by+k, 1, 1, p['cloth3'])
+        for k in range(2, 13): c.rect(bx+11, by+k, 1, 1, p['cloth3'])
+        c.rect(bx+6, by, 3, 15, p['grip'])
+        c.rect(bx+6, by-2, 3, 2, p['accent']); c.rect(bx+6, by+15, 3, 2, p['accent'])
+        c.rect(bx+3, by+4, 2, 2, p['accent']); c.rect(bx+10, by+8, 2, 2, p['accent'])
 
 def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
-    c = Cv(W, H, PAD)
+    c = Cv(W, H)
     dy = pose['bob'] + (-1 if pose['legs'] in ('walk0','walk2') else 0)
-    cx, cy = CX + pose['lean']*0.55, 12 + dy
+    cx, cy = CX + pose['lean']*0.55, HEADY + dy
     hair_back(c, p, pose, cx, cy)
     draw_arm(c, p, pose, pose['hb'], True)
-    draw_legs(c, p, pose['legs'])
+    draw_legs(c, p, pose['legs'], pose['bob'])
     draw_torso(c, p, pose)
     draw_head(c, p, pose)
     hair_front(c, p, pose, cx, cy)
@@ -393,140 +408,139 @@ MOBS = {
 }
 MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss']
 
-# per-frame animation parameters, one entry per frame 0..9
-SLIME_A = [(0,0), (1,0), (3,-1), (-2,-6), (-3,-9), (2,-2), (4,1), (-4,-3), (0,0), (5,2)]
-BAT_A   = [(1,0), (4,1), (0,0), (5,2), (8,3), (4,1), (-2,-2), (7,4), (2,0), (3,-3)]
-IMP_A   = [(0,0), (1,0), (0,1), (1,2), (0,1), (-1,0), (-2,0), (2,0), (0,0), (3,0)]
-BRUTE_A = [(0,0), (1,0), (0,-1), (2,0), (0,-1), (2,0), (-2,0), (3,0), (0,-2), (2,0)]
+SLIME_A = [(0,0), (2,0), (5,-2), (-3,-11), (-5,-17), (3,-4), (7,2), (-7,-6), (0,0), (9,3)]
+BAT_A   = [(2,0), (7,2), (0,0), (9,4), (14,6), (7,2), (-3,-3), (12,7), (4,0), (5,-5)]
+IMP_A   = [(0,0), (2,0), (0,2), (2,4), (0,2), (-2,0), (-4,0), (4,0), (0,0), (6,0)]
+BRUTE_A = [(0,0), (2,0), (0,-2), (4,0), (0,-2), (4,0), (-4,0), (6,0), (0,-4), (4,0)]
 
 def draw_slime(c, m, f):
     sq, hop = SLIME_A[f]
-    base = FEET + (0 if f not in (3,4,7) else 0)
-    w, h = 13 + sq, 9 - sq*0.6
-    cy = base - h - max(0, -hop)
+    w, h = 22 + sq, 15 - sq
+    cy = FEET - h - max(0, -hop)
     c.ellipse(CX, cy, w, h, m['body'])
-    c.ellipse(CX, cy - h*0.35, w*0.72, h*0.55, m['body2'])       # gloss
-    c.ellipse(CX - w*0.35, cy - h*0.5, 2.4, 1.6, m['glow'])      # highlight
-    c.ellipse(CX, cy + h*0.5, w*0.85, h*0.35, m['body3'])        # underside
-    ex = 4.5
-    if f == 9:                                                    # hurt: X eyes
-        for i in range(-2, 3):
-            c.set(CX-ex+i, cy-1+i, m['eye']); c.set(CX-ex+i, cy-1-i, m['eye'])
-            c.set(CX+ex+i, cy-1+i, m['eye']); c.set(CX+ex+i, cy-1-i, m['eye'])
+    c.ellipse(CX, cy - h*0.35, w*0.72, h*0.55, m['body2'])
+    c.ellipse(CX - w*0.34, cy - h*0.52, 4.4, 2.8, m['glow'])
+    c.ellipse(CX, cy + h*0.52, w*0.86, h*0.34, m['body3'])
+    ex = 8
+    if f == 9:
+        for i in range(-4, 5):
+            c.set(CX-ex+i, cy-2+i, m['eye']); c.set(CX-ex+i, cy-2-i, m['eye'])
+            c.set(CX+ex+i, cy-2+i, m['eye']); c.set(CX+ex+i, cy-2-i, m['eye'])
     else:
-        squint = 1 if f in (6, 7) else 0
+        squint = 2 if f in (6, 7) else 0
         for dx in (-ex, ex):
-            c.rect(CX+dx-1.5, cy-2+squint, 3, 4-squint*2, m['eye'])
-            if not squint: c.set(CX+dx+0.5, cy-1, '#ffffff')
-        c.rect(CX-2, cy+3, 4, 1, m['eye'])                        # little mouth
-    if f in (3, 4):                                               # airborne drips
-        c.ellipse(CX-6, base-2, 2, 1.4, m['body3'])
-        c.ellipse(CX+6, base-1, 2.4, 1.2, m['body3'])
+            c.rect(CX+dx-2, cy-4+squint, 5, 7-squint*3, m['eye'])
+            if not squint: c.rect(CX+dx, cy-3, 2, 2, '#ffffff')
+        c.rect(CX-4, cy+4, 8, 2, m['eye'])
+    if f in (3, 4):
+        c.ellipse(CX-11, FEET-3, 4, 2.4, m['body3'])
+        c.ellipse(CX+11, FEET-2, 4.4, 2.2, m['body3'])
 
 def draw_bat(c, m, f):
     flap, bob = BAT_A[f]
-    cy = 22 - bob
-    SPAN = 9
-    tipy = cy - 2 - flap                                          # wing tip rises as it flaps
+    cy = 46 - bob
+    SPAN = 17
+    tipy = cy - 4 - flap
     for sgn in (-1, 1):
         for k in range(1, SPAN+1):
             t  = k/SPAN
-            x  = CX + sgn*(4+k)
-            up = (cy-4) + (tipy - (cy-4))*t
-            lo = up + max(2, 8 - 5*t)
-            if k % 3 == 0: lo -= 1.5                              # scalloped trailing edge
+            x  = CX + sgn*(7+k)
+            up = (cy-7) + (tipy - (cy-7))*t
+            lo = up + max(4, 15 - 9*t)
+            if k % 5 == 0: lo -= 3
             c.line(x, up, x, lo, m['body3'], 1)
-            c.set(x, up, m['body'])
-            c.set(x, up+1, m['body'])
+            c.line(x, up, x, up+2, m['body'], 1)
             c.set(x, lo, m['body'])
-        for k in (3, 6, SPAN):                                    # wing fingers
+        for k in (5, 11, SPAN):
             t  = k/SPAN
-            x  = CX + sgn*(4+k)
-            up = (cy-4) + (tipy - (cy-4))*t
-            c.line(x, up, x, up + max(2, 8 - 5*t), m['body'], 1)
-    c.ellipse(CX, cy, 5.2, 6.4, m['body'])                        # body
-    c.ellipse(CX, cy-1, 3.8, 4.6, m['body2'])
-    c.ellipse(CX, cy+4, 3.0, 2.2, m['body3'])
-    c.taper(CX-3, cy-5, CX-6, cy-11, m['body'], 3, 2)             # ears
-    c.taper(CX+3, cy-5, CX+6, cy-11, m['body'], 3, 2)
+            x  = CX + sgn*(7+k)
+            up = (cy-7) + (tipy - (cy-7))*t
+            c.line(x, up, x, up + max(4, 15 - 9*t), m['body'], 1)
+    c.ellipse(CX, cy, 8.6, 10.4, m['body'])
+    c.ellipse(CX, cy-2, 6.4, 7.4, m['body2'])
+    c.ellipse(CX, cy+6, 5.0, 3.6, m['body3'])
+    c.taper(CX-5, cy-8, CX-10, cy-19, m['body'], 5, 2)
+    c.taper(CX+5, cy-8, CX+10, cy-19, m['body'], 5, 2)
     if f == 9:
-        for i in range(-1, 2):
-            c.set(CX-3+i, cy-1+i, m['eye']); c.set(CX-3+i, cy-1-i, m['eye'])
-            c.set(CX+3+i, cy-1+i, m['eye']); c.set(CX+3+i, cy-1-i, m['eye'])
+        for i in range(-2, 3):
+            c.set(CX-5+i, cy-2+i, m['eye']); c.set(CX-5+i, cy-2-i, m['eye'])
+            c.set(CX+5+i, cy-2+i, m['eye']); c.set(CX+5+i, cy-2-i, m['eye'])
     else:
-        for dx in (-4, 1):
-            c.rect(CX+dx, cy-2, 3, 3, m['eye'])
-            c.set(CX+dx+2, cy-2, m['glow'])
+        for dx in (-7, 2):
+            c.rect(CX+dx, cy-4, 5, 5, m['eye'])
+            c.rect(CX+dx+3, cy-4, 2, 2, m['glow'])
     if f in (6, 7):
-        c.rect(CX-2, cy+2, 1, 3, '#ffffff'); c.rect(CX+1, cy+2, 1, 3, '#ffffff')
+        c.rect(CX-3, cy+3, 2, 5, '#ffffff'); c.rect(CX+2, cy+3, 2, 5, '#ffffff')
     else:
-        c.rect(CX-2, cy+2, 4, 1, m['ink'])
+        c.rect(CX-4, cy+4, 8, 2, m['ink'])
 
 def draw_imp(c, m, f):
     lean, bob = IMP_A[f]
-    hy = 13 + bob
-    c.ellipse(CX+lean*0.4, hy, 7.6, 6.8, m['body'])               # head
-    c.ellipse(CX+lean*0.4, hy-2, 6.0, 4.4, m['body2'])
-    for sgn in (-1, 1):                                           # horns
-        c.taper(CX+sgn*6, hy-4, CX+sgn*9, hy-11, m['body3'], 4, 2)
-    c.rect(CX-9, hy+1, 3, 4, m['body3']); c.rect(CX+6, hy+1, 3, 4, m['body3'])  # ears
+    hy = 26 + bob
+    c.ellipse(CX+lean*0.4, hy, 13.0, 11.6, m['body'])
+    c.ellipse(CX+lean*0.4, hy-4, 10.2, 7.6, m['body2'])
+    for sgn in (-1, 1):
+        c.taper(CX+sgn*10, hy-7, CX+sgn*16, hy-20, m['body3'], 7, 3)
+    c.rect(CX-16, hy+1, 5, 7, m['body3']); c.rect(CX+11, hy+1, 5, 7, m['body3'])
     if f == 9:
-        for i in range(-1, 2):
-            c.set(CX-4+i, hy+i, m['eye']); c.set(CX-4+i, hy-i, m['eye'])
-            c.set(CX+3+i, hy+i, m['eye']); c.set(CX+3+i, hy-i, m['eye'])
+        for i in range(-2, 3):
+            c.set(CX-7+i, hy+i, m['eye']); c.set(CX-7+i, hy-i, m['eye'])
+            c.set(CX+5+i, hy+i, m['eye']); c.set(CX+5+i, hy-i, m['eye'])
     else:
-        for dx in (-5, 2):
-            c.rect(CX+dx, hy-1, 3, 3, m['eye'])
-            c.set(CX+dx+2, hy-1, m['glow'])
-    c.rect(CX-3, hy+4, 6, 1, m['ink'])
-    c.rect(CX-6, hy+8, 12, 12, m['cloth'])                        # robe
-    c.rect(CX-5, hy+9, 10, 4, m['cloth2'])
-    c.rect(CX-7, hy+18, 14, 4, m['cloth'])
-    c.rect(CX-7, hy+21, 14, 1, m['ink'])
-    c.taper(CX-6, hy+10, CX-9-lean, hy+16, m['body'], 4, 3)       # arms
-    c.taper(CX+6, hy+10, CX+9+lean, hy+16, m['body'], 4, 3)
-    if f in (6, 7, 8):                                            # conjured bolt
-        ox, oy = CX + 11 + lean*2, hy + 15
-        r = 2.5 if f == 6 else 4.0
+        for dx in (-9, 4):
+            c.rect(CX+dx, hy-2, 6, 5, m['eye'])
+            c.rect(CX+dx+4, hy-2, 2, 2, m['glow'])
+    c.rect(CX-5, hy+7, 10, 2, m['ink'])
+    c.rect(CX-11, hy+14, 22, 22, m['cloth'])
+    c.rect(CX-9, hy+16, 18, 7, m['cloth2'])
+    c.rect(CX-13, hy+33, 26, 7, m['cloth'])
+    c.rect(CX-13, hy+38, 26, 2, m['ink'])
+    c.taper(CX-11, hy+17, CX-16-lean, hy+29, m['body'], 6, 5)
+    c.taper(CX+11, hy+17, CX+16+lean, hy+29, m['body'], 6, 5)
+    if f in (6, 7, 8):
+        ox, oy = CX + 20 + lean*2, hy + 28
+        r = 4.5 if f == 6 else 7.0
         c.ellipse(ox, oy, r, r, m['eye'])
         c.ellipse(ox, oy, r*0.5, r*0.5, m['glow'])
 
 def draw_brute(c, m, f, boss=False):
     lean, bob = BRUTE_A[f]
-    hy = 12 + bob
+    hy = 22 + bob
     cxx = CX + lean*0.5
-    c.ellipse(cxx, hy, 9.4, 8.4, m['body'])                       # head
-    c.ellipse(cxx, hy-2, 7.6, 5.6, m['body2'])
-    for sgn in (-1, 1):                                           # horns
-        c.taper(cxx+sgn*7, hy-5, cxx+sgn*(12 if boss else 10), hy-(15 if boss else 12), m['body3'], 5, 2)
-        if boss: c.taper(cxx+sgn*9, hy-10, cxx+sgn*6, hy-16, m['body3'], 3, 2)
+    c.ellipse(cxx, hy, 16.0, 14.4, m['body'])
+    c.ellipse(cxx, hy-4, 13.0, 9.6, m['body2'])
+    for sgn in (-1, 1):
+        c.taper(cxx+sgn*12, hy-9, cxx+sgn*(21 if boss else 17), hy-(27 if boss else 21),
+                m['body3'], 8, 3)
+        if boss: c.taper(cxx+sgn*16, hy-18, cxx+sgn*10, hy-29, m['body3'], 5, 3)
     if f == 9:
-        for i in range(-2, 3):
-            c.set(cxx-5+i, hy+i, m['eye']); c.set(cxx-5+i, hy-i, m['eye'])
-            c.set(cxx+4+i, hy+i, m['eye']); c.set(cxx+4+i, hy-i, m['eye'])
+        for i in range(-3, 4):
+            c.set(cxx-8+i, hy+i, m['eye']); c.set(cxx-8+i, hy-i, m['eye'])
+            c.set(cxx+7+i, hy+i, m['eye']); c.set(cxx+7+i, hy-i, m['eye'])
     else:
-        for dx in (-6, 3):
-            c.rect(cxx+dx, hy-1, 4, 3, m['eye'])
-            c.rect(cxx+dx, hy-1, 4, 1, m['glow'])
-    if f in (6, 7, 8):                                            # open jaw
-        c.rect(cxx-4, hy+4, 8, 4, m['ink'])
-        for i in range(0, 8, 2): c.set(cxx-4+i, hy+4, '#ffffff')
+        for dx in (-11, 5):
+            c.rect(cxx+dx, hy-2, 7, 5, m['eye'])
+            c.rect(cxx+dx, hy-2, 7, 2, m['glow'])
+    if f in (6, 7, 8):
+        c.rect(cxx-7, hy+6, 14, 8, m['ink'])
+        for i in range(0, 14, 3): c.rect(cxx-7+i, hy+6, 2, 2, '#ffffff')
+        for i in range(0, 14, 3): c.rect(cxx-7+i, hy+12, 2, 2, '#ffffff')
     else:
-        c.rect(cxx-4, hy+5, 8, 1, m['ink'])
-    c.rect(cxx-8, hy+10, 16, 14, m['cloth'])                      # torso
-    c.rect(cxx-6, hy+11, 12, 6, m['body2'])
-    c.rect(cxx-8, hy+20, 16, 4, m['cloth2'])
-    ax = 12 if f in (6, 8) else 9
-    c.taper(cxx-8, hy+12, cxx-ax-lean, hy+(6 if f in (6,8) else 21), m['body'], 6, 5)
-    c.taper(cxx+8, hy+12, cxx+ax+lean, hy+(6 if f in (6,8) else 21), m['body'], 6, 5)
-    c.rect(cxx-8, hy+24, 6, FEET-(hy+24), m['cloth'])             # legs
-    c.rect(cxx+2, hy+24, 6, FEET-(hy+24), m['cloth'])
-    c.rect(cxx-9, FEET-3, 8, 3, m['ink']); c.rect(cxx+1, FEET-3, 8, 3, m['ink'])
-    if f == 7:                                                    # impact dust
-        for dx in (-14, -10, 10, 14): c.ellipse(cxx+dx, FEET-2, 2.5, 1.5, m['body3'])
+        c.rect(cxx-7, hy+8, 14, 2, m['ink'])
+    c.rect(cxx-14, hy+16, 28, 26, m['cloth'])
+    c.rect(cxx-11, hy+18, 22, 11, m['body2'])
+    c.rect(cxx-14, hy+37, 28, 6, m['cloth2'])
+    ax = 22 if f in (6, 8) else 16
+    c.taper(cxx-14, hy+19, cxx-ax-lean, hy+(8 if f in (6,8) else 38), m['body'], 9, 7)
+    c.taper(cxx+14, hy+19, cxx+ax+lean, hy+(8 if f in (6,8) else 38), m['body'], 9, 7)
+    c.rect(cxx-14, hy+42, 11, FEET-(hy+42), m['cloth'])
+    c.rect(cxx+3, hy+42, 11, FEET-(hy+42), m['cloth'])
+    c.rect(cxx-16, FEET-5, 14, 5, m['ink']); c.rect(cxx+2, FEET-5, 14, 5, m['ink'])
+    if f == 7:
+        for dx in (-24, -18, 18, 24): c.ellipse(cxx+dx, FEET-3, 4.5, 2.5, m['body3'])
 
 def draw_mob(key, f):
-    m = MOBS[key]; c = Cv(W, H, PAD)
+    m = MOBS[key]; c = Cv(W, H)
     if   key == 'slime': draw_slime(c, m, f)
     elif key == 'bat':   draw_bat(c, m, f)
     elif key == 'imp':   draw_imp(c, m, f)
@@ -544,9 +558,9 @@ def build():
     px = [[None]*aw for _ in range(ah)]
     for r, key in enumerate(rows):
         for f in range(FRAMES):
-            if key in CHARS:            c = draw_char(key, f)
-            elif f < MOB_FRAMES:        c = draw_mob(key, f)
-            else:                       continue
+            if key in CHARS:      c = draw_char(key, f)
+            elif f < MOB_FRAMES:  c = draw_mob(key, f)
+            else:                 continue
             for y in range(H):
                 for x in range(W):
                     px[r*H+y][f*W+x] = c.px[y][x]
@@ -573,14 +587,12 @@ def main():
     atlas = os.path.join(ROOT, 'assets', 'atlas.png')
     write_png(atlas, px, aw, ah)
     print('atlas %dx%d -> assets/atlas.png (%d bytes)' % (aw, ah, os.path.getsize(atlas)))
-
     if 'closeup' in sys.argv:
-        zoom(px, [0, 3, 7, 9, 10], [0,1,2,3], 10, os.path.join(ROOT, 'tools', 'closeup.png'))
+        zoom(px, [0, 3, 7, 9, 10], [0,1,2,3], 6, os.path.join(ROOT, 'tools', 'closeup.png'))
     if 'mobs' in sys.argv:
-        zoom(px, [0, 2, 3, 6, 7, 9], [4,5,6,7,8], 8, os.path.join(ROOT, 'tools', 'mobs.png'))
+        zoom(px, [0, 2, 3, 6, 7, 9], [4,5,6,7,8], 5, os.path.join(ROOT, 'tools', 'mobs.png'))
     if 'preview' in sys.argv:
-        zoom(px, list(range(FRAMES)), list(range(len(rows))), 5, os.path.join(ROOT, 'tools', 'preview.png'))
-
+        zoom(px, list(range(FRAMES)), list(range(len(rows))), 3, os.path.join(ROOT, 'tools', 'preview.png'))
     uri = 'data:image/png;base64,' + base64.b64encode(open(atlas, 'rb').read()).decode()
     idx = os.path.join(ROOT, 'index.html')
     src = open(idx).read()

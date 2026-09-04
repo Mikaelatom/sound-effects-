@@ -83,21 +83,26 @@ python3 tools/make_sprites.py mobs       # tools/mobs.png, enemies at 8x
 python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 5x
 ```
 
-Frames are 36×48 with 4px of headroom. Characters have 12: idle (2), a
-4-frame walk cycle, attack windup/strike/recover, dash, cast and hurt.
-Enemies have 10: idle (2), a 4-frame move cycle, telegraph, attack, special
-and hurt — so a brute visibly rears back before it charges, and a slime
-squashes on landing.
+Frames are 56×96. Characters have 12: idle (2), a 4-frame walk cycle, attack
+windup/strike/recover, dash, cast and hurt. Enemies have 10: idle (2), a
+4-frame move cycle, telegraph, attack, special and hurt — so a brute visibly
+rears back before it charges, and a slime squashes on landing.
 
-Characters share one body rig. Poses live in `POSES` as a handful of numbers
+Figures are drawn at roughly **4.7 heads**, which is anime proportions rather
+than chibi: an 18px head on an 85px body, broad shoulders, a nipped waist,
+and legs that are half the figure. The torso silhouette is a per-row
+half-width table (`TORSO`), so reshaping the body is editing a list of
+numbers.
+
+Characters share one rig. Poses live in `POSES` as a handful of values
 (bounce, lean, hand positions, weapon angle, expression); per-character hair,
-outfit and weapon are layered on top. So adding a pose is one row in that
-table, and recolouring someone is editing their entry in `CHARS` and re-running
-the script — no repainting.
+outfit, sleeve length and weapon are layered on top. Adding a pose is one row
+in that table, and recolouring someone is editing their entry in `CHARS` and
+re-running the script — no repainting.
 
-Faces are drawn at a size that fits real anime eyes: sclera, iris with its own
-shadow, pupil, catchlight, lash line, brows that angle when a character is
-mid-attack, plus blush and a hair shine band.
+Faces carry a full anime eye at this size: sclera, iris with its own floor,
+pupil, catchlight, a lash line that thickens at the outer corner, brows that
+angle when a character is mid-attack, plus blush and a hair shine band.
 
 ## Technical notes
 
