@@ -216,7 +216,9 @@ POSES = [
 ]
 
 def shoulder(pose, back):
-    return (CX + (-9 if back else 9) + pose['lean']*0.4, SHOULDER + 2 + pose['bob'])
+    # a turned body foreshortens: lead shoulder swings forward, trailing one hides
+    dx = (-7 + TURN*0.2) if back else (9 + TURN*1.1)
+    return (CX + dx + pose['lean']*0.4, SHOULDER + 2 + pose['bob'] + (1 if back else 0))
 
 def hand(pose, back):
     """absolute hand position, always measured from its own shoulder"""
@@ -239,11 +241,13 @@ def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
 def draw_legs(c, p, pose):
     lg, lg2, bt = p['leg'], p['leg2'], p['boot']
     hipy = HIP + pose['bob']
-    hipdx = pose['lean']*0.25
+    hipdx = pose['lean']*0.25 + TURN*0.5
     for i, (fx, lift) in enumerate(pose['feet']):
         side = -1 if i == 0 else 1
         hx = CX + hipdx + side*4
-        fxx, fyy = CX + fx, FEET - 4 - lift
+        # trailing foot sits further back than the lead one on a turned body
+        fxx = CX + fx + TURN*0.35 + (-1.2 if side < 0 else 1.2)
+        fyy = FEET - 4 - lift
         # knee leads the hip when the foot is forward, so the leg reads as bent
         bend = (fxx - hx) * 0.30 + 2.2
         kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 9, 6)
@@ -258,19 +262,22 @@ def draw_torso(c, p, pose):
     dy = pose['bob']
     for i, hw in enumerate(TORSO):
         y = SHOULDER + i + dy
-        x = CX + pose['lean']*0.4*(1 - i/len(TORSO)*0.4)     # lean eases toward the hips
-        c.rect(x-hw, y, hw*2, 1, cl)
-        c.rect(x-hw, y, 2, 1, cl3)
-        c.rect(x+hw-2, y, 2, 1, cl3)
-        if i < 5: c.rect(x-hw+2, y, hw*2-4, 1, cl2)
-    x = CX + pose['lean']*0.5
+        # the turn eases from shoulders down to hips, and the body foreshortens
+        t = 1 - i/len(TORSO)*0.45
+        x = CX + pose['lean']*0.4*t + TURN*0.75*t
+        w = hw*0.93
+        c.rect(x-w, y, w*2, 1, cl)
+        c.rect(x-w, y, 3, 1, cl3)                            # trailing edge in shadow
+        c.rect(x+w-1, y, 1, 1, cl2)                          # lead edge catches light
+        if i < 5: c.rect(x-w+3, y, w*2-4, 1, cl2)
+    x = CX + pose['lean']*0.5 + TURN*0.8
     c.rect(x-3, 25+dy, 6, 5, p['skin'])                       # neck
     c.rect(x-3, 25+dy, 6, 2, p['skin3'])
-    c.rect(x-9, SHOULDER+1+dy, 18, 2, cl2)                    # collar
-    c.rect(x-1, SHOULDER+2+dy, 2, 16, tr)                     # seam
+    c.rect(x-8, SHOULDER+1+dy, 17, 2, cl2)                    # collar
+    c.rect(x, SHOULDER+2+dy, 2, 16, tr)                       # seam rides the turn
     c.rect(x-7, 46+dy, 14, 4, p['accent'])                    # sash
     c.rect(x-7, 46+dy, 14, 1, cl2)
-    xh = CX + pose['lean']*0.25                               # skirts sit on the hips
+    xh = CX + pose['lean']*0.25 + TURN*0.5                    # skirts sit on the hips
     if p['style'] == 'bob':
         c.rect(xh-11, HIP+dy, 22, 6, cl)
         c.rect(xh-13, HIP+5+dy, 26, 4, cl2)
@@ -610,10 +617,12 @@ MOBS = {
                eye='#ffe14d', glow='#fff3c0', cloth='#8f2020', cloth2='#c93b3b'),
  'brute': dict(ink='#1b1020', body='#c05a4d', body2='#ec9484', body3='#83332c',
                eye='#ffe14d', glow='#fff3c0', cloth='#4a2a3a', cloth2='#6d4257'),
+ 'sovereign': dict(ink='#0a0610', body='#2b2340', body2='#5b4d80', body3='#171128',
+               eye='#ff3355', glow='#ffd24d', cloth='#120e20', cloth2='#3a2f5c'),
  'boss':  dict(ink='#120818', body='#a86bff', body2='#dcc0ff', body3='#6b3fbd',
                eye='#ff5d5d', glow='#ffc0c0', cloth='#2a1b4d', cloth2='#4a3480'),
 }
-MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss']
+MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign']
 
 SLIME_A = [(0,0), (2,0), (5,-2), (-3,-11), (-5,-17), (3,-4), (7,2), (-7,-6), (0,0), (9,3)]
 BAT_A   = [(2,0), (7,2), (0,0), (9,4), (14,6), (7,2), (-3,-3), (12,7), (4,0), (5,-5)]
@@ -710,10 +719,16 @@ def draw_imp(c, m, f):
         c.ellipse(ox, oy, r, r, m['eye'])
         c.ellipse(ox, oy, r*0.5, r*0.5, m['glow'])
 
-def draw_brute(c, m, f, boss=False):
+def draw_brute(c, m, f, boss=False, crown=False):
     lean, bob = BRUTE_A[f]
     hy = 22 + bob
     cxx = CX + lean*0.5
+    if crown:                                             # cape behind everything
+        for k in range(26):
+            w = 15 + k*0.55
+            c.rect(cxx-w, hy+12+k, w*2, 1, m['cloth'])
+            c.rect(cxx-w, hy+12+k, 3, 1, m['cloth2'])
+            c.rect(cxx+w-3, hy+12+k, 3, 1, m['cloth2'])
     c.ellipse(cxx, hy, 16.0, 14.4, m['body'])
     c.ellipse(cxx, hy-4, 13.0, 9.6, m['body2'])
     for sgn in (-1, 1):
@@ -743,6 +758,13 @@ def draw_brute(c, m, f, boss=False):
     c.rect(cxx-14, hy+42, 11, FEET-(hy+42), m['cloth'])
     c.rect(cxx+3, hy+42, 11, FEET-(hy+42), m['cloth'])
     c.rect(cxx-16, FEET-5, 14, 5, m['ink']); c.rect(cxx+2, FEET-5, 14, 5, m['ink'])
+    if crown:                                             # a crown of shards
+        for k, (sx, sh2) in enumerate(((-13,7), (-7,12), (0,15), (7,12), (13,7))):
+            c.taper(cxx+sx, hy-13, cxx+sx, hy-13-sh2, m['glow'], 4, 2)
+        c.rect(cxx-15, hy-14, 30, 3, m['glow'])
+        c.rect(cxx-15, hy-14, 30, 1, '#ffffff')
+        for sgn in (-1, 1):                               # shoulder plates
+            c.taper(cxx+sgn*15, hy+16, cxx+sgn*23, hy+22, m['cloth2'], 9, 5)
     if f == 7:
         for dx in (-24, -18, 18, 24): c.ellipse(cxx+dx, FEET-3, 4.5, 2.5, m['body3'])
 
@@ -753,6 +775,7 @@ def draw_mob(key, f):
     elif key == 'imp':   draw_imp(c, m, f)
     elif key == 'brute': draw_brute(c, m, f, False)
     elif key == 'boss':  draw_brute(c, m, f, True)
+    elif key == 'sovereign': draw_brute(c, m, f, True, True)
     c.outline(m['ink'])
     return c
 
@@ -797,7 +820,9 @@ def main():
     if 'closeup' in sys.argv:
         zoom(px, [0, 3, 7, 9, 10], [0,1,2,3], 6, os.path.join(ROOT, 'tools', 'closeup.png'))
     if 'mobs' in sys.argv:
-        zoom(px, [0, 2, 3, 6, 7, 9], [4,5,6,7,8], 5, os.path.join(ROOT, 'tools', 'mobs.png'))
+        base = len(ORDER)
+        zoom(px, [0, 2, 3, 6, 7, 9], list(range(base, base+len(MOB_ORDER))), 5,
+             os.path.join(ROOT, 'tools', 'mobs.png'))
     if 'preview' in sys.argv:
         zoom(px, list(range(FRAMES)), list(range(len(rows))), 3, os.path.join(ROOT, 'tools', 'preview.png'))
     uri = 'data:image/png;base64,' + base64.b64encode(open(atlas, 'rb').read()).decode()
