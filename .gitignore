@@ -1,0 +1,4 @@
+# generated sprite previews (rebuild with tools/make_sprites.py preview|closeup|mobs)
+tools/preview.png
+tools/closeup.png
+tools/mobs.png
