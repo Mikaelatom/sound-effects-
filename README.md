@@ -18,8 +18,11 @@ Then the coin flips:
 
 | Result | What you get |
 |---|---|
-| **Heads — TWIN FATE** | Your character **and** a second 5★ |
+| **Heads — TWIN FATE** | Your character **and** a second one |
 | **Tails — SOLO** | Your character |
+
+The same rule runs at **both rarities** — you pick a featured 5★ *and* a
+featured 4★, and each is guaranteed when its tier hits.
 
 The coin is never "did I lose?" — it's "do I get a bonus?"
 
@@ -28,7 +31,8 @@ change your pick any time before a pull.
 
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
-- Every pull that isn't a 5★ pays out **Echoes**. Bank 10 and spend them in
+- 4★: 9% base, **guaranteed within 10**
+- Every pull that is neither pays out **Echoes**. Bank 10 and spend them in
   Collection to raise *anyone's* **Resonance** (+8% HP and ATK, up to R6), so
   no pull is ever wasted.
 - Duplicate characters raise Resonance directly; at R6 they refund shards.
@@ -66,14 +70,30 @@ Arc Current is a shotgun that clears the screen).
 
 Everyone is 5★. They play completely differently.
 
+### 5★
+
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
 |---|---|---|---|---|
 | ⚔ | **Aoi Shirogane** · Blade | Crescent Rush — dash through a line | Iai Stance — one huge arc | **Thousand Cuts** — 2s untouchable blender |
 | ✦ | **Kagura Hoshimi** · Arcane | Starfall — nine stars crash down | Astral Lance — piercing beam | **Constellation** — 24 homing stars |
 | ☾ | **Ren Kurosawa** · Shadow | Umbral Volley — seven knives | Shadowstep — blink and gut | **Nightfall** — cut everything 3× |
 | ✚ | **Hinata Amakusa** · Radiant | Dawn Aegis — heal and shield | Judgment Ray — beam that heals you | **Rebirth Hymn** — revive a fallen ally |
-| ➶ | **Suzume Ayakawa** · Gale | Split Volley — seven arrows in a fan | Piercing Gale — one arrow, whole room | **Tempest Volley** — 3s of arrows falling everywhere |
-| ⛊ | **Gorou Tachibana** · Stone | Seismic Slam — hammer the ground | Bulwark — shield, and touching him hurts | **Unbreakable** — 5s untouchable, ground erupting |
+| ➶ | **Suzume Ayakawa** · Gale | Split Volley — seven arrows | Piercing Gale — one arrow, whole room | **Tempest Volley** — 3s of falling arrows |
+| ⛊ | **Gorou Tachibana** · Stone | Seismic Slam — hammer the ground | Bulwark — touching him hurts | **Unbreakable** — 5s untouchable |
+| ❄ | **Yura Shinomiya** · Frost | Glacier Bloom — freeze the room | Tide Lance — piercing ice | **Absolute Zero** — 4s deep freeze |
+| ⚡ | **Kaito Amemiya** · Volt | Thunder Rush — rocket forward | Static Field — discharge | **Overcharge** — 6s double attack speed |
+
+### 4★
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ⛏ | **Momo Tachibana** · Earth | Glaive Cyclone | Earthshaker — huge sweep | **Landslide** |
+| 🔥 | **Chiyo Onodera** · Flame | Bomb Toss — burning ground | Cluster Shot | **Firestorm** — bombs everywhere |
+| ♪ | **Nari Tsukuda** · Radiant | Chorus Mote — a turret | Refrain — heal and shield | **Encore** — four motes, squad heal |
+| ⌁ | **Toma Aida** · Volt | Shock Bolt | Ball Lightning | **Thunderhead** |
+
+Frozen enemies take **40% extra damage from anyone**, so Yura sets up everyone
+else's damage.
 
 ---
 
@@ -101,7 +121,7 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-Six characters share one rig, and a pose is a **skeleton rather than a set of
+Twelve characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
@@ -111,6 +131,12 @@ hair, outfit, sleeve length and weapon layer on top.
 
 The walk is a real 4-frame cycle — contact, passing, contact mirrored,
 passing mirrored — with the arms swinging opposite the legs.
+
+Heads are drawn in **three-quarter view**, turned toward the lead side, with a
+nose on the leading edge and the far eye foreshortened. A straight-on face
+just mirrored left and right reads as facing nowhere — the turn is what sells
+which way a character is going. Hair, tails and scarves trail the opposite way
+to the direction of travel.
 
 Faces carry a full anime eye at this size: sclera, iris with its own floor,
 pupil, catchlight, a lash line that thickens at the outer corner, brows that
