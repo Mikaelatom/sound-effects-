@@ -113,14 +113,14 @@ Sixteen characters across two rarities. They play completely differently.
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
 |---|---|---|---|---|
-| ⚔ | **Aoi Shirogane** · Blade | Crescent Rush — dash through a line | Iai Stance — one huge arc | **Thousand Cuts** — 2s untouchable blender |
-| ✦ | **Kagura Hoshimi** · Arcane | Starfall — nine stars crash down | Astral Lance — piercing beam | **Constellation** — 24 homing stars |
-| ☾ | **Ren Kurosawa** · Shadow | Umbral Volley — seven knives | Shadowstep — blink and gut | **Nightfall** — cut everything 3× |
+| ⚔ | **Aoi Shirogane** · Blade | Crescent Rush — dash through a line | **Iai Stance** — a parry. Get hit inside half a second and everything near her eats 650% instead | **Thousand Cuts** — 2s untouchable blender |
+| ✦ | **Kagura Hoshimi** · Arcane | **Starfall** — eight stars called down onto wherever the enemies are | Astral Lance — piercing beam | **Constellation** — 24 homing stars |
+| ☾ | **Ren Kurosawa** · Shadow | **Death Mark** — everything done to the target is banked, then 60% of it detonates | Shadowstep — blink and gut | **Nightfall** — cut everything 3× |
 | ✚ | **Hinata Amakusa** · Radiant | Dawn Aegis — heal and shield | Judgment Ray — beam that heals you | **Rebirth Hymn** — revive a fallen ally |
-| ➶ | **Suzume Ayakawa** · Gale | Split Volley — seven arrows | Piercing Gale — one arrow, whole room | **Tempest Volley** — 3s of falling arrows |
-| ⛊ | **Gorou Tachibana** · Stone | Seismic Slam — hammer the ground | Bulwark — touching him hurts | **Unbreakable** — 5s untouchable |
-| ❄ | **Yura Shinomiya** · Frost | Glacier Bloom — freeze the room | Tide Lance — piercing ice | **Absolute Zero** — 4s deep freeze |
-| ⚡ | **Kaito Amemiya** · Volt | Thunder Rush — rocket forward | Static Field — discharge | **Overcharge** — 6s double attack speed |
+| ➶ | **Suzume Ayakawa** · Gale | Split Volley — seven arrows | **Snare Arrows** — five broadheads planted in the ground | **Tempest Volley** — 3s of falling arrows |
+| ⛊ | **Gorou Tachibana** · Stone | **Seismic Slam** — seven eruptions walking away from him, throwing things back | Bulwark — touching him hurts | **Unbreakable** — 5s untouchable |
+| ❄ | **Yura Shinomiya** · Frost | Glacier Bloom — freeze the room | **Still Air** — every enemy at half speed for 4s. Not her | **Absolute Zero** — 4s deep freeze |
+| ⚡ | **Kaito Amemiya** · Volt | **Thunder Chain** — jumps six bodies, 28% harder each jump | Thunder Rush — rocket forward | **Overcharge** — 6s double attack speed |
 
 ### 5★ — The Revenants
 
@@ -129,23 +129,35 @@ sharpest kits in the game.
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
 |---|---|---|---|---|
-| ♛ | **Seryn Alba** · *The Sworn King* | Oathbreaker — one enormous arc | Aegis of the Crown — shield, and touching her hurts | **Dawnbreaker** — a column of light across the arena |
-| ⚔ | **Aldric Vane** · *The Faithless* | Broken Phantasm — nine thrown blades | Trace On — step through space and gut them | **Endless Armoury** — 3s of swords falling |
-| ✹ | **Kassandra Rue** · *The Crimson Lance* | Piercing Fate — close and run it through | Crimson Thrust — a thrust that arrives as a line | **Thousand Thrusts** |
-| ☾ | **Nyx Morrow** · *The Ashen Witch* | Hex Circle | Witchfire — burning ground | **Grave Choir** — two dozen hunting motes |
+| ♛ | **Seryn Alba** · *The Sworn King* | Oathbreaker — one enormous arc | **Aegis of the Crown** — plants a standard: it burns them and feeds you shield and health | **Dawnbreaker** — a column of light across the arena |
+| ⚔ | **Aldric Vane** · *The Faithless* | Broken Phantasm — nine thrown blades | **Unlimited Blade** — a projected sword hunts on its own for 9s | **Endless Armoury** — 3s of swords falling |
+| ✹ | **Kassandra Rue** · *The Crimson Lance* | **Lance Dance** — 2.6s of spinning steel you can keep moving through | Crimson Thrust — a thrust that arrives as a line | **Thousand Thrusts** — five seconds of a maelstrom that drags them in |
+| ☾ | **Nyx Morrow** · *The Ashen Witch* | **Rotwork** — infects one enemy; kill it infected and the rot jumps | **Witch's Tithe** — a tether that bleeds them and feeds her | **Grave Choir** — the whole screen catches it at once |
 
 Kassandra **always crits anything under 40% HP**, and anything Nyx damages is
 **Cursed** — it takes 15% more damage from *everyone* for 3s, so she sets the
 squad up the way Yura does.
 
+### No two of them play the same
+
+Sixteen characters, and **no two share a pair of skills.** There are twenty-six
+distinct skill mechanics behind them and they are mechanics, not reskins: a
+parry that turns a hit into a counter, a mark that banks damage and pays it out
+in a lump, a chain that gets stronger with every body it jumps, a channelled
+spin you can walk around inside, planted mines, planted standards, a tether that
+drains, a plague that spreads on death, a vortex that drags a pack into one
+place, called-down strikes, a projected sword that fights on its own, and a
+field of slowed time. Every character also has their own passive and their own
+Burst — five Bursts are unique shapes nobody else has.
+
 ### 4★
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
 |---|---|---|---|---|
-| ⛏ | **Momo Tachibana** · Earth | Glaive Cyclone | Earthshaker — huge sweep | **Landslide** |
-| 🔥 | **Chiyo Onodera** · Flame | Bomb Toss — burning ground | Cluster Shot | **Firestorm** — bombs everywhere |
+| ⛏ | **Momo Tachibana** · Earth | **Glaive Cyclone** — drags everything into one point, then lets go | Earthshaker — huge sweep | **Landslide** — a maelstrom |
+| 🔥 | **Chiyo Onodera** · Flame | **Bomblets** — four armed bombs rolled out ahead | Firewall — burning ground | **Firestorm** — 3s of called shells |
 | ♪ | **Nari Tsukuda** · Radiant | Chorus Mote — a turret | Refrain — heal and shield | **Encore** — four motes, squad heal |
-| ⌁ | **Toma Aida** · Volt | Shock Bolt | Ball Lightning | **Thunderhead** |
+| ⌁ | **Toma Aida** · Volt | **Shock Chain** — leaps five bodies | **Ball Lightning** — thrown out, comes back, hits twice | **Thunderhead** — 3.4s of chaining |
 
 Frozen enemies take **40% extra damage from anyone**, so Yura sets up everyone
 else's damage.
@@ -155,8 +167,8 @@ else's damage.
 ## The Raid — The Sovereign
 
 One fight, from the Home screen, separate from the Spire. No relics: just your
-squad, their kits, and whether you can read what he's doing. **9,000 HP** and
-**four and a half minutes** before he enrages.
+squad, their kits, and whether you can read what he's doing. **26,000 HP** and
+**five minutes** before he enrages.
 
 This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
 you will hit the enrage timer with him still standing.
@@ -165,13 +177,20 @@ you will hit the enrage timer with him still standing.
   any of them are standing. Kill them first or you are hitting a wall.
 - **Phase 2** — the floor lights up in three of four quadrants and detonates.
   Stand in the one that stays dark.
-- **Phase 3** — he starts a **cast**. Deal 12% of his health during it and he
+- **The Grasp** — at any point he seizes whoever is standing in front of him.
+  Four seconds later it detonates. The only way out is to **be someone else by
+  then**, so swapping is a survival tool here, not just a damage rotation.
+- **Phase 3** — he starts a **cast**. Deal 10% of his health during it and he
   **breaks**, taking 50% extra damage for five seconds. Fail and the whole
   squad loses 55% of its health. This is what your Bursts are for — hold them.
 
-The Wardens **come back**: he re-summons them roughly every 34 seconds through
-phases 2 and 3, three at a time in the last phase, so the damage gate is
-something you clear over and over, not once. He hits harder than anything in
+There is a **fourth phase**. Below 16% he stops pausing: the Last Rite summons
+three Wardens on the spot and every mechanic comes back at roughly double the
+cadence, with no idle time between them.
+
+The Wardens **come back**: he re-summons them every 22 seconds from phase 2 on,
+three at a time and four in the last phases, at 1,400 HP each, so the damage
+gate is something you clear over and over, not once. He hits harder than anything in
 the Spire, and a rotating beam sweeps throughout; it telegraphs thin before it
 goes live.
 
@@ -179,7 +198,7 @@ Link Strikes are the answer to the gate. Skill into a swap into a swap and you
 are doing triple damage exactly when the Wardens drop and the break window
 opens.
 
-**Reward: 12,000 shards** for a kill — enough for a serious run at the banner.
+**Reward: 30,000 shards** for a kill — enough for a serious run at the banner.
 Losing still pays out on the damage you did.
 
 ---
@@ -221,7 +240,14 @@ the same four with the legs swapped — with the arms swinging opposite the
 legs. Feet carry a **pitch** as well as a height: the toe lifts for the heel
 strike, the whole sole plants, then the heel peels off and the toe is last to
 leave the ground. That roll is most of what sells a walk. The knee folds up
-hard while a leg is swinging through, so it bends rather than skating. Arms swing from a
+hard while a leg is swinging through, so it bends rather than skating.
+
+The head carries the **same forward turn the torso does**, and leads into each
+step before settling as the weight lands. Without that shared turn the skull
+sits back behind a turned body and the face reads as pointing somewhere the
+shoulders and the legs are not — which looks exactly like a head that will not
+turn with the body. One function, `head_pos`, decides where the head is, so the
+face and the hair can never drift apart from each other or from the torso. Arms swing from a
 shaded deltoid through an elbow cuff, legs carry a thigh mass and a lit knee,
 so a limb reads as a limb rather than a tapered stick. The **trailing** arm and
 leg are drawn in a dimmed copy of their own colours, which is what stops the
@@ -229,13 +255,23 @@ two legs merging into one column — and every character's leg palette is held
 at a readable mid-tone against their outfit, so the cycle reads on a witch in
 black robes as clearly as it does on Aoi.
 
-**Attacks are animated, not sprites in flight.** Every projectile is drawn from
-scratch each frame against its own age, so it *plays*: a slash sweeps its arc
-open as it travels, a lance extends to full length out of nothing, a thrown
-knife tumbles end over end, a bolt re-forks its lightning three ways, a bomb's
-fuse sputters, an orb pulses with a mote orbiting it. Impacts get their own
-animation too — an expanding ring, a cross flash and thrown shards over a
-quarter of a second, with melee hits playing a cut instead of a burst.
+**Attacks are pixel animations, drawn the same way the characters are.**
+`tools/make_fx.py` generates a second atlas, `assets/fx.png`: fifteen effects,
+eight frames each, at 32×32. A slash sweeps its arc open, a lance extends out
+of nothing, a knife tumbles end over end, lightning re-forks, a bomb's fuse
+sputters, a flame's tip licks and curls. Impacts are animations too — a burst,
+a crossed cut for melee, an expanding nova, a growing frost crystal.
+
+The art is drawn in **luminance** — white core, darker greys outward — and
+multiplied by the shot's colour when it is drawn, so one arc animation serves
+Aoi's steel, Seryn's gold and Nyx's violet without three copies of it. Each
+(effect, frame, colour) is tinted once and cached; the multiply pass is far
+too expensive to redo per shot per frame.
+
+```
+python3 tools/make_fx.py            # rebuild assets/fx.png and re-embed it
+python3 tools/make_fx.py preview    # tools/fxpreview.png, the sheet at 6x
+```
 
 Figures are drawn in **true side profile** facing +x, and mirrored for left.
 This matters more than it sounds: a front-facing sprite that is merely

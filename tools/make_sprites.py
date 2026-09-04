@@ -249,32 +249,40 @@ POSES = [
  # The near leg leads first; on frame 6 the far leg takes over, which is why
  # the two halves are not mirrors of each other but the same poses swapped.
  # contact A - near heel lands out front, far toe still pushing
- dict(bob=1,  lean=1,  feet=((-10,0,2), (10,0,-2)), hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4),
+ dict(bob=1,  lean=1,  feet=((-10,0,2), (10,0,-2)), hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1),
  # down A - weight drops onto the near leg, far toe about to leave
- dict(bob=2,  lean=2,  feet=((-12,1,3), (6,0,0)),   hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5),
+ dict(bob=2,  lean=2,  feet=((-12,1,3), (6,0,0)),   hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1),
  # passing A - far leg swings through under the body, hips at their highest
- dict(bob=-1, lean=0,  feet=((-3,7,0), (0,0,0)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ dict(bob=-1, lean=0,  feet=((-3,7,0), (0,0,0)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, hd=0),
  # up A - far leg reaches forward, near heel starting to lift
- dict(bob=-1, lean=-1, feet=((6,4,-2), (-5,0,1)),   hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1),
+ dict(bob=-1, lean=-1, feet=((6,4,-2), (-5,0,1)),   hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
  # contact B - the same four, with the legs swapped over
- dict(bob=1,  lean=1,  feet=((10,0,-2), (-10,0,2)), hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4),
- dict(bob=2,  lean=2,  feet=((6,0,0),   (-12,1,3)), hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5),
- dict(bob=-1, lean=0,  feet=((0,0,0),   (-3,7,0)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
- dict(bob=-1, lean=-1, feet=((-5,0,1),  (6,4,-2)),  hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1),
+ dict(bob=1,  lean=1,  feet=((10,0,-2), (-10,0,2)), hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1),
+ dict(bob=2,  lean=2,  feet=((6,0,0),   (-12,1,3)), hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1),
+ dict(bob=-1, lean=0,  feet=((0,0,0),   (-3,7,0)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, hd=0),
+ dict(bob=-1, lean=-1, feet=((-5,0,1),  (6,4,-2)),  hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
 
  # 10 windup: weight back, blade drawn behind
- dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6),
+ dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6, hd=-2),
  # 11 strike: lunge onto the front foot, back foot trailing
- dict(bob=1,  lean=6,  feet=((-11,1,3), (11,0,-1)), hb=(-4,26), hf=(9,4), wep=1.00, eye='fierce', sway=8),
+ dict(bob=1,  lean=6,  feet=((-11,1,3), (11,0,-1)), hb=(-4,26), hf=(9,4), wep=1.00, eye='fierce', sway=8, hd=4),
  # 12 recover: settling out of the lunge
- dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.55, eye='fierce', sway=4),
+ dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.55, eye='fierce', sway=4, hd=1),
  # 13 dash: airborne, back leg trailing, front knee tucked
- dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11),
+ dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11, hd=5, hdy=-1),
  # 14 cast: both hands raised
- dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3),
+ dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3, hd=0, hdy=-1),
  # 15 hurt: knocked back onto the heels
- dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9),
+ dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9, hd=-3, hdy=1),
 ]
+
+def head_pos(pose):
+    """Where the head sits. It carries the same forward TURN the torso does -
+    without it the skull sits back behind a turned body and the face reads as
+    pointing somewhere the shoulders and legs are not. `hd` is the per-frame
+    lead: the head leads into a step and settles as the weight lands."""
+    return (CX + pose['lean']*0.55 + TURN*0.8 + pose.get('hd', 0),
+            HEADY + pose['bob'] + pose.get('hdy', 0))
 
 def shoulder(pose, back):
     # a turned body foreshortens: lead shoulder swings forward, trailing one hides
@@ -439,9 +447,7 @@ def draw_head(c, p, pose):
        as facing anywhere, which is the whole reason this exists."""
     sk, sk2, sk3 = p['skin'], p['skin2'], p['skin3']
     F = p['face']
-    dy = pose['bob']
-    cx = CX + pose['lean']*0.55
-    cy = HEADY + dy
+    cx, cy = head_pos(pose)
     c.ellipse(cx-1, cy, 8.0, 9.2, sk)                     # skull, set back
     c.ellipse(cx+1, cy+3, 6.6, 6.2, sk)                   # cheek/muzzle forward
     # nose and lips on the leading edge
@@ -741,7 +747,7 @@ def grip_hand(c, p, pose):
 def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
     c = Cv(W, H)
-    cx, cy = CX + pose['lean']*0.55, HEADY + pose['bob']
+    cx, cy = head_pos(pose)
     hair_back(c, p, pose, cx, cy)
     draw_arm(c, p, pose, True)
     draw_legs(c, p, pose)
