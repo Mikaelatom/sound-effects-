@@ -107,7 +107,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Sixteen characters across two rarities. They play completely differently.
+Twenty-one characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -140,24 +140,45 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Sixteen characters, and **no two share a pair of skills.** There are twenty-six
-distinct skill mechanics behind them and they are mechanics, not reskins: a
+Twenty-one characters, and **no two share a pair of skills.** There are
+thirty-six distinct skill mechanics behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
 drains, a plague that spreads on death, a vortex that drags a pack into one
 place, called-down strikes, a projected sword that fights on its own, and a
-field of slowed time. Every character also has their own passive and their own
-Burst — five Bursts are unique shapes nobody else has.
+field of slowed time, electron shells that cut, rounds that split and split
+again, rage that scales with missing health, a hookshot that drags a target to
+your feet, and a rifle that wants distance. Every character also has their own
+passive and their own Burst — ten Bursts are unique shapes nobody else has.
+
+### 5★ — The Second Wave
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ⚛ | **Atom Vale** · *The Half-Life* | **Orbital** — three electrons take up shells around him for 5s and cut everything they pass through, and he keeps fighting inside it | **Fission** — a round that splits in two when it lands, and each half splits again | **Critical Mass** — the shells collapse inward for 2.5s, then the room goes |
+| ⚔ | **Rei Amagiri** · Blade | **Red Mind** — for 8s she hits harder the closer she is to dying, up to +140% at the edge | **Skyfall** — up, across, and down on top of whatever she picked | **Bloodtide** — 7s of double damage where every body in reach heals her |
+| ✧ | **Odette Lune** · *The Marionettist* | **Three Sisters** — three puppets cut loose to hunt on their own for 8s | **Strung Up** — five enemies held in place, and held things take 40% more from everyone | **Curtain Call** — six puppets at once, and the room is strung up while they work |
+
+Atom's passive is **Half-Life**: everything he damages keeps taking 25% of that
+hit again over the next two seconds. Rei takes **25% less damage below half
+health** — she is hardest to kill when she is nearly dead. Odette's puppets fire
+25% faster and anything they kill leaves a mote that heals her.
 
 ### 4★
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
 |---|---|---|---|---|
+| ◎ | **Bao Xun** · Flame | **Called Shot** — pierces everything, up to 150% harder the further the target | **Flak** — eleven shells in a wall off the barrel | **Full Auto** — 3s of emptying everything he carries |
+| ⟡ | **Iris Solene** · Gale | **Hookshot** — the hook goes out and something comes back | **Updraft** — everything nearby goes up, and the landing is what hurts | **Skydance** — 3 untouchable seconds, never landing twice in the same place |
 | ⛏ | **Momo Tachibana** · Earth | **Glaive Cyclone** — drags everything into one point, then lets go | Earthshaker — huge sweep | **Landslide** — a maelstrom |
 | 🔥 | **Chiyo Onodera** · Flame | **Bomblets** — four armed bombs rolled out ahead | Firewall — burning ground | **Firestorm** — 3s of called shells |
 | ♪ | **Nari Tsukuda** · Radiant | Chorus Mote — a turret | Refrain — heal and shield | **Encore** — four motes, squad heal |
 | ⌁ | **Toma Aida** · Volt | **Shock Chain** — leaps five bodies | **Ball Lightning** — thrown out, comes back, hits twice | **Thunderhead** — 3.4s of chaining |
+
+Bao does **+50% damage past half a screen and 45% less at point blank** — he is
+the one character you have to play backwards. Iris leaves a **cutting gust
+behind every dash**.
 
 Frozen enemies take **40% extra damage from anyone**, so Yura sets up everyone
 else's damage.
@@ -216,8 +237,10 @@ python3 tools/make_sprites.py mobs       # tools/mobs.png, enemies at 8x
 python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 5x
 ```
 
-Frames are 56×96. Characters have 12: idle (2), a 4-frame walk cycle, attack
-windup/strike/recover, dash, cast and hurt. Enemies have 10: idle (2), a
+Frames are 56×96. Characters have 18: idle (2), an 8-frame walk cycle, a
+5-frame attack (coil, wind, strike, follow-through, settle), dash, cast and
+hurt. Three attack frames made a swing that arrived without ever having been
+thrown; the coil and the follow-through are what give it weight. Enemies have 10: idle (2), a
 4-frame move cycle, telegraph, attack, special and hurt — so a brute visibly
 rears back before it charges, and a slime squashes on landing.
 
@@ -256,8 +279,10 @@ at a readable mid-tone against their outfit, so the cycle reads on a witch in
 black robes as clearly as it does on Aoi.
 
 **Attacks are pixel animations, drawn the same way the characters are.**
-`tools/make_fx.py` generates a second atlas, `assets/fx.png`: fifteen effects,
-eight frames each, at 32×32. A slash sweeps its arc open, a lance extends out
+`tools/make_fx.py` generates a second atlas, `assets/fx.png`: eighteen effects,
+eight frames each, at 32×32 — including a turning **atom** (nucleus and three
+electron shells) for Atom Vale, and a tumbling **longsword** for Aldric, who
+throws swords and should look like it. A slash sweeps its arc open, a lance extends out
 of nothing, a knife tumbles end over end, lightning re-forks, a bomb's fuse
 sputters, a flame's tip licks and curls. Impacts are animations too — a burst,
 a crossed cut for melee, an expanding nova, a growing frost crystal.

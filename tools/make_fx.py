@@ -181,6 +181,62 @@ def fx_fire(c, f):
         e = C - 11 - k*2.5
         c.set(e, C + math.sin(lick + k*1.4)*5, W1 if k < 2 else W2)
 
+def fx_sword(c, f):
+    """a thrown longsword, turning end over end - not a dagger"""
+    a = f/N*math.pi*2
+    ux, uy = math.cos(a), math.sin(a)
+    nx, ny = -uy, ux
+    def put(k, j, col): c.set(C+ux*k+nx*j, C+uy*k+ny*j, col)
+    for k in range(-4, 14):                          # a long, straight blade
+        h = 3.0 if k < 10 else max(0.0, 3.0 - (k-10)*0.9)
+        for j in range(int(-h), int(h)+1):
+            put(k, j, W1 if abs(j) < h*0.5 else W2)
+        put(k, -h, W0)                               # lit edge
+    for k in range(-11, -4):                         # grip and pommel
+        for j in (-1, 0, 1): put(k, j, W3)
+    put(-12, 0, W2)
+    for j in range(-5, 6): put(-4, j, W2)            # crossguard
+    for j in (-5, 5): put(-4, j, W1)
+    put(14, 0, W0)
+
+def fx_atom(c, f):
+    """a nucleus with three electron shells, turning - Atom's whole visual"""
+    a0 = f/N*math.pi*2
+    for k, tilt in enumerate((0.0, 1.05, 2.10)):
+        ca, sa = math.cos(tilt), math.sin(tilt)
+        n = 40
+        for i in range(n):                                # an ellipse, rotated
+            t = i/n*math.pi*2
+            ex, ey = math.cos(t)*11, math.sin(t)*4.2
+            c.set(C + ex*ca - ey*sa, C + ex*sa + ey*ca, W2)
+        t = a0 + k*2.1                                    # and the electron on it
+        ex, ey = math.cos(t)*11, math.sin(t)*4.2
+        px, py = C + ex*ca - ey*sa, C + ex*sa + ey*ca
+        c.ellipse(px, py, 2.0, 2.0, W0)
+        c.ellipse(px, py, 3.2, 3.2, W1, ymax=int(py))
+    c.ellipse(C, C, 4.2, 4.2, W1)                         # nucleus
+    c.ellipse(C, C, 2.6, 2.6, W0)
+    c.set(C-1, C-1, W0)
+
+def fx_burstatom(c, f):
+    """critical mass: the shells collapse inward, then the whole thing goes"""
+    t = f/(N-1)
+    if t < 0.6:
+        k = 1 - t/0.6                                     # collapsing
+        for j, tilt in enumerate((0.0, 1.05, 2.10)):
+            ca, sa = math.cos(tilt), math.sin(tilt)
+            for i in range(48):
+                u = i/48*math.pi*2
+                ex, ey = math.cos(u)*(4+11*k), math.sin(u)*(1.6+4.2*k)
+                c.set(C + ex*ca - ey*sa, C + ex*sa + ey*ca, W1 if j == 0 else W2)
+        c.ellipse(C, C, 3+5*(1-k), 3+5*(1-k), W0)
+    else:
+        k = (t-0.6)/0.4                                   # and detonating
+        ring(c, C, C, 4 + k*13, W0 if k < .5 else W1, 3)
+        ring(c, C, C, 2 + k*9, W1, 2)
+        spark(c, C, C, 10, 4+k*8, 6+k*13, W2, 0.3)
+        c.ellipse(C, C, max(0.5, 6*(1-k)), max(0.5, 6*(1-k)), W0)
+
 # ------------------------------------------------------------- impacts -------
 def fx_hit(c, f):
     t = f/(N-1)
@@ -230,7 +286,9 @@ def fx_frost(c, f):
 FX = [('slash', fx_slash), ('arrow', fx_arrow), ('knife', fx_knife),
       ('shard', fx_shard), ('bolt',  fx_bolt),  ('orb',   fx_orb),
       ('star',  fx_star),  ('lance', fx_lance), ('bomb',  fx_bomb),
-      ('note',  fx_note),  ('fire',  fx_fire),
+      ('note',  fx_note),  ('fire',  fx_fire),  ('sword', fx_sword),
+      ('atom', fx_atom),
+      ('burstatom', fx_burstatom),
       ('hit',   fx_hit),   ('cut',   fx_cut),   ('nova',  fx_nova),
       ('frost', fx_frost)]
 

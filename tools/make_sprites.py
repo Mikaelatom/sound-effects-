@@ -21,7 +21,7 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 import zlib, struct, base64, os, sys, math
 
 W, H = 56, 96
-FRAMES = 16
+FRAMES = 18
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 28.0       # centre column
 FEET  = 92         # baseline every actor stands on
@@ -223,10 +223,57 @@ CHARS = {
     leg='#8d8d53', leg2='#b8b87a', boot='#4e4e2c',
     metal='#8a8030', grip='#2b2a14', sleeve=0.68, face=dict(ew=4, eh=3, lash=0, droop=0, brow='flat',   brow_h=1, nose=2, mouth=1),
     style='crop', wep='staff'),
+
+ 'atom': dict(ink='#1a0e2e', hair='#7b3fd4', hair2='#b07cff', hair3='#dcc0ff', shine='#f3e9ff',
+    skin='#ffdcc0', skin2='#e5a184', skin3='#c98166', blush='#d98bff',
+    eye='#c08bff', eye2='#5a2a9c', brow='#7b3fd4',
+    cloth='#241a3d', cloth2='#3a2b5e', cloth3='#150e26', trim='#b07cff', accent='#8f5fff',
+    leg='#4a3d7a', leg2='#7365b0', boot='#241d3d',
+    metal='#dcc9ff', grip='#3a2b5e', cape='#5a2a9c', cape2='#8f5fff',
+    face=dict(ew=5, eh=4, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
+    sleeve=0.74, style='spiky', wep='atomblade'),
+
+ 'rei': dict(ink='#2a0f12', hair='#c9302f', hair2='#ff6b5a', hair3='#ffb0a0', shine='#ffe0d8',
+    skin='#e8b892', skin2='#c4906a', skin3='#9c6c4c', blush='#ff8b8b',
+    eye='#ffb347', eye2='#8f4a10', brow='#c9302f',
+    cloth='#3d2018', cloth2='#5e3427', cloth3='#24130e', trim='#e0a52c', accent='#c9302f',
+    leg='#8d5a3a', leg2='#b8845e', boot='#4e2f1c',
+    metal='#d8d4cc', grip='#3d2018',
+    face=dict(ew=6, eh=3, lash=0, droop=0, brow='thick', brow_h=1, nose=3, mouth=1),
+    sleeve=0.34, style='ponytail', wep='greataxe'),
+
+ 'odette': dict(ink='#160f2a', hair='#e8e2f5', hair2='#ffffff', hair3='#c9bde8', shine='#ffffff',
+    skin='#f5e0d0', skin2='#d4b298', skin3='#ab8a72', blush='#e0a0c0',
+    eye='#9fd8ff', eye2='#3a6a9c', brow='#c9bde8',
+    cloth='#2b2145', cloth2='#413466', cloth3='#181231', trim='#9fd8ff', accent='#c08bff',
+    leg='#5a4f8d', leg2='#8379b8', boot='#2b2451',
+    metal='#c9d8f0', grip='#2b2145',
+    face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft', brow_h=2, nose=2, mouth=1),
+    sleeve=0.90, style='long', wep='scythe'),
+
+ 'bao': dict(ink='#2b1508', hair='#2b2116', hair2='#4e3d28', hair3='#7d6444', shine='#c0a878',
+    skin='#e0b088', skin2='#bc8a62', skin3='#946745', blush='#e08b6a',
+    eye='#ff8b4d', eye2='#8f3a10', brow='#2b2116',
+    cloth='#4a3520', cloth2='#6b4d30', cloth3='#2b1e12', trim='#ff8b4d', accent='#e0a52c',
+    leg='#8d7453', leg2='#b8a07a', boot='#4e3f2c',
+    metal='#b8b8c0', grip='#2b1e12',
+    face=dict(ew=5, eh=3, lash=0, droop=1, brow='angled', brow_h=1, nose=3, mouth=1),
+    sleeve=0.62, style='crop', wep='rifle'),
+
+ 'iris': dict(ink='#0f2a1e', hair='#3fd48b', hair2='#7cffbc', hair3='#c0ffe0', shine='#e8fff4',
+    skin='#ffd8bc', skin2='#e09d7e', skin3='#bd7a5e', blush='#ff9db0',
+    eye='#7cffa8', eye2='#1a7d50', brow='#3fd48b',
+    cloth='#1e3d33', cloth2='#2e5c4d', cloth3='#132620', trim='#7cffbc', accent='#ffe14d',
+    leg='#4a8d70', leg2='#73b89c', boot='#24503e',
+    metal='#d8e8e0', grip='#132620',
+    face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
+    sleeve=0.44, style='twin', wep='hookblade'),
 }
+
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma',
-         'seryn', 'aldric', 'kassandra', 'nyx']
+         'seryn', 'aldric', 'kassandra', 'nyx',
+         'atom', 'rei', 'odette', 'bao', 'iris']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -262,17 +309,24 @@ POSES = [
  dict(bob=-1, lean=0,  feet=((0,0,0),   (-3,7,0)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, hd=0),
  dict(bob=-1, lean=-1, feet=((-5,0,1),  (6,4,-2)),  hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
 
- # 10 windup: weight back, blade drawn behind
- dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6, hd=-2),
- # 11 strike: lunge onto the front foot, back foot trailing
- dict(bob=1,  lean=6,  feet=((-11,1,3), (11,0,-1)), hb=(-4,26), hf=(9,4), wep=1.00, eye='fierce', sway=8, hd=4),
- # 12 recover: settling out of the lunge
- dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.55, eye='fierce', sway=4, hd=1),
- # 13 dash: airborne, back leg trailing, front knee tucked
+ # 10-14 the attack, in five: coil, wind, strike, follow-through, settle.
+ # Three frames made a swing that arrived without ever being thrown; the coil
+ # and the follow-through are what give it weight.
+ # 10 coil: weight shifting back, blade starting to come up
+ dict(bob=0,  lean=-2, feet=((-7,0), (5,0)),   hb=(-4,24), hf=(-5,16), wep=-0.5, eye='fierce', sway=-3, hd=-1),
+ # 11 wind: fully loaded, blade behind the shoulder, front foot light
+ dict(bob=1,  lean=-5, feet=((-9,0), (6,2,-2)), hb=(-6,22), hf=(-10,6), wep=-1.0, eye='fierce', sway=-7, hd=-3),
+ # 12 strike: everything arrives at once, onto the front foot
+ dict(bob=1,  lean=7,  feet=((-12,1,3), (12,0,-1)), hb=(-4,26), hf=(10,3), wep=1.00, eye='fierce', sway=9, hd=5),
+ # 13 follow-through: the blade keeps going past the target, she is overextended
+ dict(bob=2,  lean=5,  feet=((-11,0,2), (11,0,0)), hb=(-2,27), hf=(6,20), wep=0.80, eye='fierce', sway=6, hd=3),
+ # 14 settle: back to guard
+ dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.45, eye='fierce', sway=3, hd=1),
+ # 15 dash: airborne, back leg trailing, front knee tucked
  dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11, hd=5, hdy=-1),
- # 14 cast: both hands raised
+ # 16 cast: both hands raised
  dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3, hd=0, hdy=-1),
- # 15 hurt: knocked back onto the heels
+ # 17 hurt: knocked back onto the heels
  dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9, hd=-3, hdy=1),
 ]
 
@@ -727,6 +781,78 @@ def draw_weapon(c, p, pose):
         c.ellipse(bx3+7, by3+7, 1.6, 1.6, '#ffffff')
         for k in range(4):                                                    # motes
             c.set(bx3+16+k*2, by3+2+k*3, p['accent'])
+    elif w == 'atomblade':
+        # a straight sword with the nucleus set in the guard and a ring around it
+        L, hxp = 28, min(hxp, 40)
+        c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
+        c.line(hxp-ux*3-nx*6, hyp-uy*3-ny*6, hxp-ux*3+nx*6, hyp-uy*3+ny*6, p['accent'], 3)
+        c.taper(hxp+ux*3+nx*2.2, hyp+uy*3+ny*2.2,
+                hxp+ux*L+nx*1.4, hyp+uy*L+ny*1.4, p['ink'], 4, 2)
+        c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 5, 2)
+        c.line(hxp+ux*6, hyp+uy*6, hxp+ux*(L-2), hyp+uy*(L-2), '#ffffff', 1)
+        gx2, gy2 = hxp-ux*3, hyp-uy*3
+        c.ellipse(gx2, gy2, 2.2, 2.2, p['trim'])                   # nucleus
+        c.ellipse(gx2, gy2, 1.0, 1.0, '#ffffff')
+        for k in range(20):                                        # one electron ring
+            a2 = k/20*math.pi*2
+            c.set(gx2 + math.cos(a2)*5.4, gy2 + math.sin(a2)*2.4, p['accent'])
+        for k in (8, 15, 22):
+            c.set(hxp+ux*k+nx*0.5, hyp+uy*k+ny*0.5, p['trim'])     # runes down the fuller
+    elif w == 'greataxe':
+        L, hxp = 19, min(hxp, 26)          # keep the head on the frame, not past it
+        c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
+        hx2, hy2 = hxp+ux*(L-4), hyp+uy*(L-4)
+        # half-pixel steps, or the rotation leaves holes and the bit looks speckled
+        for ki in range(-22, 23):
+            k = ki/2.0
+            d = 11 - abs(k)*0.5
+            for ji in range(int(d*2)):
+                j = ji/2.0
+                col = p['metal'] if j > 2.5 else p['trim']
+                c.set(hx2 + nx*k + ux*j, hy2 + ny*k + uy*j, col)
+        for ki in range(-18, 19):                                  # lit outer edge
+            k = ki/2.0
+            e = 10.5 - abs(k)*0.5
+            c.set(hx2 + nx*k + ux*e, hy2 + ny*k + uy*e, '#ffffff')
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
+    elif w == 'scythe':
+        L, hxp = 20, min(hxp, 26)
+        c.taper(hxp-ux*18, hyp-uy*18, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)   # snath
+        tx, ty = hxp+ux*L, hyp+uy*L - 16               # the head rides high on the snath
+        c.taper(hxp+ux*(L-4), hyp+uy*(L-4), tx, ty, p['grip'], 4, 3)
+        for ki in range(60):                           # a long blade sweeping forward
+            t2 = ki/59.0
+            a2 = 2.9 - t2*1.55                         # from behind the haft round to the tip
+            bx3 = tx + math.cos(a2)*19*(0.35+t2*0.65)
+            by3 = ty + math.sin(a2)*11*(0.35+t2*0.65) + 4
+            wdt = 5.0 - t2*3.6
+            for ji in range(int(wdt*2)):
+                c.set(bx3, by3 - ji/2.0, p['metal'])
+            c.set(bx3, by3 - wdt/2.0, '#ffffff')       # lit cutting edge
+        c.ellipse(tx, ty+3, 3.0, 3.0, p['accent'])
+        c.ellipse(tx, ty+3, 1.4, 1.4, '#ffffff')
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
+    elif w == 'rifle':
+        L = 24
+        c.taper(hxp-ux*9, hyp-uy*9, hxp+ux*L, hyp+uy*L, p['metal'], 4, 3)    # barrel
+        c.line(hxp+ux*4, hyp+uy*4, hxp+ux*(L-2), hyp+uy*(L-2), p['cloth3'], 1)
+        c.taper(hxp-ux*10, hyp-uy*10, hxp-ux*17, hyp-uy*17+4, p['grip'], 6, 5)  # stock
+        c.rect(hxp-2, hyp+1, 4, 6, p['grip'])                                # grip
+        c.rect(hxp+4, hyp-4, 5, 3, p['cloth3'])                              # sight
+        c.set(hxp+ux*(L+1), hyp+uy*(L+1), p['accent'])                       # muzzle glow
+        c.set(hxp+ux*(L+2), hyp+uy*(L+2), p['trim'])
+    elif w == 'hookblade':
+        L = 18
+        c.taper(hxp-ux*6, hyp-uy*6, hxp, hyp, p['grip'], 4, 4)
+        c.taper(hxp+ux*2, hyp+uy*2, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)
+        for k in range(7):                                         # the hook curls back
+            a2 = ang - 1.5 + k*0.26
+            c.set(hxp+ux*L + math.cos(a2)*5, hyp+uy*L + math.sin(a2)*5, p['metal'])
+        c.line(hxp+ux*4, hyp+uy*4, hxp+ux*(L-1), hyp+uy*(L-1), '#ffffff', 1)
+        for k in range(7):                                         # a short chain, coiled
+            lx = hxp - ux*6 - k*1.6
+            ly = hyp + 3 + math.sin(k*1.1)*2.2
+            c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
     elif w == 'tome':
         bx, by = hxp - 4, hyp - 9        # cradled against the palm
         c.rect(bx, by, 15, 15, p['metal'])
@@ -744,10 +870,30 @@ def grip_hand(c, p, pose):
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
     c.set(hxp-2, hyp-1, p['skin2'])
 
+def draw_cape(c, p, pose):
+    """hangs off the shoulders and streams behind - the trail is driven by the
+    same sway the hair uses, so a cape and a ponytail never fight each other"""
+    sway = pose['sway']
+    x = CX + pose['lean']*0.3 + TURN*0.4
+    top = SHOULDER + pose['bob'] - 2
+    for k in range(46):
+        t  = k/45.0
+        # it leaves the shoulder narrow, bells out, then tapers to a ragged hem
+        w  = 4 + 9*math.sin(min(1.0, t*1.15)*math.pi*0.8)
+        bx = x - 3 - t*(6 + sway*0.9) - t*t*4
+        y  = top + k
+        if y >= FEET: break
+        c.rect(bx-w, y, w*1.6, 1, p['cape'])
+        c.rect(bx-w, y, 2, 1, p['cape2'])              # lit fold on the trailing edge
+        if k % 9 == 4: c.rect(bx-w+2, y, 2, 1, p['cape2'])
+    c.rect(x-5, top-1, 11, 3, p['cape2'])              # the collar clasp
+    c.rect(x-5, top-2, 11, 1, p['trim'])
+
 def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
     c = Cv(W, H)
     cx, cy = head_pos(pose)
+    if p.get('cape'): draw_cape(c, p, pose)
     hair_back(c, p, pose, cx, cy)
     draw_arm(c, p, pose, True)
     draw_legs(c, p, pose)
