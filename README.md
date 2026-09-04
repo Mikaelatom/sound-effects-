@@ -33,9 +33,22 @@ change your pick any time before a pull.
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
 - 4★: 9% base, **guaranteed within 10**
 - Every pull that is neither pays out **Echoes**. Bank 10 and spend them in
-  Collection to raise *anyone's* **Resonance** (+8% HP and ATK, up to R6), so
-  no pull is ever wasted.
+  Collection to raise *anyone's* **Resonance**, so no pull is ever wasted.
 - Duplicate characters raise Resonance directly; at R6 they refund shards.
+
+**Resonance is a real power curve, not a rounding error.** Each rank is +13%
+attack and +9% HP, and **R6 pays a bonus on top** — a 30% attack spike and a
+12% health spike:
+
+| Resonance | Damage | Health |
+|---|---|---|
+| R0 | ×1.00 | ×1.00 |
+| R3 | ×1.39 | ×1.27 |
+| R5 | ×1.65 | ×1.45 |
+| **R6** | **×2.31** | **×1.72** |
+
+An R6 character hits for **more than double** what they did at R0. The Raid
+is tuned assuming you have three of them.
 
 ---
 
@@ -64,11 +77,35 @@ from floor 1. After each fight you pick 1 of 3 **relics** — 20 of them,
 stacking into some genuinely stupid builds (Split Volley + Piercing Shot +
 Arc Current is a shotgun that clears the screen).
 
+### Link Strikes
+
+Land a **Skill** or a **Burst** and you tear an **opening** — a two-second
+window, called out on screen. Swap during it and the incoming character does
+not just walk on: they arrive with an **Entrance move** of their own, and it
+hits for a multiplier.
+
+| Chain | Damage |
+|---|---|
+| Link 1 | ×1.6 |
+| Link 2 | ×2.1 |
+| Link 3 | ×2.6 |
+| Link 4+ | ×3.0 |
+
+Each Entrance refreshes the window, so the chain keeps going as long as you
+keep swapping — **1 → skill → 2 → 3** is a real rotation, not a gimmick. A
+Link Strike also ignores the swap cooldown and grants a moment of
+invulnerability on arrival, so it doubles as an escape.
+
+Every character has their own entrance: Aoi cuts in on a dash, Kagura drops a
+star, Ren blinks behind them, Kassandra charges the lance in, Hinata arrives
+healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
+**no** opening is just a normal swap — the combo counter stays at zero.
+
 ---
 
 ## The cast
 
-Everyone is 5★. They play completely differently.
+Sixteen characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -116,8 +153,11 @@ else's damage.
 ## The Raid — The Sovereign
 
 One fight, from the Home screen, separate from the Spire. No relics: just your
-squad, their kits, and whether you can read what he's doing. Four minutes
-before he enrages.
+squad, their kits, and whether you can read what he's doing. **9,000 HP** and
+**four and a half minutes** before he enrages.
+
+This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
+you will hit the enrage timer with him still standing.
 
 - **Phase 1** — he summons **Wardens**, and takes **75% less damage** while
   any of them are standing. Kill them first or you are hitting a wall.
@@ -127,7 +167,18 @@ before he enrages.
   **breaks**, taking 50% extra damage for five seconds. Fail and the whole
   squad loses 55% of its health. This is what your Bursts are for — hold them.
 
-A rotating beam sweeps throughout; it telegraphs thin before it goes live.
+The Wardens **come back**: he re-summons them roughly every 34 seconds through
+phases 2 and 3, three at a time in the last phase, so the damage gate is
+something you clear over and over, not once. He hits harder than anything in
+the Spire, and a rotating beam sweeps throughout; it telegraphs thin before it
+goes live.
+
+Link Strikes are the answer to the gate. Skill into a swap into a swap and you
+are doing triple damage exactly when the Wardens drop and the break window
+opens.
+
+**Reward: 12,000 shards** for a kill — enough for a serious run at the banner.
+Losing still pays out on the damage you did.
 
 ---
 
@@ -164,7 +215,17 @@ and nothing can come apart at the joints when the body moves. Per-character
 hair, outfit, sleeve length and weapon layer on top.
 
 The walk is a real 4-frame cycle — contact, passing, contact mirrored,
-passing mirrored — with the arms swinging opposite the legs.
+passing mirrored — with the arms swinging opposite the legs. Arms swing from a
+shaded deltoid through an elbow cuff, legs carry a thigh mass and a lit knee,
+so a limb reads as a limb rather than a tapered stick.
+
+**Attacks are animated, not sprites in flight.** Every projectile is drawn from
+scratch each frame against its own age, so it *plays*: a slash sweeps its arc
+open as it travels, a lance extends to full length out of nothing, a thrown
+knife tumbles end over end, a bolt re-forks its lightning three ways, a bomb's
+fuse sputters, an orb pulses with a mote orbiting it. Impacts get their own
+animation too — an expanding ring, a cross flash and thrown shards over a
+quarter of a second, with melee hits playing a cut instead of a burst.
 
 Figures are drawn in **true side profile** facing +x, and mirrored for left.
 This matters more than it sounds: a front-facing sprite that is merely

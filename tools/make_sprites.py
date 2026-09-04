@@ -243,10 +243,10 @@ POSES = [
  dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=0.05, eye='open',   sway=2),
  # 2-5 walk: contact, passing, contact (mirrored), passing (mirrored).
  # Arms swing opposite the legs, the way they actually do.
- dict(bob=1,  lean=1,  feet=((-11,0), (9,5)),  hb=(5,25),  hf=(-5,26), wep=0.10, eye='open',   sway=4),
- dict(bob=-1, lean=0,  feet=((-4,7), (4,0)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=1),
- dict(bob=1,  lean=-1, feet=((-9,5), (11,0)),  hb=(-5,26), hf=(5,25),  wep=0.10, eye='open',   sway=-4),
- dict(bob=-1, lean=0,  feet=((-4,0), (4,7)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=-1),
+ dict(bob=1,  lean=1,  feet=((-11,0), (9,5)),  hb=(9,23),  hf=(-8,27), wep=0.10, eye='open',   sway=4),
+ dict(bob=-1, lean=0,  feet=((-4,7), (4,0)),   hb=(2,25),  hf=(-1,26), wep=0.00, eye='open',   sway=1),
+ dict(bob=1,  lean=-1, feet=((-9,5), (11,0)),  hb=(-8,27), hf=(9,23),  wep=0.10, eye='open',   sway=-4),
+ dict(bob=-1, lean=0,  feet=((-4,0), (4,7)),   hb=(-1,26), hf=(2,25),  wep=0.00, eye='open',   sway=-1),
  # 6 windup: weight back, blade drawn behind
  dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6),
  # 7 strike: lunge onto the front foot, back foot trailing
@@ -295,9 +295,12 @@ def draw_legs(c, p, pose):
         fxx = CX + fx + TURN*0.35 + (-1.2 if side < 0 else 1.2)
         fyy = FEET - 4 - lift
         # knee leads the hip when the foot is forward, so the leg reads as bent
-        bend = (fxx - hx) * 0.30 + 2.2
-        kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 9, 6)
-        c.taper(hx-1, hipy, kx-1, ky, lg2, 3, 2)              # lit edge
+        bend = (fxx - hx) * 0.30 + 2.4
+        kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 10, 6)
+        c.ellipse(hx, hipy+1, 4.6, 4.0, lg)                   # hip/thigh mass
+        c.ellipse(kx, ky, 3.0, 2.8, lg)                       # knee
+        c.taper(hx-1, hipy, kx-1, ky, lg2, 4, 2)              # lit edge down the thigh
+        c.taper(kx-1, ky, fxx-1, fyy, lg2, 2, 1)              # shin highlight
         c.rect(fxx-4, fyy, 7, 5, bt)                           # ankle
         c.rect(fxx-4, fyy, 7, 2, lg2)                          # cuff
         c.rect(fxx+1, fyy+2, 6, 3, bt)                         # toe, pointing forward
@@ -359,12 +362,17 @@ def draw_arm(c, p, pose, back):
     hxp, hyp = hand(pose, back)
     t = p['sleeve']
     side = -1 if back else 1
-    # elbow sits on the sleeve/skin boundary, pushed away from the body
-    ex, ey = bent(c, sx, sy, sx+(hxp-sx)*t, sy+(hyp-sy)*t, side*2.0, cl, 9, 7)
+    # shoulder cap, tapering upper arm, elbow, then a slimmer forearm
+    ex, ey = bent(c, sx, sy, sx+(hxp-sx)*t, sy+(hyp-sy)*t, side*2.2, cl, 10, 7)
+    c.ellipse(sx, sy, 4.4, 4.0, cl)                    # deltoid
+    c.ellipse(sx-1, sy-1, 2.6, 2.2, cl2)               # lit top of the shoulder
     c.taper(sx, sy+1, ex, ey, cl2, 4, 2)
     cx2, cy2 = sx+(hxp-sx)*t, sy+(hyp-sy)*t
-    bent(c, cx2, cy2, hxp, hyp, side*1.4, sk, 6, 5)
+    c.ellipse(cx2, cy2, 3.0, 2.8, cl)                  # cuff at the elbow
+    bent(c, cx2, cy2, hxp, hyp, side*1.6, sk, 6, 4)
+    c.taper(cx2, cy2, hxp, hyp, p['skin3'], 2, 1)      # underside shading
     c.ellipse(hxp, hyp+1, 3.2, 3.4, sk)
+    c.ellipse(hxp-1, hyp, 1.8, 1.8, p['skin2'])
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
 
 def eye_profile(c, p, x, y, mode):
