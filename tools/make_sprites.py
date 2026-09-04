@@ -184,6 +184,38 @@ CHARS = {
     leg='#2e1c36', leg2='#4a2e56', boot='#1a1020',
     metal='#c9a05a', grip='#4a3320', sleeve=0.60, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
     style='braid', wep='lute'),
+ 'seryn': dict(ink='#1a2338', hair='#b8912f', hair2='#ffe08a', hair3='#fff6cf', shine='#ffffff',
+    skin='#ffe6cf', skin2='#e0b48f', skin3='#b8886a', blush='#ffa8b8',
+    eye='#5fe0a8', eye2='#12704f', brow='#b8912f',
+    cloth='#cfd8ea', cloth2='#f2f6ff', cloth3='#6f7f9c', trim='#3f6fd0', accent='#ffcc4d',
+    leg='#3f4a63', leg2='#5f6d8c', boot='#232b3d',
+    metal='#eef3ff', grip='#2b3350',
+    face=dict(ew=5, eh=4, lash=1, droop=0, brow='flat', brow_h=2, nose=2, mouth=1),
+    sleeve=0.86, style='braid', wep='greatsword'),
+ 'aldric': dict(ink='#2a1414', hair='#8a8a96', hair2='#d8d8e4', hair3='#ffffff', shine='#ffffff',
+    skin='#c9906a', skin2='#a3714f', skin3='#7d5439', blush='#c96a5a',
+    eye='#a8b4c8', eye2='#4a5568', brow='#8a8a96',
+    cloth='#8f2020', cloth2='#c33a3a', cloth3='#4a1010', trim='#2b2b33', accent='#2b2b33',
+    leg='#2b2b33', leg2='#45454f', boot='#16161c',
+    metal='#e8ecf5', grip='#2b2b33',
+    face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
+    sleeve=0.70, style='spiky', wep='twinswords'),
+ 'kassandra': dict(ink='#33101c', hair='#8f1f33', hair2='#e04a63', hair3='#ff9db0', shine='#ffd0d8',
+    skin='#ffdcc0', skin2='#e0a184', skin3='#b87f62', blush='#ff8fa8',
+    eye='#ffcc4d', eye2='#8a5a10', brow='#8f1f33',
+    cloth='#3a1420', cloth2='#5e2436', cloth3='#220c14', trim='#e04a63', accent='#ffcc4d',
+    leg='#2b0f18', leg2='#452030', boot='#180810',
+    metal='#ffd0d8', grip='#3a1420',
+    face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
+    sleeve=0.55, style='ponytail', wep='spear'),
+ 'nyx': dict(ink='#100a1c', hair='#2a1c40', hair2='#5b3f86', hair3='#9c7fc9', shine='#c9b0e8',
+    skin='#f0dcd0', skin2='#cbb0a4', skin3='#a08878', blush='#d68a9c',
+    eye='#b07cff', eye2='#4a2578', brow='#2a1c40',
+    cloth='#1e142e', cloth2='#3a2a56', cloth3='#120c1c', trim='#b07cff', accent='#b07cff',
+    leg='#181026', leg2='#2e2040', boot='#0d0816',
+    metal='#4a2f6b', grip='#241634',
+    face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft', brow_h=2, nose=2, mouth=1),
+    sleeve=0.88, style='long', wep='grimoire'),
  'toma': dict(ink='#22221a', hair='#6b6320', hair2='#b8ab3d', hair3='#e8e0a8', shine='#fff8d0',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e8907a',
     eye='#ffe14d', eye2='#8a6410', brow='#6b6320',
@@ -193,7 +225,8 @@ CHARS = {
     style='crop', wep='staff'),
 }
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
-         'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma']
+         'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma',
+         'seryn', 'aldric', 'kassandra', 'nyx']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -210,10 +243,10 @@ POSES = [
  dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=0.05, eye='open',   sway=2),
  # 2-5 walk: contact, passing, contact (mirrored), passing (mirrored).
  # Arms swing opposite the legs, the way they actually do.
- dict(bob=1,  lean=1,  feet=((-9,0), (7,4)),   hb=(4,25),  hf=(-4,26), wep=0.10, eye='open',   sway=4),
- dict(bob=-1, lean=0,  feet=((-3,5), (3,0)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=1),
- dict(bob=1,  lean=-1, feet=((-7,4), (9,0)),   hb=(-4,26), hf=(4,25),  wep=0.10, eye='open',   sway=-4),
- dict(bob=-1, lean=0,  feet=((-3,0), (3,5)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=-1),
+ dict(bob=1,  lean=1,  feet=((-11,0), (9,5)),  hb=(5,25),  hf=(-5,26), wep=0.10, eye='open',   sway=4),
+ dict(bob=-1, lean=0,  feet=((-4,7), (4,0)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=1),
+ dict(bob=1,  lean=-1, feet=((-9,5), (11,0)),  hb=(-5,26), hf=(5,25),  wep=0.10, eye='open',   sway=-4),
+ dict(bob=-1, lean=0,  feet=((-4,0), (4,7)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=-1),
  # 6 windup: weight back, blade drawn behind
  dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6),
  # 7 strike: lunge onto the front foot, back foot trailing
@@ -265,33 +298,45 @@ def draw_legs(c, p, pose):
         bend = (fxx - hx) * 0.30 + 2.2
         kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 9, 6)
         c.taper(hx-1, hipy, kx-1, ky, lg2, 3, 2)              # lit edge
-        c.rect(fxx-4, fyy, 8, 5, bt)                           # boot
-        c.rect(fxx-4, fyy, 8, 2, lg2)                          # cuff
-        c.rect(fxx-5, fyy+4, 10, 2, bt)                        # sole
-        if lift > 2: c.rect(fxx-5, fyy+4, 10, 1, p['ink'])     # airborne edge
+        c.rect(fxx-4, fyy, 7, 5, bt)                           # ankle
+        c.rect(fxx-4, fyy, 7, 2, lg2)                          # cuff
+        c.rect(fxx+1, fyy+2, 6, 3, bt)                         # toe, pointing forward
+        c.rect(fxx-5, fyy+4, 13, 2, bt)                        # sole runs to the toe
+        c.rect(fxx+5, fyy+3, 3, 1, lg2)
+        if lift > 2: c.rect(fxx-5, fyy+5, 13, 1, p['ink'])     # airborne edge
 
 def draw_torso(c, p, pose):
+    """Torso in profile. The detail that sells it is putting the shirt opening,
+    collar and trim on the FRONT EDGE - a placket down the centre of the chest
+    is a head-on detail and makes the whole body read as facing the camera."""
     cl, cl2, cl3, tr = p['cloth'], p['cloth2'], p['cloth3'], p['trim']
     dy = pose['bob']
+    edges = []
     for i, hw in enumerate(TORSO):
         y = SHOULDER + i + dy
-        # the turn eases from shoulders down to hips, and the body foreshortens
         t = 1 - i/len(TORSO)*0.45
         x = CX + pose['lean']*0.4*t + TURN*0.9*t
         w = hw*PROFILE
-        c.rect(x-w, y, w*2, 1, cl)
-        c.rect(x-w, y, 2, 1, cl3)                            # spine side in shadow
-        c.rect(x+w-1, y, 1, 1, cl2)                          # chest edge catches light
-        if i < 5: c.rect(x-w+2, y, w*2-3, 1, cl2)
+        chest = 1.6 if 1 <= i <= 8 else (0.6 if i > 14 else 0)   # chest forward, waist tucked
+        front, back = x + w + chest, x - w*0.92
+        c.rect(back, y, front-back, 1, cl)
+        c.rect(back, y, 2, 1, cl3)                        # spine side in shadow
+        c.rect(front-2, y, 2, 1, cl2)                     # chest edge catches the light
+        edges.append((y, front, back))
+    for k, (y, front, back) in enumerate(edges):          # placket down the front edge
+        if 2 <= k <= 16: c.rect(front-3, y, 2, 1, tr)
+    y0, f0, b0 = edges[0]
+    c.rect(b0+1, y0-1, (f0-b0)-2, 2, cl2)                 # shoulder line
+    c.rect(f0-5, y0, 5, 3, cl2)                           # collar opens forward
+    c.rect(f0-5, y0+2, 4, 1, tr)
     x = CX + pose['lean']*0.5 + TURN*0.8
-    c.rect(x-2, 25+dy, 5, 5, p['skin'])                       # neck
+    c.rect(x-2, 25+dy, 5, 5, p['skin'])                   # neck
     c.rect(x-2, 25+dy, 5, 2, p['skin3'])
-    c.rect(x-6, SHOULDER+1+dy, 12, 2, cl2)                    # collar
-    c.rect(x, SHOULDER+2+dy, 2, 16, tr)                       # seam rides the turn
-    c.rect(x-7, 46+dy, 14, 4, p['accent'])                    # sash
-    c.rect(x-7, 46+dy, 14, 1, cl2)
-    xh = CX + pose['lean']*0.25 + TURN*0.5                    # skirts sit on the hips
-    if p['style'] == 'bob':                                   # skirts narrow too
+    ys, fs, bs = edges[17]
+    c.rect(bs, 46+dy, (fs-bs), 4, p['accent'])            # sash follows the body
+    c.rect(bs, 46+dy, (fs-bs), 1, cl2)
+    xh = CX + pose['lean']*0.25 + TURN*0.5
+    if p['style'] == 'bob':                               # skirts hang off the hips
         c.rect(xh-7, HIP+dy, 15, 6, cl)
         c.rect(xh-9, HIP+5+dy, 18, 4, cl2)
         c.rect(xh-9, HIP+8+dy, 18, 2, cl3)
@@ -302,8 +347,9 @@ def draw_torso(c, p, pose):
         for i in range(0, 16, 5): c.rect(xh-8+i, HIP+4+dy, 2, 6, tr)
     else:
         c.rect(xh-7, HIP+dy, 14, 4, cl)
-        c.rect(xh-8, HIP+3+dy, 6, 11, cl3)                    # coat tail streams back
-        c.rect(xh-8, HIP+3+dy, 6, 2, tr)
+        c.rect(xh-9, HIP+3+dy, 7, 12, cl3)                # coat tail streams behind
+        c.rect(xh-9, HIP+3+dy, 7, 2, tr)
+        c.rect(xh-10, HIP+9+dy, 4, 6, cl3)
 
 def draw_arm(c, p, pose, back):
     sk  = p['skin2'] if back else p['skin']
@@ -594,6 +640,42 @@ def draw_weapon(c, p, pose):
         c.rect(bx3+16, by3-18, 4, 4, p['grip'])
         for k in range(3):
             c.line(bx3+2+k, by3+2, bx3+15+k, by3-13, p['accent'], 1)
+    elif w == 'greatsword':
+        L, hxp = 30, min(hxp, 30)
+        c.taper(hxp-ux*11, hyp-uy*11, hxp, hyp, p['grip'], 5, 5)              # long grip
+        c.line(hxp-ux*2-nx*7, hyp-uy*2-ny*7, hxp-ux*2+nx*7, hyp-uy*2+ny*7, p['accent'], 4)
+        c.taper(hxp+ux*4+nx*2.6, hyp+uy*4+ny*2.6,
+                hxp+ux*L+nx*1.6, hyp+uy*L+ny*1.6, p['ink'], 4, 2)             # spine
+        c.taper(hxp+ux*4, hyp+uy*4, hxp+ux*L, hyp+uy*L, p['metal'], 7, 3)     # broad blade
+        c.line(hxp+ux*7-nx, hyp+uy*7-ny, hxp+ux*(L-2)-nx, hyp+uy*(L-2)-ny, '#ffffff', 1)
+        for k in (10, 17, 24):                                                # runes
+            c.set(hxp+ux*k, hyp+uy*k, p['trim'])
+    elif w == 'twinswords':
+        for sgn, hd in ((1, (hxp, hyp)), (-1, hand(pose, True))):
+            bx3, by3 = hd
+            ax, ay = (ux, uy) if sgn > 0 else (-abs(ux), uy*0.6)
+            c.taper(bx3-ax*5, by3-ay*5, bx3, by3, p['grip'], 4, 4)
+            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*17, by3+ay*17, p['metal'], 5, 2)
+            c.line(bx3+ax*4, by3+ay*4, bx3+ax*15, by3+ay*15, '#ffffff', 1)
+            c.rect(bx3-2, by3-3, 4, 2, p['cloth2'])
+    elif w == 'spear':
+        L, hxp = 34, min(hxp, 28)
+        c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*(L-9), hyp+uy*(L-9), p['grip'], 4, 4)
+        c.taper(hxp+ux*(L-11), hyp+uy*(L-11), hxp+ux*L, hyp+uy*L, p['metal'], 7, 2)
+        c.line(hxp+ux*(L-9), hyp+uy*(L-9), hxp+ux*(L-1), hyp+uy*(L-1), '#ffffff', 1)
+        c.line(hxp+ux*(L-12)-nx*4, hyp+uy*(L-12)-ny*4,
+               hxp+ux*(L-12)+nx*4, hyp+uy*(L-12)+ny*4, p['accent'], 2)
+        for k in range(3):                                                    # ribbon
+            c.set(hxp-ux*(9+k*3), hyp-uy*(9+k*3)+k, p['trim'])
+    elif w == 'grimoire':
+        bx3, by3 = hxp - 4, hyp - 9
+        c.rect(bx3, by3, 15, 15, p['metal'])
+        c.rect(bx3+1, by3+1, 13, 13, p['cloth3'])
+        c.rect(bx3+6, by3, 3, 15, p['grip'])
+        c.ellipse(bx3+7, by3+7, 3.4, 3.4, p['accent'])
+        c.ellipse(bx3+7, by3+7, 1.6, 1.6, '#ffffff')
+        for k in range(4):                                                    # motes
+            c.set(bx3+16+k*2, by3+2+k*3, p['accent'])
     elif w == 'tome':
         bx, by = hxp - 4, hyp - 9        # cradled against the palm
         c.rect(bx, by, 15, 15, p['metal'])

@@ -83,6 +83,22 @@ Everyone is 5★. They play completely differently.
 | ❄ | **Yura Shinomiya** · Frost | Glacier Bloom — freeze the room | Tide Lance — piercing ice | **Absolute Zero** — 4s deep freeze |
 | ⚡ | **Kaito Amemiya** · Volt | Thunder Rush — rocket forward | Static Field — discharge | **Overcharge** — 6s double attack speed |
 
+### 5★ — The Revenants
+
+Heroes called back out of legend. Their own faction, their own naming, and the
+sharpest kits in the game.
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ♛ | **Seryn Alba** · *The Sworn King* | Oathbreaker — one enormous arc | Aegis of the Crown — shield, and touching her hurts | **Dawnbreaker** — a column of light across the arena |
+| ⚔ | **Aldric Vane** · *The Faithless* | Broken Phantasm — nine thrown blades | Trace On — step through space and gut them | **Endless Armoury** — 3s of swords falling |
+| ✹ | **Kassandra Rue** · *The Crimson Lance* | Piercing Fate — close and run it through | Crimson Thrust — a thrust that arrives as a line | **Thousand Thrusts** |
+| ☾ | **Nyx Morrow** · *The Ashen Witch* | Hex Circle | Witchfire — burning ground | **Grave Choir** — two dozen hunting motes |
+
+Kassandra **always crits anything under 40% HP**, and anything Nyx damages is
+**Cursed** — it takes 15% more damage from *everyone* for 3s, so she sets the
+squad up the way Yura does.
+
 ### 4★
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
@@ -155,7 +171,11 @@ This matters more than it sounds: a front-facing sprite that is merely
 mirrored reads as facing *nowhere*, no matter how much the features are
 nudged. In profile there is one visible eye, a nose on the leading edge, the
 ear behind, a torso narrowed to about 62% of its head-on width, shoulders
-close together, and hair and scarves trailing behind. Press D and the head,
+close together, and hair and scarves trailing behind. The shirt opening,
+collar and trim run down the **front edge** of the torso rather than the
+centre of the chest — a centred placket is a head-on detail and makes the
+whole body read as square to the camera even when the head is not. Feet have
+a toe forward and a heel behind. Press D and the head,
 torso and legs all lead with the front of the body.
 
 Every character has their own **face parameters** — eye width and height,
