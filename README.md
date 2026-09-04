@@ -89,10 +89,12 @@ hits for a multiplier.
 | Link 1 | ×1.6 |
 | Link 2 | ×2.1 |
 | Link 3 | ×2.6 |
-| Link 4+ | ×3.0 |
 
-Each Entrance refreshes the window, so the chain keeps going as long as you
-keep swapping — **1 → skill → 2 → 3** is a real rotation, not a gimmick. A
+A chain runs **three links, once**. Each Entrance refreshes the window — but
+only for a second, and each character can only come in once per chain — so
+**1 → skill → 2 → 3** is a rotation you have to hit, not a button you can
+lean on. Once the chain is spent, or the window closes, Link Strikes go on a
+**nine-second cooldown** and no opening appears at all until it is back. A
 Link Strike also ignores the swap cooldown and grants a moment of
 invulnerability on arrival, so it doubles as an escape.
 
@@ -214,8 +216,12 @@ knee or elbow pushed out perpendicular, so they bend instead of stretching,
 and nothing can come apart at the joints when the body moves. Per-character
 hair, outfit, sleeve length and weapon layer on top.
 
-The walk is a real 4-frame cycle — contact, passing, contact mirrored,
-passing mirrored — with the arms swinging opposite the legs. Arms swing from a
+The walk is a real **eight-frame cycle** — contact, down, passing, up, then
+the same four with the legs swapped — with the arms swinging opposite the
+legs. Feet carry a **pitch** as well as a height: the toe lifts for the heel
+strike, the whole sole plants, then the heel peels off and the toe is last to
+leave the ground. That roll is most of what sells a walk. The knee folds up
+hard while a leg is swinging through, so it bends rather than skating. Arms swing from a
 shaded deltoid through an elbow cuff, legs carry a thigh mass and a lit knee,
 so a limb reads as a limb rather than a tapered stick. The **trailing** arm and
 leg are drawn in a dimmed copy of their own colours, which is what stops the
@@ -236,7 +242,12 @@ This matters more than it sounds: a front-facing sprite that is merely
 mirrored reads as facing *nowhere*, no matter how much the features are
 nudged. In profile there is one visible eye, a nose on the leading edge, the
 ear behind, a torso narrowed to about 62% of its head-on width, shoulders
-close together, and hair and scarves trailing behind. The shirt opening,
+close together, and hair and scarves trailing behind. **Hair masses behind
+the head**, never curtaining down both sides: a symmetrical hairstyle — twin
+ribbons, a fringe fanned across the whole crown, a curtain past each cheek —
+is a head-on detail, and one of those alone is enough to make a figure read
+as facing the camera while it walks the other way. Only a short lock in front
+of the ear survives on the leading side. The shirt opening,
 collar and trim run down the **front edge** of the torso rather than the
 centre of the chest — a centred placket is a head-on detail and makes the
 whole body read as square to the camera even when the head is not. Feet have

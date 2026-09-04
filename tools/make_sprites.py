@@ -21,7 +21,7 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 import zlib, struct, base64, os, sys, math
 
 W, H = 56, 96
-FRAMES = 12
+FRAMES = 16
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 28.0       # centre column
 FEET  = 92         # baseline every actor stands on
@@ -241,24 +241,39 @@ POSES = [
  # 0-1 idle: a slow breath, weight on both feet
  dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=0.00, eye='open',   sway=0),
  dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=0.05, eye='open',   sway=2),
- # 2-5 walk: contact, passing, contact (mirrored), passing (mirrored).
- # Arms swing opposite the legs, the way they actually do.
- dict(bob=1,  lean=1,  feet=((-11,0), (9,5)),  hb=(9,23),  hf=(-8,27), wep=0.10, eye='open',   sway=4),
- dict(bob=-1, lean=0,  feet=((-4,7), (4,0)),   hb=(2,25),  hf=(-1,26), wep=0.00, eye='open',   sway=1),
- dict(bob=1,  lean=-1, feet=((-9,5), (11,0)),  hb=(-8,27), hf=(9,23),  wep=0.10, eye='open',   sway=-4),
- dict(bob=-1, lean=0,  feet=((-4,0), (4,7)),   hb=(-1,26), hf=(2,25),  wep=0.00, eye='open',   sway=-1),
- # 6 windup: weight back, blade drawn behind
+
+ # 2-9 walk: the full eight-frame cycle, twice through
+ # contact - down - passing - up, once for each leg. Feet carry a third
+ # number, their PITCH: negative lifts the toe for the heel strike, positive
+ # lifts the heel as the foot rolls off. That roll is most of what sells it.
+ # The near leg leads first; on frame 6 the far leg takes over, which is why
+ # the two halves are not mirrors of each other but the same poses swapped.
+ # contact A - near heel lands out front, far toe still pushing
+ dict(bob=1,  lean=1,  feet=((-10,0,2), (10,0,-2)), hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4),
+ # down A - weight drops onto the near leg, far toe about to leave
+ dict(bob=2,  lean=2,  feet=((-12,1,3), (6,0,0)),   hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5),
+ # passing A - far leg swings through under the body, hips at their highest
+ dict(bob=-1, lean=0,  feet=((-3,7,0), (0,0,0)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ # up A - far leg reaches forward, near heel starting to lift
+ dict(bob=-1, lean=-1, feet=((6,4,-2), (-5,0,1)),   hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1),
+ # contact B - the same four, with the legs swapped over
+ dict(bob=1,  lean=1,  feet=((10,0,-2), (-10,0,2)), hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4),
+ dict(bob=2,  lean=2,  feet=((6,0,0),   (-12,1,3)), hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5),
+ dict(bob=-1, lean=0,  feet=((0,0,0),   (-3,7,0)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ dict(bob=-1, lean=-1, feet=((-5,0,1),  (6,4,-2)),  hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1),
+
+ # 10 windup: weight back, blade drawn behind
  dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6),
- # 7 strike: lunge onto the front foot, back foot trailing
- dict(bob=1,  lean=6,  feet=((-11,1), (11,0)), hb=(-4,26), hf=(9,4),   wep=1.00, eye='fierce', sway=8),
- # 8 recover: settling out of the lunge
+ # 11 strike: lunge onto the front foot, back foot trailing
+ dict(bob=1,  lean=6,  feet=((-11,1,3), (11,0,-1)), hb=(-4,26), hf=(9,4), wep=1.00, eye='fierce', sway=8),
+ # 12 recover: settling out of the lunge
  dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.55, eye='fierce', sway=4),
- # 9 dash: airborne, back leg trailing, front knee tucked
- dict(bob=3,  lean=9,  feet=((-13,7), (6,11)), hb=(-8,28), hf=(6,18),  wep=0.25, eye='fierce', sway=11),
- # 10 cast: both hands raised
+ # 13 dash: airborne, back leg trailing, front knee tucked
+ dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11),
+ # 14 cast: both hands raised
  dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3),
- # 11 hurt: knocked back onto the heels
- dict(bob=2,  lean=-6, feet=((-7,0), (8,2)),   hb=(-7,16), hf=(7,16),  wep=0.20, eye='hurt',   sway=-9),
+ # 15 hurt: knocked back onto the heels
+ dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9),
 ]
 
 def shoulder(pose, back):
@@ -292,7 +307,9 @@ def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
 def draw_legs(c, p, pose):
     hipy = HIP + pose['bob']
     hipdx = pose['lean']*0.25 + TURN*0.5
-    for i, (fx, lift) in enumerate(pose['feet']):
+    for i, f in enumerate(pose['feet']):
+        fx, lift = f[0], f[1]
+        pitch = f[2] if len(f) > 2 else 0        # -toe up (heel strike), +heel up (roll off)
         side = -1 if i == 0 else 1
         far = i == 0                                          # trailing leg, in shadow
         lg  = shade(p['leg'],  0.62) if far else p['leg']
@@ -302,19 +319,25 @@ def draw_legs(c, p, pose):
         # trailing foot sits further back than the lead one on a turned body
         fxx = CX + fx + TURN*0.35 + (-1.2 if side < 0 else 1.2)
         fyy = FEET - 4 - lift
-        # knee leads the hip when the foot is forward, so the leg reads as bent
-        bend = (fxx - hx) * 0.30 + 2.4
+        # knee leads the hip when the foot is forward, and folds up hard while
+        # the leg is swinging through, which is what stops the walk looking stiff
+        bend = (fxx - hx) * 0.30 + 2.4 + lift * 0.45
         kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 10, 6)
         c.ellipse(hx, hipy+1, 4.6, 4.0, lg)                   # hip/thigh mass
         c.ellipse(kx, ky, 3.0, 2.8, lg)                       # knee
         c.taper(hx-1, hipy, kx-1, ky, lg2, 4, 2)              # lit edge down the thigh
         c.taper(kx-1, ky, fxx-1, fyy, lg2, 2, 1)              # shin highlight
-        c.rect(fxx-4, fyy, 7, 5, bt)                           # ankle
-        c.rect(fxx-4, fyy, 7, 2, lg2)                          # cuff
-        c.rect(fxx+1, fyy+2, 6, 3, bt)                         # toe, pointing forward
-        c.rect(fxx-5, fyy+4, 13, 2, bt)                        # sole runs to the toe
-        c.rect(fxx+5, fyy+3, 3, 1, lg2)
-        if lift > 2: c.rect(fxx-5, fyy+5, 13, 1, p['ink'])     # airborne edge
+        # the foot rolls: heel lands first, then the whole sole, then the heel
+        # peels off the ground and the toe is last to leave
+        hy = fyy + 4 - max(0, pitch)                           # heel height
+        ty = fyy + 4 - max(0, -pitch)                          # toe height
+        c.rect(fxx-4, fyy, 7, 5, bt)                           # boot shaft
+        c.rect(fxx-4, fyy, 7, 2, lg2)                          # cuff catches the light
+        c.taper(fxx-4, hy, fxx+6, ty, bt, 3, 3)                # sole, tilted by the roll
+        c.rect(fxx-5, hy-2, 5, 3, bt)                          # heel
+        c.rect(fxx+2, ty-2, 6, 3, bt)                          # toe box
+        c.rect(fxx+5, ty-2, 3, 1, lg2)                         # toe cap highlight
+        if lift > 2: c.rect(fxx-5, max(hy, ty)+1, 13, 1, p['ink'])   # airborne edge
 
 def draw_torso(c, p, pose):
     """Torso in profile. The detail that sells it is putting the shirt opening,
@@ -463,22 +486,25 @@ def hair_back(c, p, pose, cx, cy):
         c.taper(cx-13+sway*0.4, cy+2, cx-16+sway, cy+24, h2, 4, 3)
         c.taper(cx-15+sway, cy+28, cx-18+sway*1.3, cy+38, h1, 4, 2)
     elif st == 'long':
-        c.rect(cx-13, cy-8, 7, 44, h1)
-        c.rect(cx+6, cy-8, 7, 44, h1)
-        c.rect(cx-9, cy-8, 18, 22, h1)
-        c.rect(cx-12, cy+8, 4, 24, h2)
-        c.rect(cx+8, cy+8, 4, 24, h2)
-        c.taper(cx-11, cy+34, cx-14+sway, cy+44, h1, 6, 3)
-        c.taper(cx+11, cy+34, cx+14+sway, cy+44, h1, 6, 3)
+        # the whole length falls BEHIND the head. A curtain on the leading side
+        # too is a head-on detail and immediately kills the profile.
+        c.rect(cx-16, cy-8, 11, 46, h1)
+        c.rect(cx-15, cy+8, 4, 26, h2)
+        c.rect(cx-9, cy-8, 17, 20, h1)                    # cap over the skull
+        c.taper(cx-12, cy+34, cx-17+sway, cy+46, h1, 7, 3)
+        c.rect(cx+5, cy-2, 3, 15, h1)                     # one lock in front of the ear
     elif st == 'spiky':
-        for sx, sy in ((-13,-5), (-8,-12), (0,-16), (8,-12), (13,-5)):
+        # the fan is biased backwards - spikes blow the way the wind comes from
+        for sx, sy in ((-15,-3), (-10,-11), (-3,-16), (5,-14), (11,-7)):
             c.taper(cx+sx*0.6, cy+sy*0.45, cx+sx+sway*0.35, cy+sy-2, h1, 7, 3)
-        c.rect(cx-13, cy-5, 5, 18, h1); c.rect(cx+8, cy-5, 5, 18, h1)
+        c.rect(cx-14, cy-5, 6, 19, h1)
+        c.rect(cx+7, cy-4, 3, 11, h1)                     # short lock at the cheek
         c.taper(cx-7, cy+16, cx-15+sway, cy+26, p['accent'], 6, 4)   # scarf
         c.taper(cx-13+sway*0.5, cy+24, cx-19+sway, cy+36, p['accent'], 4, 3)
     elif st == 'bob':
-        c.ellipse(cx, cy+1, 12.4, 12.6, h1)
-        c.rect(cx-13, cy-2, 5, 18, h1); c.rect(cx+8, cy-2, 5, 18, h1)
+        c.ellipse(cx-1, cy+1, 12.0, 12.6, h1)
+        c.rect(cx-15, cy-2, 7, 20, h1)                    # the bob's weight hangs behind
+        c.rect(cx+7, cy-2, 3, 13, h1)                     # the near side cuts in at the jaw
     elif st == 'braid':
         c.ellipse(cx, cy-1, 11.0, 11.0, h1)
         bx = cx - 14 + sway*0.35                          # clear of the torso, so it shows
@@ -489,14 +515,17 @@ def hair_back(c, p, pose, cx, cy):
             c.ellipse(xx-1, yy-1, 2.8 - k*0.22, 2.0, h2)
             c.set(xx+2, yy+2, p['ink'])                       # plait notch
         c.rect(bx-3, cy+45, 6, 4, p['accent'])                # tie
-        c.rect(cx+8, cy-2, 4, 12, h1)
+        c.rect(cx+7, cy-2, 3, 11, h1)                         # lock at the cheek
     elif st == 'crop':
-        c.ellipse(cx, cy-2, 10.4, 9.6, h1)
-        c.rect(cx-11, cy-4, 4, 9, h1); c.rect(cx+7, cy-4, 4, 9, h1)
+        c.ellipse(cx-1, cy-2, 10.4, 9.6, h1)
+        c.rect(cx-12, cy-4, 6, 11, h1)
+        c.rect(cx+7, cy-4, 2, 8, h1)
     elif st == 'twin':
         c.ellipse(cx, cy-1, 10.6, 10.4, h1)
-        for sgn, sc in ((-1, 1.3), (1, 0.8)):             # trailing tail hangs longer
-            bx = cx + sgn*12
+        # both tails are there, but the far one is nearly edge-on to us: it is
+        # short and tucked back, so the silhouette still reads as a profile
+        for sgn, sc, off in ((-1, 1.4, 0), (1, 0.42, -4)):
+            bx = cx + sgn*12 + off
             c.taper(cx+sgn*7, cy-6, bx, cy+2, h1, 9, 8)
             c.taper(bx, cy+2, bx+sgn*3 + sway*0.35, cy+2+26*sc, h1, 8, 4)
             c.taper(bx, cy+4, bx+sgn*2 + sway*0.3, cy+4+18*sc, h2, 4, 2)
@@ -524,14 +553,14 @@ def hair_front(c, p, pose, cx, cy):
         c.rect(cx-9, cy-13, 5, 4, ac); c.rect(cx-8, cy-14, 3, 1, ac)
     elif st == 'long':
         c.rect(cx-3+T, cy-16, 6, 3, ac); c.rect(cx-2+T, cy-17, 4, 1, ac)
-        c.rect(cx-14, cy-5, 4, 20, h1); c.rect(cx+12, cy-5, 2, 18, h1)
+        c.rect(cx-15, cy-5, 5, 22, h1); c.rect(cx+9, cy-3, 2, 7, h1)
     elif st == 'spiky':
         for sx, sy in ((-11,-9), (-5,-13), (2,-14), (8,-11)):
             c.taper(cx+sx, cy+sy+5, cx+sx+sway*0.25, cy+sy-1, h2, 5, 2)
     elif st == 'bob':
-        c.rect(cx-14, cy-6, 4, 17, h1); c.rect(cx+11, cy-6, 3, 15, h1)
-        c.rect(cx-16, cy-10, 4, 7, ac); c.rect(cx+12, cy-10, 4, 7, ac)
-        c.rect(cx-16, cy-10, 4, 2, '#ffffff'); c.rect(cx+12, cy-10, 4, 2, '#ffffff')
+        c.rect(cx-15, cy-6, 5, 18, h1); c.rect(cx+10, cy-5, 2, 10, h1)
+        c.rect(cx-17, cy-10, 4, 7, ac)                    # one ribbon, on the far side
+        c.rect(cx-17, cy-10, 4, 2, '#ffffff')
     elif st == 'braid':
         c.rect(cx-12, cy-6, 3, 13, h1)
         c.rect(cx-3, cy-15, 7, 3, ac)                         # headband
@@ -541,9 +570,9 @@ def hair_front(c, p, pose, cx, cy):
         for sx2 in (-8, -3, 2, 7):                            # short cropped spikes
             c.taper(cx+sx2, cy-8, cx+sx2+sway*0.15, cy-13, h2, 4, 2)
     elif st == 'twin':
-        c.rect(cx-15, cy-9, 5, 6, ac); c.rect(cx+11, cy-9, 4, 5, ac)
-        c.rect(cx-15, cy-9, 5, 2, '#ffffff'); c.rect(cx+11, cy-9, 4, 2, '#ffffff')
-        c.rect(cx-11, cy-4, 3, 7, h1); c.rect(cx+8, cy-4, 3, 7, h1)
+        c.rect(cx-15, cy-9, 5, 6, ac); c.rect(cx-15, cy-9, 5, 2, '#ffffff')
+        c.rect(cx+8, cy-10, 3, 4, ac)                     # the far tie, mostly hidden
+        c.rect(cx-11, cy-4, 3, 7, h1); c.rect(cx+8, cy-3, 2, 5, h1)
 
 # ------------------------------------------------------------------ weapons --
 def draw_weapon(c, p, pose):
