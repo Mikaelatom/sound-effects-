@@ -123,6 +123,18 @@ CHARS = {
     cloth='#332b56', cloth2='#524791', cloth3='#191430', trim='#ff4d5d', accent='#ff4d5d',
     leg='#201c3a', leg2='#38315e', boot='#12101f',
     metal='#d5cdfa', grip='#141020', sleeve=0.58, style='spiky', wep='daggers'),
+ 'suzume': dict(ink='#123a2a', hair='#2f7a5c', hair2='#57bd8f', hair3='#a6f0cd', shine='#dcffee',
+    skin='#ffe0c2', skin2='#dfab84', skin3='#b8825f', blush='#ff9db0',
+    eye='#ffc247', eye2='#9c6c0e', brow='#2f7a5c',
+    cloth='#eaf7f0', cloth2='#ffffff', cloth3='#9fc7b4', trim='#57bd8f', accent='#ffc247',
+    leg='#3c6b58', leg2='#5b9179', boot='#20443a',
+    metal='#c9a06a', grip='#4a3320', sleeve=0.62, style='braid', wep='bow'),
+ 'gorou': dict(ink='#1b1a26', hair='#5a3a1e', hair2='#8f5f2f', hair3='#c99a5c', shine='#e8c99a',
+    skin='#e8b98e', skin2='#c08f66', skin3='#96694a', blush='#e08a6a',
+    eye='#ff9d3d', eye2='#8a4410', brow='#5a3a1e',
+    cloth='#5a6478', cloth2='#8892ab', cloth3='#363d4d', trim='#e0a52c', accent='#e0a52c',
+    leg='#3b4252', leg2='#5a6478', boot='#22262f',
+    metal='#cfd8e8', grip='#3a2a1a', sleeve=0.74, style='crop', wep='hammer'),
  'hinata': dict(ink='#38290f', hair='#c99527', hair2='#ffdc7f', hair3='#fff5cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0ad88', skin3='#bd8a66', blush='#ffa8a8',
     eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
@@ -130,7 +142,7 @@ CHARS = {
     leg='#f0dfc0', leg2='#fff6e4', boot='#c9a86e',
     metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, style='bob', wep='tome'),
 }
-ORDER = ['aoi', 'kagura', 'ren', 'hinata']
+ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -328,6 +340,20 @@ def hair_back(c, p, pose, cx, cy):
     elif st == 'bob':
         c.ellipse(cx, cy+1, 12.4, 12.6, h1)
         c.rect(cx-13, cy-2, 5, 18, h1); c.rect(cx+8, cy-2, 5, 18, h1)
+    elif st == 'braid':
+        c.ellipse(cx, cy-1, 11.0, 11.0, h1)
+        bx = cx - 14 - sway*0.35                          # clear of the torso, so it shows
+        for k in range(7):                                    # plaited rope down one side
+            yy = cy + 4 + k*6
+            xx = bx + math.sin(k*1.0 + sway*0.15)*2.2
+            c.ellipse(xx, yy, 4.6 - k*0.3, 3.6, h1)
+            c.ellipse(xx-1, yy-1, 2.8 - k*0.22, 2.0, h2)
+            c.set(xx+2, yy+2, p['ink'])                       # plait notch
+        c.rect(bx-3, cy+45, 6, 4, p['accent'])                # tie
+        c.rect(cx+8, cy-2, 4, 12, h1)
+    elif st == 'crop':
+        c.ellipse(cx, cy-2, 10.4, 9.6, h1)
+        c.rect(cx-11, cy-4, 4, 9, h1); c.rect(cx+7, cy-4, 4, 9, h1)
 
 def hair_front(c, p, pose, cx, cy):
     st, h1, h2, h3 = p['style'], p['hair'], p['hair2'], p['hair3']
@@ -357,6 +383,15 @@ def hair_front(c, p, pose, cx, cy):
         c.rect(cx-14, cy-6, 4, 17, h1); c.rect(cx+10, cy-6, 4, 17, h1)
         c.rect(cx-16, cy-10, 4, 7, ac); c.rect(cx+12, cy-10, 4, 7, ac)
         c.rect(cx-16, cy-10, 4, 2, '#ffffff'); c.rect(cx+12, cy-10, 4, 2, '#ffffff')
+    elif st == 'braid':
+        c.rect(cx-12, cy-6, 3, 13, h1)
+        c.rect(cx-3, cy-15, 7, 3, ac)                         # headband
+        c.rect(cx-3, cy-15, 7, 1, '#ffffff')
+        for i in range(-8, 9, 4): c.set(cx+i, cy-12, h3)
+    elif st == 'crop':
+        for sx2 in (-8, -3, 2, 7):                            # short cropped spikes
+            c.taper(cx+sx2, cy-8, cx+sx2+sway*0.15, cy-13, h2, 4, 2)
+        c.rect(cx-11, cy-4, 3, 7, h1); c.rect(cx+8, cy-4, 3, 7, h1)
 
 # ------------------------------------------------------------------ weapons --
 def draw_weapon(c, p, pose):
@@ -376,11 +411,14 @@ def draw_weapon(c, p, pose):
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)      # blade
         c.line(hxp+ux*5-nx, hyp+uy*5-ny, hxp+ux*(L-2)-nx, hyp+uy*(L-2)-ny, '#ffffff', 1)
     elif w == 'staff':
-        sx = min(max(hxp + 8, 40), 50)
-        tilt = ux*5
-        c.taper(sx, min(hyp+20, FEET-2), sx+tilt, hyp-26, p['metal'], 5, 5)
-        c.line(sx+1, min(hyp+18, FEET-4), sx+tilt+1, hyp-24, p['grip'], 2)
-        ox, oy = sx+tilt, hyp-32
+        # the shaft runs THROUGH the hand, so she is actually gripping it
+        tilt = ux*4
+        top = (hxp + tilt*1.6, hyp - 30)
+        bot = (hxp - tilt*0.8, min(hyp + 20, FEET-2))
+        c.taper(bot[0], bot[1], top[0], top[1], p['metal'], 5, 5)
+        c.line(bot[0]+1, bot[1]-2, top[0]+1, top[1]+2, p['grip'], 2)
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])          # grip wrap at the hand
+        ox, oy = top[0], top[1] - 6
         c.ellipse(ox, oy, 6.4, 6.4, p['accent'])
         c.ellipse(ox, oy, 4.0, 4.0, '#ffe9a8')
         c.ellipse(ox-1.5, oy-1.5, 1.8, 1.8, '#ffffff')
@@ -393,8 +431,36 @@ def draw_weapon(c, p, pose):
         bx, by = hand(pose, True)
         c.taper(bx, by, bx-abs(ux)*12, by-uy*8, p['metal'], 4, 2)
         c.rect(bx-2, by, 5, 3, p['grip'])
+    elif w == 'bow':
+        gx, gy, R2 = hxp, hyp, 19
+        for k in range(1, R2+1):                              # limbs curve away from the string
+            t2 = k/R2
+            dx2 = -t2*t2*7
+            for sgn in (-1, 1):
+                c.rect(gx+dx2, gy+sgn*k, 3, 1, p['metal'])
+                if k > R2-3: c.rect(gx+dx2, gy+sgn*k, 3, 1, p['grip'])
+        c.rect(gx-1, gy-2, 3, 5, p['metal'])                  # riser
+        c.line(gx+3, gy-R2+1, gx+3, gy+R2-1, p['cloth3'], 1)  # string
+        c.taper(gx-9, gy, gx+12, gy, p['grip'], 2, 2)         # nocked arrow
+        c.rect(gx+12, gy-1, 4, 3, p['metal'])
+        c.rect(gx-11, gy-3, 4, 7, p['accent'])                # fletching
+        c.rect(gx-2, gy-4, 5, 9, p['grip'])                   # grip
+    elif w == 'hammer':
+        L = 20
+        c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
+        hx2, hy2 = hxp+ux*L, hyp+uy*L
+        px2, py2 = -uy, ux
+        # half-pixel steps, or the rotation leaves holes and the head looks speckled
+        for ai in range(-20, 21):
+            for bi in range(-12, 13):
+                a2, b2 = ai/2, bi/2
+                col = p['metal']
+                if abs(a2) > 8 or abs(b2) > 4.5: col = p['trim']
+                elif b2 < -1.5: col = p['cloth2']
+                c.set(hx2 + px2*a2 + ux*b2, hy2 + py2*a2 + uy*b2, col)
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])                 # grip wrap
     elif w == 'tome':
-        bx, by = min(hxp-3, 42), hyp - 8
+        bx, by = hxp - 4, hyp - 9        # cradled against the palm
         c.rect(bx, by, 15, 15, p['metal'])
         c.rect(bx+1, by+1, 13, 13, '#fffaf0')
         for k in range(2, 13): c.rect(bx+3, by+k, 1, 1, p['cloth3'])
@@ -402,6 +468,13 @@ def draw_weapon(c, p, pose):
         c.rect(bx+6, by, 3, 15, p['grip'])
         c.rect(bx+6, by-2, 3, 2, p['accent']); c.rect(bx+6, by+15, 3, 2, p['accent'])
         c.rect(bx+3, by+4, 2, 2, p['accent']); c.rect(bx+10, by+8, 2, 2, p['accent'])
+
+def grip_hand(c, p, pose):
+    """redraw the front hand over the weapon so it reads as held, not floating"""
+    hxp, hyp = hand(pose, False)
+    c.ellipse(hxp, hyp+1, 3.0, 3.2, p['skin'])
+    c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
+    c.set(hxp-2, hyp-1, p['skin2'])
 
 def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
@@ -415,6 +488,7 @@ def draw_char(key, frame):
     hair_front(c, p, pose, cx, cy)
     draw_arm(c, p, pose, False)
     draw_weapon(c, p, pose)
+    grip_hand(c, p, pose)
     c.outline(p['ink'])
     return c
 

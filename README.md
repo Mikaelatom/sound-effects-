@@ -42,7 +42,8 @@ Build a squad of up to 3 and climb the Spire — **3 floors, 24 rooms, 3 bosses*
 but you keep the shards.
 
 - **Move** WASD / arrows
-- **Attack** automatic — you auto-target the nearest enemy in range
+- **Attack** automatic — you auto-target the nearest enemy in range. You face
+  the way you're *moving*; the target only turns you when you stand still
 - **Skill** `SPACE`
 - **Second skill** `E` — each character's is completely different
 - **Burst** `R` — charges as you deal and take damage, empties on use. A Burst
@@ -61,7 +62,7 @@ Arc Current is a shotgun that clears the screen).
 
 ---
 
-## The four
+## The cast
 
 Everyone is 5★. They play completely differently.
 
@@ -71,6 +72,8 @@ Everyone is 5★. They play completely differently.
 | ✦ | **Kagura Hoshimi** · Arcane | Starfall — nine stars crash down | Astral Lance — piercing beam | **Constellation** — 24 homing stars |
 | ☾ | **Ren Kurosawa** · Shadow | Umbral Volley — seven knives | Shadowstep — blink and gut | **Nightfall** — cut everything 3× |
 | ✚ | **Hinata Amakusa** · Radiant | Dawn Aegis — heal and shield | Judgment Ray — beam that heals you | **Rebirth Hymn** — revive a fallen ally |
+| ➶ | **Suzume Ayakawa** · Gale | Split Volley — seven arrows in a fan | Piercing Gale — one arrow, whole room | **Tempest Volley** — 3s of arrows falling everywhere |
+| ⛊ | **Gorou Tachibana** · Stone | Seismic Slam — hammer the ground | Bulwark — shield, and touching him hurts | **Unbreakable** — 5s untouchable, ground erupting |
 
 ---
 
@@ -98,7 +101,7 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-Characters share one rig, and a pose is a **skeleton rather than a set of
+Six characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
