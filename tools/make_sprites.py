@@ -317,12 +317,13 @@ def draw_head(c, p, pose):
 
 # --------------------------------------------------------------------- hair --
 def hair_back(c, p, pose, cx, cy):
-    st, h1, h2, sway = p['style'], p['hair'], p['hair2'], pose['sway']
+    st, h1, h2 = p['style'], p['hair'], p['hair2']
+    sway = -pose['sway']          # trail: opposite the direction of travel
     if st == 'ponytail':
-        c.taper(cx+6, cy-8, cx+13+sway*0.5, cy+2, h1, 9, 8)
-        c.taper(cx+12+sway*0.4, cy, cx+16+sway, cy+30, h1, 8, 5)
-        c.taper(cx+13+sway*0.4, cy+2, cx+16+sway, cy+24, h2, 4, 3)
-        c.taper(cx+15+sway, cy+28, cx+18+sway*1.3, cy+38, h1, 4, 2)
+        c.taper(cx-6, cy-8, cx-13+sway*0.5, cy+2, h1, 9, 8)
+        c.taper(cx-12+sway*0.4, cy, cx-16+sway, cy+30, h1, 8, 5)
+        c.taper(cx-13+sway*0.4, cy+2, cx-16+sway, cy+24, h2, 4, 3)
+        c.taper(cx-15+sway, cy+28, cx-18+sway*1.3, cy+38, h1, 4, 2)
     elif st == 'long':
         c.rect(cx-13, cy-8, 7, 44, h1)
         c.rect(cx+6, cy-8, 7, 44, h1)
@@ -342,7 +343,7 @@ def hair_back(c, p, pose, cx, cy):
         c.rect(cx-13, cy-2, 5, 18, h1); c.rect(cx+8, cy-2, 5, 18, h1)
     elif st == 'braid':
         c.ellipse(cx, cy-1, 11.0, 11.0, h1)
-        bx = cx - 14 - sway*0.35                          # clear of the torso, so it shows
+        bx = cx - 14 + sway*0.35                          # clear of the torso, so it shows
         for k in range(7):                                    # plaited rope down one side
             yy = cy + 4 + k*6
             xx = bx + math.sin(k*1.0 + sway*0.15)*2.2
@@ -357,7 +358,8 @@ def hair_back(c, p, pose, cx, cy):
 
 def hair_front(c, p, pose, cx, cy):
     st, h1, h2, h3 = p['style'], p['hair'], p['hair2'], p['hair3']
-    sh, ac, sway = p['shine'], p['accent'], pose['sway']
+    sh, ac = p['shine'], p['accent']
+    sway = -pose['sway']          # trail: opposite the direction of travel
     top = cy - 4                                          # never below the brows
     c.ellipse(cx, cy-3, 9.0, 9.4, h1, ymax=int(top))
     c.ellipse(cx, cy-5, 7.4, 7.2, h2, ymax=int(top-2))
@@ -372,7 +374,7 @@ def hair_front(c, p, pose, cx, cy):
     c.rect(cx-10, cy-5, 1, 9, h2);  c.rect(cx+9, cy-5, 1, 9, h2)
     c.set(cx-9, cy+7, h1); c.set(cx+8, cy+7, h1)
     if st == 'ponytail':
-        c.rect(cx+4, cy-13, 5, 4, ac); c.rect(cx+5, cy-14, 3, 1, ac)
+        c.rect(cx-9, cy-13, 5, 4, ac); c.rect(cx-8, cy-14, 3, 1, ac)
     elif st == 'long':
         c.rect(cx-3, cy-16, 6, 3, ac); c.rect(cx-2, cy-17, 4, 1, ac)
         c.rect(cx-14, cy-5, 3, 20, h1); c.rect(cx+11, cy-5, 3, 20, h1)
