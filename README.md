@@ -116,6 +116,18 @@ Faces carry a full anime eye at this size: sclera, iris with its own floor,
 pupil, catchlight, a lash line that thickens at the outer corner, brows that
 angle when a character is mid-attack, plus blush and a hair shine band.
 
+## Sending it to someone
+
+`index.html` needs `assets/hit.mp3` next to it. To get a single file that
+needs nothing at all:
+
+```
+python3 tools/build_standalone.py     # writes TwinFate.html
+```
+
+That bundles the sound in alongside the already-inlined sprite atlas, so the
+result opens by double-clicking, with no internet and no sibling files.
+
 ## Technical notes
 
 Single self-contained `index.html`: no dependencies, no bundler, no server
