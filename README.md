@@ -37,23 +37,27 @@ change your pick any time before a pull.
 
 ## The roguelike
 
-Build a squad of up to 3 and descend the Spire — 12 rooms, two bosses, and
-death is permanent for that run (you keep the shards).
+Build a squad of up to 3 and climb the Spire — **3 floors, 24 rooms, 3 bosses**
+(The Undercroft, The Glass Tiers, The Crown). Death is permanent for that run,
+but you keep the shards.
 
 - **Move** WASD / arrows
 - **Attack** automatic — you auto-target the nearest enemy in range
 - **Skill** `SPACE`
 - **Second skill** `E` — each character's is completely different
-- **Burst** `R` — charges as you deal and take damage, empties on use
+- **Burst** `R` — charges as you deal and take damage, empties on use. A Burst
+  never charges itself: damage dealt during one (and damage taken during it)
+  is locked out of the meter, so you can't chain R into R
 - **Dash** `SHIFT` (brief invulnerability)
 - **Swap character** `1` `2` `3` — swapping bursts nearby enemies, and each
   character keeps their own HP and Burst meter for the whole run. When one is
   KO'd you drop to the next. All three down and the run is over.
 
-Rooms come in five flavours: battle, elite, rest, treasure, boss. After each
-fight you pick 1 of 3 **relics** — 20 of them, stacking into some genuinely
-stupid builds (Split Volley + Piercing Shot + Arc Current is a shotgun that
-clears the screen).
+Rooms come in five flavours: battle, elite, rest, treasure, boss. Each floor
+ends on a boss and the enemies keep scaling, so floor 3 is a different game
+from floor 1. After each fight you pick 1 of 3 **relics** — 20 of them,
+stacking into some genuinely stupid builds (Split Volley + Piercing Shot +
+Arc Current is a shotgun that clears the screen).
 
 ---
 
@@ -94,11 +98,16 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-Characters share one rig. Poses live in `POSES` as a handful of values
-(bounce, lean, hand positions, weapon angle, expression); per-character hair,
-outfit, sleeve length and weapon are layered on top. Adding a pose is one row
-in that table, and recolouring someone is editing their entry in `CHARS` and
-re-running the script — no repainting.
+Characters share one rig, and a pose is a **skeleton rather than a set of
+absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
+(offset from centre plus how far off the ground), and two hand positions
+measured *from their own shoulder*. Limbs are drawn as two segments with a
+knee or elbow pushed out perpendicular, so they bend instead of stretching,
+and nothing can come apart at the joints when the body moves. Per-character
+hair, outfit, sleeve length and weapon layer on top.
+
+The walk is a real 4-frame cycle — contact, passing, contact mirrored,
+passing mirrored — with the arms swinging opposite the legs.
 
 Faces carry a full anime eye at this size: sclera, iris with its own floor,
 pupil, catchlight, a lash line that thickens at the outer corner, brows that

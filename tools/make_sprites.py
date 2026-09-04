@@ -137,93 +137,119 @@ ORDER = ['aoi', 'kagura', 'ren', 'hinata']
 TORSO = [8, 9, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 9, 9]
 
 # -------------------------------------------------------------------- poses --
+# A pose is a skeleton, not a set of absolute pixels. Everything hangs off the
+# same bob/lean, so the body can never come apart at the joints:
+#   feet = ((x offset from centre, how far off the ground), ...) for L and R
+#   hb / hf = back and front hand, as an offset FROM THAT SHOULDER
 POSES = [
- dict(bob=0,  lean=0,  legs='stand',   hb=(17,58), hf=(39,58), wep=0.00, eye='open',   sway=0),
- dict(bob=1,  lean=0,  legs='stand',   hb=(17,60), hf=(39,60), wep=0.05, eye='open',   sway=2),
- dict(bob=0,  lean=2,  legs='walk0',   hb=(14,56), hf=(42,54), wep=0.10, eye='open',   sway=5),
- dict(bob=2,  lean=0,  legs='walk1',   hb=(17,60), hf=(39,60), wep=0.00, eye='open',   sway=0),
- dict(bob=0,  lean=-2, legs='walk2',   hb=(17,54), hf=(41,56), wep=0.10, eye='open',   sway=-5),
- dict(bob=2,  lean=0,  legs='walk3',   hb=(17,60), hf=(39,60), wep=0.00, eye='open',   sway=0),
- dict(bob=0,  lean=-5, legs='brace',   hb=(12,54), hf=(20,40), wep=-1.0, eye='fierce', sway=-7),
- dict(bob=0,  lean=7,  legs='lunge',   hb=(22,60), hf=(46,36), wep=1.00, eye='fierce', sway=9),
- dict(bob=2,  lean=3,  legs='lunge',   hb=(20,60), hf=(46,62), wep=0.55, eye='fierce', sway=5),
- dict(bob=3,  lean=10, legs='dash',    hb=(12,62), hf=(44,52), wep=0.25, eye='fierce', sway=12),
- dict(bob=-2, lean=0,  legs='stand',   hb=(14,40), hf=(42,40), wep=-0.6, eye='closed', sway=-3),
- dict(bob=3,  lean=-7, legs='stagger', hb=(10,50), hf=(45,50), wep=0.20, eye='hurt',   sway=-10),
+ # 0-1 idle: a slow breath, weight on both feet
+ dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=0.00, eye='open',   sway=0),
+ dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=0.05, eye='open',   sway=2),
+ # 2-5 walk: contact, passing, contact (mirrored), passing (mirrored).
+ # Arms swing opposite the legs, the way they actually do.
+ dict(bob=1,  lean=1,  feet=((-9,0), (7,4)),   hb=(4,25),  hf=(-4,26), wep=0.10, eye='open',   sway=4),
+ dict(bob=-1, lean=0,  feet=((-3,5), (3,0)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=1),
+ dict(bob=1,  lean=-1, feet=((-7,4), (9,0)),   hb=(-4,26), hf=(4,25),  wep=0.10, eye='open',   sway=-4),
+ dict(bob=-1, lean=0,  feet=((-3,0), (3,5)),   hb=(0,26),  hf=(0,26),  wep=0.00, eye='open',   sway=-1),
+ # 6 windup: weight back, blade drawn behind
+ dict(bob=1,  lean=-4, feet=((-9,0), (5,0)),   hb=(-6,22), hf=(-9,8),  wep=-1.0, eye='fierce', sway=-6),
+ # 7 strike: lunge onto the front foot, back foot trailing
+ dict(bob=1,  lean=6,  feet=((-11,1), (11,0)), hb=(-4,26), hf=(9,4),   wep=1.00, eye='fierce', sway=8),
+ # 8 recover: settling out of the lunge
+ dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.55, eye='fierce', sway=4),
+ # 9 dash: airborne, back leg trailing, front knee tucked
+ dict(bob=3,  lean=9,  feet=((-13,7), (6,11)), hb=(-8,28), hf=(6,18),  wep=0.25, eye='fierce', sway=11),
+ # 10 cast: both hands raised
+ dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3),
+ # 11 hurt: knocked back onto the heels
+ dict(bob=2,  lean=-6, feet=((-7,0), (8,2)),   hb=(-7,16), hf=(7,16),  wep=0.20, eye='hurt',   sway=-9),
 ]
 
+def shoulder(pose, back):
+    return (CX + (-9 if back else 9) + pose['lean']*0.4, SHOULDER + 2 + pose['bob'])
+
+def hand(pose, back):
+    """absolute hand position, always measured from its own shoulder"""
+    sx, sy = shoulder(pose, back)
+    d = pose['hb'] if back else pose['hf']
+    return (sx + d[0], sy + d[1])
+
+def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
+    """two-segment limb with a knee/elbow pushed out perpendicular to the line"""
+    dx, dy = x1-x0, y1-y0
+    L = math.hypot(dx, dy) or 1
+    nx, ny = -dy/L, dx/L
+    kx, ky = (x0+x1)/2 + nx*bend, (y0+y1)/2 + ny*bend
+    wm = (w0+w1)/2
+    c.taper(x0, y0, kx, ky, col, w0, wm)
+    c.taper(kx, ky, x1, y1, col, wm, w1)
+    return kx, ky
+
 # --------------------------------------------------------------- body parts --
-def draw_legs(c, p, kind, dy):
+def draw_legs(c, p, pose):
     lg, lg2, bt = p['leg'], p['leg2'], p['boot']
-    def leg(hipx, kneedx, footdx, lift=0):
-        hy = HIP + dy
-        ky, ay = 70 - lift, 84 - lift                     # knee, ankle
-        c.taper(hipx, hy, hipx+kneedx, ky, lg, 8, 6)      # thigh
-        c.taper(hipx+kneedx, ky, hipx+kneedx+footdx, ay, lg, 6, 5)   # calf
-        c.taper(hipx-1, hy, hipx+kneedx-1, ky, lg2, 3, 2)  # lit edge
-        c.rect(hipx+kneedx+footdx-3, ay, 7, 92-ay-lift, bt)          # boot
-        c.rect(hipx+kneedx+footdx-3, ay, 7, 2, lg2)                  # cuff
-        c.rect(hipx+kneedx+footdx-4, 90-lift, 9, 2, bt)              # sole
-    if kind == 'stand':     leg(24, -1, 0); leg(32, 1, 0)
-    elif kind == 'walk0':   leg(20, -3, -2); leg(35, 4, 2, 2)
-    elif kind == 'walk1':   leg(26, -1, -1); leg(31, 1, 1)
-    elif kind == 'walk2':   leg(36, 3, 2);  leg(21, -4, -2, 2)
-    elif kind == 'walk3':   leg(26, -1, -1); leg(31, 1, 1)
-    elif kind == 'lunge':   leg(18, -5, -3); leg(37, 6, 3, 1)
-    elif kind == 'brace':   leg(21, -3, -2); leg(35, 3, 2)
-    elif kind == 'stagger': leg(22, -4, -1); leg(35, 4, 1)
-    elif kind == 'dash':
-        hy = HIP + dy
-        c.taper(24, hy, 14, 74, lg, 8, 6);  c.rect(9, 74, 9, 6, bt)   # trailing
-        c.taper(33, hy, 40, 66, lg, 8, 6);  c.rect(38, 64, 9, 6, bt)  # tucked
+    hipy = HIP + pose['bob']
+    hipdx = pose['lean']*0.25
+    for i, (fx, lift) in enumerate(pose['feet']):
+        side = -1 if i == 0 else 1
+        hx = CX + hipdx + side*4
+        fxx, fyy = CX + fx, FEET - 4 - lift
+        # knee leads the hip when the foot is forward, so the leg reads as bent
+        bend = (fxx - hx) * 0.30 + 2.2
+        kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 9, 6)
+        c.taper(hx-1, hipy, kx-1, ky, lg2, 3, 2)              # lit edge
+        c.rect(fxx-4, fyy, 8, 5, bt)                           # boot
+        c.rect(fxx-4, fyy, 8, 2, lg2)                          # cuff
+        c.rect(fxx-5, fyy+4, 10, 2, bt)                        # sole
+        if lift > 2: c.rect(fxx-5, fyy+4, 10, 1, p['ink'])     # airborne edge
 
 def draw_torso(c, p, pose):
     cl, cl2, cl3, tr = p['cloth'], p['cloth2'], p['cloth3'], p['trim']
-    dx, dy = pose['lean']*0.4, pose['bob']
+    dy = pose['bob']
     for i, hw in enumerate(TORSO):
         y = SHOULDER + i + dy
-        x = CX + dx*(1 - i/len(TORSO))                    # lean tapers to the hips
+        x = CX + pose['lean']*0.4*(1 - i/len(TORSO)*0.4)     # lean eases toward the hips
         c.rect(x-hw, y, hw*2, 1, cl)
-        c.rect(x-hw, y, 2, 1, cl3)                        # shaded left edge
+        c.rect(x-hw, y, 2, 1, cl3)
         c.rect(x+hw-2, y, 2, 1, cl3)
-        if i < 5: c.rect(x-hw+2, y, hw*2-4, 1, cl2)       # lit shoulders
-    x = CX + dx
-    c.rect(x-3, 25+dy, 6, 5, p['skin'])                   # neck
+        if i < 5: c.rect(x-hw+2, y, hw*2-4, 1, cl2)
+    x = CX + pose['lean']*0.5
+    c.rect(x-3, 25+dy, 6, 5, p['skin'])                       # neck
     c.rect(x-3, 25+dy, 6, 2, p['skin3'])
-    c.rect(x-9, SHOULDER+1+dy, 18, 2, cl2)                # collar
-    c.rect(x-1, SHOULDER+2+dy, 2, 16, tr)                 # centre seam
-    c.rect(x-7, 46+dy, 14, 4, p['accent'])                # sash
+    c.rect(x-9, SHOULDER+1+dy, 18, 2, cl2)                    # collar
+    c.rect(x-1, SHOULDER+2+dy, 2, 16, tr)                     # seam
+    c.rect(x-7, 46+dy, 14, 4, p['accent'])                    # sash
     c.rect(x-7, 46+dy, 14, 1, cl2)
-    if p['style'] == 'bob':                               # layered dress
-        c.rect(x-11, HIP+dy, 22, 6, cl)
-        c.rect(x-13, HIP+5+dy, 26, 4, cl2)
-        c.rect(x-13, HIP+8+dy, 26, 2, cl3)
-        for i in range(0, 26, 5): c.rect(x-13+i, HIP+8+dy, 2, 2, tr)
-    elif p['style'] == 'long':                            # robe panels
-        c.rect(x-10, HIP+dy, 20, 9, cl)
-        c.rect(x-11, HIP+7+dy, 22, 3, cl3)
-        for i in range(0, 22, 6): c.rect(x-11+i, HIP+4+dy, 2, 6, tr)
-    else:                                                 # coat tails
-        c.rect(x-10, HIP+dy, 20, 4, cl)
-        c.rect(x-10, HIP+3+dy, 7, 10, cl3)
-        c.rect(x+3, HIP+3+dy, 7, 10, cl3)
-        c.rect(x-10, HIP+3+dy, 7, 2, tr); c.rect(x+3, HIP+3+dy, 7, 2, tr)
+    xh = CX + pose['lean']*0.25                               # skirts sit on the hips
+    if p['style'] == 'bob':
+        c.rect(xh-11, HIP+dy, 22, 6, cl)
+        c.rect(xh-13, HIP+5+dy, 26, 4, cl2)
+        c.rect(xh-13, HIP+8+dy, 26, 2, cl3)
+        for i in range(0, 26, 5): c.rect(xh-13+i, HIP+8+dy, 2, 2, tr)
+    elif p['style'] == 'long':
+        c.rect(xh-10, HIP+dy, 20, 9, cl)
+        c.rect(xh-11, HIP+7+dy, 22, 3, cl3)
+        for i in range(0, 22, 6): c.rect(xh-11+i, HIP+4+dy, 2, 6, tr)
+    else:
+        c.rect(xh-10, HIP+dy, 20, 4, cl)
+        c.rect(xh-10, HIP+3+dy, 7, 10, cl3)
+        c.rect(xh+3, HIP+3+dy, 7, 10, cl3)
+        c.rect(xh-10, HIP+3+dy, 7, 2, tr); c.rect(xh+3, HIP+3+dy, 7, 2, tr)
 
-def draw_arm(c, p, pose, hand, back):
+def draw_arm(c, p, pose, back):
     sk  = p['skin2'] if back else p['skin']
     cl  = p['cloth3'] if back else p['cloth']
     cl2 = p['cloth3'] if back else p['cloth2']
-    dy  = pose['bob']
-    sx  = (CX - 9 if back else CX + 9) + pose['lean']*0.4
-    sy  = SHOULDER + 2 + dy
-    hxp, hyp = hand[0], hand[1] + dy
+    sx, sy = shoulder(pose, back)
+    hxp, hyp = hand(pose, back)
     t = p['sleeve']
-    ex, ey = sx+(hxp-sx)*t + (1 if back else -1), sy+(hyp-sy)*t - 1   # elbow / cuff
-    c.taper(sx, sy, ex, ey, cl, 8, 6)                     # sleeve
-    c.taper(sx, sy+1, ex, ey, cl2, 4, 2)                  # sleeve highlight
-    c.taper(ex, ey, hxp, hyp, sk, 6, 5)                   # forearm
-    c.taper(ex+1, ey, hxp+1, hyp, p['skin3'], 2, 2)       # forearm shade
-    c.ellipse(hxp, hyp+1, 3.2, 3.4, sk)                   # hand
+    side = -1 if back else 1
+    # elbow sits on the sleeve/skin boundary, pushed away from the body
+    ex, ey = bent(c, sx, sy, sx+(hxp-sx)*t, sy+(hyp-sy)*t, side*2.0, cl, 9, 7)
+    c.taper(sx, sy+1, ex, ey, cl2, 4, 2)
+    cx2, cy2 = sx+(hxp-sx)*t, sy+(hyp-sy)*t
+    bent(c, cx2, cy2, hxp, hyp, side*1.4, sk, 6, 5)
+    c.ellipse(hxp, hyp+1, 3.2, 3.4, sk)
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
 
 def eye(c, p, x, y, outer, mode):
@@ -251,7 +277,7 @@ def eye(c, p, x, y, outer, mode):
 
 def draw_head(c, p, pose):
     sk, sk2, sk3 = p['skin'], p['skin2'], p['skin3']
-    dy = pose['bob'] + (-1 if pose['legs'] in ('walk0','walk2') else 0)
+    dy = pose['bob']
     cx = CX + pose['lean']*0.55
     cy = HEADY + dy
     c.ellipse(cx, cy, 8.2, 9.2, sk)                       # skull
@@ -334,8 +360,8 @@ def hair_front(c, p, pose, cx, cy):
 
 # ------------------------------------------------------------------ weapons --
 def draw_weapon(c, p, pose):
-    w, dy = p['wep'], pose['bob']
-    hxp, hyp = pose['hf'][0], pose['hf'][1] + dy
+    w = p['wep']
+    hxp, hyp = hand(pose, False)
     ph = pose['wep']
     deg = -25 + (ph * 70 if ph >= 0 else ph * 110)
     ang = math.radians(deg)
@@ -364,7 +390,7 @@ def draw_weapon(c, p, pose):
         c.taper(hxp, hyp, hxp+ux*14, hyp+uy*14, p['metal'], 4, 2)
         c.line(hxp+ux*4, hyp+uy*4, hxp+ux*12, hyp+uy*12, '#ffffff', 1)
         c.rect(hxp-2, hyp, 5, 3, p['grip'])
-        bx, by = pose['hb'][0], pose['hb'][1] + dy
+        bx, by = hand(pose, True)
         c.taper(bx, by, bx-abs(ux)*12, by-uy*8, p['metal'], 4, 2)
         c.rect(bx-2, by, 5, 3, p['grip'])
     elif w == 'tome':
@@ -380,15 +406,14 @@ def draw_weapon(c, p, pose):
 def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
     c = Cv(W, H)
-    dy = pose['bob'] + (-1 if pose['legs'] in ('walk0','walk2') else 0)
-    cx, cy = CX + pose['lean']*0.55, HEADY + dy
+    cx, cy = CX + pose['lean']*0.55, HEADY + pose['bob']
     hair_back(c, p, pose, cx, cy)
-    draw_arm(c, p, pose, pose['hb'], True)
-    draw_legs(c, p, pose['legs'], pose['bob'])
+    draw_arm(c, p, pose, True)
+    draw_legs(c, p, pose)
     draw_torso(c, p, pose)
     draw_head(c, p, pose)
     hair_front(c, p, pose, cx, cy)
-    draw_arm(c, p, pose, pose['hf'], False)
+    draw_arm(c, p, pose, False)
     draw_weapon(c, p, pose)
     c.outline(p['ink'])
     return c
