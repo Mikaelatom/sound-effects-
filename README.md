@@ -45,7 +45,7 @@ sniper, Gorou's Stonehide on a glass cannon, Shion's Pack Bond on Odette's
 puppets. That is what makes a 4★ you will never play worth pulling: you are not
 only collecting a character, you are collecting a part.
 
-**Thirty-four perks — one per character, every single one of them**, and they are real mechanics rather than
+**Forty-six perks — one per character, every single one of them**, and they are real mechanics rather than
 flat numbers — a regen tick, a chain to a second enemy, a shield on arrival, an
 execute threshold, a nullified hit every nine seconds, summons that live half
 again as long. Set them in **Collection**; the same perk cannot go in both slots
@@ -80,13 +80,35 @@ is tuned assuming you have three of them.
 **Versus** is on the Home screen. Pick a character each and fight; first one
 down loses, and there is a rematch button.
 
-- **P1** — WASD to move, `SPACE` skill, `E` second skill, `R` Burst, `LEFT SHIFT` dash.
-- **P2** — arrow keys to move, `,` skill, `.` second skill, `/` Burst, `RIGHT SHIFT` dash.
+- **P1** — WASD to move, `SPACE` skill, `E` second skill, `R` Burst, `LEFT SHIFT` dash, `1 2 3` swap.
+- **P2** — arrow keys to move, `,` skill, `.` second skill, `/` Burst, `RIGHT SHIFT` dash, `8 9 0` swap.
 
-Player two can also **drop into any fight** — the Spire, either raid — by
-pressing `J`. They take the best three characters you own that player one is
-not already using, they get their own health bar, and enemies chase whichever
-of you is closer.
+### Co-op
+
+**Co-op** is the other half of it, on the same Home screen: two players on one
+keyboard, on the *same* side, through the **Spire or either raid**. Player one
+brings the squad set in SQUAD; player two picks their own three on the co-op
+screen. Both get their own three characters to swap between, their own health,
+their own Bursts, their own perks and their own Link Strikes — two full squads
+in one fight.
+
+Turn it on and player two is simply already there when a fight starts. Leave it
+off and they can still **drop into any fight** at any moment with `J`, taking
+the best three characters you own that player one is not using.
+
+Two things fall out of a second player that need saying:
+
+- **Rooms and bosses carry 70% more health in co-op.** Two people is roughly
+  twice the damage, and the Sovereign's five-minute timer is calibrated for
+  one. Co-op is not the easy mode; it is the same fight, sized for two.
+- **While one of you is standing, the other gets picked back up.** A wiped
+  squad comes back on its first character at 35% health, once every 45
+  seconds. The fight is only lost when **both** players are down at the same
+  time — so holding the room alone while your partner's timer runs is a real
+  thing you will end up doing.
+
+Enemies chase whichever of you is closer, so the two roles sort themselves out
+without any co-op-specific AI.
 
 Every ability works in Versus without a single special case, because each
 player carries a **stand-in inside the enemy list**. Every skill already knows
@@ -151,7 +173,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Thirty-four characters across two rarities. They play completely differently.
+Forty-six characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -184,8 +206,9 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Thirty-four characters, and **no two share a pair of skills.** There are
-sixty-four distinct skill mechanics behind them and they are mechanics, not reskins: a
+Forty-six characters, and **no two share a pair of skills.** There are
+seventy-four distinct skill mechanics and forty-five distinct Burst shapes
+behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
@@ -195,8 +218,13 @@ field of slowed time, electron shells that cut, rounds that split and split
 again, rage that scales with missing health, a hookshot that drags a target to
 your feet, a rifle that wants distance, a rifle that wants distance, summoned hounds and shadow soldiers that hunt on
 their own, a dice roll, a pact paid in blood, a singularity, a repulsion that
-deletes bullets, a punch that lands twice, and a strike that is always a crit. Every character also has their own
-passive and their own Burst — ten Bursts are unique shapes nobody else has.
+deletes bullets, a punch that lands twice, a strike that is always a crit, a net that pins
+a pack in place, a stone that skips between four heads getting heavier each
+time, a sheathed stance that answers the whole room in ice, eight blade shards
+that break enemy bullets out of the air, and a cannon whose recoil moves the
+person firing it. Every character also has their own
+passive and their own Burst — forty-five of the forty-six Bursts are shapes
+nobody else has.
 
 ### 5★ — The Third Wave
 
@@ -257,9 +285,56 @@ can be killed outright — and calling one you already have out **recalls the
 same one** rather than stacking a second. Three summons is a pack, not an army.
 
 Atom's passive is **Half-Life**: everything he damages keeps taking 25% of that
-hit again over the next two seconds. Rei takes **25% less damage below half
+hit again over the next two seconds.
+
+Atom has a **Burst economy of his own**, for the same reason Noir does. Orbital
+is a five-second damage multiplier that would otherwise pay for the next
+Critical Mass and never stop: his meter fills at **38% of everyone else's rate**,
+and **while the shells are up it fills at 25%** — the shells are not a charging
+station. Critical Mass itself detonates for 210% rather than 240%. One Critical
+Mass a fight, earned. Rei takes **25% less damage below half
 health** — she is hardest to kill when she is nearly dead. Odette's puppets fire
 25% faster and anything they kill leaves a mote that heals her.
+
+
+### 5★ — The Fourth Wave
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ☽ | **Sora Tsukimi** · *The Late Moon* · Frost | **Moonbreak** — three crescents thrown one behind the other, each wider and colder than the last | **Cold Sheath** — a second and a half where the first hit is refused and the room freezes for asking | **Moonfall** — three seconds of crescents falling out of the sky, everything under them frozen |
+| ⚔ | **Astra Valen** · *Oath of the Vanguard* · Radiant | **Breaker Charge** — shield up, straight through the middle, untouchable the whole way | **Sworn Guard** — a 45% shield, and while it holds every hit she takes is paid straight back into the room | **Holy Vow** — eight seconds of a planted standard: squad heals, room burns, and she hits 60% harder |
+| ☀ | **Solen Vaird** · *The Sunbreaker* · Radiant | **Sun Pillar** — a column of daylight, half a second late and far too heavy, and he takes a third of it back | **Cleave** — one overhead that splits into two shockwave lines | **Sunrise** — seven seconds of a sun over the arena, burning them and healing you every second |
+| ╱ | **Dain Ashgrove** · *The Half Blade* · Blade | **Phantom Edge** — the missing half is still there: three times the reach, and it cuts twice | **Shard Guard** — eight pieces of the broken blade hang around him and break enemy shots out of the air | **Reforge** — eight seconds where the blade is whole: every swing a full-length piercing sweep |
+| 🔥 | **Aurel Sancti** · *The Burning Suit* · Flame | **Flurry** — six kicks into a cone in under a second, and the floor keeps burning | **Sky Kick** — the nearest one goes up, and comes down considerably faster | **Hell Memory** — eight seconds lit: fire where he walks, burning arcs, 50% faster |
+| ● | **Vira Nocturne** · *The Heavy Hour* · Arcane | **Heavy Air** — everything close pinned flat for three seconds and crushed the whole time | **Sigil Chain** — three sigils in a triangle, and the lines between them cut | **Singularity** — four seconds of collapse, then nothing at that point at all |
+
+Sora deals **25% more to anything frozen or slowed** — his own crescents set
+that up, and Yura's freeze doubles down on it. Astra takes 15% less damage and
+the whole squad takes 8% less while her shield is up. Solen leaves a **patch of
+light on every kill** that heals whoever stands in it. Dain's phantom reach
+comes free **below 60% health** — the further into the fight he is, the further
+he reaches. Aurel never uses his hands, so **everything he does burns**. Vira
+does **30% more to anything she has pinned**, which is the whole reason Heavy
+Air comes before Sigil Chain.
+
+### 4★ — The Fourth Wave
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ☠ | **Kael Riven** · Shadow | **Garrote** — behind it, around it, and it bleeds for three seconds without moving | **Smoke** — gone for a second, everything close loses him, next hit is a certainty | **Bloodwork** — everything already under 30% stops at once, and each one comes apart into a wave |
+| ≡ | **Kuro Zenji** · Blade | **Three Cuts** — three blades, three angles, one moment, meeting where the enemy is | **Flying Cut** — a crescent thrown off the blade that crosses the room getting bigger | **Asura** — nine blades in three seconds, everything in front cut and cut and cut |
+| ❈ | **Nix** · Gale | **Pounce** — onto the nearest one and off again, four sets of claws deep | **Catstep** — three dashes back to back; land them all and most of the cooldown comes back | **Nine Lives** — three and a half untouchable seconds, and she comes out of it at full health |
+| ⚗ | **Pim Ottoline** · Arcane | **Flask** — enemies in the splash dissolve, anyone on your side standing in it heals | **Tonic** — 15% of her own health for a 40% squad shield and nothing slowing them | **Panacea** — everyone to full, a six-second healing field, and three flasks left throwing |
+| ◈ | **Corbin Vale** · Earth | **Snare** — nothing under the net moves for two and a half seconds, and everything hurts it more | **Skipping Stone** — one stone bouncing between four of them, harder every bounce | **Snarefield** — the whole floor to netting, pinned four seconds while the ground comes up |
+| ☉ | **Boro Kessel** · Volt | **Slug** — half a second of winding up, then a round through everything, and the recoil moves him | **Mortar** — three shells lobbed onto the three nearest heads | **Siege** — four seconds of continuous fire walked across the room |
+
+Kael does **+30% to anything above 80% health** — he would rather start the job
+than finish it, which is exactly the opposite of Kassandra. Kuro's **every third
+attack cuts with all three swords**. Nix's dash comes back 40% faster and does
+not cost her the swing. Pim tops **every heal she causes** with a shield. Corbin
+is a squad passive: anything rooted, slowed or frozen takes **20% more from
+everyone**, so he is a support who never has to hold the bow. Boro gets **+35%
+damage for standing still for a second**, and loses it the moment he moves.
 
 ### 4★
 
@@ -370,22 +445,25 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Thirty-four
+**No two characters share a haircut, an outfit or a weapon.** Forty-six
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
 circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie, a heavy layered shade, a swept
 white halo and short blunt bristles — each with its own fringe and its own
 ornament. One character has no weapon at all: Toya fights bare-handed, so his
 hands glow instead. Another wears a **blindfold** rather than an eye, and the
-light leaking out from under it is the whole character. Ten outfit shapes (skirt, robe,
-dress, shorts, plate, jacket, apron, longcoat, wrap, coat) chosen **separately
-from the hair**; keying the skirt off the hairstyle, which is what the code
+light leaking out from under it is the whole character. Thirty-five outfit shapes (skirt, robe,
+dress, shorts, plate, jacket, apron, longcoat, wrap, coat, haori, kimono,
+hoodie, duster, mantle, tailcoat, a shinigami's shihakusho, full plate,
+harness gear, a surcoat, an open coat, a haramaki, a plain tee, a smock, a
+vest, a dress suit, a long dress and a gunner's rig among them) chosen
+**separately from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Thirty-three weapons and one pair of bare hands, one each. A roster where three people share a haircut in
+Forty-five weapons and one pair of bare hands, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Thirty-four characters share one rig, and a pose is a **skeleton rather than a set of
+Forty-six characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
@@ -425,13 +503,37 @@ at a readable mid-tone against their outfit, so the cycle reads on a witch in
 black robes as clearly as it does on Aoi.
 
 **Attacks are pixel animations, drawn the same way the characters are.**
-`tools/make_fx.py` generates a second atlas, `assets/fx.png`: eighteen effects,
-eight frames each, at 32×32 — including a turning **atom** (nucleus and three
-electron shells) for Atom Vale, and a tumbling **longsword** for Aldric, who
-throws swords and should look like it. A slash sweeps its arc open, a lance extends out
-of nothing, a knife tumbles end over end, lightning re-forks, a bomb's fuse
-sputters, a flame's tip licks and curls. Impacts are animations too — a burst,
-a crossed cut for melee, an expanding nova, a growing frost crystal.
+`tools/make_fx.py` generates a second atlas, `assets/fx.png`: twenty-one
+effects, **ten frames each, at 48×48** — including a turning **atom** (nucleus
+and three electron shells) for Atom Vale, and a tumbling **longsword** for
+Aldric, who throws swords and should look like it. A slash sweeps its arc open,
+a lance extends out of nothing, a knife tumbles end over end, lightning
+re-forks, a bomb's fuse sputters, a flame's tip licks and curls. Impacts are
+animations too — a burst, a crossed cut for melee, an expanding nova, a growing
+frost crystal, and a **shock ring** for anything that knocks a body off its
+feet.
+
+Every one of them is drawn to the same four beats an animator would use:
+**anticipation** (a frame or two of the shape gathering before it commits),
+the **action**, an **overshoot** past where it was going, and a **settle**.
+Impacts get one frame of near-solid white — the flash frame — and then debris
+on its own slower timing, so the hit and the fallout are not the same
+animation played twice.
+
+The single largest thing separating a sprite that *moves* from a sprite that
+*looks like it is moving* is the **smear**: `smear()` draws the shape a fast
+object leaves behind it, crisp and wide at the head and stretched thin at the
+tail. Every melee swing in the game also throws a **motion streak** — a shot
+that does no damage at all and exists purely to be the streak behind the
+blade — and the character themselves leaves **afterimages** while dashing and
+through the strike frames of a swing, tinted their own element and fading
+over a fifth of a second.
+
+The attack cycle is also **not played at an even rate**. The coil and the wind
+hold, the strike is over in a blink, the follow-through hangs, and then it
+settles: `heroFrame` splits the swing at 30/46/56/74% rather than into five
+equal slices. Five equal frames read as a flipbook; unequal ones read as a
+swing.
 
 The art is drawn in **luminance** — white core, darker greys outward — and
 multiplied by the shot's colour when it is drawn, so one arc animation serves
