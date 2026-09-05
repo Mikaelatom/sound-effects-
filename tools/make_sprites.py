@@ -113,77 +113,77 @@ CHARS = {
     cloth='#f2f6ff', cloth2='#ffffff', cloth3='#98abd8', trim='#3fc9ff', accent='#ff5fa2',
     leg='#4a5f96', leg2='#7388bf', boot='#283053',
     metal='#eaf0ff', grip='#2a2440', sleeve=0.52, face=dict(ew=5, eh=4, lash=2, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
-    style='ponytail', wep='katana'),
+    style='ponytail', outfit='skirt', wep='katana'),
  'kagura': dict(ink='#160d2c', hair='#4d2478', hair2='#8e51cc', hair3='#c79cf5', shine='#e7d2ff',
     skin='#ffe0c6', skin2='#daa385', skin3='#b8815f', blush='#ff9db0',
     eye='#ffd24d', eye2='#a86c12', brow='#4d2478',
     cloth='#33215e', cloth2='#5b3f9c', cloth3='#1b1136', trim='#8e51cc', accent='#ffcc4d',
     leg='#5c38a9', leg2='#876dc5', boot='#2f1d5d',
     metal='#4a3672', grip='#241a3e', sleeve=0.80, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
-    style='long', wep='staff'),
+    style='long', outfit='robe', wep='staff'),
  'ren': dict(ink='#0d0a17', hair='#201b38', hair2='#453c78', hair3='#7d70ae', shine='#a99ddb',
     skin='#f0cba9', skin2='#c2967a', skin3='#9c745c', blush='#e8807f',
     eye='#ff4d5d', eye2='#8f1d2c', brow='#201b38',
     cloth='#332b56', cloth2='#524791', cloth3='#191430', trim='#ff4d5d', accent='#ff4d5d',
     leg='#534997', leg2='#8379b9', boot='#2f2a51',
     metal='#d5cdfa', grip='#141020', sleeve=0.58, face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
-    style='spiky', wep='daggers'),
+    style='spiky', outfit='coat', wep='daggers'),
  'suzume': dict(ink='#123a2a', hair='#2f7a5c', hair2='#57bd8f', hair3='#a6f0cd', shine='#dcffee',
     skin='#ffe0c2', skin2='#dfab84', skin3='#b8825f', blush='#ff9db0',
     eye='#ffc247', eye2='#9c6c0e', brow='#2f7a5c',
     cloth='#eaf7f0', cloth2='#ffffff', cloth3='#9fc7b4', trim='#57bd8f', accent='#ffc247',
     leg='#519076', leg2='#7ab89c', boot='#275347',
     metal='#c9a06a', grip='#4a3320', sleeve=0.62, face=dict(ew=6, eh=4, lash=1, droop=0, brow='flat',   brow_h=2, nose=2, mouth=1),
-    style='braid', wep='bow'),
+    style='braid', outfit='shorts', wep='bow'),
  'gorou': dict(ink='#1b1a26', hair='#5a3a1e', hair2='#8f5f2f', hair3='#c99a5c', shine='#e8c99a',
     skin='#e8b98e', skin2='#c08f66', skin3='#96694a', blush='#e08a6a',
     eye='#ff9d3d', eye2='#8a4410', brow='#5a3a1e',
     cloth='#5a6478', cloth2='#8892ab', cloth3='#363d4d', trim='#e0a52c', accent='#e0a52c',
     leg='#53658d', leg2='#7a8fb8', boot='#2c374e',
     metal='#cfd8e8', grip='#3a2a1a', sleeve=0.74, face=dict(ew=4, eh=3, lash=0, droop=0, brow='thick',  brow_h=1, nose=3, mouth=2),
-    style='crop', wep='hammer'),
+    style='crop', outfit='armor', wep='hammer'),
  'hinata': dict(ink='#38290f', hair='#c99527', hair2='#ffdc7f', hair3='#fff5cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0ad88', skin3='#bd8a66', blush='#ffa8a8',
     eye='#57e08d', eye2='#1a7a4c', brow='#c99527',
     cloth='#fffaf0', cloth2='#ffffff', cloth3='#dcc59a', trim='#7cffa8', accent='#7cffa8',
     leg='#b5842b', leg2='#ffbb33', boot='#594521',
     metal='#c04a6a', grip='#8d2f4c', sleeve=0.50, face=dict(ew=6, eh=5, lash=2, droop=0, brow='soft',   brow_h=2, nose=2, mouth=1),
-    style='bob', wep='tome'),
+    style='bob', outfit='dress', wep='tome'),
  'yura': dict(ink='#16324a', hair='#5f8fc9', hair2='#a8d4f5', hair3='#e0f4ff', shine='#ffffff',
     skin='#fff0e2', skin2='#e6c3ad', skin3='#c09680', blush='#ffb0c0',
     eye='#7fe0ff', eye2='#1d6f96', brow='#5f8fc9',
     cloth='#dff2ff', cloth2='#ffffff', cloth3='#8fb4d4', trim='#5fe6ff', accent='#5fe6ff',
     leg='#4a7697', leg2='#5e94d4', boot='#244356',
     metal='#7fc9ec', grip='#2c4358', sleeve=0.72, face=dict(ew=5, eh=4, lash=2, droop=1, brow='flat',   brow_h=2, nose=2, mouth=1),
-    style='long', wep='icelance'),
+    style='hime', outfit='robe', wep='icelance'),
  'kaito': dict(ink='#171628', hair='#8a7a20', hair2='#ffe14d', hair3='#fff6a8', shine='#ffffff',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e88a7a',
     eye='#ffe14d', eye2='#8a6410', brow='#8a7a20',
     cloth='#2b2a3c', cloth2='#4a4866', cloth3='#191826', trim='#ffe14d', accent='#ffe14d',
     leg='#57538d', leg2='#807ab8', boot='#2f2c4e',
     metal='#cfd8e8', grip='#2b2a14', sleeve=0.45, face=dict(ew=6, eh=4, lash=0, droop=0, brow='angled', brow_h=1, nose=2, mouth=2),
-    style='spiky', wep='gauntlet'),
+    style='wolfcut', outfit='jacket', wep='gauntlet'),
  'momo': dict(ink='#33220f', hair='#7a4a1e', hair2='#c78a45', hair3='#e8c08a', shine='#fff0d0',
     skin='#ffd9bd', skin2='#dda989', skin3='#b8825f', blush='#ff9db0',
     eye='#ffcc4d', eye2='#8a6410', brow='#7a4a1e',
     cloth='#7d5a33', cloth2='#a67f4c', cloth3='#4a3320', trim='#ffcc4d', accent='#ffcc4d',
     leg='#92724f', leg2='#b8987a', boot='#4e3b2c',
     metal='#eae2c8', grip='#241a0e', sleeve=0.50, face=dict(ew=6, eh=5, lash=1, droop=0, brow='thick',  brow_h=2, nose=3, mouth=2),
-    style='twin', wep='glaive'),
+    style='twin', outfit='skirt', wep='glaive'),
  'chiyo': dict(ink='#2a1014', hair='#96311f', hair2='#ff8b4d', hair3='#ffc79f', shine='#ffe8d0',
     skin='#ffdcc0', skin2='#e0ab88', skin3='#b8815f', blush='#ff9db0',
     eye='#ff8b4d', eye2='#8a3a12', brow='#96311f',
     cloth='#3a2028', cloth2='#5e3440', cloth3='#241318', trim='#ff8b4d', accent='#ff8b4d',
     leg='#8d5366', leg2='#b87a90', boot='#4e2c3a',
     metal='#c9563a', grip='#3a2018', sleeve=0.55, face=dict(ew=6, eh=5, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
-    style='bob', wep='bombs'),
+    style='bun', outfit='apron', wep='bombs'),
  'nari': dict(ink='#241428', hair='#7a3f8a', hair2='#d68ae6', hair3='#f4c2ff', shine='#ffffff',
     skin='#ffe6cf', skin2='#e2b492', skin3='#bd8a66', blush='#ffa8c0',
     eye='#ffd24d', eye2='#96690e', brow='#7a3f8a',
     cloth='#3a2246', cloth2='#5e3a6e', cloth3='#241428', trim='#ffd24d', accent='#ffd24d',
     leg='#7e4d94', leg2='#a57ab8', boot='#422952',
     metal='#c9a05a', grip='#4a3320', sleeve=0.60, face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft',   brow_h=2, nose=2, mouth=1),
-    style='braid', wep='lute'),
+    style='curls', outfit='dress', wep='lute'),
  'seryn': dict(ink='#1a2338', hair='#b8912f', hair2='#ffe08a', hair3='#fff6cf', shine='#ffffff',
     skin='#ffe6cf', skin2='#e0b48f', skin3='#b8886a', blush='#ffa8b8',
     eye='#5fe0a8', eye2='#12704f', brow='#b8912f',
@@ -191,7 +191,7 @@ CHARS = {
     leg='#53658d', leg2='#7a8db8', boot='#2c374e',
     metal='#eef3ff', grip='#2b3350',
     face=dict(ew=5, eh=4, lash=1, droop=0, brow='flat', brow_h=2, nose=2, mouth=1),
-    sleeve=0.86, style='braid', wep='greatsword'),
+    sleeve=0.86, style='crown', outfit='armor', wep='greatsword'),
  'aldric': dict(ink='#2a1414', hair='#8a8a96', hair2='#d8d8e4', hair3='#ffffff', shine='#ffffff',
     skin='#c9906a', skin2='#a3714f', skin3='#7d5439', blush='#c96a5a',
     eye='#a8b4c8', eye2='#4a5568', brow='#8a8a96',
@@ -199,7 +199,7 @@ CHARS = {
     leg='#53538d', leg2='#7a7ab8', boot='#2c2c4e',
     metal='#e8ecf5', grip='#2b2b33',
     face=dict(ew=5, eh=3, lash=0, droop=0, brow='angled', brow_h=1, nose=3, mouth=1),
-    sleeve=0.70, style='spiky', wep='twinswords'),
+    sleeve=0.70, style='slick', outfit='longcoat', wep='twinswords'),
  'kassandra': dict(ink='#33101c', hair='#8f1f33', hair2='#e04a63', hair3='#ff9db0', shine='#ffd0d8',
     skin='#ffdcc0', skin2='#e0a184', skin3='#b87f62', blush='#ff8fa8',
     eye='#ffcc4d', eye2='#8a5a10', brow='#8f1f33',
@@ -207,7 +207,7 @@ CHARS = {
     leg='#a63a5d', leg2='#be7494', boot='#5c1f3d',
     metal='#ffd0d8', grip='#3a1420',
     face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
-    sleeve=0.55, style='ponytail', wep='spear'),
+    sleeve=0.55, style='sidetail', outfit='wrap', wep='spear'),
  'nyx': dict(ink='#100a1c', hair='#2a1c40', hair2='#5b3f86', hair3='#9c7fc9', shine='#c9b0e8',
     skin='#f0dcd0', skin2='#cbb0a4', skin3='#a08878', blush='#d68a9c',
     eye='#b07cff', eye2='#4a2578', brow='#2a1c40',
@@ -215,14 +215,14 @@ CHARS = {
     leg='#64429e', leg2='#9577bb', boot='#35215a',
     metal='#4a2f6b', grip='#241634',
     face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft', brow_h=2, nose=2, mouth=1),
-    sleeve=0.88, style='long', wep='grimoire'),
+    sleeve=0.88, style='wave', outfit='longcoat', wep='grimoire'),
  'toma': dict(ink='#22221a', hair='#6b6320', hair2='#b8ab3d', hair3='#e8e0a8', shine='#fff8d0',
     skin='#f2c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#e8907a',
     eye='#ffe14d', eye2='#8a6410', brow='#6b6320',
     cloth='#3a3a2a', cloth2='#5a5a40', cloth3='#22221a', trim='#ffe14d', accent='#ffe14d',
     leg='#8d8d53', leg2='#b8b87a', boot='#4e4e2c',
     metal='#8a8030', grip='#2b2a14', sleeve=0.68, face=dict(ew=4, eh=3, lash=0, droop=0, brow='flat',   brow_h=1, nose=2, mouth=1),
-    style='crop', wep='staff'),
+    style='mohawk', outfit='jacket', wep='coilrod'),
 
  'atom': dict(ink='#1a0e2e', hair='#7b3fd4', hair2='#b07cff', hair3='#dcc0ff', shine='#f3e9ff',
     skin='#ffdcc0', skin2='#e5a184', skin3='#c98166', blush='#d98bff',
@@ -231,7 +231,7 @@ CHARS = {
     leg='#4a3d7a', leg2='#7365b0', boot='#241d3d',
     metal='#dcc9ff', grip='#3a2b5e', cape='#5a2a9c', cape2='#8f5fff',
     face=dict(ew=5, eh=4, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
-    sleeve=0.74, style='spiky', wep='atomblade'),
+    sleeve=0.74, style='messy', outfit='coat', wep='atomblade'),
 
  'rei': dict(ink='#2a0f12', hair='#c9302f', hair2='#ff6b5a', hair3='#ffb0a0', shine='#ffe0d8',
     skin='#e8b892', skin2='#c4906a', skin3='#9c6c4c', blush='#ff8b8b',
@@ -240,7 +240,7 @@ CHARS = {
     leg='#8d5a3a', leg2='#b8845e', boot='#4e2f1c',
     metal='#d8d4cc', grip='#3d2018',
     face=dict(ew=6, eh=3, lash=0, droop=0, brow='thick', brow_h=1, nose=3, mouth=1),
-    sleeve=0.34, style='ponytail', wep='greataxe'),
+    sleeve=0.34, style='topknot', outfit='wrap', wep='greataxe'),
 
  'odette': dict(ink='#160f2a', hair='#e8e2f5', hair2='#ffffff', hair3='#c9bde8', shine='#ffffff',
     skin='#f5e0d0', skin2='#d4b298', skin3='#ab8a72', blush='#e0a0c0',
@@ -249,7 +249,7 @@ CHARS = {
     leg='#5a4f8d', leg2='#8379b8', boot='#2b2451',
     metal='#c9d8f0', grip='#2b2145',
     face=dict(ew=5, eh=4, lash=2, droop=1, brow='soft', brow_h=2, nose=2, mouth=1),
-    sleeve=0.90, style='long', wep='scythe'),
+    sleeve=0.90, style='veil', outfit='dress', wep='scythe'),
 
  'bao': dict(ink='#2b1508', hair='#2b2116', hair2='#4e3d28', hair3='#7d6444', shine='#c0a878',
     skin='#e0b088', skin2='#bc8a62', skin3='#946745', blush='#e08b6a',
@@ -258,7 +258,7 @@ CHARS = {
     leg='#8d7453', leg2='#b8a07a', boot='#4e3f2c',
     metal='#b8b8c0', grip='#2b1e12',
     face=dict(ew=5, eh=3, lash=0, droop=1, brow='angled', brow_h=1, nose=3, mouth=1),
-    sleeve=0.62, style='crop', wep='rifle'),
+    sleeve=0.62, style='undercut', outfit='shorts', wep='rifle'),
 
  'iris': dict(ink='#0f2a1e', hair='#3fd48b', hair2='#7cffbc', hair3='#c0ffe0', shine='#e8fff4',
     skin='#ffd8bc', skin2='#e09d7e', skin3='#bd7a5e', blush='#ff9db0',
@@ -267,7 +267,7 @@ CHARS = {
     leg='#4a8d70', leg2='#73b89c', boot='#24503e',
     metal='#d8e8e0', grip='#132620',
     face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
-    sleeve=0.44, style='twin', wep='hookblade'),
+    sleeve=0.44, style='pixie', outfit='apron', wep='hookblade'),
 }
 
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
@@ -432,18 +432,59 @@ def draw_torso(c, p, pose):
     c.rect(bs, 46+dy, (fs-bs), 4, p['accent'])            # sash follows the body
     c.rect(bs, 46+dy, (fs-bs), 1, cl2)
     xh = CX + pose['lean']*0.25 + TURN*0.5
-    if p['style'] == 'bob':                               # skirts hang off the hips
+    # What hangs off the hips is its own choice, nothing to do with the hair.
+    # Keying the skirt off the hairstyle is how three characters ended up in the
+    # same outfit for no reason at all.
+    of = p.get('outfit', 'coat')
+    if of == 'skirt':                                     # pleated, flared
         c.rect(xh-7, HIP+dy, 15, 6, cl)
         c.rect(xh-9, HIP+5+dy, 18, 4, cl2)
         c.rect(xh-9, HIP+8+dy, 18, 2, cl3)
         for i in range(0, 18, 5): c.rect(xh-9+i, HIP+8+dy, 2, 2, tr)
-    elif p['style'] == 'long':
-        c.rect(xh-7, HIP+dy, 14, 9, cl)
-        c.rect(xh-8, HIP+7+dy, 16, 3, cl3)
-        for i in range(0, 16, 5): c.rect(xh-8+i, HIP+4+dy, 2, 6, tr)
-    else:
+    elif of == 'robe':                                    # long, slit, panelled
+        c.rect(xh-7, HIP+dy, 14, 11, cl)
+        c.rect(xh-8, HIP+9+dy, 16, 4, cl3)
+        for i in range(0, 16, 5): c.rect(xh-8+i, HIP+4+dy, 2, 8, tr)
+        c.rect(xh+4, HIP+2+dy, 4, 14, cl2)
+    elif of == 'dress':                                   # softer, a rounded hem
+        for k in range(11):
+            w = 7 + k*0.7
+            c.rect(xh-w, HIP+dy+k, w*2, 1, cl if k < 8 else cl3)
+        c.rect(xh-9, HIP+3+dy, 18, 1, tr)
+    elif of == 'shorts':                                  # cut short, with a belt
+        c.rect(xh-7, HIP+dy, 14, 6, cl)
+        c.rect(xh-8, HIP-1+dy, 16, 3, cl3)
+        c.rect(xh-8, HIP-1+dy, 16, 1, tr)
+        c.rect(xh+2, HIP+1+dy, 4, 3, tr)                  # a pouch on the hip
+    elif of == 'armor':                                   # plates over a short skirt
+        c.rect(xh-8, HIP+dy, 16, 5, p['metal'])
+        c.rect(xh-8, HIP+dy, 16, 2, cl2)
+        for i in range(0, 16, 4): c.rect(xh-8+i, HIP+5+dy, 3, 7, p['metal'])
+        for i in range(0, 16, 4): c.rect(xh-8+i, HIP+11+dy, 3, 1, tr)
+    elif of == 'jacket':                                  # cropped, hem flicked up
+        c.rect(xh-7, HIP+dy, 14, 3, cl)
+        c.rect(xh-9, HIP+2+dy, 6, 5, cl2)
+        c.rect(xh-10, HIP+5+dy, 5, 3, cl3)
+        c.rect(xh+5, HIP+1+dy, 3, 4, cl2)
+    elif of == 'apron':                                   # a working apron and straps
+        c.rect(xh-6, HIP+dy, 12, 12, cl2)
+        c.rect(xh-6, HIP+dy, 12, 2, tr)
+        c.rect(xh-7, HIP+10+dy, 14, 2, cl3)
+        c.rect(xh-8, HIP+1+dy, 2, 9, cl3)
+    elif of == 'longcoat':                                # split, and it streams
         c.rect(xh-7, HIP+dy, 14, 4, cl)
-        c.rect(xh-9, HIP+3+dy, 7, 12, cl3)                # coat tail streams behind
+        c.rect(xh-10, HIP+3+dy, 8, 20, cl3)
+        c.rect(xh-10, HIP+3+dy, 8, 2, tr)
+        c.rect(xh-12, HIP+15+dy, 5, 9, cl3)
+        c.rect(xh+3, HIP+3+dy, 5, 11, cl2)
+    elif of == 'wrap':                                    # cloth wound at the waist
+        c.rect(xh-7, HIP+dy, 14, 5, cl)
+        for k in range(4):
+            c.rect(xh-8+k, HIP+3+dy+k*2, 16-k, 2, cl2 if k % 2 else cl3)
+        c.taper(xh-6, HIP+9+dy, xh-12, HIP+20+dy, tr, 4, 2)
+    else:                                                 # a coat with a tail behind
+        c.rect(xh-7, HIP+dy, 14, 4, cl)
+        c.rect(xh-9, HIP+3+dy, 7, 12, cl3)
         c.rect(xh-9, HIP+3+dy, 7, 2, tr)
         c.rect(xh-10, HIP+9+dy, 4, 6, cl3)
 
@@ -468,171 +509,408 @@ def draw_arm(c, p, pose, back):
     c.ellipse(hxp-1, hyp, 1.8, 1.8, p['skin2'])
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
 
+# The front edge of the face, row by row from the crown down to the jaw, as
+# offsets from the head centre. A circle with a bump on it reads as a ball with
+# a nose; a real profile needs a forehead that rolls back, a brow ridge, the dip
+# under it, a nose, the philtrum, two lips and a chin that pulls back to the jaw.
+HEAD_PROFILE = [
+    (-4.0,  2.0),   # 0  crown
+    (-6.2,  4.4),   # 1
+    (-7.4,  5.6),   # 2
+    (-8.1,  6.2),   # 3  forehead
+    (-8.5,  6.6),   # 4
+    (-8.7,  6.9),   # 5  brow ridge
+    (-8.8,  6.5),   # 6  the dip under it - brow line
+    (-8.7,  6.6),   # 7  lash line
+    (-8.5,  6.8),   # 8  eye
+    (-8.3,  7.1),   # 9  eye
+    (-8.0,  7.6),   # 10 bridge of the nose
+    (-7.6,  8.3),   # 11 nose
+    (-7.2,  8.6),   # 12 tip
+    (-6.7,  6.4),   # 13 philtrum - the cut back here is what makes it a nose
+    (-6.2,  6.9),   # 14 mouth
+    (-5.6,  6.8),   # 15 lower lip
+    (-5.0,  6.1),   # 16 chin
+    (-4.3,  4.9),   # 17
+    (-3.5,  3.2),   # 18 jaw
+    (-2.8,  1.8),   # 19 into the neck
+]
+HEAD_TOP = -10          # row 0 sits here, relative to the head centre
+EYE_ROW  = 7            # the lash line. The eye sits mid-face, not up on the brow.
+
 def eye_profile(c, p, x, y, mode):
-    """The single visible eye of a head seen from the side, facing +x.
-       Shape comes from the character's own face parameters, so nobody
-       shares an expression."""
+    """One eye, seen from the side, facing +x.
+
+    In profile an anime eye is a wedge, not a box: tall at the outer corner,
+    closing to a point at the inner one. The iris fills nearly the whole
+    opening - the sclera is a sliver at the front - and it is shaded top to
+    bottom with a catchlight punched through it, which is what makes an eye
+    read as a wet sphere instead of a sticker. `y` is the lash line; the
+    opening is the three rows under it."""
     ink, ec, ed = p['ink'], p['eye'], p['eye2']
     F = p['face']
-    w, hgt = F['ew'], F['eh']
-    if mode == 'closed':
-        for i in range(w): c.set(x+i, y+hgt//2, ink)
-        c.set(x+w-1, y+hgt//2-1, ink)
-        return
-    if mode == 'hurt':
+    w = F['ew'] + 1
+
+    if mode == 'closed':                          # a closed lid still curves
         for i in range(w):
-            c.set(x+i, y, ink); c.set(x+i, y+hgt-1, ink)
+            c.set(x+i, y + 2 + (0 if i < w-2 else -1), ink)
+        c.set(x-1, y+1, ink)
         return
-    c.rect(x, y, w, hgt, '#ffffff')                       # sclera
-    c.rect(x+w-3, y, 3, hgt, ec)                          # iris sits toward the front
-    c.rect(x+w-3, y+hgt-1, 3, 1, ed)
-    c.rect(x+w-2, y+1, 1, max(1, hgt-2), ink)             # pupil
-    for i in range(w): c.set(x+i, y-1, ink)               # upper lash
-    for k in range(F['lash']):                            # lash thickness at the back
-        c.set(x, y+k, ink); c.set(x+1, y-1-k, ink)
-    if F['droop']:
-        c.set(x, y+1, ink); c.set(x+1, y+1, ink)          # outer corner falls
-    c.set(x+w-1, y, '#ffffff')                            # catchlight
-    for i in range(1, w-1): c.set(x+i, y+hgt, p['skin2']) # lower lid
+    if mode == 'hurt':                            # the squeezed-shut cross
+        for i in range(w-1):
+            c.set(x+i, y+1, ink); c.set(x+i, y+3, ink)
+        c.set(x+w//2, y, ink); c.set(x+w//2, y+4, ink)
+        return
+
+    # How deep the opening is separates a wide round eye from a narrow hard one,
+    # which is most of what tells two characters apart at this size.
+    d = 3 if F['eh'] >= 4 else 2
+    for i in range(w):
+        t  = i/(w-1.0)
+        hi = y+d if t <= 0.60 else (y+d-1 if t <= 0.84 else y+1)
+        for yy in range(int(y+1), int(hi)+1):
+            c.set(x+i, yy, ec)
+        c.set(x+i, y+1, ed)                       # the lid's shadow across the top
+    c.set(x+w-1, y+1, '#ffffff')                  # sclera, a sliver at the inner corner
+    pu = max(1, round(w*0.46))                    # pupil, set back from that corner
+    for yy in range(int(y+2), int(y+d+1)): c.set(x+pu, yy, ink)
+    c.set(x+pu-1, y+2, ed)
+    c.set(x+1, y+1, '#ffffff')                    # the big catchlight, high and back
+    c.set(x+2, y+d, p['shine'])                   # a small one low and forward
+    for i in range(w):                            # the lash, heaviest at the corner
+        c.set(x+i, y, ink)
+    c.set(x, y+1, ink); c.set(x+1, y, ink)
+    for k in range(F['lash']):
+        c.set(x-1-k, y-k, ink)                    # the flick off the outer corner
+    if F['droop']: c.set(x-1, y+2, ink)
+    for i in range(1, w-2):                       # lower lid
+        c.set(x+i, y+d+1 + (-1 if i > w-4 else 0), p['skin2'])
 
 def draw_head(c, p, pose):
-    """Head in TRUE profile facing +x: one eye, a nose on the leading edge,
-       the ear behind. A front-facing head mirrored left and right cannot read
-       as facing anywhere, which is the whole reason this exists."""
+    """Head in TRUE profile facing +x: one eye, a contoured front edge, the ear
+       behind. A front-facing head mirrored left and right cannot read as facing
+       anywhere, which is the whole reason this exists."""
     sk, sk2, sk3 = p['skin'], p['skin2'], p['skin3']
     F = p['face']
     cx, cy = head_pos(pose)
-    c.ellipse(cx-1, cy, 8.0, 9.2, sk)                     # skull, set back
-    c.ellipse(cx+1, cy+3, 6.6, 6.2, sk)                   # cheek/muzzle forward
-    # nose and lips on the leading edge
-    nx = cx + 6
-    c.rect(nx, cy+1, F['nose'], 2, sk)
-    c.set(nx+F['nose'], cy+2, sk)
-    c.set(nx+F['nose'], cy+3, sk2)
-    c.rect(cx+4, cy+5, 3, 2, sk)                          # chin
-    c.set(cx+6, cy+6, sk3)
-    for x in range(int(cx-4), int(cx+6)): c.set(x, cy+8, sk3)   # jaw shadow
-    c.rect(cx-6, cy+1, 3, 4, sk2)                         # ear, behind
-    c.set(cx-5, cy+2, sk3)
-    c.rect(cx-2, cy+9, 6, 4, sk)                          # neck
-    c.rect(cx-2, cy+9, 6, 1, sk3)
-    m = pose['eye']
-    eye_profile(c, p, cx+1, cy, m)
-    if m != 'closed':                                     # brow, per character
-        by = cy - 3 - F['brow_h']
+    nose = F['nose'] - 2                          # per character, off the default
+
+    rows = []
+    for i, (bk, fr) in enumerate(HEAD_PROFILE):
+        y = cy + HEAD_TOP + i
+        f = fr + (nose*0.9 if 11 <= i <= 12 else nose*0.35 if i in (10, 13) else 0)
+        rows.append((y, cx + bk, cx + f))
+
+    # --- the mass. Light comes from the front, so the back of the skull turns
+    # into shadow and the forehead, bridge and cheekbone keep the light.
+    for i, (y, bx, fx) in enumerate(rows):
+        c.rect(bx, y, fx-bx, 1, sk)
+        c.rect(bx, y, 2, 1, sk2)
+        c.set(bx, y, sk3)
+    for i, (y, bx, fx) in enumerate(rows):
+        if 8 <= i <= 9:   c.rect(bx+1, y, 3, 1, sk2)   # temple, behind the eye
+        if i == 13:       c.rect(fx-2, y, 2, 1, sk2)   # under the nose
+        if i == 15:       c.set(fx-1, y, sk2)          # under the lower lip
+        if i in (17, 18): c.rect(bx, y, 3, 1, sk2)     # the jaw turning under
+        if i == 19:       c.rect(bx, y, fx-bx, 1, sk2)
+
+    # --- ear, tucked behind the jaw
+    ey0 = cy + HEAD_TOP + 8
+    c.rect(cx-6.5, ey0, 3, 4, sk)
+    c.set(cx-6.5, ey0+1, sk2); c.set(cx-5.5, ey0+2, sk3)
+    c.set(cx-4.5, ey0+1, sk2)
+
+    # --- neck, with the shadow the jaw throws across it
+    ny = cy + HEAD_TOP + 19
+    c.rect(cx-2.5, ny, 6, 4, sk)
+    c.rect(cx-2.5, ny, 6, 1, sk3)
+    c.rect(cx-2.5, ny+1, 5, 1, sk2)
+    c.rect(cx+2.5, ny, 1, 4, sk2)
+
+    m  = pose['eye']
+    ex = cx + 0.5
+    ey = cy + HEAD_TOP + EYE_ROW
+    eye_profile(c, p, ex, ey, m)
+
+    if m != 'closed':                             # brow, riding the ridge
+        by = ey - 2 - F['brow_h']
         for i in range(F['ew']):
+            t = i/max(1, F['ew']-1)
             lift = 0
-            if F['brow'] == 'angled': lift = -1 if i > F['ew']-3 else 0
-            if F['brow'] == 'soft':   lift =  1 if i > F['ew']-3 else 0
-            c.set(cx+1+i, by+lift, p['brow'])
-            if F['brow'] == 'thick': c.set(cx+1+i, by+1+lift, p['brow'])
-    mw = F['mouth']                                       # mouths stay small
+            if F['brow'] == 'angled': lift = -1 if t > 0.55 else 0
+            if F['brow'] == 'soft':   lift =  1 if t > 0.55 else 0
+            c.set(ex+i, by+lift, p['brow'])
+            if F['brow'] == 'thick': c.set(ex+i, by+1+lift, p['brow'])
+
+    # --- mouth: small, on the lip contour, with a corner that reads
+    mw = F['mouth']
+    my = cy + HEAD_TOP + 14
+    mx = rows[14][2] - 1 - mw
     if m == 'fierce':
-        c.rect(cx+5, cy+5, mw, 1, p['ink'])
-        c.set(cx+5, cy+6, p['ink'])
+        c.rect(mx, my, mw+1, 1, p['ink'])
+        c.set(mx, my+1, p['ink'])
     else:
-        c.rect(cx+5, cy+5, mw, 1, sk3)
-    c.rect(cx+1, cy+3, 3, 1, p['blush'])                  # blush on the cheek
-    c.rect(cx+1, cy+4, 2, 1, p['blush'])
+        c.set(mx+mw-1, my, p['ink'])              # a definite corner, then it softens
+        c.rect(mx, my, mw-1, 1, sk3)
+        c.set(mx-1, my, sk2)
+    c.set(rows[15][2]-1, cy+HEAD_TOP+15, sk2)     # the shadow under the lower lip
+
+    # --- blush, low on the cheekbone and small enough to be a flush
+    byy = cy + HEAD_TOP + 12
+    c.rect(cx+0.5, byy,   3, 1, p['blush'])
+    c.rect(cx+1.0, byy+1, 2, 1, p['blush'])
     return cx, cy
 
 # --------------------------------------------------------------------- hair --
 def hair_back(c, p, pose, cx, cy):
+    """Everything that falls BEHIND the head. Twenty-one characters, twenty-one
+    silhouettes - a roster where three people share a haircut in different
+    colours reads as one character with palette swaps, which is the opposite of
+    what a gacha needs."""
     st, h1, h2 = p['style'], p['hair'], p['hair2']
     sway = -pose['sway']          # trail: opposite the direction of travel
-    if st == 'ponytail':
+
+    if st == 'ponytail':                                   # high, single, whipping
         c.taper(cx-6, cy-8, cx-13+sway*0.5, cy+2, h1, 9, 8)
         c.taper(cx-12+sway*0.4, cy, cx-16+sway, cy+30, h1, 8, 5)
         c.taper(cx-13+sway*0.4, cy+2, cx-16+sway, cy+24, h2, 4, 3)
         c.taper(cx-15+sway, cy+28, cx-18+sway*1.3, cy+38, h1, 4, 2)
-    elif st == 'long':
-        # the whole length falls BEHIND the head. A curtain on the leading side
-        # too is a head-on detail and immediately kills the profile.
+
+    elif st == 'long':                                     # a curtain, straight down
         c.rect(cx-16, cy-8, 11, 46, h1)
         c.rect(cx-15, cy+8, 4, 26, h2)
-        c.rect(cx-9, cy-8, 17, 20, h1)                    # cap over the skull
+        c.rect(cx-9, cy-8, 17, 20, h1)
         c.taper(cx-12, cy+34, cx-17+sway, cy+46, h1, 7, 3)
-        c.rect(cx+5, cy-2, 3, 15, h1)                     # one lock in front of the ear
-    elif st == 'spiky':
-        # the fan is biased backwards - spikes blow the way the wind comes from
+        c.rect(cx+5, cy-2, 3, 15, h1)
+
+    elif st == 'spiky':                                    # Ren, and Ren alone
         for sx, sy in ((-15,-3), (-10,-11), (-3,-16), (5,-14), (11,-7)):
             c.taper(cx+sx*0.6, cy+sy*0.45, cx+sx+sway*0.35, cy+sy-2, h1, 7, 3)
         c.rect(cx-14, cy-5, 6, 19, h1)
-        c.rect(cx+7, cy-4, 3, 11, h1)                     # short lock at the cheek
+        c.rect(cx+7, cy-4, 3, 11, h1)
         c.taper(cx-7, cy+16, cx-15+sway, cy+26, p['accent'], 6, 4)   # scarf
         c.taper(cx-13+sway*0.5, cy+24, cx-19+sway, cy+36, p['accent'], 4, 3)
-    elif st == 'bob':
+
+    elif st == 'bob':                                      # a heavy blunt bob
         c.ellipse(cx-1, cy+1, 12.0, 12.6, h1)
-        c.rect(cx-15, cy-2, 7, 20, h1)                    # the bob's weight hangs behind
-        c.rect(cx+7, cy-2, 3, 13, h1)                     # the near side cuts in at the jaw
-    elif st == 'braid':
+        c.rect(cx-15, cy-2, 7, 20, h1)
+        c.rect(cx+7, cy-2, 3, 13, h1)
+
+    elif st == 'braid':                                    # one plaited rope
         c.ellipse(cx, cy-1, 11.0, 11.0, h1)
-        bx = cx - 14 + sway*0.35                          # clear of the torso, so it shows
-        for k in range(7):                                    # plaited rope down one side
+        bx = cx - 14 + sway*0.35
+        for k in range(7):
             yy = cy + 4 + k*6
             xx = bx + math.sin(k*1.0 + sway*0.15)*2.2
             c.ellipse(xx, yy, 4.6 - k*0.3, 3.6, h1)
             c.ellipse(xx-1, yy-1, 2.8 - k*0.22, 2.0, h2)
-            c.set(xx+2, yy+2, p['ink'])                       # plait notch
-        c.rect(bx-3, cy+45, 6, 4, p['accent'])                # tie
-        c.rect(cx+7, cy-2, 3, 11, h1)                         # lock at the cheek
-    elif st == 'crop':
+            c.set(xx+2, yy+2, p['ink'])
+        c.rect(bx-3, cy+45, 6, 4, p['accent'])
+        c.rect(cx+7, cy-2, 3, 11, h1)
+
+    elif st == 'crop':                                     # short, close to the skull
         c.ellipse(cx-1, cy-2, 10.4, 9.6, h1)
         c.rect(cx-12, cy-4, 6, 11, h1)
         c.rect(cx+7, cy-4, 2, 8, h1)
-    elif st == 'twin':
+
+    elif st == 'twin':                                     # two tails, one edge-on
         c.ellipse(cx, cy-1, 10.6, 10.4, h1)
-        # both tails are there, but the far one is nearly edge-on to us: it is
-        # short and tucked back, so the silhouette still reads as a profile
         for sgn, sc, off in ((-1, 1.4, 0), (1, 0.42, -4)):
             bx = cx + sgn*12 + off
             c.taper(cx+sgn*7, cy-6, bx, cy+2, h1, 9, 8)
             c.taper(bx, cy+2, bx+sgn*3 + sway*0.35, cy+2+26*sc, h1, 8, 4)
             c.taper(bx, cy+4, bx+sgn*2 + sway*0.3, cy+4+18*sc, h2, 4, 2)
 
+    elif st == 'hime':                                     # blunt, with sharp sidelocks
+        c.rect(cx-14, cy-8, 10, 40, h1)
+        c.rect(cx-9, cy-9, 17, 19, h1)
+        c.rect(cx-13, cy+6, 3, 22, h2)
+        for k in range(10): c.set(cx-15+k, cy+32+abs(k-5)//2, h1)   # a blunt cut hem
+        c.taper(cx+6, cy-1, cx+7, cy+16, h1, 4, 5)                  # the sidelock
+        c.taper(cx+6, cy+14, cx+7, cy+19, h2, 4, 2)
+
+    elif st == 'wolfcut':                                  # shaggy, layered, spiky hem
+        c.ellipse(cx-1, cy-1, 11.4, 10.6, h1)
+        for k, (sx, ln) in enumerate(((-13, 16), (-11, 22), (-8, 26), (-4, 20))):
+            c.taper(cx+sx, cy+2, cx+sx-3+sway*0.4, cy+2+ln, h1, 6, 3)
+            if k % 2: c.taper(cx+sx-1, cy+4, cx+sx-3+sway*0.3, cy+ln, h2, 3, 2)
+        c.rect(cx+6, cy-3, 3, 9, h1)
+
+    elif st == 'slick':                                    # swept flat back, undercut
+        c.ellipse(cx-2, cy-3, 10.8, 8.6, h1)
+        for k in range(6):
+            c.taper(cx-4+k, cy-10+k*0.6, cx-15+sway*0.5, cy-4+k*2.2, h1, 4, 2)
+        c.rect(cx-13, cy-4, 5, 9, h2)
+        c.rect(cx-11, cy+4, 4, 7, p['ink'])                # the shaved panel
+        c.rect(cx+5, cy-4, 2, 6, h1)
+
+    elif st == 'wave':                                     # long, and it moves
+        for k in range(34):
+            t = k/33.0
+            xx = cx - 13 + math.sin(t*6.0 + sway*0.2)*3.4 - t*2
+            c.rect(xx-4, cy-8+k, 9, 1, h1)
+            c.rect(xx-4, cy-8+k, 2, 1, h2)
+        c.rect(cx-9, cy-9, 17, 18, h1)
+        c.taper(cx-14, cy+26, cx-19+sway, cy+38, h1, 6, 3)
+        c.rect(cx+5, cy-2, 3, 12, h1)
+
+    elif st == 'bun':                                      # up, wrapped, loose strands
+        c.ellipse(cx, cy-1, 10.8, 10.2, h1)
+        c.ellipse(cx-9, cy-11, 6.4, 5.6, h1)               # the bun itself
+        c.ellipse(cx-10, cy-12, 4.0, 3.2, h2)
+        c.rect(cx-12, cy-9, 7, 2, p['accent'])             # the wrap
+        c.taper(cx-9, cy-2, cx-14+sway*0.5, cy+14, h1, 3, 2)   # loose strands
+        c.taper(cx-7, cy+2, cx-11+sway*0.4, cy+18, h1, 2, 1)
+        c.rect(cx+6, cy-2, 2, 8, h1)
+
+    elif st == 'curls':                                    # ringlets, stacked
+        c.ellipse(cx, cy-1, 10.8, 10.4, h1)
+        for k in range(6):
+            yy = cy + 2 + k*5
+            xx = cx - 12 + math.sin(k*1.6)*2.6 + sway*0.2
+            c.ellipse(xx, yy, 5.0, 4.2, h1)
+            c.ellipse(xx-1.4, yy-1.4, 2.6, 2.2, h2)
+        c.ellipse(cx+7, cy+3, 3.4, 3.0, h1)                # one ringlet at the cheek
+        c.ellipse(cx+6.4, cy+2.4, 1.6, 1.4, h2)
+
+    elif st == 'mohawk':                                   # shaved sides; the crest
+        c.rect(cx-9, cy-5, 15, 9, p['ink'])                #  goes on top in hair_front
+        c.taper(cx-8, cy-4, cx-14+sway*0.6, cy+8, h1, 5, 2)
+
+    elif st == 'crown':                                    # half up, a circlet, long
+        c.rect(cx-14, cy-6, 9, 38, h1)
+        c.rect(cx-13, cy+8, 3, 20, h2)
+        c.rect(cx-9, cy-9, 17, 19, h1)
+        c.taper(cx-11, cy+30, cx-15+sway, cy+40, h1, 6, 3)
+        c.taper(cx+6, cy-2, cx+8, cy+14, h1, 4, 3)         # a framing lock
+        for k in range(5):                                 # the circlet, seen edge-on
+            c.rect(cx-6+k*3, cy-11-((k%2)*2), 2, 3, p['accent'])
+        c.rect(cx-7, cy-9, 15, 2, p['accent'])
+
+    elif st == 'sidetail':                                 # low, off one side
+        c.ellipse(cx-1, cy-1, 11.0, 10.6, h1)
+        bx = cx - 12 + sway*0.4
+        c.taper(cx-8, cy+4, bx, cy+10, h1, 8, 8)
+        c.taper(bx, cy+10, bx-4+sway*0.8, cy+38, h1, 8, 4)
+        c.taper(bx, cy+12, bx-3+sway*0.7, cy+30, h2, 4, 2)
+        c.rect(bx-4, cy+8, 7, 3, p['accent'])              # the tie, low on the neck
+        c.rect(cx+6, cy-2, 3, 10, h1)
+
+    elif st == 'messy':                                    # long, unbrushed, a cowlick
+        c.ellipse(cx-1, cy-2, 11.4, 10.8, h1)
+        for k, (sx, sy, ln) in enumerate(((-13,-2,20), (-11,3,26), (-7,6,22), (-14,-8,12))):
+            c.taper(cx+sx, cy+sy, cx+sx-4+sway*0.5, cy+sy+ln, h1, 6, 3)
+            if k == 1: c.taper(cx+sx-1, cy+sy+2, cx+sx-4+sway*0.4, cy+sy+ln-4, h2, 3, 2)
+        c.taper(cx-2, cy-11, cx+3, cy-18+sway*0.2, h1, 5, 2)   # the cowlick
+        c.taper(cx-1, cy-12, cx+2, cy-16, h2, 3, 1)
+        c.rect(cx+6, cy-3, 3, 10, h1)
+
+    elif st == 'topknot':                                  # very high, wrapped tight
+        c.ellipse(cx-1, cy, 10.6, 10.0, h1)
+        c.taper(cx-3, cy-9, cx-6, cy-16, h1, 7, 6)
+        c.rect(cx-9, cy-17, 7, 3, p['accent'])             # the wrap
+        c.taper(cx-6, cy-16, cx-13+sway, cy+4, h1, 7, 4)
+        c.taper(cx-7, cy-14, cx-12+sway*0.8, cy, h2, 3, 2)
+        c.taper(cx-11+sway*0.6, cy+2, cx-15+sway*1.2, cy+16, h1, 4, 2)
+        c.rect(cx+6, cy-2, 2, 7, h1)
+
+    elif st == 'veil':                                     # floor length, ornamented
+        c.rect(cx-15, cy-9, 10, 52, h1)
+        c.rect(cx-14, cy+6, 4, 32, h2)
+        c.rect(cx-9, cy-10, 17, 20, h1)
+        c.rect(cx-16, cy+41, 12, 3, h1)                    # the hem, cut straight
+        c.taper(cx+6, cy-2, cx+8, cy+20, h1, 4, 3)
+        c.rect(cx-4, cy-13, 3, 4, p['accent'])             # a pin in the crown
+        c.rect(cx-5, cy-15, 5, 2, p['accent'])
+
+    elif st == 'undercut':                                 # short back, long fringe
+        c.ellipse(cx-1, cy-3, 10.4, 8.8, h1)
+        c.rect(cx-12, cy-2, 5, 6, h1)
+        c.rect(cx-11, cy+3, 4, 6, p['ink'])                # shaved underneath
+        c.taper(cx+3, cy-10, cx+8, cy+4, h1, 6, 4)         # the fringe sweeps forward
+        c.taper(cx+4, cy-9, cx+8, cy+1, h2, 3, 2)
+
+    elif st == 'pixie':                                    # very short, feathered
+        c.ellipse(cx-1, cy-3, 10.0, 8.4, h1)
+        for k in range(5):
+            sx = -10 + k*4
+            c.taper(cx+sx, cy-1, cx+sx-3+sway*0.3, cy+5+k, h1, 4, 2)
+        c.taper(cx-10, cy+1, cx-14+sway*0.5, cy+9, h1, 4, 2)
+        c.rect(cx+6, cy-4, 2, 6, h1)
+
+
 def hair_front(c, p, pose, cx, cy):
+    """The cap over the skull and the fringe. The fringe is per style too -
+    one shared fringe on twenty-one heads is what made them look related."""
     st, h1, h2, h3 = p['style'], p['hair'], p['hair2'], p['hair3']
-    T = TURN                                     # follow the three-quarter turn
     sh, ac = p['shine'], p['accent']
-    sway = -pose['sway']          # trail: opposite the direction of travel
+    sway = -pose['sway']
     top = cy - 4                                          # never below the brows
-    c.ellipse(cx-1, cy-3, 8.8, 9.4, h1, ymax=int(top))
+
+    if st == 'mohawk':                                    # a bare skull, then a crest
+        c.ellipse(cx-1, cy-3, 8.6, 9.0, p['skin'], ymax=int(top))
+        c.ellipse(cx-4, cy-5, 6.4, 6.0, p['skin2'], ymax=int(top-2))
+        for k in range(10):
+            sx  = -7 + k*1.6
+            hgt = 16 - abs(k-4.5)*1.7
+            c.taper(cx+sx, cy-7, cx+sx-2+sway*0.35, cy-7-hgt, h1, 4, 2)
+            if k % 2: c.taper(cx+sx, cy-9, cx+sx-2+sway*0.3, cy-7-hgt*0.7, h2, 2, 1)
+        c.rect(cx-9, cy-4, 3, 3, ac)
+        return
+    c.ellipse(cx-1, cy-3, 8.8, 9.4, h1, ymax=int(top))    # the cap
     c.ellipse(cx-1.5, cy-5, 7.2, 7.2, h2, ymax=int(top-2))
-    # a swept fringe mass over the forehead, stopping above the eye. Drawing
-    # it as separate vertical strands made a comb of spikes on the crown.
-    c.ellipse(cx-1, cy-6.5, 8.4, 5.6, h1, ymax=int(cy-5))
-    c.ellipse(cx-2.5, cy-7.5, 6.2, 3.8, h2, ymax=int(cy-7))
-    c.taper(cx+4, cy-8, cx+7, cy-4, h1, 3, 2)                      # one swept tip
-    for sx, w in ((-7,4), (-1,5), (5,3)):                          # soft shine streak
+
+    # ---- the fringe, shaped by style
+    if st in ('spiky', 'wolfcut', 'messy', 'mohawk'):     # broken into strands
+        for sx, sy in ((-8,-10), (-3,-13), (3,-12), (7,-8)):
+            c.taper(cx+sx, cy+sy+5, cx+sx+2+sway*0.2, cy+sy-1, h1, 5, 2)
+            c.taper(cx+sx, cy+sy+4, cx+sx+2, cy+sy, h2, 3, 1)
+    elif st in ('hime', 'veil', 'bob'):                   # cut straight across
+        c.rect(cx-9, cy-8, 17, 4, h1)
+        c.rect(cx-8, cy-9, 15, 2, h2)
+        for k in range(0, 17, 4): c.set(cx-9+k, cy-4, h1)
+    elif st in ('undercut', 'slick'):                     # one long sweep forward
+        c.taper(cx-6, cy-9, cx+8, cy-3, h1, 7, 4)
+        c.taper(cx-5, cy-10, cx+6, cy-5, h2, 4, 2)
+    elif st == 'curls':                                   # soft, rounded
+        for sx in (-7, -2, 3, 7):
+            c.ellipse(cx+sx, cy-7, 3.4, 3.0, h1)
+            c.ellipse(cx+sx-0.8, cy-8, 1.8, 1.4, h2)
+    else:                                                 # a swept mass
+        c.ellipse(cx-1, cy-6.5, 8.4, 5.6, h1, ymax=int(cy-5))
+        c.ellipse(cx-2.5, cy-7.5, 6.2, 3.8, h2, ymax=int(cy-7))
+        c.taper(cx+4, cy-8, cx+7, cy-4, h1, 3, 2)
+
+    for sx, w in ((-7,4), (-1,5), (5,3)):                 # the shine band
         c.rect(cx+sx, cy-9, w, 1, h3)
         c.rect(cx+sx+1, cy-10, max(1, w-2), 1, sh)
-    c.rect(cx-10, cy-5, 4, 13, h1)                                 # lock hangs behind
+    c.rect(cx-10, cy-5, 4, 13, h1)                        # the lock behind the ear
     c.rect(cx-10, cy-5, 2, 10, h2)
     c.set(cx-8, cy+8, h1)
-    if st == 'ponytail':
-        c.rect(cx-9, cy-13, 5, 4, ac); c.rect(cx-8, cy-14, 3, 1, ac)
-    elif st == 'long':
-        c.rect(cx-3+T, cy-16, 6, 3, ac); c.rect(cx-2+T, cy-17, 4, 1, ac)
-        c.rect(cx-15, cy-5, 5, 22, h1); c.rect(cx+9, cy-3, 2, 7, h1)
-    elif st == 'spiky':
-        for sx, sy in ((-11,-9), (-5,-13), (2,-14), (8,-11)):
-            c.taper(cx+sx, cy+sy+5, cx+sx+sway*0.25, cy+sy-1, h2, 5, 2)
-    elif st == 'bob':
-        c.rect(cx-15, cy-6, 5, 18, h1); c.rect(cx+10, cy-5, 2, 10, h1)
-        c.rect(cx-17, cy-10, 4, 7, ac)                    # one ribbon, on the far side
-        c.rect(cx-17, cy-10, 4, 2, '#ffffff')
-    elif st == 'braid':
-        c.rect(cx-12, cy-6, 3, 13, h1)
-        c.rect(cx-3, cy-15, 7, 3, ac)                         # headband
-        c.rect(cx-3, cy-15, 7, 1, '#ffffff')
-        for i in range(-8, 9, 4): c.set(cx+i, cy-12, h3)
-    elif st == 'crop':
-        for sx2 in (-8, -3, 2, 7):                            # short cropped spikes
-            c.taper(cx+sx2, cy-8, cx+sx2+sway*0.15, cy-13, h2, 4, 2)
-    elif st == 'twin':
-        c.rect(cx-15, cy-9, 5, 6, ac); c.rect(cx-15, cy-9, 5, 2, '#ffffff')
-        c.rect(cx+8, cy-10, 3, 4, ac)                     # the far tie, mostly hidden
-        c.rect(cx-11, cy-4, 3, 7, h1); c.rect(cx+8, cy-3, 2, 5, h1)
+
+    # ---- the ornament that belongs to that character alone
+    if   st == 'ponytail': c.rect(cx-9, cy-13, 5, 4, ac); c.rect(cx-8, cy-14, 3, 1, ac)
+    elif st == 'long':     c.rect(cx-3+TURN, cy-16, 6, 3, ac); c.rect(cx-2+TURN, cy-17, 4, 1, ac)
+    elif st == 'bob':      c.rect(cx-17, cy-10, 4, 7, ac); c.rect(cx-17, cy-10, 4, 2, '#ffffff')
+    elif st == 'braid':    c.rect(cx-3, cy-15, 7, 3, ac); c.rect(cx-3, cy-15, 7, 1, '#ffffff')
+    elif st == 'twin':     c.rect(cx-15, cy-9, 5, 6, ac); c.rect(cx-15, cy-9, 5, 2, '#ffffff')
+    elif st == 'hime':     c.rect(cx-2, cy-14, 8, 2, ac); c.set(cx+6, cy-13, ac)
+    elif st == 'wolfcut':  c.rect(cx-11, cy-8, 3, 3, ac)
+    elif st == 'wave':     c.rect(cx+2, cy-13, 4, 3, ac); c.rect(cx+3, cy-14, 2, 1, '#ffffff')
+    elif st == 'bun':      c.rect(cx-13, cy-14, 2, 6, ac)      # the pin through it
+    elif st == 'curls':    c.rect(cx-6, cy-13, 10, 2, ac); c.set(cx-1, cy-14, '#ffffff')
+    elif st == 'crown':    c.rect(cx-1, cy-15, 3, 4, ac); c.rect(cx-2, cy-16, 5, 1, '#ffffff')
+    elif st == 'sidetail': c.rect(cx+1, cy-13, 5, 3, ac)
+    elif st == 'topknot':  c.rect(cx-6, cy-13, 3, 3, ac)
+    elif st == 'veil':     c.rect(cx+1, cy-14, 4, 4, ac); c.rect(cx+2, cy-15, 2, 1, '#ffffff')
+    elif st == 'pixie':    c.rect(cx-4, cy-13, 3, 2, ac); c.rect(cx+2, cy-12, 2, 2, ac)
+    elif st == 'mohawk':   c.rect(cx-10, cy-3, 3, 3, ac)
+    elif st == 'slick':    c.set(cx-12, cy-6, ac); c.set(cx-12, cy-4, ac)
+    elif st == 'messy':    c.rect(cx-8, cy-12, 3, 2, ac)
+    elif st == 'undercut': c.rect(cx-9, cy-7, 3, 2, ac)
+    elif st == 'crop':     pass
+    elif st == 'spiky':    pass
+
 
 # ------------------------------------------------------------------ weapons --
 def draw_weapon(c, p, pose):
@@ -853,6 +1131,20 @@ def draw_weapon(c, p, pose):
             lx = hxp - ux*6 - k*1.6
             ly = hyp + 3 + math.sin(k*1.1)*2.2
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
+    elif w == 'coilrod':
+        # a tesla rod: a wound coil on a short shaft, arcing between its rings
+        L, hxp = 20, min(hxp, 36)
+        c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)
+        for k in range(4):                                 # the windings
+            bx3, by3 = hxp+ux*(7+k*3), hyp+uy*(7+k*3)
+            c.line(bx3-nx*5, by3-ny*5, bx3+nx*5, by3+ny*5, p['metal'], 2)
+        tx2, ty2 = hxp+ux*(L+2), hyp+uy*(L+2)
+        c.ellipse(tx2, ty2, 4.4, 4.4, p['metal'])
+        c.ellipse(tx2, ty2, 2.6, 2.6, p['accent'])
+        c.ellipse(tx2-0.8, ty2-0.8, 1.2, 1.2, '#ffffff')
+        for k in range(4):                                 # current jumping the gap
+            c.set(tx2 + math.cos(k*1.6)*7, ty2 + math.sin(k*1.6)*7, p['accent'])
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'tome':
         bx, by = hxp - 4, hyp - 9        # cradled against the palm
         c.rect(bx, by, 15, 15, p['metal'])

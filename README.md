@@ -250,7 +250,19 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-Twelve characters share one rig, and a pose is a **skeleton rather than a set of
+**No two characters share a haircut, an outfit or a weapon.** Twenty-one
+hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
+wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
+circlet, a sidetail, messy, a topknot, floor-length, an undercut and a pixie —
+each with its own fringe and its own ornament. Ten outfit shapes (skirt, robe,
+dress, shorts, plate, jacket, apron, longcoat, wrap, coat) chosen **separately
+from the hair**; keying the skirt off the hairstyle, which is what the code
+used to do, is how three characters ended up dressed the same for no reason.
+Twenty-one weapons, one each. A roster where three people share a haircut in
+different colours reads as one character with palette swaps, which is the
+opposite of what a gacha needs.
+
+Twenty-one characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
@@ -315,15 +327,29 @@ whole body read as square to the camera even when the head is not. Feet have
 a toe forward and a heel behind. Press D and the head,
 torso and legs all lead with the front of the body.
 
-Every character has their own **face parameters** — eye width and height,
-lash thickness, whether the outer corner droops, brow shape and height, nose
-length, mouth width — so Ren's narrow hard stare, Hinata's wide soft one and
-Gorou's heavy brow are all the same code with different numbers. Mouths are
-deliberately tiny, 1–2 pixels.
+The **face is built from a contour**, not from circles. `HEAD_PROFILE` is a
+per-row table of where the front and back edges of the head sit, one pixel row
+at a time from the crown to the jaw: a forehead that rolls back, a brow ridge,
+the dip under it, a nose, the cut back at the philtrum that is what actually
+makes a nose read as a nose, two lips, and a chin that pulls in to the jaw. A
+circle with a bump on it reads as a ball with a nose. Light comes from the
+front, so the back of the skull turns into shadow, the temple behind the eye
+darkens, and the jaw turns under.
 
-Faces carry a full anime eye at this size: sclera, iris with its own floor,
-pupil, catchlight, a lash line that thickens at the outer corner, brows that
-angle when a character is mid-attack, plus blush and a hair shine band.
+The **eye is a wedge, not a box**: three rows deep at the outer corner, closing
+to a point at the inner one, with the lid throwing a shadow across the top row,
+the iris filling nearly the whole opening, a sliver of sclera at the front, a
+pupil set back, a big catchlight high and back and a small one low and forward.
+That vertical shading with a catchlight punched through it is what makes an eye
+read as a wet sphere instead of something printed on. How *deep* the opening is
+comes from the character — a wide round eye versus a narrow hard one is most of
+what tells two of them apart at this size.
+
+Every character has their own **face parameters** — eye width and depth, lash
+thickness, whether the outer corner droops, brow shape and height, nose length,
+mouth width — so Ren's narrow hard stare, Hinata's wide soft one and Gorou's
+heavy brow are all the same code with different numbers. Mouths are
+deliberately tiny, 1–2 pixels.
 
 ## Sending it to someone
 
