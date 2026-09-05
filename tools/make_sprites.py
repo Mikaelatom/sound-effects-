@@ -1362,11 +1362,15 @@ MOBS = {
                eye='#b07cff', glow='#dcc0ff'),
  'wheel': dict(ink='#0d0a14', body='#54506b', body2='#8b86a8', body3='#2e2b3d',
                eye='#ff5d5d', glow='#ffd24d', cloth='#8f2020', cloth2='#c33a3a'),
+ 'unmaker': dict(ink='#0a0410', body='#1e1830', body2='#4a3f70', body3='#0f0b1c',
+               eye='#ffffff', glow='#c9a0ff', cloth='#2b0f3d', cloth2='#6b2fa0'),
+ 'echo':  dict(ink='#0a0410', body='#241d3a', body2='#4a3f70', body3='#120e22',
+               eye='#c9a0ff', glow='#e8d4ff', cloth='#1d1030', cloth2='#442a68'),
  'boss':  dict(ink='#120818', body='#a86bff', body2='#dcc0ff', body3='#6b3fbd',
                eye='#ff5d5d', glow='#ffc0c0', cloth='#2a1b4d', cloth2='#4a3480'),
 }
 MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign',
-             'dogw', 'dogb', 'wheel']
+             'dogw', 'dogb', 'wheel', 'unmaker', 'echo']
 
 HOUND_A = [(0,0), (0,-1), (3,-2), (6,-4), (3,-2), (0,0), (-2,1), (8,-5), (2,-1), (0,2)]
 
@@ -1621,6 +1625,49 @@ def draw_wheel(c, m, f):
             a = k/8*math.pi*2
             c.set(cxx + math.cos(a)*26, hy+20 + math.sin(a)*22, m['glow'])
 
+def draw_unmaker(c, m, f, small=False):
+    """The Unmaker. A tall shrouded thing with too many arms and a crown of
+    voids where a face should be - the Sovereign is a king, this is a hole."""
+    lean, bob = BRUTE_A[f]
+    sc  = 0.6 if small else 1.0
+    hy  = (26 if small else 14) + bob
+    cxx = CX + lean*0.5
+    bd, bd2, bd3 = m['body'], m['body2'], m['body3']
+    # --- the shroud, widening all the way to the floor
+    for k in range(int((FEET - hy - 10)/1)):
+        y = hy + 10 + k
+        if y >= FEET: break
+        w = min(25.0, (9 + k*0.34)) * sc          # the frame is only 56 wide
+        c.rect(cxx - w, y, w*2, 1, bd)
+        c.rect(cxx - w, y, 2, 1, bd3)
+        c.rect(cxx + w - 2, y, 2, 1, bd2)
+        if k % 11 == 5: c.rect(cxx - w + 3, y, w*2 - 6, 1, bd3)     # torn bands
+    # --- arms: four of them, two long and two short
+    for sgn in (-1, 1):
+        for k, (ln, drop) in enumerate(((14, 30), (9, 14))):
+            ax = cxx + sgn*(7 + ln)*sc
+            ay = hy + drop*sc + (6 if f in (6, 8) else 0)
+            c.taper(cxx + sgn*8*sc, hy + 12*sc, ax, ay, bd, 7*sc, 4*sc)
+            for j in range(3):                                       # long fingers
+                c.taper(ax, ay, ax + sgn*(5+j*2)*sc, ay + (4 - j*3)*sc, bd3, 3*sc, 1)
+    # --- head: a smooth shroud with a crown of voids
+    c.ellipse(cxx, hy, 11.5*sc, 10.0*sc, bd)
+    c.ellipse(cxx, hy - 2*sc, 10.0*sc, 7.4*sc, bd2)
+    c.taper(cxx, hy + 8*sc, cxx, hy + 16*sc, bd, 14*sc, 12*sc)
+    if f == 9:
+        for i in range(-3, 4):
+            c.set(cxx+i, hy+i, m['ink']); c.set(cxx+i, hy-i, m['ink'])
+    else:
+        for k in range(3):                                           # three white slits
+            c.rect(cxx - 7*sc + k*6*sc, hy - 1*sc, 2*sc, 4*sc, m['eye'])
+    for k, (sx, h2) in enumerate(((-9, 6), (-5, 10), (0, 13), (5, 10), (9, 6))):
+        c.taper(cxx + sx*sc, hy - 9*sc, cxx + sx*sc, (hy - 9 - h2)*sc + hy*0,
+                m['cloth2'] if k % 2 else m['cloth'], 4*sc, 1)
+    if f in (6, 7, 8):
+        for k in range(10):
+            a = k/10*math.pi*2
+            c.set(cxx + math.cos(a)*30*sc, hy + 16*sc + math.sin(a)*24*sc, m['glow'])
+
 def draw_mob(key, f):
     m = MOBS[key]; c = Cv(W, H)
     if   key == 'slime': draw_slime(c, m, f)
@@ -1631,6 +1678,8 @@ def draw_mob(key, f):
     elif key == 'sovereign': draw_brute(c, m, f, True, True)
     elif key in ('dogw', 'dogb'): draw_hound(c, m, f)
     elif key == 'wheel': draw_wheel(c, m, f)
+    elif key == 'unmaker': draw_unmaker(c, m, f)
+    elif key == 'echo': draw_unmaker(c, m, f, True)
     c.outline(m['ink'])
     return c
 

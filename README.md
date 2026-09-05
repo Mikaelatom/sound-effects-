@@ -29,6 +29,22 @@ The coin is never "did I lose?" — it's "do I get a bonus?"
 You choose the featured character yourself on the Summon screen, and you can
 change your pick any time before a pull.
 
+### Tuning
+
+Every character carries a **signature perk**, and owning the character unlocks
+it. Every character also has **two tuning slots**, and any perk you have
+unlocked goes in either one — on anybody. Ren's Killing Intent on a
+sniper, Gorou's Stonehide on a glass cannon, Shion's Pack Bond on Odette's
+puppets. That is what makes a 4★ you will never play worth pulling: you are not
+only collecting a character, you are collecting a part.
+
+Twenty-four perks, one per character, and they are real mechanics rather than
+flat numbers — a regen tick, a chain to a second enemy, a shield on arrival, an
+execute threshold, a nullified hit every nine seconds, summons that live half
+again as long. Set them in **Collection**; the same perk cannot go in both slots
+of one character, but it can be fitted to as many different characters as you
+like.
+
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
 - 4★: 9% base, **guaranteed within 10**
@@ -209,11 +225,13 @@ else's damage.
 
 ## The Raid — The Sovereign
 
-One fight, from the Home screen, separate from the Spire. You find no relics
-inside, so you **pick three on the way in** — three choices each, out of the
-same pool the Spire draws from. It is the one place in the game where you build
-a loadout instead of finding one. After that it is your squad, their kits, and
-whether you can read what he's doing. **26,000 HP** and
+Two fights, from the Home screen, separate from the Spire. You find no relics
+inside either, so you **pick three on the way in — any three, out of all twenty**.
+It is the one place in the game where you build a loadout instead of finding
+one. After that it is your squad, their kits, and whether you can read what it
+is doing.
+
+### The Sovereign **26,000 HP** and
 **five minutes** before he enrages.
 
 This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
@@ -246,6 +264,21 @@ opens.
 
 **Reward: 30,000 shards** for a kill — enough for a serious run at the banner.
 Losing still pays out on the damage you did.
+
+### The Unmaker — Raid II
+
+Locked until the Sovereign falls. **58,000 HP, six minutes**, and it hits half
+again as hard. It has everything he has, plus three of its own:
+
+- **Sunder** — it comes apart into **three echoes**. While they stand it takes
+  *nothing at all*, and if you do not kill all three inside sixteen seconds they
+  go back in and it heals 8%. Clear them in time and it staggers instead.
+- **Nullify** — it takes Bursts off the table. Every meter in the squad drops to
+  zero and stays there for eight seconds, right when you needed one.
+- **Devour** — it eats a summon or a turret off the field and heals off it.
+  Bring them anyway; just expect to pay for them.
+
+**Reward: 80,000 shards.**
 
 ---
 
