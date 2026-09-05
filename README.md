@@ -205,7 +205,7 @@ passive and their own Burst — ten Bursts are unique shapes nobody else has.
 | ◍ | **Suimu** · *The Devourer* | **Predation** — everything near him under 30% health is eaten, and he keeps what he eats: +8% damage a meal | **Split Off** — a piece of him walks away and hunts on its own | **Body Split** — three of him at once, and the original heals a quarter of his health |
 | 🜂 | **Homura Akatsuki** · *The Flame Ogre* | **Kagutsuchi** — a fan of fire, and the ground it crosses keeps burning | **Ember Step** — through them, not around them | **Inferno** — six seconds of a fire that does not stop growing until it has the room |
 | 🜏 | **Mirika Nagatsuki** · *The Dragonoid* | **Dragon Fist** — half a second of windup, and then whatever was there is not | **Nova Push** — everything thrown off its feet, every enemy shot deleted | **Dragon Roar** — the whole room knocked flat, set alight and slowed |
-| ✠ | **Noir Vandelay** · *The Primordial* | **The Pact** — 15% of his own health up front and 4.5% more every second, for 85% more damage over 7s. One at a time; it will not layer | **Rot** — infect one, and it spreads when it dies | **Primordial** — three shades cut loose, everything cursed, him at +60% |
+| ✠ | **Noir Vandelay** · *The Primordial* | **The Pact** — 15% of his own health up front and 4.5% more every second, for 85% more damage over 7s. One at a time; it will not layer | **Rot** — infect one, and it spreads when it dies | **Primordial** — two shades cut loose, everything cursed, him at +35%. His meter fills at a third of anyone else's, and nothing he does under the Pact fills it at all |
 | ⧗ | **Alwyn Fael** · *The Long Memory* | **Echo** — whatever she cast last happens again for free | **Still Hour** — the room at half speed, and not her | **Stop** — four seconds where nothing moves at all and she walks between them |
 | ✜ | **Jinya Kurose** · *The Shadow Monarch* | **Ashen Knight** — the first one he ever raised. Slow, heavy, and it stands for the rest of the fight | **Hive Marshal** — the other one. Far too fast, hits far too often, also stays | **Arise** — everything he has killed this fight gets back up on his side, in the shape it died in |
 
@@ -219,6 +219,13 @@ Alwyn's skills come back 20% faster. Noir does 30% more below half health —
 which is where the Pact leaves him, because it keeps taking for the whole seven
 seconds and cannot be signed twice. It will not kill him, but it will put him
 on his last point of health.
+
+Noir is also the one character with a **Burst economy of his own**. A character
+whose entire kit is a damage multiplier will otherwise use the multiplier to
+pay for the next Burst and the loop never closes — so his meter fills at 30% of
+everyone else's rate, and **damage dealt under the Pact charges nothing at
+all**. The Pact is the price of the Burst, not the engine for it. Expect to
+earn Primordial once in a fight.
 
 ### 5★ — The Second Wave
 
