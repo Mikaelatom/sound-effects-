@@ -108,7 +108,11 @@ Two things fall out of a second player that need saying:
   thing you will end up doing.
 
 Enemies chase whichever of you is closer, so the two roles sort themselves out
-without any co-op-specific AI.
+without any co-op-specific AI. The raid's arena mechanics know about both of
+you too: the sweeping arm cuts whoever is in its line, the dark quarter is dark
+for both of you, an unbroken cast takes 55% off **both** squads, and the Grasp
+picks one of you at random — so "GRASPED — SWAP OUT" is sometimes player two's
+problem, and both people need to know their own swap keys.
 
 Every ability works in Versus without a single special case, because each
 player carries a **stand-in inside the enemy list**. Every skill already knows

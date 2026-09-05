@@ -2334,30 +2334,43 @@ function updateRaid(dt){
        what makes swapping a survival tool and not just a damage rotation. */
     else if(Rd.mode === 'grasp'){
       if(Rd.graspT === 0){
-        Rd.graspOn = R.active; Rd.graspT = 4;
-        B.floats.push({x:h.x, y:h.y-56, vy:-10, life:1.6, txt:'GRASPED', color:'#ff3355', size:10});
+        // with two of you in the room it picks one, and it does not always
+        // pick the same one - both players have to know their own swap keys
+        Rd.graspSide = (B.p2 && !B.p2.mem.ko && Math.random() < .5) ? 2 : 1;
+        const g = Rd.graspSide === 2 ? B.p2 : h;
+        Rd.graspOn = Rd.graspSide === 2 ? B.p2.slot : R.active;
+        Rd.graspT = 4;
+        B.floats.push({x:g.x, y:g.y-56, vy:-10, life:1.6,
+          txt:Rd.graspSide === 2 ? 'P2 GRASPED' : 'GRASPED', color:'#ff3355', size:10});
         Sfx.die();
       }
       Rd.graspT -= dt;
       if(Rd.graspT <= 0){
-        if(R.active === Rd.graspOn){                       // never got out of it
-          hurtHero(Rd.boss.dmg*(Rd.enraged?2.2:1)*2.6);
+        const two = Rd.graspSide === 2;
+        const g = two ? B.p2 : h;
+        const nowSlot = two ? (B.p2 ? B.p2.slot : -1) : R.active;
+        if(g && nowSlot === Rd.graspOn){                   // never got out of it
+          hurtHero(Rd.boss.dmg*(Rd.enraged?2.2:1)*2.6, g);
           B.shake = 16; Sfx.lose();
-        } else {
-          B.floats.push({x:h.x, y:h.y-56, vy:-12, life:1.4, txt:'SLIPPED', color:'#7cffa8', size:10});
+        } else if(g){
+          B.floats.push({x:g.x, y:g.y-56, vy:-12, life:1.4, txt:'SLIPPED', color:'#7cffa8', size:10});
         }
-        Rd.mode = 'idle'; Rd.cd = ph >= 3 ? 1.6 : 3.0; Rd.graspOn = -1;
+        Rd.mode = 'idle'; Rd.cd = ph >= 3 ? 1.6 : 3.0; Rd.graspOn = -1; Rd.graspSide = 1;
       }
     }
     else if(Rd.mode === 'sweep'){
       const tele = 1.1, dur = 2.6;
       if(Rd.modeT > tele){
         Rd.sweepAng += Rd.sweepDir*dt*1.15*fast;
-        const dx = h.x-Rd.boss.x, dy = h.y-8-Rd.boss.y, d = Math.hypot(dx,dy);
-        let da = Math.atan2(dy,dx) - Rd.sweepAng;
-        while(da >  Math.PI) da -= Math.PI*2;
-        while(da < -Math.PI) da += Math.PI*2;
-        if(d > 16 && Math.abs(da) < .13) hurtHero(Rd.boss.dmg*(Rd.enraged?2.2:1)*.55);
+        players().forEach(pl => {
+          if(!pl || pl.mem.ko) return;
+          const dx = pl.x-Rd.boss.x, dy = pl.y-8-Rd.boss.y, d = Math.hypot(dx,dy);
+          let da = Math.atan2(dy,dx) - Rd.sweepAng;
+          while(da >  Math.PI) da -= Math.PI*2;
+          while(da < -Math.PI) da += Math.PI*2;
+          if(d > 16 && Math.abs(da) < .13)
+            hurtHero(Rd.boss.dmg*(Rd.enraged?2.2:1)*.55, pl);
+        });
       }
       if(Rd.modeT > tele+dur){ Rd.mode = 'idle'; Rd.cd = ph >= 4 ? 0.7 : ph === 3 ? 1.5 : 2.8; }
     }
@@ -2365,9 +2378,12 @@ function updateRaid(dt){
       const tele = 1.9;
       if(Rd.modeT > tele && !Rd.quadHit){
         Rd.quadHit = true;
-        const qx = h.x < (AR.x0+AR.x1)/2 ? 0 : 1, qy = h.y < (AR.y0+AR.y1)/2 ? 0 : 1;
-        const q = qy*2 + qx;
-        if(Rd.quads.includes(q)) hurtHero(Rd.boss.dmg*(Rd.enraged?2.4:1)*1.9);
+        players().forEach(pl => {
+          if(!pl || pl.mem.ko) return;
+          const qx = pl.x < (AR.x0+AR.x1)/2 ? 0 : 1, qy = pl.y < (AR.y0+AR.y1)/2 ? 0 : 1;
+          if(Rd.quads.includes(qy*2 + qx))
+            hurtHero(Rd.boss.dmg*(Rd.enraged?2.4:1)*1.9, pl);
+        });
         B.shake = 12; Sfx.die();
         for(let i=0;i<40;i++) B.fx.push({x:rnd(AR.x1,AR.x0), y:rnd(AR.y1,AR.y0),
           vx:rnd(60,-60), vy:rnd(20,-80), life:.6, c:'#ff5d5d', s:1});
@@ -2385,8 +2401,23 @@ function updateRaid(dt){
       } else if(Rd.modeT > dur){                          // failed
         Rd.mode = 'idle'; Rd.cd = 3;
         R.squad.forEach(m => { if(!m.ko){ m.hp -= m.maxhp*.55; if(m.hp <= 0){ m.hp=0; m.ko=true; } } });
-        if(R.squad.every(m => m.ko)){ B.done = true; setTimeout(()=>endRaid(false), 700); }
-        else if(B.hero.mem.ko) swapTo(R.squad.findIndex(m=>!m.ko), true);
+        if(B.p2){
+          (R.squad2||[]).forEach(m => { if(!m.ko){ m.hp -= m.maxhp*.55; if(m.hp <= 0){ m.hp=0; m.ko=true; } } });
+          if(B.p2.mem.ko){
+            const nxt2 = (R.squad2||[]).findIndex(m => !m.ko);
+            if(nxt2 >= 0){
+              const px2 = B.p2.x, py2 = B.p2.y;
+              const nh = makeHero(R.squad2[nxt2]);
+              nh.side = 2; nh.slot = nxt2; nh.x = px2; nh.y = py2; nh.inv = 1.2;
+              B.p2 = nh;
+            } else if((B.rescue2||0) <= 0 && !R.squad.every(m => m.ko)) rescueSide(2);
+            else B.p2 = null;
+          }
+        }
+        if(R.squad.every(m => m.ko) && !B.p2){ B.done = true; setTimeout(()=>endRaid(false), 700); }
+        else if(R.squad.every(m => m.ko) && B.p2 && (B.rescue1||0) <= 0) rescueSide(1);
+        else if(B.hero.mem.ko && !R.squad.every(m => m.ko))
+          swapTo(R.squad.findIndex(m=>!m.ko), true);
         B.shake = 16; Sfx.lose(); buildSwapBar();
         B.floats.push({x:Rd.boss.x, y:Rd.boss.y-90, vy:-14, life:2,
           txt:'UNBROKEN', color:'#ff3355', size:11});
@@ -2497,7 +2528,7 @@ function startBattle(kind){
   if(kind === 'raid'){
     B.raid = {cfg:(RAIDS[R.raidId] || RAIDS.sovereign),
               phase:0, t:0, cd:2.5, mode:'idle', modeT:0, sweepAng:0, sweepDir:1,
-              graspT:0, graspOn:-1, echoes:[], sunderT:0, nullT:0,
+              graspT:0, graspOn:-1, graspSide:1, echoes:[], sunderT:0, nullT:0,
               quads:[], quadHit:false, channelDmg:0, channelNeed:0, stagger:0,
               enraged:false, wardens:0, boss:null};
     spawnSovereign();
@@ -5692,7 +5723,8 @@ function syncHud(){
     bar.classList.remove('hidden');
     $('#raid-hp').style.width = (b ? clamp(b.hp/b.maxhp,0,1)*100 : 0) + '%';
     $('#raid-note').textContent =
-      Rd.mode === 'grasp' ? 'GRASPED — SWAP OUT (' + Math.max(0,Rd.graspT).toFixed(1) + 's)' :
+      Rd.mode === 'grasp' ? (Rd.graspSide === 2 ? 'P2 GRASPED — SWAP OUT (' : 'GRASPED — SWAP OUT (')
+        + Math.max(0,Rd.graspT).toFixed(1) + 's)' :
       Rd.sunderT > 0 ? 'SUNDERED — KILL ALL THREE (' + Rd.sunderT.toFixed(0) + 's)' :
       Rd.nullT > 0 ? 'NULLIFIED — NO BURSTS (' + Rd.nullT.toFixed(0) + 's)' :
       Rd.wardens > 0 ? 'WARDENS UP — he takes 75% less' :
