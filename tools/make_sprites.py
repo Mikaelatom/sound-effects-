@@ -376,6 +376,15 @@ CHARS = {
     metal='#c8ccd4', grip='#2b2118',
     face=dict(ew=5, eh=3, lash=0, droop=1, brow='angled', brow_h=1, nose=3, mouth=2),
     sleeve=0.72, style='rattail', outfit='duster', wep='revolver'),
+
+ 'jinya': dict(ink='#07060e', hair='#15141f', hair2='#2e2c40', hair3='#5a5878', shine='#9a97c4',
+    skin='#f0d2b6', skin2='#ccab8d', skin3='#a28670', blush='#d98b8b',
+    eye='#8f5fff', eye2='#3a1a7d', brow='#15141f',
+    cloth='#0e0d16', cloth2='#1e1c2e', cloth3='#060509', trim='#8f5fff', accent='#b07cff',
+    leg='#2b2940', leg2='#4e4b6e', boot='#121120',
+    metal='#c9b8ff', grip='#0e0d16',
+    face=dict(ew=5, eh=4, lash=1, droop=0, brow='angled', brow_h=2, nose=2, mouth=1),
+    sleeve=1.00, style='monarch', outfit='blackcoat', wep='shadowblade'),
 }
 
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
@@ -383,7 +392,7 @@ ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'seryn', 'aldric', 'kassandra', 'nyx',
          'atom', 'rei', 'odette', 'bao', 'iris', 'shion', 'toya', 'yuuma',
          'suimu', 'homura', 'mirika', 'noir', 'alwyn',
-         'jun', 'rai', 'kotone', 'vex']
+         'jun', 'rai', 'kotone', 'vex', 'jinya']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -603,6 +612,13 @@ def draw_torso(c, p, pose):
         for k in range(4):
             c.rect(xh-8+k, HIP+3+dy+k*2, 16-k, 2, cl2 if k % 2 else cl3)
         c.taper(xh-6, HIP+9+dy, xh-12, HIP+20+dy, tr, 4, 2)
+    elif of == 'blackcoat':                               # long, closed, and it drinks light
+        c.rect(xh-7, HIP+dy, 14, 6, cl)
+        c.rect(xh-9, HIP+4+dy, 18, 18, cl3)
+        c.rect(xh-9, HIP+4+dy, 18, 1, tr)
+        c.rect(xh-10, HIP+16+dy, 6, 10, cl3)
+        c.rect(xh+5, HIP+16+dy, 5, 8, cl2)
+        for k in range(3): c.rect(xh-8+k*7, HIP+8+dy, 1, 12, cl2)
     elif of == 'cloak':                                   # short and soft, rounded hem
         for k in range(9):
             w = 8 + k*0.5
@@ -1035,6 +1051,16 @@ def hair_back(c, p, pose, cx, cy):
         c.taper(cx+3, cy-10, cx+8, cy+4, h1, 6, 4)         # the fringe sweeps forward
         c.taper(cx+4, cy-9, cx+8, cy+1, h2, 3, 2)
 
+    elif st == 'monarch':                                  # sleek, parted, faintly lit
+        c.ellipse(cx-1, cy-2, 11.2, 10.0, h1)
+        for k in range(7):
+            c.taper(cx-8+k*2.2, cy-10, cx-14+sway*0.4, cy-4+k*1.4, h1, 5, 2)
+        c.rect(cx-13, cy-4, 5, 13, h1)
+        c.rect(cx-13, cy-4, 2, 9, h2)
+        c.taper(cx+6, cy-4, cx+8, cy+7, h1, 4, 3)          # one lock past the eye
+        for k in range(4):                                  # shadow bleeding off the crown
+            c.set(cx-6+k*4, cy-15-((k%2)*2), p['accent'])
+
     elif st == 'dropcurl':                                 # soft and round, one floating curl
         c.ellipse(cx-1, cy-1, 11.4, 10.6, h1)
         c.ellipse(cx-4, cy-3, 7.0, 6.0, h2)
@@ -1203,6 +1229,10 @@ def hair_front(c, p, pose, cx, cy):
         for sx, sy in ((-9,-12), (-3,-15), (3,-14), (8,-10)):
             c.taper(cx+sx, cy+sy+6, cx+sx+2+sway*0.2, cy+sy-1, h1, 6, 3)
             c.taper(cx+sx, cy+sy+5, cx+sx+2, cy+sy+1, h2, 3, 1)
+    elif st == 'monarch':                                 # a clean part, swept back
+        c.taper(cx-8, cy-11, cx+7, cy-5, h1, 6, 4)
+        c.taper(cx-7, cy-12, cx+4, cy-7, h2, 4, 2)
+        c.taper(cx+1, cy-9, cx+6, cy-1, h1, 4, 2)
     elif st in ('combed', 'rattail'):                     # parted and swept to one side
         c.taper(cx-7, cy-10, cx+8, cy-4, h1, 6, 4)
         c.taper(cx-6, cy-11, cx+5, cy-6, h2, 4, 2)
@@ -1270,6 +1300,7 @@ def hair_front(c, p, pose, cx, cy):
     elif st == 'bolt':     c.rect(cx+3, cy-13, 3, 3, ac)
     elif st == 'lowbun':   c.rect(cx-14, cy+2, 2, 5, ac)
     elif st == 'rattail':  c.rect(cx-10, cy-6, 3, 2, ac)
+    elif st == 'monarch':  c.set(cx-12, cy-7, ac); c.set(cx-12, cy-5, ac)
     elif st == 'bristle':  c.rect(cx-10, cy-2, 3, 2, ac)
     elif st == 'mohawk':   c.rect(cx-10, cy-3, 3, 3, ac)
     elif st == 'slick':    c.set(cx-12, cy-6, ac); c.set(cx-12, cy-4, ac)
@@ -1498,6 +1529,19 @@ def draw_weapon(c, p, pose):
             lx = hxp - ux*6 - k*1.6
             ly = hyp + 3 + math.sin(k*1.1)*2.2
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
+    elif w == 'shadowblade':
+        # black steel with a lit edge, and it smokes
+        L, hxp = 29, min(hxp, 38)
+        c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
+        c.line(hxp-ux*3-nx*5, hyp-uy*3-ny*5, hxp-ux*3+nx*5, hyp-uy*3+ny*5, p['accent'], 3)
+        c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['ink'], 5, 2)
+        c.line(hxp+ux*4-nx*1.5, hyp+uy*4-ny*1.5,
+               hxp+ux*(L-1)-nx*1.5, hyp+uy*(L-1)-ny*1.5, p['metal'], 1)
+        for k in range(5):                                  # shadow coming off the flat
+            t2 = 6 + k*4
+            c.set(hxp+ux*t2+nx*(3+math.sin(k+ph*3)*2),
+                  hyp+uy*t2+ny*(3+math.sin(k+ph*3)*2), p['trim'])
+        c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'slimeorb':
         # a blob of himself, held loose. It never has quite the same outline.
         wob = math.sin(ph*3.1)*1.6
@@ -1715,6 +1759,10 @@ MOBS = {
                eye='#b07cff', glow='#dcc0ff'),
  'wheel': dict(ink='#0d0a14', body='#54506b', body2='#8b86a8', body3='#2e2b3d',
                eye='#ff5d5d', glow='#ffd24d', cloth='#8f2020', cloth2='#c33a3a'),
+ 'knight': dict(ink='#07060e', body='#1a1830', body2='#3a3560', body3='#0d0b18',
+               eye='#b07cff', glow='#dcc0ff', cloth='#5a1030', cloth2='#a01f4a'),
+ 'antking': dict(ink='#07060e', body='#1e1a2e', body2='#463c66', body3='#0e0c18',
+               eye='#8f5fff', glow='#c9a0ff', cloth='#2a1040', cloth2='#54207a'),
  'unmaker': dict(ink='#0a0410', body='#1e1830', body2='#4a3f70', body3='#0f0b1c',
                eye='#ffffff', glow='#c9a0ff', cloth='#2b0f3d', cloth2='#6b2fa0'),
  'echo':  dict(ink='#0a0410', body='#241d3a', body2='#4a3f70', body3='#120e22',
@@ -1723,7 +1771,7 @@ MOBS = {
                eye='#ff5d5d', glow='#ffc0c0', cloth='#2a1b4d', cloth2='#4a3480'),
 }
 MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign',
-             'dogw', 'dogb', 'wheel', 'unmaker', 'echo']
+             'dogw', 'dogb', 'wheel', 'unmaker', 'echo', 'knight', 'antking']
 
 HOUND_A = [(0,0), (0,-1), (3,-2), (6,-4), (3,-2), (0,0), (-2,1), (8,-5), (2,-1), (0,2)]
 
@@ -2021,6 +2069,71 @@ def draw_unmaker(c, m, f, small=False):
             a = k/10*math.pi*2
             c.set(cxx + math.cos(a)*30*sc, hy + 16*sc + math.sin(a)*24*sc, m['glow'])
 
+def draw_knight(c, m, f):
+    """A shadow in armour, with a plume. Big, slow, and it holds a line."""
+    lean, bob = BRUTE_A[f]
+    hy = 24 + bob
+    cxx = CX + lean*0.5
+    bd, bd2, bd3 = m['body'], m['body2'], m['body3']
+    for k in range(22):                                    # cape
+        w = 10 + k*0.5
+        c.rect(cxx-w-2, hy+14+k, w*1.4, 1, m['cloth'])
+        c.rect(cxx-w-2, hy+14+k, 2, 1, m['cloth2'])
+    ax = 20 if f in (6, 8) else 14                         # arms first, then the plate
+    c.taper(cxx-11, hy+16, cxx-ax-lean, hy+(6 if f in (6,8) else 32), bd3, 8, 6)
+    c.taper(cxx+11, hy+16, cxx+ax+lean, hy+(6 if f in (6,8) else 32), bd, 8, 6)
+    c.rect(cxx-11, hy+13, 22, 24, bd)                      # cuirass
+    c.rect(cxx-9, hy+15, 18, 9, bd2)
+    c.rect(cxx-11, hy+33, 22, 4, bd3)
+    c.rect(cxx-13, hy+13, 5, 6, bd2)                       # pauldrons
+    c.rect(cxx+8, hy+13, 5, 6, bd2)
+    c.ellipse(cxx+1, hy+2, 9.6, 8.6, bd)                   # helm
+    c.ellipse(cxx+2, hy, 7.4, 5.8, bd2)
+    c.rect(cxx+3, hy, 6, 3, m['eye'])                      # the visor slit
+    c.rect(cxx+5, hy, 3, 1, m['glow'])
+    for k, (sx, h2) in enumerate(((-3, 9), (0, 13), (3, 10))):   # plume
+        c.taper(cxx+sx, hy-8, cxx+sx-3, hy-8-h2, m['cloth2'] if k == 1 else m['cloth'], 4, 2)
+    sx2, sy2 = cxx+ax+lean, hy+(4 if f in (6,8) else 30)   # the sword
+    c.taper(sx2, sy2, sx2+4, sy2-24, m['body2'], 5, 2)
+    c.line(sx2+1, sy2-4, sx2+4, sy2-22, m['glow'], 1)
+    c.rect(cxx-11, hy+37, 9, FEET-(hy+37), bd)
+    c.rect(cxx+2, hy+37, 9, FEET-(hy+37), bd)
+    c.rect(cxx-13, FEET-5, 12, 5, bd3); c.rect(cxx+2, FEET-5, 12, 5, bd3)
+    if f == 9:
+        for i in range(-3, 4): c.set(cxx+3+i, hy+1+i, m['ink'])
+
+def draw_antking(c, m, f):
+    """A shadow with too many joints. Fast, and it does not stand upright."""
+    reach, bob = HOUND_A[f]
+    cy = FEET - 30 + bob
+    global CX
+    bd, bd2, bd3 = m['body'], m['body2'], m['body3']
+    for sgn in (-1, 1):                                    # four legs, jointed high
+        for k, off in enumerate((-6, 6)):
+            jx = CX + off + sgn*3
+            kx2 = jx + sgn*(9 + reach*0.4)
+            c.taper(jx, cy+6, kx2, cy - 4 + k*3, bd3 if sgn < 0 else bd, 5, 3)
+            c.taper(kx2, cy - 4 + k*3, kx2 + sgn*4, FEET-2, bd3 if sgn < 0 else bd2, 3, 2)
+    c.ellipse(CX-8, cy+10, 10.0, 7.0, bd)                  # abdomen
+    c.ellipse(CX-10, cy+9, 6.6, 4.4, bd2)
+    c.ellipse(CX+3, cy+2, 7.6, 6.6, bd)                    # thorax
+    c.ellipse(CX+4, cy, 5.2, 4.0, bd2)
+    hxx = CX + 11 + (3 if f in (7, 8) else 0)
+    c.ellipse(hxx, cy-5, 6.0, 5.0, bd)                     # head
+    c.rect(hxx+1, cy-7, 4, 3, m['eye'])
+    c.rect(hxx+3, cy-7, 2, 1, m['glow'])
+    for sgn in (-1, 1):                                    # mandibles
+        c.taper(hxx+4, cy-3+sgn, hxx+11, cy-3+sgn*5, bd2, 3, 1)
+    for sgn in (-1, 1):                                    # antennae
+        c.taper(hxx, cy-9, hxx+5+reach*0.3, cy-9+sgn*9-6, bd3, 3, 1)
+    c.taper(CX-17, cy+9, CX-25-reach*0.35, cy+2, bd3, 5, 2) # tail
+    if f in (6, 8):
+        for k in range(8):
+            a = k/8*math.pi*2
+            c.set(hxx + math.cos(a)*13, cy-5 + math.sin(a)*12, m['glow'])
+    if f == 9:
+        for i in range(-2, 3): c.set(hxx+2+i, cy-5+i, m['ink'])
+
 def draw_mob(key, f):
     m = MOBS[key]; c = Cv(W, H)
     if   key == 'slime': draw_slime(c, m, f)
@@ -2033,6 +2146,8 @@ def draw_mob(key, f):
     elif key == 'wheel': draw_wheel(c, m, f)
     elif key == 'unmaker': draw_unmaker(c, m, f)
     elif key == 'echo': draw_unmaker(c, m, f, True)
+    elif key == 'knight': draw_knight(c, m, f)
+    elif key == 'antking': draw_antking(c, m, f)
     c.outline(m['ink'])
     return c
 

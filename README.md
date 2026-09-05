@@ -21,6 +21,11 @@ Then the coin flips:
 | **Heads — TWIN FATE** | Your character **and** a second one |
 | **Tails — SOLO** | Your character |
 
+And the coin **lands on the side you actually got**. It used to spin exactly
+eight whole turns every time, which meant it always came to rest showing TWIN
+no matter what the result was; the losing flip now has its own keyframes that
+stop half a turn further round.
+
 The same rule runs at **both rarities** — you pick a featured 5★ *and* a
 featured 4★, and each is guaranteed when its tier hits.
 
@@ -33,12 +38,14 @@ change your pick any time before a pull.
 
 Every character carries a **signature perk**, and owning the character unlocks
 it. Every character also has **two tuning slots**, and any perk you have
-unlocked goes in either one — on anybody. Ren's Killing Intent on a
+unlocked goes in either one — on anybody. The picker only lists perks you have
+actually unlocked, so early on the list looks short; that is the roster you own,
+not a gap in the perks. Ren's Killing Intent on a
 sniper, Gorou's Stonehide on a glass cannon, Shion's Pack Bond on Odette's
 puppets. That is what makes a 4★ you will never play worth pulling: you are not
 only collecting a character, you are collecting a part.
 
-Twenty-four perks, one per character, and they are real mechanics rather than
+**Thirty-four perks — one per character, every single one of them**, and they are real mechanics rather than
 flat numbers — a regen tick, a chain to a second enemy, a shield on arrival, an
 execute threshold, a nullified hit every nine seconds, summons that live half
 again as long. Set them in **Collection**; the same perk cannot go in both slots
@@ -67,6 +74,27 @@ An R6 character hits for **more than double** what they did at R0. The Raid
 is tuned assuming you have three of them.
 
 ---
+
+## Two players, one keyboard
+
+**Versus** is on the Home screen. Pick a character each and fight; first one
+down loses, and there is a rematch button.
+
+- **P1** — WASD to move, `SPACE` skill, `E` second skill, `R` Burst, `LEFT SHIFT` dash.
+- **P2** — arrow keys to move, `,` skill, `.` second skill, `/` Burst, `RIGHT SHIFT` dash.
+
+Player two can also **drop into any fight** — the Spire, either raid — by
+pressing `J`. They take the best three characters you own that player one is
+not already using, they get their own health bar, and enemies chase whichever
+of you is closer.
+
+Every ability works in Versus without a single special case, because each
+player carries a **stand-in inside the enemy list**. Every skill already knows
+how to hurt a mob; the stand-in just forwards what it takes to the person it
+belongs to. Two people also means two heroes being stepped each frame, and each
+is installed as *the* hero while it is being stepped — that is how they both get
+their own stats, perks and passives without threading a parameter through two
+thousand lines.
 
 ## The roguelike
 
@@ -123,7 +151,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Twenty-four characters across two rarities. They play completely differently.
+Thirty-four characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -156,8 +184,8 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Twenty-four characters, and **no two share a pair of skills.** There are
-forty-four distinct skill mechanics behind them and they are mechanics, not reskins: a
+Thirty-four characters, and **no two share a pair of skills.** There are
+sixty-four distinct skill mechanics behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
@@ -165,9 +193,32 @@ drains, a plague that spreads on death, a vortex that drags a pack into one
 place, called-down strikes, a projected sword that fights on its own, and a
 field of slowed time, electron shells that cut, rounds that split and split
 again, rage that scales with missing health, a hookshot that drags a target to
-your feet, a rifle that wants distance, summoned hounds that hunt on their own, a singularity, a repulsion that
+your feet, a rifle that wants distance, a rifle that wants distance, summoned hounds and shadow soldiers that hunt on
+their own, a dice roll, a pact paid in blood, a singularity, a repulsion that
 deletes bullets, a punch that lands twice, and a strike that is always a crit. Every character also has their own
 passive and their own Burst — ten Bursts are unique shapes nobody else has.
+
+### 5★ — The Third Wave
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ◍ | **Suimu** · *The Devourer* | **Predation** — everything near him under 30% health is eaten, and he keeps what he eats: +8% damage a meal | **Split Off** — a piece of him walks away and hunts on its own | **Body Split** — three of him at once, and the original heals a quarter of his health |
+| 🜂 | **Homura Akatsuki** · *The Flame Ogre* | **Kagutsuchi** — a fan of fire, and the ground it crosses keeps burning | **Ember Step** — through them, not around them | **Inferno** — six seconds of a fire that does not stop growing until it has the room |
+| 🜏 | **Mirika Nagatsuki** · *The Dragonoid* | **Dragon Fist** — half a second of windup, and then whatever was there is not | **Nova Push** — everything thrown off its feet, every enemy shot deleted | **Dragon Roar** — the whole room knocked flat, set alight and slowed |
+| ✠ | **Noir Vandelay** · *The Primordial* | **The Pact** — 15% of his own health up front and 4.5% more every second, for 85% more damage over 7s. One at a time; it will not layer | **Rot** — infect one, and it spreads when it dies | **Primordial** — three shades cut loose, everything cursed, him at +60% |
+| ⧗ | **Alwyn Fael** · *The Long Memory* | **Echo** — whatever she cast last happens again for free | **Still Hour** — the room at half speed, and not her | **Stop** — four seconds where nothing moves at all and she walks between them |
+| ✜ | **Jinya Kurose** · *The Shadow Monarch* | **Ashen Knight** — the first one he ever raised. Slow, heavy, and it stands for the rest of the fight | **Hive Marshal** — the other one. Far too fast, hits far too often, also stays | **Arise** — everything he has killed this fight gets back up on his side, in the shape it died in |
+
+Jinya **keeps every enemy he kills**. Arise spends them, so his Burst is only
+ever as big as the fight has been — walk into a boss room having killed nothing
+and it raises nothing. Up to ten shadows at once, each in the shape of whatever
+it used to be, and they stay for the rest of the room.
+
+Mirika cannot be knocked back or slowed by anything. Suimu heals on every kill.
+Alwyn's skills come back 20% faster. Noir does 30% more below half health —
+which is where the Pact leaves him, because it keeps taking for the whole seven
+seconds and cannot be signed twice. It will not kill him, but it will put him
+on his last point of health.
 
 ### 5★ — The Second Wave
 
@@ -209,6 +260,10 @@ health** — she is hardest to kill when she is nearly dead. Odette's puppets fi
 |---|---|---|---|---|
 | ◎ | **Bao Xun** · Flame | **Called Shot** — pierces everything, up to 150% harder the further the target | **Flak** — eleven shells in a wall off the barrel | **Full Auto** — 3s of emptying everything he carries |
 | ⟡ | **Iris Solene** · Gale | **Hookshot** — the hook goes out and something comes back | **Updraft** — everything nearby goes up, and the landing is what hurts | **Skydance** — 3 untouchable seconds, never landing twice in the same place |
+| ⚙ | **Jun Kirisaki** · Blade | **Rev** — three seconds of leaning on it, and every body in reach feeds him back | **Drop In** — up, across, and down | **Overdrive** — six seconds where it never stops turning |
+| ⚡ | **Rai Sudo** · Volt | **First Form** — a line drawn across the room a third of a second before the sword moves, always critical | **Godspeed** — he is behind them now | **Sixfold** — six draws in three seconds, untouchable through all of them |
+| ⛨ | **Kotone Shiba** · Stone | **Shield Wall** — five slabs that enemies bounce off and shots break on | **Brace** — a 55% shield, and touching her hurts | **Fortress** — a full ring of wall, a 60% shield, and 30% of the squad's health back |
+| ⚄ | **Vex Halloran** · Gale | **Roll** — one of six things happens, and she does not know either | **Called Shot** — pierces everything, harder the further away | **Jackpot** — six rolls in three seconds, free |
 | ⛏ | **Momo Tachibana** · Earth | **Glaive Cyclone** — drags everything into one point, then lets go | Earthshaker — huge sweep | **Landslide** — a maelstrom |
 | 🔥 | **Chiyo Onodera** · Flame | **Bomblets** — four armed bombs rolled out ahead | Firewall — burning ground | **Firestorm** — 3s of called shells |
 | ♪ | **Nari Tsukuda** · Radiant | Chorus Mote — a turret | Refrain — heal and shield | **Encore** — four motes, squad heal |
@@ -308,7 +363,7 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Twenty-four
+**No two characters share a haircut, an outfit or a weapon.** Thirty-four
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
 circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie, a heavy layered shade, a swept
@@ -319,11 +374,11 @@ light leaking out from under it is the whole character. Ten outfit shapes (skirt
 dress, shorts, plate, jacket, apron, longcoat, wrap, coat) chosen **separately
 from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Twenty-three weapons and one pair of bare hands, one each. A roster where three people share a haircut in
+Thirty-three weapons and one pair of bare hands, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Twenty-four characters share one rig, and a pose is a **skeleton rather than a set of
+Thirty-four characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
