@@ -107,7 +107,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Twenty-two characters across two rarities. They play completely differently.
+Twenty-four characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -140,8 +140,8 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Twenty-two characters, and **no two share a pair of skills.** There are
-thirty-eight distinct skill mechanics behind them and they are mechanics, not reskins: a
+Twenty-four characters, and **no two share a pair of skills.** There are
+forty-four distinct skill mechanics behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
@@ -149,7 +149,8 @@ drains, a plague that spreads on death, a vortex that drags a pack into one
 place, called-down strikes, a projected sword that fights on its own, and a
 field of slowed time, electron shells that cut, rounds that split and split
 again, rage that scales with missing health, a hookshot that drags a target to
-your feet, a rifle that wants distance, and summoned hounds that hunt on their own. Every character also has their own
+your feet, a rifle that wants distance, summoned hounds that hunt on their own, a singularity, a repulsion that
+deletes bullets, a punch that lands twice, and a strike that is always a crit. Every character also has their own
 passive and their own Burst — ten Bursts are unique shapes nobody else has.
 
 ### 5★ — The Second Wave
@@ -162,11 +163,24 @@ passive and their own Burst — ten Bursts are unique shapes nobody else has.
 
 | ☗ | **Shion Kagemori** · *The Ten Shades* | **Pale Fang** — the white one. Fast, and it runs things down for 18s without waiting for you | **Black Fang** — the black one. Slower, heavier, and it does not leave: it stays out for the rest of the fight | **The Wheel** — the wheel-crowned one, out for the rest of the fight, tearing through the room. Including you, if you stand next to it |
 
+| ∞ | **Toya Shirakami** · *The Limitless* | **Lapse: Blue** — a point of pull. Everything falls into it, then it shuts and crushes what it caught | **Reversal: Red** — the opposite: everything thrown away at once, and every enemy shot in the radius simply gone | **Hollow Purple** — one line walked the length of the room that unmakes a corridor through it |
+| ✊ | **Yuuma Sakaki** · *The Vessel* | **Divergent Fist** — the punch lands, then lands again a beat later for 150% | **Black Flash** — one strike that always crits, splashes, and leaves him 30% hotter for 6s | **The Vessel Wakes** — 9s of double damage and 60% more attack speed, and everything in reach feeds him |
+
+Toya's passive is **Infinity**: the first hit he would take every four seconds
+does not land at all. Yuuma's is cursed energy building on one target — every
+third hit on the same enemy detonates it — so he wants to stay on one thing
+while Toya wants the whole room.
+
 Shion's shikigami **pick their own targets** — they close, they bite, and they
 keep going while he fights. Every one on the field makes the others hit 20%
 harder, so the black one plus the white one plus the Wheel is a pack. The Wheel
 is **not on your side**; it is just out, and standing next to it costs you
 health.
+
+They are also **not free**. Each shikigami has its own health bar, takes hits
+from whatever it is fighting, will eat an enemy projectile aimed at you, and
+can be killed outright — and calling one you already have out **recalls the
+same one** rather than stacking a second. Three summons is a pack, not an army.
 
 Atom's passive is **Half-Life**: everything he damages keeps taking 25% of that
 hit again over the next two seconds. Rei takes **25% less damage below half
@@ -195,8 +209,11 @@ else's damage.
 
 ## The Raid — The Sovereign
 
-One fight, from the Home screen, separate from the Spire. No relics: just your
-squad, their kits, and whether you can read what he's doing. **26,000 HP** and
+One fight, from the Home screen, separate from the Spire. You find no relics
+inside, so you **pick three on the way in** — three choices each, out of the
+same pool the Spire draws from. It is the one place in the game where you build
+a loadout instead of finding one. After that it is your squad, their kits, and
+whether you can read what he's doing. **26,000 HP** and
 **five minutes** before he enrages.
 
 This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
@@ -258,19 +275,22 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Twenty-two
+**No two characters share a haircut, an outfit or a weapon.** Twenty-four
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
-circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie and a heavy layered
-shade — each with its own fringe and its own ornament. Ten outfit shapes (skirt, robe,
+circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie, a heavy layered shade, a swept
+white halo and short blunt bristles — each with its own fringe and its own
+ornament. One character has no weapon at all: Toya fights bare-handed, so his
+hands glow instead. Another wears a **blindfold** rather than an eye, and the
+light leaking out from under it is the whole character. Ten outfit shapes (skirt, robe,
 dress, shorts, plate, jacket, apron, longcoat, wrap, coat) chosen **separately
 from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Twenty-two weapons, one each. A roster where three people share a haircut in
+Twenty-three weapons and one pair of bare hands, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Twenty-two characters share one rig, and a pose is a **skeleton rather than a set of
+Twenty-four characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
@@ -288,7 +308,9 @@ hard while a leg is swinging through, so it bends rather than skating.
 Feet also carry a **knee** value per frame: how folded that leg is right now.
 The support leg is nearly straight, the front knee folds to absorb the landing,
 and the swing leg folds up under the body before it reaches out again — which
-is the difference between a run and two legs sliding past each other. One
+is the difference between a run and two legs sliding past each other. The
+shoulders also **counter-rotate against the hips**, which is a large part of
+why a run reads as a run and not as a pair of legs under a plank. One
 subtlety worth writing down: `bent()` pushes a joint along the *normal* of the
 hip-to-foot line, and with the hip above the foot that normal points backwards,
 so the fold has to be **negative** or the character runs on knees that bend the

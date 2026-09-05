@@ -277,12 +277,30 @@ CHARS = {
     metal='#d8dce8', grip='#15141f',
     face=dict(ew=5, eh=3, lash=0, droop=1, brow='angled', brow_h=1, nose=2, mouth=1),
     sleeve=0.92, style='shade', outfit='uniform', wep='sealcards'),
+
+ 'toya': dict(ink='#141726', hair='#dfe6f5', hair2='#ffffff', hair3='#b6c4e0', shine='#ffffff',
+    skin='#f7ddc6', skin2='#d5b096', skin3='#ac8a72', blush='#e0a0a8',
+    eye='#6fd4ff', eye2='#1e5f96', brow='#dfe6f5',
+    cloth='#121422', cloth2='#232840', cloth3='#080a12', trim='#6fd4ff', accent='#4a9fe0',
+    leg='#3a4166', leg2='#636b96', boot='#191c2e',
+    metal='#e6ecff', grip='#232840',
+    face=dict(ew=6, eh=4, lash=1, droop=0, brow='soft', brow_h=2, nose=2, mouth=1, blind=1),
+    sleeve=1.00, style='halo', outfit='highcollar', wep='bare'),
+
+ 'yuuma': dict(ink='#2a1220', hair='#e8657f', hair2='#ff9db0', hair3='#ffd0d8', shine='#fff0f4',
+    skin='#f5c9a4', skin2='#cfa07c', skin3='#a2795a', blush='#ff8b8b',
+    eye='#ffb347', eye2='#8f4a10', brow='#e8657f',
+    cloth='#2b2b3d', cloth2='#43435e', cloth3='#191925', trim='#e8657f', accent='#ffd24d',
+    leg='#4a4a6b', leg2='#73739c', boot='#232333',
+    metal='#e0e0ea', grip='#2b2b3d',
+    face=dict(ew=6, eh=4, lash=0, droop=0, brow='thick', brow_h=1, nose=2, mouth=2),
+    sleeve=0.60, style='bristle', outfit='hoodie', wep='wraps'),
 }
 
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma',
          'seryn', 'aldric', 'kassandra', 'nyx',
-         'atom', 'rei', 'odette', 'bao', 'iris', 'shion']
+         'atom', 'rei', 'odette', 'bao', 'iris', 'shion', 'toya', 'yuuma']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -307,18 +325,18 @@ POSES = [
  # The near leg leads first; on frame 6 the far leg takes over, which is why
  # the two halves are not mirrors of each other but the same poses swapped.
  # contact A - near heel lands out front, far toe still pushing off
- dict(bob=1,  lean=1,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1),
+ dict(bob=1,  lean=2,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1, sh=2),
  # down A - the front knee folds hard to take the weight
- dict(bob=3,  lean=2,  feet=((-13,3,3,4), (6,0,0,5)),    hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1),
+ dict(bob=3,  lean=3,  feet=((-13,3,3,4), (6,0,0,5)),    hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1, sh=1),
  # passing A - the far knee comes up under the body, foot tucked behind it
- dict(bob=-2, lean=0,  feet=((-2,10,2,7), (0,0,0,1)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ dict(bob=-2, lean=1,  feet=((-2,10,2,7), (0,0,0,1)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, sh=0),
  # up A - that leg swings out in front, still bent, reaching for the ground
- dict(bob=-1, lean=-1, feet=((8,5,-3,3), (-7,0,2,0)),    hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
+ dict(bob=-1, lean=0, feet=((8,5,-3,3), (-7,0,2,0)),    hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
  # contact B - the same four, with the legs swapped over
- dict(bob=1,  lean=1,  feet=((11,0,-2,0), (-11,1,3,1)),  hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1),
- dict(bob=3,  lean=2,  feet=((6,0,0,5),   (-13,3,3,4)),  hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1),
- dict(bob=-2, lean=0,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
- dict(bob=-1, lean=-1, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
+ dict(bob=1,  lean=2,  feet=((11,0,-2,0), (-11,1,3,1)),  hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1, sh=2),
+ dict(bob=3,  lean=3,  feet=((6,0,0,5),   (-13,3,3,4)),  hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1, sh=1),
+ dict(bob=-2, lean=1,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, sh=0),
+ dict(bob=-1, lean=0, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
 
  # 10-14 the attack, in five: coil, wind, strike, follow-through, settle.
  # Three frames made a swing that arrived without ever being thrown; the coil
@@ -350,9 +368,14 @@ def head_pos(pose):
             HEADY + pose['bob'] + pose.get('hdy', 0))
 
 def shoulder(pose, back):
-    # a turned body foreshortens: lead shoulder swings forward, trailing one hides
+    # A turned body foreshortens: lead shoulder swings forward, trailing one
+    # hides. `sh` counter-rotates the shoulders against the hips - the torso
+    # twisting the other way from the legs is a large part of why a run reads
+    # as a run and not as a pair of legs under a plank.
+    sw = pose.get('sh', 0) * (-1 if back else 1)
     dx = (-3 + TURN*0.4) if back else (4 + TURN*1.0)
-    return (CX + dx + pose['lean']*0.4, SHOULDER + 2 + pose['bob'] + (1 if back else 0))
+    return (CX + dx + pose['lean']*0.4 + sw,
+            SHOULDER + 2 + pose['bob'] + (1 if back else 0) - abs(sw)*0.2)
 
 def hand(pose, back):
     """absolute hand position, always measured from its own shoulder"""
@@ -497,6 +520,18 @@ def draw_torso(c, p, pose):
         for k in range(4):
             c.rect(xh-8+k, HIP+3+dy+k*2, 16-k, 2, cl2 if k % 2 else cl3)
         c.taper(xh-6, HIP+9+dy, xh-12, HIP+20+dy, tr, 4, 2)
+    elif of == 'highcollar':                              # long, severe, split at the hip
+        c.rect(xh-7, HIP+dy, 14, 5, cl)
+        c.rect(xh-9, HIP+4+dy, 7, 17, cl3)
+        c.rect(xh+2, HIP+4+dy, 6, 13, cl2)
+        c.rect(xh-9, HIP+4+dy, 17, 1, tr)
+        c.rect(xh-10, HIP+18+dy, 5, 6, cl3)
+    elif of == 'hoodie':                                  # loose, with a drawstring hem
+        c.rect(xh-8, HIP+dy, 16, 8, cl2)
+        c.rect(xh-8, HIP+6+dy, 16, 3, cl3)
+        c.rect(xh-8, HIP+dy, 16, 1, cl)
+        c.rect(xh-4, HIP+2+dy, 8, 3, cl3)                 # the pocket
+        c.rect(xh+3, HIP+1+dy, 2, 4, tr)
     elif of == 'uniform':                                 # a school jacket, hem square
         c.rect(xh-7, HIP+dy, 14, 7, cl)
         c.rect(xh-8, HIP+5+dy, 16, 3, cl2)
@@ -650,6 +685,16 @@ def draw_head(c, p, pose):
     m  = pose['eye']
     ex = cx + 0.5
     ey = cy + HEAD_TOP + EYE_ROW
+    if F.get('blind'):
+        # a band over the eyes. It reads harder than any eye could, and the
+        # glow leaking out from under it is the whole character.
+        c.rect(cx-8, ey-1, 16, 5, p['cloth3'])
+        c.rect(cx-8, ey-1, 16, 1, p['cloth2'])
+        c.rect(cx-8, ey+3, 16, 1, p['ink'])
+        for k in range(3): c.set(cx+2+k*2, ey+1, p['eye'])       # light through the weave
+        c.set(cx+6, ey+2, p['trim'])
+        c.rect(cx-11, ey, 4, 3, p['cloth3'])                     # the strap round the back
+        return cx, cy
     eye_profile(c, p, ex, ey, m)
 
     if m != 'closed':                             # brow, riding the ridge
@@ -850,6 +895,25 @@ def hair_back(c, p, pose, cx, cy):
         c.taper(cx+3, cy-10, cx+8, cy+4, h1, 6, 4)         # the fringe sweeps forward
         c.taper(cx+4, cy-9, cx+8, cy+1, h2, 3, 2)
 
+    elif st == 'halo':                                     # soft, voluminous, swept up
+        c.ellipse(cx-2, cy-3, 12.4, 11.0, h1)
+        for k, (sx, sy, ln) in enumerate(((-13,-6,10), (-9,-12,13), (-3,-16,14),
+                                          (4,-15,12), (10,-9,9))):
+            c.taper(cx+sx*0.6, cy+sy*0.5, cx+sx-2+sway*0.3, cy+sy-4, h1, 8, 4)
+            if k % 2: c.taper(cx+sx*0.6, cy+sy*0.5, cx+sx-2, cy+sy-2, h2, 5, 3)
+        c.taper(cx-12, cy-2, cx-17+sway*0.6, cy+9, h1, 6, 3)
+        c.rect(cx+7, cy-4, 3, 8, h1)
+
+    elif st == 'bristle':                                  # short, upright, blunt
+        c.ellipse(cx-1, cy-2, 10.8, 9.6, h1)
+        for k in range(8):
+            sx = -10 + k*2.6
+            hgt = 8 - abs(k-3.5)*0.7
+            c.taper(cx+sx, cy-6, cx+sx-1+sway*0.2, cy-6-hgt, h1, 5, 4)
+            if k % 2: c.set(cx+sx, cy-7-hgt, h2)
+        c.rect(cx-12, cy-3, 4, 8, h1)
+        c.rect(cx+7, cy-3, 3, 7, h1)
+
     elif st == 'shade':                                    # heavy, layered, sharp
         c.ellipse(cx-1, cy-2, 11.6, 10.4, h1)
         for sx, sy, ln in ((-14,-4,10), (-12,1,16), (-9,4,13)):
@@ -900,6 +964,14 @@ def hair_front(c, p, pose, cx, cy):
         c.rect(cx-9, cy-8, 17, 4, h1)
         c.rect(cx-8, cy-9, 15, 2, h2)
         for k in range(0, 17, 4): c.set(cx-9+k, cy-4, h1)
+    elif st == 'halo':                                    # a heavy soft sweep upward
+        for sx, sy in ((-8,-13), (-2,-16), (4,-15), (9,-10)):
+            c.taper(cx+sx, cy+sy+6, cx+sx-1+sway*0.2, cy+sy-2, h1, 7, 4)
+            c.taper(cx+sx, cy+sy+5, cx+sx-1, cy+sy, h2, 4, 2)
+    elif st == 'bristle':                                 # blunt spikes, low over the brow
+        for sx in (-8, -3, 2, 7):
+            c.taper(cx+sx, cy-5, cx+sx, cy-11, h1, 5, 4)
+            c.set(cx+sx, cy-12, h2)
     elif st == 'shade':                                   # heavy, falling over the brow
         for sx, sy in ((-9,-11), (-4,-14), (2,-14), (7,-10)):
             c.taper(cx+sx, cy+sy+6, cx+sx+3+sway*0.2, cy+sy-1, h1, 6, 3)
@@ -941,6 +1013,8 @@ def hair_front(c, p, pose, cx, cy):
     elif st == 'veil':     c.rect(cx+1, cy-14, 4, 4, ac); c.rect(cx+2, cy-15, 2, 1, '#ffffff')
     elif st == 'pixie':    c.rect(cx-4, cy-13, 3, 2, ac); c.rect(cx+2, cy-12, 2, 2, ac)
     elif st == 'shade':    c.set(cx-11, cy-4, ac); c.set(cx-11, cy-2, ac)
+    elif st == 'halo':     pass                           # the blindfold is the ornament
+    elif st == 'bristle':  c.rect(cx-10, cy-2, 3, 2, ac)
     elif st == 'mohawk':   c.rect(cx-10, cy-3, 3, 3, ac)
     elif st == 'slick':    c.set(cx-12, cy-6, ac); c.set(cx-12, cy-4, ac)
     elif st == 'messy':    c.rect(cx-8, cy-12, 3, 2, ac)
@@ -1168,6 +1242,27 @@ def draw_weapon(c, p, pose):
             lx = hxp - ux*6 - k*1.6
             ly = hyp + 3 + math.sin(k*1.1)*2.2
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
+    elif w == 'bare':
+        # he does not carry anything. The hands are the weapon, so they glow.
+        for hx3, hy3 in (hand(pose, False), hand(pose, True)):
+            c.ellipse(hx3, hy3+1, 3.4, 3.6, p['skin'])
+            c.rect(hx3-2, hy3+2, 4, 1, p['skin3'])
+        hx4, hy4 = hand(pose, False)
+        c.ellipse(hx4+3, hy4, 4.6, 4.6, p['accent'])       # the field around the hand
+        c.ellipse(hx4+3, hy4, 2.8, 2.8, p['trim'])
+        c.ellipse(hx4+2, hy4-1, 1.2, 1.2, '#ffffff')
+        for k in range(6):
+            a2 = ang + k
+            c.set(hx4+3 + math.cos(a2)*7, hy4 + math.sin(a2)*7, p['trim'])
+    elif w == 'wraps':
+        # bandaged fists, and the knuckles already split
+        for hx3, hy3 in (hand(pose, False), hand(pose, True)):
+            c.ellipse(hx3, hy3+1, 4.0, 4.2, '#efe7d8')
+            for k in range(-3, 4, 2): c.set(hx3+k, hy3-1, p['cloth3'])
+            c.rect(hx3-3, hy3+3, 7, 2, '#efe7d8')
+            c.rect(hx3-3, hy3+4, 7, 1, p['cloth3'])
+        hx4, hy4 = hand(pose, False)
+        c.set(hx4+3, hy4-2, p['trim']); c.set(hx4+4, hy4, p['trim'])
     elif w == 'sealcards':
         # talisman slips fanned between the fingers, and one already burning off
         for k in range(4):
