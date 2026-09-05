@@ -268,12 +268,21 @@ CHARS = {
     metal='#d8e8e0', grip='#132620',
     face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=1, nose=2, mouth=1),
     sleeve=0.44, style='pixie', outfit='apron', wep='hookblade'),
+
+ 'shion': dict(ink='#0b0a16', hair='#1c1b30', hair2='#3a3856', hair3='#6b6890', shine='#a8a4d0',
+    skin='#f0d0b4', skin2='#cda488', skin3='#a37f66', blush='#e08b8b',
+    eye='#4ad6c0', eye2='#12655c', brow='#1c1b30',
+    cloth='#15141f', cloth2='#2a2838', cloth3='#0b0a12', trim='#4ad6c0', accent='#6b6890',
+    leg='#3d3d5c', leg2='#666690', boot='#1c1c2e',
+    metal='#d8dce8', grip='#15141f',
+    face=dict(ew=5, eh=3, lash=0, droop=1, brow='angled', brow_h=1, nose=2, mouth=1),
+    sleeve=0.92, style='shade', outfit='uniform', wep='sealcards'),
 }
 
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'yura', 'kaito', 'momo', 'chiyo', 'nari', 'toma',
          'seryn', 'aldric', 'kassandra', 'nyx',
-         'atom', 'rei', 'odette', 'bao', 'iris']
+         'atom', 'rei', 'odette', 'bao', 'iris', 'shion']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -292,22 +301,24 @@ POSES = [
  # 2-9 walk: the full eight-frame cycle, twice through
  # contact - down - passing - up, once for each leg. Feet carry a third
  # number, their PITCH: negative lifts the toe for the heel strike, positive
- # lifts the heel as the foot rolls off. That roll is most of what sells it.
+ # lifts the heel as the foot rolls off. And a fourth, the KNEE: how hard that
+ # leg is folded this frame. The knee is the difference between a run and a
+ # pair of legs sliding past each other.
  # The near leg leads first; on frame 6 the far leg takes over, which is why
  # the two halves are not mirrors of each other but the same poses swapped.
- # contact A - near heel lands out front, far toe still pushing
- dict(bob=1,  lean=1,  feet=((-10,0,2), (10,0,-2)), hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1),
- # down A - weight drops onto the near leg, far toe about to leave
- dict(bob=2,  lean=2,  feet=((-12,1,3), (6,0,0)),   hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1),
- # passing A - far leg swings through under the body, hips at their highest
- dict(bob=-1, lean=0,  feet=((-3,7,0), (0,0,0)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, hd=0),
- # up A - far leg reaches forward, near heel starting to lift
- dict(bob=-1, lean=-1, feet=((6,4,-2), (-5,0,1)),   hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
+ # contact A - near heel lands out front, far toe still pushing off
+ dict(bob=1,  lean=1,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1),
+ # down A - the front knee folds hard to take the weight
+ dict(bob=3,  lean=2,  feet=((-13,3,3,4), (6,0,0,5)),    hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1),
+ # passing A - the far knee comes up under the body, foot tucked behind it
+ dict(bob=-2, lean=0,  feet=((-2,10,2,7), (0,0,0,1)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ # up A - that leg swings out in front, still bent, reaching for the ground
+ dict(bob=-1, lean=-1, feet=((8,5,-3,3), (-7,0,2,0)),    hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
  # contact B - the same four, with the legs swapped over
- dict(bob=1,  lean=1,  feet=((10,0,-2), (-10,0,2)), hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1),
- dict(bob=2,  lean=2,  feet=((6,0,0),   (-12,1,3)), hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1),
- dict(bob=-1, lean=0,  feet=((0,0,0),   (-3,7,0)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, hd=0),
- dict(bob=-1, lean=-1, feet=((-5,0,1),  (6,4,-2)),  hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
+ dict(bob=1,  lean=1,  feet=((11,0,-2,0), (-11,1,3,1)),  hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1),
+ dict(bob=3,  lean=2,  feet=((6,0,0,5),   (-13,3,3,4)),  hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1),
+ dict(bob=-2, lean=0,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2),
+ dict(bob=-1, lean=-1, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1),
 
  # 10-14 the attack, in five: coil, wind, strike, follow-through, settle.
  # Three frames made a swing that arrived without ever being thrown; the coil
@@ -372,6 +383,7 @@ def draw_legs(c, p, pose):
     for i, f in enumerate(pose['feet']):
         fx, lift = f[0], f[1]
         pitch = f[2] if len(f) > 2 else 0        # -toe up (heel strike), +heel up (roll off)
+        knee  = f[3] if len(f) > 3 else 0        # how hard this leg is folded, this frame
         side = -1 if i == 0 else 1
         far = i == 0                                          # trailing leg, in shadow
         lg  = shade(p['leg'],  0.62) if far else p['leg']
@@ -381,9 +393,12 @@ def draw_legs(c, p, pose):
         # trailing foot sits further back than the lead one on a turned body
         fxx = CX + fx + TURN*0.35 + (-1.2 if side < 0 else 1.2)
         fyy = FEET - 4 - lift
-        # knee leads the hip when the foot is forward, and folds up hard while
-        # the leg is swinging through, which is what stops the walk looking stiff
-        bend = (fxx - hx) * 0.30 + 2.4 + lift * 0.45
+        # A leg is a hinge and it only folds one way. bent() pushes the joint
+        # along the normal of the hip-to-foot line, and with the hip above the
+        # foot that normal points BACKWARDS - so the fold has to be negative or
+        # the character runs on knees that bend the wrong way.
+        fold = 1.8 + lift*0.75 + knee
+        bend = -fold
         kx, ky = bent(c, hx, hipy, fxx, fyy, bend, lg, 10, 6)
         c.ellipse(hx, hipy+1, 4.6, 4.0, lg)                   # hip/thigh mass
         c.ellipse(kx, ky, 3.0, 2.8, lg)                       # knee
@@ -482,6 +497,11 @@ def draw_torso(c, p, pose):
         for k in range(4):
             c.rect(xh-8+k, HIP+3+dy+k*2, 16-k, 2, cl2 if k % 2 else cl3)
         c.taper(xh-6, HIP+9+dy, xh-12, HIP+20+dy, tr, 4, 2)
+    elif of == 'uniform':                                 # a school jacket, hem square
+        c.rect(xh-7, HIP+dy, 14, 7, cl)
+        c.rect(xh-8, HIP+5+dy, 16, 3, cl2)
+        c.rect(xh-8, HIP+7+dy, 16, 1, cl3)
+        c.rect(xh+4, HIP+1+dy, 3, 6, tr)                  # a stripe down the front panel
     else:                                                 # a coat with a tail behind
         c.rect(xh-7, HIP+dy, 14, 4, cl)
         c.rect(xh-9, HIP+3+dy, 7, 12, cl3)
@@ -524,9 +544,9 @@ HEAD_PROFILE = [
     (-8.7,  6.6),   # 7  lash line
     (-8.5,  6.8),   # 8  eye
     (-8.3,  7.1),   # 9  eye
-    (-8.0,  7.6),   # 10 bridge of the nose
-    (-7.6,  8.3),   # 11 nose
-    (-7.2,  8.6),   # 12 tip
+    (-8.0,  7.2),   # 10 bridge of the nose
+    (-7.6,  7.6),   # 11 nose
+    (-7.2,  7.7),   # 12 tip - small. The cut back below it does the work.
     (-6.7,  6.4),   # 13 philtrum - the cut back here is what makes it a nose
     (-6.2,  6.9),   # 14 mouth
     (-5.6,  6.8),   # 15 lower lip
@@ -598,7 +618,7 @@ def draw_head(c, p, pose):
     rows = []
     for i, (bk, fr) in enumerate(HEAD_PROFILE):
         y = cy + HEAD_TOP + i
-        f = fr + (nose*0.9 if 11 <= i <= 12 else nose*0.35 if i in (10, 13) else 0)
+        f = fr + (nose*0.45 if 11 <= i <= 12 else nose*0.18 if i in (10, 13) else 0)
         rows.append((y, cx + bk, cx + f))
 
     # --- the mass. Light comes from the front, so the back of the skull turns
@@ -830,6 +850,17 @@ def hair_back(c, p, pose, cx, cy):
         c.taper(cx+3, cy-10, cx+8, cy+4, h1, 6, 4)         # the fringe sweeps forward
         c.taper(cx+4, cy-9, cx+8, cy+1, h2, 3, 2)
 
+    elif st == 'shade':                                    # heavy, layered, sharp
+        c.ellipse(cx-1, cy-2, 11.6, 10.4, h1)
+        for sx, sy, ln in ((-14,-4,10), (-12,1,16), (-9,4,13)):
+            c.taper(cx+sx, cy+sy, cx+sx-3+sway*0.4, cy+sy+ln, h1, 6, 3)
+        for k, (sx, sy) in enumerate(((-11,-9), (-5,-15), (2,-17), (9,-12), (13,-5))):
+            c.taper(cx+sx*0.7, cy+sy*0.5, cx+sx+sway*0.25, cy+sy, h1, 6, 3)
+            if k % 2: c.taper(cx+sx*0.7, cy+sy*0.5, cx+sx, cy+sy+1, h2, 3, 2)
+        c.taper(cx+7, cy-2, cx+8, cy+13, h1, 5, 4)         # long sidelock past the jaw
+        c.taper(cx+7, cy+8, cx+8, cy+14, h2, 3, 2)
+        c.taper(cx-13, cy-2, cx-16+sway*0.5, cy+9, h1, 4, 2)
+
     elif st == 'pixie':                                    # very short, feathered
         c.ellipse(cx-1, cy-3, 10.0, 8.4, h1)
         for k in range(5):
@@ -869,6 +900,11 @@ def hair_front(c, p, pose, cx, cy):
         c.rect(cx-9, cy-8, 17, 4, h1)
         c.rect(cx-8, cy-9, 15, 2, h2)
         for k in range(0, 17, 4): c.set(cx-9+k, cy-4, h1)
+    elif st == 'shade':                                   # heavy, falling over the brow
+        for sx, sy in ((-9,-11), (-4,-14), (2,-14), (7,-10)):
+            c.taper(cx+sx, cy+sy+6, cx+sx+3+sway*0.2, cy+sy-1, h1, 6, 3)
+        c.taper(cx+2, cy-8, cx+8, cy-2, h1, 5, 3)         # a lock hanging past the eye
+        c.taper(cx+3, cy-8, cx+7, cy-3, h2, 3, 2)
     elif st in ('undercut', 'slick'):                     # one long sweep forward
         c.taper(cx-6, cy-9, cx+8, cy-3, h1, 7, 4)
         c.taper(cx-5, cy-10, cx+6, cy-5, h2, 4, 2)
@@ -904,6 +940,7 @@ def hair_front(c, p, pose, cx, cy):
     elif st == 'topknot':  c.rect(cx-6, cy-13, 3, 3, ac)
     elif st == 'veil':     c.rect(cx+1, cy-14, 4, 4, ac); c.rect(cx+2, cy-15, 2, 1, '#ffffff')
     elif st == 'pixie':    c.rect(cx-4, cy-13, 3, 2, ac); c.rect(cx+2, cy-12, 2, 2, ac)
+    elif st == 'shade':    c.set(cx-11, cy-4, ac); c.set(cx-11, cy-2, ac)
     elif st == 'mohawk':   c.rect(cx-10, cy-3, 3, 3, ac)
     elif st == 'slick':    c.set(cx-12, cy-6, ac); c.set(cx-12, cy-4, ac)
     elif st == 'messy':    c.rect(cx-8, cy-12, 3, 2, ac)
@@ -1131,6 +1168,20 @@ def draw_weapon(c, p, pose):
             lx = hxp - ux*6 - k*1.6
             ly = hyp + 3 + math.sin(k*1.1)*2.2
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
+    elif w == 'sealcards':
+        # talisman slips fanned between the fingers, and one already burning off
+        for k in range(4):
+            a2 = ang - 0.5 + k*0.30
+            ax2, ay2 = math.cos(a2), math.sin(a2)
+            c.taper(hxp, hyp, hxp+ax2*11, hyp+ay2*11, '#f0ead8', 5, 4)
+            c.taper(hxp+ax2*3, hyp+ay2*3, hxp+ax2*10, hyp+ay2*10, p['trim'], 2, 1)
+            c.set(hxp+ax2*11, hyp+ay2*11, p['ink'])
+        c.ellipse(hxp, hyp, 3.0, 3.0, p['grip'])
+        bx3, by3 = hand(pose, True)                        # the other hand, mid-sign
+        c.ellipse(bx3, by3, 3.2, 3.4, p['skin2'])
+        c.rect(bx3-1, by3-4, 2, 4, p['skin2'])
+        for k in range(5):                                 # shadow leaking off the fingers
+            c.set(bx3 - 2 - k, by3 + 3 + math.sin(k)*2, p['accent'])
     elif w == 'coilrod':
         # a tesla rod: a wound coil on a short shaft, arcing between its rings
         L, hxp = 20, min(hxp, 36)
@@ -1210,10 +1261,19 @@ MOBS = {
                eye='#ffe14d', glow='#fff3c0', cloth='#4a2a3a', cloth2='#6d4257'),
  'sovereign': dict(ink='#0a0610', body='#2b2340', body2='#5b4d80', body3='#171128',
                eye='#ff3355', glow='#ffd24d', cloth='#120e20', cloth2='#3a2f5c'),
+ 'dogw':  dict(ink='#2a2a3d', body='#e8ecf5', body2='#ffffff', body3='#a8b0c8',
+               eye='#5fe6ff', glow='#d6f4ff'),
+ 'dogb':  dict(ink='#0a0812', body='#2b2740', body2='#4a4468', body3='#151223',
+               eye='#b07cff', glow='#dcc0ff'),
+ 'wheel': dict(ink='#0d0a14', body='#54506b', body2='#8b86a8', body3='#2e2b3d',
+               eye='#ff5d5d', glow='#ffd24d', cloth='#8f2020', cloth2='#c33a3a'),
  'boss':  dict(ink='#120818', body='#a86bff', body2='#dcc0ff', body3='#6b3fbd',
                eye='#ff5d5d', glow='#ffc0c0', cloth='#2a1b4d', cloth2='#4a3480'),
 }
-MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign']
+MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign',
+             'dogw', 'dogb', 'wheel']
+
+HOUND_A = [(0,0), (0,-1), (3,-2), (6,-4), (3,-2), (0,0), (-2,1), (8,-5), (2,-1), (0,2)]
 
 SLIME_A = [(0,0), (2,0), (5,-2), (-3,-11), (-5,-17), (3,-4), (7,2), (-7,-6), (0,0), (9,3)]
 BAT_A   = [(2,0), (7,2), (0,0), (9,4), (14,6), (7,2), (-3,-3), (12,7), (4,0), (5,-5)]
@@ -1359,6 +1419,113 @@ def draw_brute(c, m, f, boss=False, crown=False):
     if f == 7:
         for dx in (-24, -18, 18, 24): c.ellipse(cxx+dx, FEET-3, 4.5, 2.5, m['body3'])
 
+def draw_hound(c, m, f):
+    """A shikigami hound in profile facing +x. Four legs, and the far pair is
+    drawn in shadow so the body has depth instead of reading as a cut-out."""
+    reach, bob = HOUND_A[f]
+    cy = FEET - 22 + bob
+    bd, bd2, bd3 = m['body'], m['body2'], m['body3']
+    lunge = f in (7, 8)
+
+    c.taper(CX-14, cy+2, CX-24-reach*0.4, cy-6-reach*0.5, bd3, 5, 2)   # tail, streaming
+    c.taper(CX-16, cy, CX-22-reach*0.3, cy-3, bd, 4, 2)
+
+    for far in (True, False):                                          # legs, back pair first
+        col = bd3 if far else bd
+        col2 = bd3 if far else bd2
+        off = -2 if far else 1
+        # hind legs drive, front legs reach
+        hy = cy + 6
+        hx = CX - 8 + off
+        fk = reach * (0.9 if far else 1.2)
+        c.taper(hx, hy, hx - 3 - fk*0.4, hy + 8, col, 6, 4)
+        c.taper(hx - 3 - fk*0.4, hy + 8, hx - 5 - fk, FEET - 2, col2, 4, 3)
+        c.rect(hx - 7 - fk, FEET - 3, 6, 3, col)
+        fx2 = CX + 8 + off
+        c.taper(fx2, hy, fx2 + 2 + fk*0.5, hy + 8, col, 5, 4)
+        c.taper(fx2 + 2 + fk*0.5, hy + 8, fx2 + 3 + fk, FEET - 2, col2, 4, 3)
+        c.rect(fx2 + 2 + fk, FEET - 3, 6, 3, col)
+        if far: continue
+        # --- body, only once, over the near legs
+        c.ellipse(CX, cy + 3, 15.0, 8.0, bd)
+        c.ellipse(CX - 2, cy + 1, 12.0, 5.4, bd2)
+        c.ellipse(CX + 9, cy + 4, 6.4, 6.0, bd)                        # chest
+        c.rect(CX - 14, cy + 2, 28, 1, bd3)                            # spine shadow
+        # --- head, thrust forward on a lunge
+        hxx = CX + 16 + (4 if lunge else 0)
+        hyy = cy - 3 - (2 if lunge else 0)
+        c.taper(CX + 10, cy, hxx - 2, hyy + 2, bd, 8, 7)                # neck
+        c.ellipse(hxx, hyy, 6.6, 5.4, bd)
+        c.ellipse(hxx - 1, hyy - 1.5, 5.0, 3.4, bd2)
+        c.taper(hxx + 3, hyy + 1, hxx + 11, hyy + 3, bd, 5, 3)         # muzzle
+        c.set(hxx + 11, hyy + 2, m['ink'])                              # nose
+        c.taper(hxx - 3, hyy - 4, hxx - 6, hyy - 12, bd, 5, 2)          # ears, swept back
+        c.taper(hxx - 1, hyy - 5, hxx - 3, hyy - 12, bd2, 4, 2)
+        if f == 9:
+            for i in range(-2, 3):
+                c.set(hxx + 1 + i, hyy + i, m['ink']); c.set(hxx + 1 + i, hyy - i, m['ink'])
+        else:
+            c.rect(hxx + 1, hyy - 2, 4, 3, m['eye'])
+            c.rect(hxx + 3, hyy - 2, 2, 1, m['glow'])
+        if lunge:                                                       # jaws open
+            c.taper(hxx + 4, hyy + 4, hxx + 12, hyy + 8, bd, 4, 2)
+            for k in range(3):
+                c.set(hxx + 6 + k*2, hyy + 4, '#ffffff')
+                c.set(hxx + 6 + k*2, hyy + 7, '#ffffff')
+        if f in (6, 8):                                                 # it flares
+            for k in range(7):
+                a = k/7*math.pi*2
+                c.set(hxx + math.cos(a)*11, hyy + math.sin(a)*10, m['glow'])
+
+def draw_wheel(c, m, f):
+    """The wheel-crowned one. Bigger than anything else on the field, and it
+    does not care whose side you are on."""
+    lean, bob = BRUTE_A[f]
+    hy  = 20 + bob
+    cxx = CX + lean*0.5
+    bd, bd2, bd3 = m['body'], m['body2'], m['body3']
+    # --- the wheel behind the head, turning
+    spin = f*0.5
+    for k in range(28):
+        a = spin + k/28*math.pi*2
+        c.set(cxx - 1 + math.cos(a)*13, hy - 8 + math.sin(a)*13, m['glow'])
+    for k in range(8):
+        a = spin + k/8*math.pi*2
+        c.line(cxx-1, hy-8, cxx - 1 + math.cos(a)*12, hy - 8 + math.sin(a)*12,
+               m['cloth2'] if k % 2 else m['glow'], 1)
+    c.ellipse(cxx-1, hy-8, 5.0, 5.0, m['cloth'])
+    c.ellipse(cxx-1, hy-8, 2.6, 2.6, m['glow'])
+    # --- body
+    c.rect(cxx-13, hy+14, 26, 26, bd)
+    c.rect(cxx-10, hy+16, 20, 10, bd2)
+    c.rect(cxx-13, hy+35, 26, 5, bd3)
+    for i in range(-10, 11, 5): c.rect(cxx+i, hy+18, 2, 16, bd3)        # ribs
+    # --- head, low and forward
+    c.ellipse(cxx+2, hy+4, 12.0, 9.6, bd)
+    c.ellipse(cxx+3, hy+2, 9.0, 6.4, bd2)
+    c.taper(cxx+8, hy+6, cxx+18, hy+9, bd, 8, 4)                        # jaw thrust out
+    if f == 9:
+        for i in range(-3, 4):
+            c.set(cxx+6+i, hy+3+i, m['ink']); c.set(cxx+6+i, hy+3-i, m['ink'])
+    else:
+        c.rect(cxx+5, hy+1, 6, 4, m['eye'])
+        c.rect(cxx+5, hy+1, 6, 1, m['glow'])
+    for k in range(4):                                                  # teeth
+        c.set(cxx+11+k*2, hy+10, '#ffffff'); c.set(cxx+11+k*2, hy+13, '#ffffff')
+    # --- arms
+    ax = 24 if f in (6, 8) else 17
+    c.taper(cxx-13, hy+17, cxx-ax-lean, hy+(6 if f in (6,8) else 36), bd, 9, 6)
+    c.taper(cxx+13, hy+17, cxx+ax+lean, hy+(6 if f in (6,8) else 36), bd, 9, 6)
+    c.rect(cxx+ax+lean-4, hy+(4 if f in (6,8) else 34), 8, 5, bd3)      # claws
+    # --- legs
+    c.rect(cxx-13, hy+40, 10, FEET-(hy+40), bd)
+    c.rect(cxx+3, hy+40, 10, FEET-(hy+40), bd)
+    c.rect(cxx-15, FEET-5, 13, 5, bd3); c.rect(cxx+2, FEET-5, 13, 5, bd3)
+    if f in (6, 7, 8):
+        for k in range(8):
+            a = k/8*math.pi*2
+            c.set(cxx + math.cos(a)*26, hy+20 + math.sin(a)*22, m['glow'])
+
 def draw_mob(key, f):
     m = MOBS[key]; c = Cv(W, H)
     if   key == 'slime': draw_slime(c, m, f)
@@ -1367,6 +1534,8 @@ def draw_mob(key, f):
     elif key == 'brute': draw_brute(c, m, f, False)
     elif key == 'boss':  draw_brute(c, m, f, True)
     elif key == 'sovereign': draw_brute(c, m, f, True, True)
+    elif key in ('dogw', 'dogb'): draw_hound(c, m, f)
+    elif key == 'wheel': draw_wheel(c, m, f)
     c.outline(m['ink'])
     return c
 

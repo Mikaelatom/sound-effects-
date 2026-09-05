@@ -107,7 +107,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Twenty-one characters across two rarities. They play completely differently.
+Twenty-two characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -140,8 +140,8 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Twenty-one characters, and **no two share a pair of skills.** There are
-thirty-six distinct skill mechanics behind them and they are mechanics, not reskins: a
+Twenty-two characters, and **no two share a pair of skills.** There are
+thirty-eight distinct skill mechanics behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
@@ -149,7 +149,7 @@ drains, a plague that spreads on death, a vortex that drags a pack into one
 place, called-down strikes, a projected sword that fights on its own, and a
 field of slowed time, electron shells that cut, rounds that split and split
 again, rage that scales with missing health, a hookshot that drags a target to
-your feet, and a rifle that wants distance. Every character also has their own
+your feet, a rifle that wants distance, and summoned hounds that hunt on their own. Every character also has their own
 passive and their own Burst — ten Bursts are unique shapes nobody else has.
 
 ### 5★ — The Second Wave
@@ -159,6 +159,14 @@ passive and their own Burst — ten Bursts are unique shapes nobody else has.
 | ⚛ | **Atom Vale** · *The Half-Life* | **Orbital** — three electrons take up shells around him for 5s and cut everything they pass through, and he keeps fighting inside it | **Fission** — a round that splits in two when it lands, and each half splits again | **Critical Mass** — the shells collapse inward for 2.5s, then the room goes |
 | ⚔ | **Rei Amagiri** · Blade | **Red Mind** — for 8s she hits harder the closer she is to dying, up to +140% at the edge | **Skyfall** — up, across, and down on top of whatever she picked | **Bloodtide** — 7s of double damage where every body in reach heals her |
 | ✧ | **Odette Lune** · *The Marionettist* | **Three Sisters** — three puppets cut loose to hunt on their own for 8s | **Strung Up** — five enemies held in place, and held things take 40% more from everyone | **Curtain Call** — six puppets at once, and the room is strung up while they work |
+
+| ☗ | **Shion Kagemori** · *The Ten Shades* | **Pale Fang** — the white one. Fast, and it runs things down for 18s without waiting for you | **Black Fang** — the black one. Slower, heavier, and it does not leave: it stays out for the rest of the fight | **The Wheel** — the wheel-crowned one, out for the rest of the fight, tearing through the room. Including you, if you stand next to it |
+
+Shion's shikigami **pick their own targets** — they close, they bite, and they
+keep going while he fights. Every one on the field makes the others hit 20%
+harder, so the black one plus the white one plus the Wheel is a pack. The Wheel
+is **not on your side**; it is just out, and standing next to it costs you
+health.
 
 Atom's passive is **Half-Life**: everything he damages keeps taking 25% of that
 hit again over the next two seconds. Rei takes **25% less damage below half
@@ -250,19 +258,19 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Twenty-one
+**No two characters share a haircut, an outfit or a weapon.** Twenty-two
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
-circlet, a sidetail, messy, a topknot, floor-length, an undercut and a pixie —
-each with its own fringe and its own ornament. Ten outfit shapes (skirt, robe,
+circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie and a heavy layered
+shade — each with its own fringe and its own ornament. Ten outfit shapes (skirt, robe,
 dress, shorts, plate, jacket, apron, longcoat, wrap, coat) chosen **separately
 from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Twenty-one weapons, one each. A roster where three people share a haircut in
+Twenty-two weapons, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Twenty-one characters share one rig, and a pose is a **skeleton rather than a set of
+Twenty-two characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
@@ -276,6 +284,15 @@ legs. Feet carry a **pitch** as well as a height: the toe lifts for the heel
 strike, the whole sole plants, then the heel peels off and the toe is last to
 leave the ground. That roll is most of what sells a walk. The knee folds up
 hard while a leg is swinging through, so it bends rather than skating.
+
+Feet also carry a **knee** value per frame: how folded that leg is right now.
+The support leg is nearly straight, the front knee folds to absorb the landing,
+and the swing leg folds up under the body before it reaches out again — which
+is the difference between a run and two legs sliding past each other. One
+subtlety worth writing down: `bent()` pushes a joint along the *normal* of the
+hip-to-foot line, and with the hip above the foot that normal points backwards,
+so the fold has to be **negative** or the character runs on knees that bend the
+wrong way.
 
 The head carries the **same forward turn the torso does**, and leads into each
 step before settling as the weight lands. Without that shared turn the skull
@@ -330,8 +347,8 @@ torso and legs all lead with the front of the body.
 The **face is built from a contour**, not from circles. `HEAD_PROFILE` is a
 per-row table of where the front and back edges of the head sit, one pixel row
 at a time from the crown to the jaw: a forehead that rolls back, a brow ridge,
-the dip under it, a nose, the cut back at the philtrum that is what actually
-makes a nose read as a nose, two lips, and a chin that pulls in to the jaw. A
+the dip under it, a nose (a small one — the cut back at the philtrum below it is
+what actually makes a nose read as a nose, not its length), two lips, and a chin that pulls in to the jaw. A
 circle with a bump on it reads as a ball with a nose. Light comes from the
 front, so the back of the skull turns into shadow, the temple behind the eye
 darkens, and the jaw turns under.
