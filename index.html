@@ -941,8 +941,8 @@ const CHARS = [
     hp:96, atk:16, aspd:1.6, range:150, spd:72, crit:.16,
     skill: {name:'Split Volley', type:'barrage', cd:4.5, dmg:2.72, count:7,
             desc:'Seven arrows in a fan, each 160% ATK and each piercing.'},
-    skill2:{name:'Snare Arrows', type:'mines', cd:8,   dmg:5.78, count:5,
-            desc:'Five broadheads planted in the ground ahead of her. They arm in half a second and take the legs off whatever walks into them.'},
+    skill2:{name:'Pin', type:'pinshot', cd:8, dmg:5.78, count:5, dur:2.6,
+            desc:'Five shafts, and whatever they land in is pinned to the spot. Every arrow she puts into something already pinned lands as a critical.'},
     burst: {name:'Tempest Volley', type:'arrow_storm', dmg:1.87,
             desc:'Arrows fall out of the sky across the whole arena for three seconds.'},
     passive:'+25% attack range and +12% move speed. She fights at a distance and stays there.',
@@ -950,11 +950,11 @@ const CHARS = [
 
   { id:'gorou', name:'Gorou Tachibana', rarity:5, element:'Stone', role:'Guardian',
     hp:168, atk:14, aspd:1.1, range:34, spd:52, crit:.06,
-    skill: {name:'Seismic Slam', type:'quake', cd:5.5, dmg:1.04, count:7,
+    skill: {name:'Seismic Slam', type:'quake', cd:5.5, dmg:0.85, count:7,
             desc:'The ground splits away from him in a line, seven eruptions walking outward and throwing back everything they catch.'},
     skill2:{name:'Bulwark', type:'bulwark', cd:9,   dmg:0,
             desc:'A 55% shield for six seconds, and anything that touches him hurts itself doing it.'},
-    burst: {name:'Unbreakable',    type:'unbreakable', dmg:0.77,
+    burst: {name:'Unbreakable',    type:'unbreakable', dmg:0.63,
             desc:'Five seconds of nothing moving you \u2014 untouchable, and the ground around you keeps erupting.'},
     passive:'Takes 18% less damage, and attackers take 30% ATK back on contact.',
     quote:'"You can go around. Nobody ever does."' },
@@ -963,8 +963,8 @@ const CHARS = [
     hp:118, atk:16, aspd:1.4, range:88, spd:60, crit:.08,
     skill: {name:'Glacier Bloom', type:'freeze_ring', cd:6.5, dmg:3.8,
             desc:'A ring of ice that freezes everything it touches solid.'},
-    skill2:{name:'Still Air', type:'timeslow', cd:11,  dmg:0, dur:4,
-            desc:'The room goes cold and slow. Every enemy on screen moves at half speed for four seconds. She does not.'},
+    skill2:{name:'Ice Mirror', type:'icemirror', cd:11, dmg:2.4, dur:5,
+            desc:'A sheet of ice stood up in front of her. Enemy shots break on it and come back as frost, and anything that walks into it freezes solid.'},
     burst: {name:'Absolute Zero',  type:'deep_freeze', dmg:4.56,
             desc:'The whole room freezes for four seconds, and frozen enemies take double damage.'},
     passive:'Every hit slows for 1.5s. Frozen enemies take 40% extra damage from anyone.',
@@ -974,8 +974,8 @@ const CHARS = [
     hp:110, atk:15, aspd:2.3, range:30, spd:80, crit:.20,
     skill: {name:'Thunder Chain', type:'chain', cd:5,   dmg:3.81, count:6,
             desc:'A bolt that jumps between up to six bodies, hitting 28% harder with every jump it makes.'},
-    skill2:{name:'Thunder Rush', type:'dash_slash', cd:4,   dmg:4.51,
-            desc:'Rocket forward as a bolt of current, shocking everything in the lane.'},
+    skill2:{name:'Live Rail', type:'voltline', cd:5, dmg:1.15, dur:2.6,
+            desc:'He plants his feet and lays a rail of current down the lane. Anything standing on it is held there and cooked, and every body it catches takes a second off the cooldown.'},
     burst: {name:'Overcharge',     type:'overcharge', dmg:0,
             desc:'Six seconds at double attack speed, and every hit arcs to two more enemies.'},
     passive:'Attacks chain to one nearby enemy for 45%.',
@@ -996,11 +996,11 @@ const CHARS = [
 
   { id:'aldric', name:'Aldric Vane', title:'The Faithless', rarity:5, element:'Blade', role:'Projector',
     hp:108, atk:18, aspd:1.7, range:124, spd:68, crit:.18,
-    skill: {name:'Broken Phantasm', type:'barrage', cd:4.5, dmg:1.68, count:9,
-            desc:'Nine blades thrown at once, each piercing.'},
-    skill2:{name:'Unlimited Blade', type:'spirit', cd:9,   dmg:1.57, dur:9,
+    skill: {name:'Broken Phantasm', type:'swordfall', cd:4.5, dmg:1.51, count:9,
+            desc:'Nine blades go up, and nine blades come down \u2014 one on every head in the room, wherever it happens to be standing.'},
+    skill2:{name:'Unlimited Blade', type:'spirit', cd:9,   dmg:1.41, dur:9,
             desc:'A projected sword takes on a life of its own for nine seconds, hunting down targets and firing on them while he fights.'},
-    burst: {name:'Endless Armoury', type:'blade_storm', dmg:1.34,
+    burst: {name:'Endless Armoury', type:'blade_storm', dmg:1.21,
             desc:'The sky fills with swords for three seconds and they all come down.'},
     passive:'Attacks pierce one extra enemy — he throws swords, not arrows.',
     quote:'"I can copy anything. It is not a gift."' },
@@ -1009,8 +1009,8 @@ const CHARS = [
     hp:104, atk:19, aspd:2.0, range:34, spd:84, crit:.22,
     skill: {name:'Lance Dance', type:'whirl', cd:6,   dmg:3.62, dur:2.6,
             desc:'Two and a half seconds of spinning steel. Everything inside her reach is cut, over and over, and she can keep moving through it.'},
-    skill2:{name:'Crimson Thrust', type:'beam', cd:5,   dmg:3.38,
-            desc:'A thrust so fast it arrives as a line.'},
+    skill2:{name:'Impale', type:'impale', cd:5, dmg:3.38, dur:2.2,
+            desc:'The lance goes through and stays there. Whatever is on the end of it cannot move for two seconds and takes 40% more while it is pinned \u2014 and if it dies, the lance carries on into the next one.'},
     burst: {name:'Thousand Thrusts', type:'maelstrom', dmg:1.81,
             desc:'Five seconds of a spinning lance that drags everything into her reach and keeps cutting.'},
     passive:'Anything below 40% HP is always a critical hit. She finishes what she starts.',
@@ -1029,12 +1029,12 @@ const CHARS = [
 
   { id:'momo', name:'Momo Tachibana', rarity:4, element:'Earth', role:'Bruiser',
     hp:126, atk:12, aspd:1.4, range:40, spd:60, crit:.08,
-    skill: {name:'Glaive Cyclone', type:'vortex', cd:6.5, dmg:5.7,
+    skill: {name:'Glaive Cyclone', type:'vortex', cd:6.5, dmg:5.02,
             desc:'The glaive drags everything within reach into one point, then lets go all at once.'},
-    skill2:{name:'Earthshaker', type:'wide_slash', cd:7,   dmg:4.94,
-            desc:'One huge sweep that clears the ground around her.'},
-    burst: {name:'Landslide', type:'maelstrom', dmg:2.38,
-            desc:'The glaive becomes a whirlpool — everything nearby is hauled in and ground down.'},
+    skill2:{name:'Glaive Throw', type:'glaivethrow', cd:7, dmg:4.35, dur:2.2,
+            desc:'She lets go of it. It plants itself where she was aiming and keeps spinning there, grinding whatever wandered in, then comes back to her hand.'},
+    burst: {name:'Landslide', type:'avalanche', dmg:2.09,
+            desc:'The whole floor goes over. Everything on it slides to one wall and is held there for four seconds while the ground comes apart underneath.'},
     passive:'Every enemy she pulls in takes 20% more damage while it is inside her reach.',
     quote:'"Big stick. Simple plan."' },
 
@@ -1051,22 +1051,22 @@ const CHARS = [
 
   { id:'nari', name:'Nari Tsukuda', rarity:4, element:'Radiant', role:'Support',
     hp:106, atk:11, aspd:1.4, range:92, spd:62, crit:.08,
-    skill: {name:'Chorus Mote', type:'turret', cd:6,   dmg:2.37,
+    skill: {name:'Chorus Mote', type:'turret', cd:6,   dmg:2.84,
             desc:'A mote that hangs in the air and sings at whatever comes near, for eight seconds.'},
-    skill2:{name:'Refrain', type:'heal_shield', cd:8,   dmg:0, heal:.24, shield:.28,
-            desc:'Heals and shields, and tops up the rest of the squad.'},
-    burst: {name:'Encore',         type:'encore', dmg:1.82,
+    skill2:{name:'Refrain', type:'chorusward', cd:8, dmg:0, shield:.30, dur:6,
+            desc:'A held chord. The whole squad takes a 30% shield and six seconds of swinging 20% faster, and every mote she has out fires on the beat.'},
+    burst: {name:'Encore',         type:'encore', dmg:2.18,
             desc:'Four motes at once, and the whole squad heals for eight seconds.'},
     passive:'+10% ATK for the whole squad.',
     quote:'"Do the cool thing. I will make it sound good."' },
 
   { id:'toma', name:'Toma Aida', rarity:4, element:'Volt', role:'Mage',
     hp:96, atk:13, aspd:1.2, range:104, spd:58, crit:.08,
-    skill: {name:'Shock Chain', type:'chain', cd:5.5, dmg:2.88, count:5,
-            desc:'Current that leaps between five bodies, harder each time.'},
-    skill2:{name:'Ball Lightning', type:'boomerang', cd:6,   dmg:3.94,
+    skill: {name:'Static Cling', type:'staticfield', cd:5.5, dmg:2.53, dur:6,
+            desc:'A ball of static latches onto the nearest thing and zaps everything around it for six seconds. When its host dies it steps across to the next one.'},
+    skill2:{name:'Ball Lightning', type:'boomerang', cd:6,   dmg:3.47,
             desc:'A ball of current thrown out that turns around and comes back to him, hitting everything twice.'},
-    burst: {name:'Thunderhead', type:'thunderhead', dmg:2.27,
+    burst: {name:'Thunderhead', type:'thunderhead', dmg:2,
             desc:'Three and a half seconds of current leaping from body to body, harder with every jump.'},
     passive:'Anything already damaged this fight takes 25% more from him. He finishes crowds, not duels.',
     quote:'"Static. Everywhere. Sorry."' },
@@ -1087,20 +1087,20 @@ const CHARS = [
     hp:158, atk:16, aspd:1.5, range:38, spd:64, crit:.10,
     skill: {name:'Red Mind', type:'rage', cd:12, dmg:0, dur:8, scale:1.4,
             desc:'For eight seconds she hits harder the closer she is to dying \u2014 up to 140% extra at the edge of it.'},
-    skill2:{name:'Skyfall', type:'leap', cd:6, dmg:2.62,
+    skill2:{name:'Skyfall', type:'leap', cd:6, dmg:3.93,
             desc:'Straight up, across, and down on top of whatever she picked.'},
-    burst: {name:'Bloodtide', type:'bloodtide', dmg:0.93,
+    burst: {name:'Bloodtide', type:'bloodtide', dmg:1.4,
             desc:'Seven seconds where she stops caring about her own health: double damage, and every body in reach feeds her back.'},
     passive:'Below half health she takes 25% less damage. She is hardest to kill when she is nearly dead.',
     quote:'"Good. Now it is a fight."' },
 
   { id:'odette', name:'Odette Lune', title:'The Marionettist', rarity:5, element:'Arcane', role:'Summoner',
     hp:100, atk:17, aspd:1.1, range:100, spd:56, crit:.10,
-    skill: {name:'Three Sisters', type:'puppets', cd:10, dmg:0.51, dur:7, count:3,
+    skill: {name:'Three Sisters', type:'puppets', cd:10, dmg:0.69, dur:7, count:3,
             desc:'Three puppets cut loose to hunt on their own for eight seconds while she keeps her distance.'},
-    skill2:{name:'Strung Up', type:'strings', cd:7, dmg:0.81, count:5, dur:2.4,
+    skill2:{name:'Strung Up', type:'strings', cd:7, dmg:1.09, count:5, dur:2.4,
             desc:'Up to five enemies are held in place for two and a half seconds \u2014 and held things take 40% more from everyone.'},
-    burst: {name:'Curtain Call', type:'curtaincall', dmg:0.59,
+    burst: {name:'Curtain Call', type:'curtaincall', dmg:0.8,
             desc:'Six puppets at once, and everything nearby is strung up while they work.'},
     passive:'Her puppets fire 25% faster, and anything they kill leaves a mote that heals her 4%.',
     quote:'"Sit up straight. You have a part to play."' },
@@ -1153,11 +1153,11 @@ const CHARS = [
 
   { id:'yuuma', name:'Yuuma Sakaki', title:'The Vessel', rarity:5, element:'Flame', role:'Brawler',
     hp:146, atk:17, aspd:1.7, range:34, spd:74, crit:.12,
-    skill: {name:'Divergent Fist', type:'twinimpact', cd:4.5, dmg:0.71, second:1.5,
+    skill: {name:'Divergent Fist', type:'twinimpact', cd:4.5, dmg:0.6, second:1.5,
             desc:'The punch lands, and then it lands again a beat later on the same spot for 150% of the first.'},
-    skill2:{name:'Black Flash', type:'blackflash', cd:8, dmg:1.79, gain:.30,
+    skill2:{name:'Black Flash', type:'blackflash', cd:8, dmg:1.52, gain:.30,
             desc:'One strike that always lands as a critical, splashes into everything around it, and leaves him hitting 30% harder for six seconds.'},
-    burst: {name:'The Vessel Wakes', type:'possession', dmg:0.59,
+    burst: {name:'The Vessel Wakes', type:'possession', dmg:0.5,
             desc:'Nine seconds where he stops holding it back: double damage, 60% more attack speed, and everything close enough to touch feeds him.'},
     passive:'Every third hit on the same enemy detonates it for 90% ATK. He is built for staying on one thing.',
     quote:'"I know it is in there. It can wait its turn."' },
@@ -1165,11 +1165,11 @@ const CHARS = [
   /* ------------------------------ THE THIRD WAVE ------------------------ */
   { id:'suimu', name:'Suimu', title:'The Devourer', rarity:5, element:'Arcane', role:'Devourer',
     hp:132, atk:16, aspd:1.5, range:60, spd:68, crit:.11,
-    skill: {name:'Predation', type:'predator', cd:7, dmg:2.91, thresh:.30, count:3, cap:8,
+    skill: {name:'Predation', type:'predator', cd:7, dmg:3.72, thresh:.30, count:3, cap:8,
             desc:'Everything nearby under 30% health is simply eaten, and he keeps what he eats \u2014 +8% damage per meal, up to eight.'},
-    skill2:{name:'Split Off', type:'spirit', cd:9, dmg:2.32, dur:10,
-            desc:'A piece of himself walks away and starts hunting on its own for ten seconds.'},
-    burst: {name:'Body Split', type:'bodysplit', dmg:2.04,
+    skill2:{name:'Split Off', type:'mitosis', cd:9, dmg:2.97, dur:10,
+            desc:'A piece of him walks away and hunts on its own. It will take a hit meant for him, and when it finally goes it comes apart into acid.'},
+    burst: {name:'Body Split', type:'bodysplit', dmg:2.61,
             desc:'Three of him at once, each hunting for fourteen seconds, and the original heals a quarter of his health doing it.'},
     passive:'Anything he kills heals him 3% of his maximum.',
     quote:'"Do not take it personally. I take everything."' },
@@ -1178,8 +1178,8 @@ const CHARS = [
     hp:134, atk:18, aspd:1.5, range:40, spd:70, crit:.13,
     skill: {name:'Kagutsuchi', type:'flamewave', cd:5.5, dmg:1.6, count:9,
             desc:'A fan of fire off the blade, and the ground it crosses burns for four seconds afterwards.'},
-    skill2:{name:'Ember Step', type:'dash_slash', cd:4.5, dmg:2.44,
-            desc:'Through them, not around them.'},
+    skill2:{name:'Kindle', type:'firebrand', cd:8, dmg:2.44, dur:8,
+            desc:'She sets the blade alight. For eight seconds every swing throws an arc of fire, and anything already burning takes half again as much from her.'},
     burst: {name:'Inferno', type:'inferno', dmg:1.85,
             desc:'Six seconds of a fire that starts at his feet and does not stop growing until it has the whole room.'},
     passive:'Burning enemies take 25% more from him. Everything he does sets things on fire.',
@@ -1187,11 +1187,11 @@ const CHARS = [
 
   { id:'mirika', name:'Mirika Nagatsuki', title:'The Dragonoid', rarity:5, element:'Chaos', role:'Destroyer',
     hp:126, atk:21, aspd:1.2, range:36, spd:76, crit:.15,
-    skill: {name:'Dragon Fist', type:'dragonfist', cd:6, dmg:16.86,
+    skill: {name:'Dragon Fist', type:'dragonfist', cd:6, dmg:11.76,
             desc:'She winds up for half a second, and then whatever was standing there is not.'},
-    skill2:{name:'Nova Push', type:'redpush', cd:6, dmg:6.27,
-            desc:'Everything within reach is thrown off its feet, and every enemy shot in it is gone.'},
-    burst: {name:'Dragon Roar', type:'dragonroar', dmg:9.63,
+    skill2:{name:'Tail Sweep', type:'dragontail', cd:6, dmg:4.37,
+            desc:'The tail comes round the whole half-circle behind her, takes the legs off everything it touches and slams them into the floor.'},
+    burst: {name:'Dragon Roar', type:'dragonroar', dmg:6.71,
             desc:'One shout. The whole room is knocked flat, set alight, and slowed to a crawl.'},
     passive:'She cannot be knocked back or slowed by anything, and her critical hits are 80% harder.',
     quote:'"Was that all of it? Do it again."' },
@@ -1201,8 +1201,8 @@ const CHARS = [
     skill: {name:'The Pact', type:'demonpact', cd:11, dmg:3.48, cost:.15, gain:.85,
             dur:7, drain:.045,
             desc:'15% of his own health up front and 4.5% more every second it runs, for 85% more damage over seven seconds. One pact at a time \u2014 it will not layer, and signing again while it holds does nothing. It cannot kill him, but it will leave him on his last point.'},
-    skill2:{name:'Rot', type:'plague', cd:6, dmg:3.77,
-            desc:'Infects one enemy; kill it infected and the rot moves to whatever was standing near it.'},
+    skill2:{name:'Proxy', type:'soulbrand', cd:6, dmg:3.77, dur:7,
+            desc:'He signs one of them over. For seven seconds half of everything that would land on him lands on it instead, and it takes 25% more from everyone.'},
     burst: {name:'Primordial', type:'primordial', dmg:2.75,
             desc:'Two shades cut loose for eight seconds, everything on screen cursed, and him at 35% more damage while it lasts. His meter fills at a third of anyone else\u2019s, and nothing he does under the Pact fills it at all \u2014 you get this once a fight, if you earn it.'},
     passive:'Below 50% health he deals 30% more. He is not in danger; you are.',
@@ -1210,11 +1210,11 @@ const CHARS = [
 
   { id:'alwyn', name:'Alwyn Fael', title:'The Long Memory', rarity:5, element:'Frost', role:'Archmage',
     hp:104, atk:19, aspd:1.1, range:120, spd:56, crit:.12,
-    skill: {name:'Echo', type:'echoflash', cd:6, dmg:1.9, delay:.8, power:.8,
+    skill: {name:'Echo', type:'echoflash', cd:6, dmg:2.85, delay:.8, power:.8,
             desc:'Whatever she cast last happens again, on its own, for 80% \u2014 and it costs nothing.'},
     skill2:{name:'Still Hour', type:'timeslow', cd:12, dmg:0, dur:4.5,
             desc:'Four and a half seconds where the room moves at half speed and she does not.'},
-    burst: {name:'Stop', type:'timestop', dmg:4.94,
+    burst: {name:'Stop', type:'timestop', dmg:7.41,
             desc:'Four seconds where nothing on the field moves at all, her attack speed more than doubles, and she walks between them.'},
     passive:'Her skills come back 20% faster, and every skill she casts leaves a frost ring behind it.',
     quote:'"I have watched this happen before. It goes badly for you."' },
@@ -1223,8 +1223,8 @@ const CHARS = [
     hp:142, atk:16, aspd:1.6, range:32, spd:70, crit:.12,
     skill: {name:'Rev', type:'grinder', cd:6, dmg:2.58, dur:3.0,
             desc:'Three seconds of leaning on it. Everything in reach is ground down, and every body in there feeds him back.'},
-    skill2:{name:'Drop In', type:'leap', cd:6, dmg:3.23,
-            desc:'Up, across, and down on whatever he picked.'},
+    skill2:{name:'Hold Still', type:'sawgrab', cd:6, dmg:3.23, dur:1.5,
+            desc:'He gets hold of one and puts it against the blade. Neither of them moves for a second and a half, it takes all of it, and every tick of it feeds him.'},
     burst: {name:'Overdrive', type:'overdrive', dmg:2.15,
             desc:'Six seconds where it never stops turning and he moves 30% faster while it runs.'},
     passive:'He heals 12% of what the saw deals. The longer it is running, the harder he is to put down.',
@@ -1234,8 +1234,8 @@ const CHARS = [
     hp:98, atk:19, aspd:1.4, range:44, spd:80, crit:.18,
     skill: {name:'First Form', type:'iaidraw', cd:5, dmg:3.93, delay:.35, len:150,
             desc:'A line drawn across the room a third of a second before the sword moves. Everything on it is cut, and always critically.'},
-    skill2:{name:'Godspeed', type:'blink_strike', cd:6, dmg:3.49,
-            desc:'He is not there any more. He is behind them.'},
+    skill2:{name:'Afterimage', type:'afterimage', cd:6, dmg:3.49, dur:3,
+            desc:'He is gone, and what is left standing there is not him. The image cuts whatever touches it and goes off on its own after three seconds, and he moves 60% faster until it does.'},
     burst: {name:'Sixfold', type:'sixfold', dmg:2.62,
             desc:'Six draws in three seconds, each one somewhere else in the room, and untouchable through all of them.'},
     passive:'Every critical hit gives him 12% attack speed for four seconds, and it stacks.',
@@ -1243,11 +1243,11 @@ const CHARS = [
 
   { id:'kotone', name:'Kotone Shiba', rarity:4, element:'Stone', role:'Bulwark',
     hp:168, atk:14, aspd:1.2, range:36, spd:58, crit:.08,
-    skill: {name:'Shield Wall', type:'shieldwall', cd:8, dmg:2.67, count:5, dur:9,
+    skill: {name:'Shield Wall', type:'shieldwall', cd:8, dmg:3.34, count:5, dur:9,
             desc:'Five slabs planted in front of her. Enemies bounce off them and enemy shots break on them, until they do not.'},
-    skill2:{name:'Brace', type:'bulwark', cd:9, dmg:0,
-            desc:'A 55% shield for six seconds, and anything that touches her hurts itself doing it.'},
-    burst: {name:'Fortress', type:'fortress', dmg:2.67,
+    skill2:{name:'Brace', type:'counterstance', cd:9, dmg:2, dur:3,
+            desc:'Three seconds behind the shield. Damage that lands is cut by 70% and remembered, and when she drops it, all of it goes back out at once.'},
+    burst: {name:'Fortress', type:'fortress', dmg:3.34,
             desc:'A full ring of wall around her, a 60% shield, and 30% of the whole squad\u2019s health back.'},
     passive:'She takes 20% less damage, and while any of her walls stand the whole squad takes 10% less.',
     quote:'"Behind me. Now, please."' },
@@ -1256,8 +1256,8 @@ const CHARS = [
     hp:106, atk:18, aspd:1.3, range:110, spd:72, crit:.16,
     skill: {name:'Roll', type:'dice', cd:5, dmg:3.54,
             desc:'One of six things happens. Loaded damage, a heal and a shield, the room frozen, both cooldowns reset, a scatter of shells, or everything nearby taking 220%.'},
-    skill2:{name:'Called Shot', type:'snipe', cd:5.5, dmg:4.5, scale:1.3,
-            desc:'One round that pierces everything and hits harder the further away the target is.'},
+    skill2:{name:'Double Or Nothing', type:'doubleshot', cd:5.5, dmg:4.5, scale:1.3,
+            desc:'She fires twice and calls it. If either round crits she gets the whole thing back \u2014 the shot, the cooldown, all of it. If neither does, that was the bet.'},
     burst: {name:'Jackpot', type:'jackpot', dmg:2.9,
             desc:'Six rolls in three seconds and she pays for none of them.'},
     passive:'+20% critical chance, and a critical hit refunds 0.6s off both her cooldowns.',
@@ -1371,11 +1371,11 @@ const CHARS = [
 
   { id:'corbin', name:'Corbin Vale', rarity:4, element:'Earth', role:'Trapper',
     hp:126, atk:16, aspd:1.4, range:100, spd:70, crit:.14,
-    skill: {name:'Snare', type:'snare', cd:6, dmg:1.15, dur:2.4,
+    skill: {name:'Snare', type:'snare', cd:6, dmg:1.55, dur:2.4,
             desc:'A net over whatever is in front of him. Nothing caught in it moves for two and a half seconds, and everything hurts it more while it is held.'},
-    skill2:{name:'Skipping Stone', type:'stoneshot', cd:5, dmg:1.30, count:5,
+    skill2:{name:'Skipping Stone', type:'stoneshot', cd:5, dmg:1.76, count:5,
             desc:'One stone off the sling that bounces between four of them and hits harder on every bounce.'},
-    burst: {name:'Snarefield', type:'snarefield', dmg:1.1,
+    burst: {name:'Snarefield', type:'snarefield', dmg:1.49,
             desc:'The whole floor goes to netting. Everything is pinned for four seconds while the ground comes up underneath it.'},
     passive:'Anything rooted or slowed takes 20% more from the whole squad.',
     quote:'"Walk wherever you like. I already know where."' },
@@ -2996,6 +2996,8 @@ function hurtMob(m, dmg, crit, kb, src){
     else if(HID==='vira' && (m.rooted||0) > 0) dmg *= 1.30;
     else if(HID==='boro' && (B.hero.planted||0) > 1) dmg *= 1.35;
     if(HID==='ryoh' && (m.pulled||0) > 0) dmg *= 1.30;   // he had it by the throat
+    if(HID==='suzume' && (m.pinned||0) > 0){ crit = true; dmg *= B.hero.st.critD; }
+    if(HID==='homura' && B.hero.brand && (m.burnT||0) > 0) dmg *= 1.50;
     if((HID==='sable' || PK.allLeech) && src !== 'dot'){  // everything she does feeds her
       const lp = (HID==='sable' ? .09 : 0) + (PK.allLeech||0);
       if(lp) healHero(dmg*lp, true);
@@ -3016,6 +3018,8 @@ function hurtMob(m, dmg, crit, kb, src){
   }
   if(m.frozen>0) dmg *= 1.4;                    // frozen things shatter
   if((m.chilled||0) > 0) dmg *= 1.25;           // and what she has touched stays brittle
+  if((m.impaled||0) > 0) dmg *= 1.40;           // still on the end of the lance
+  if((m.branded||0) > 0) dmg *= 1.25;           // signed over, and everyone can tell
   if(m.curse > 0) dmg *= 1.15;                  // Nyx's curse helps the whole squad
   if(B.hero && B.hero.mem.id === 'nyx') m.curse = 3;
   if(B.hero && B.hero.mem.id === 'kassandra' && m.hp/m.maxhp < .40 && !crit){
@@ -3151,6 +3155,18 @@ function hurtHero(dmg, who){
   }
   if(h.inv>0||h.dashing>0||h.untouchable>0) return;
   let d=dmg*h.st.dmgTaken;
+  if(h.counter){                                    // braced: most of it is written down
+    h.counter.banked += d*h.counter.cut;
+    d *= (1 - h.counter.cut);
+    B.floats.push({x:h.x, y:h.y-24, vy:-22, life:.6, txt:'BANKED', color:'#e0a52c', size:6});
+  }
+  if(h.proxy2 && h.proxy2.m && !h.proxy2.m.dead){   // somebody else signed for it
+    const moved = d*h.proxy2.share;
+    d -= moved;
+    hurtMob(h.proxy2.m, moved*1.2, false, null, 'dot');
+    B.arcs.push({ax:h.x, ay:h.y-12, bx:h.proxy2.m.x, by:h.proxy2.m.y-h.proxy2.m.r,
+                 life:.2, max:.2, color:'#ff3355', seed:2});
+  }
   if(B.ward && dist(h, B.ward) < B.ward.r) d *= (1 - B.ward.cut);   // inside the light
   if(B.guard) d *= B.guard.mul;                                     // Bastion
   if(R.squad.some(m => m.id === 'teo' && !m.ko)) d *= .92;   // he covers himself too
@@ -3341,6 +3357,11 @@ function heroAttack_(){
   if(h.wound){                                        // the gauntlet is still unwinding
     shots += 1;
     if(--h.wound.n <= 0){ h.st.aspd /= h.wound.aspd; h.wound = null; }
+  }
+  if(h.brand){                                        // Kindle: the blade is on fire
+    spawnShot({x:h.x+Math.cos(ang)*7, y:h.y-8+Math.sin(ang)*7,
+      vx:Math.cos(ang)*280, vy:Math.sin(ang)*280, r:6, dmg:h.brand.dmg*.35,
+      crit:false, pierce:99, life:.5, color:'#ff8b4d', art:'fire'});
   }
   if(c.id==='bram' && h.hitCount%3===0){              // he keeps time, and it lands
     B.pending = B.pending || [];
@@ -4509,6 +4530,227 @@ function castSkill_(sk, dmgMul){
           vx:Math.cos(a2)*70, vy:Math.sin(a2)*44, life:.6, c:'#4ad6ff', s:2}); }
       break; }
 
+
+    /* ============ MOVES THAT WERE SOMEBODY ELSE'S WITH A NEW COAT ========
+       Sixteen slots used to point at a mechanic another character already
+       owned. These are what replaced them.                               */
+
+    /* ---- LIVE RAIL: he stops moving and the floor does the work ---- */
+    case 'voltline': {
+      // one rail, not seven pools - a stacked pack used to stand inside every
+      // segment at once and take all of them
+      const n = 6, dur = sk.dur || 2.6;
+      const seg = [];
+      for(let i = 1; i <= n; i++)
+        seg.push({x:h.x+Math.cos(ang)*i*21, y:h.y+Math.sin(ang)*i*14});
+      B.fields.push({x:seg[0].x, y:seg[0].y, r:11, maxr:11, life:dur, max:dur,
+        dmg:A*dmgMul*.34, tick:0, color:'#ffe14d', type:'burn', rail:seg, own:h});
+      let caught = 0;
+      B.mobs.forEach(m => { if(m.dead) return;
+        for(const sg of seg){
+          if(Math.hypot(m.x-sg.x, m.y-sg.y) < 15){
+            m.rooted = Math.max(m.rooted||0, dur); caught++; break; }
+        }});
+      if(caught) h.skill2T = Math.max(0, h.skill2T - caught);
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.2,
+        txt: caught ? 'LIVE — '+caught+' ON IT' : 'LIVE', color:'#ffe14d', size:9});
+      B.shake = 9;
+      break; }
+
+    /* ---- KINDLE: she does not step through them, she lights herself ---- */
+    case 'firebrand':
+      h.brand = {t:sk.dur || 8, dmg:A*dmgMul};
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.4, txt:'KINDLED', color:'#ff8b4d', size:10});
+      for(let i=0;i<24;i++){ const a2=i/24*Math.PI*2;
+        B.fx.push({x:h.x+Math.cos(a2)*16, y:h.y-10+Math.sin(a2)*12,
+          vx:Math.cos(a2)*40, vy:Math.sin(a2)*26-24, life:.8, c:'#ff8b4d', s:2}); }
+      break;
+
+    /* ---- IMPALE: it does not come off the end until it is dead ---- */
+    case 'impale':
+      if(tgt){
+        tgt.rooted = Math.max(tgt.rooted||0, sk.dur || 2.2);
+        tgt.impaled = sk.dur || 2.2;
+        hurtMob(tgt, A*dmgMul, true, null);
+        spawnHit(tgt.x, tgt.y-tgt.r, '#ff2e6a', 'cut');
+        if(tgt.dead || tgt.hp <= 0){            // it came off, so it goes into the next one
+          const nx2 = B.mobs.filter(m => !m.dead && m !== tgt)
+                            .sort((a2,b2)=>dist(a2,tgt)-dist(b2,tgt))[0];
+          if(nx2){ hurtMob(nx2, A*dmgMul, true, null);
+                   nx2.rooted = Math.max(nx2.rooted||0, 1.4);
+                   spawnHit(nx2.x, nx2.y-nx2.r, '#ff2e6a', 'cut'); }
+        }
+        B.hitstop = .08; B.shake = 10;
+      }
+      break;
+
+    /* ---- AFTERIMAGE: what is standing there is not him ---- */
+    case 'afterimage': {
+      spawnPet({row:h.mem.id, dmg:A*dmgMul*.5, life:sk.dur || 3, spd:0, rate:.5,
+        reach:16, scale:1, hp:1e9, color:'#ffe14d', decoy:true, pop:A*dmgMul, own:h});
+      h.st.spd *= 1.6; h.imageSpd = sk.dur || 3;
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.2, txt:'AFTERIMAGE',
+        color:'#ffe14d', size:9});
+      break; }
+
+    /* ---- REFRAIN: a chord, not a bandage ---- */
+    case 'chorusward': {
+      const dur = sk.dur || 6;
+      R.squad.forEach(m => { if(!m.ko) m.hp = Math.min(m.maxhp, m.hp + m.maxhp*.06); });
+      h.shield += h.st.maxhp*(sk.shield || .30);
+      B.tempo = {t:dur, aspd:1.20, spd:1.0};
+      players().forEach(pl => { if(pl && !pl.mem.ko && !pl.tempoOn){
+        pl.st.aspd *= 1.20; pl.tempoOn = true; }});
+      B.turrets.forEach(t => t.cd = 0);          // every mote fires on the beat
+      B.floats.push({x:h.x, y:h.y-36, vy:-16, life:1.6, txt:'REFRAIN',
+        color:'#ffe08a', size:10});
+      break; }
+
+    /* ---- BROKEN PHANTASM: they go up, and they come down on heads ---- */
+    case 'swordfall': {
+      const live = B.mobs.filter(m => !m.dead && !m.ghost);
+      const n = sk.count || 9;
+      for(let i = 0; i < n; i++){
+        const m = live[i % Math.max(1, live.length)];
+        B.strikes.push({x:m ? m.x + rnd(9,-9) : clamp(h.x+rnd(90,-90), AR.x0+10, AR.x1-10),
+                        y:m ? m.y + rnd(7,-7) : clamp(h.y+rnd(50,-50), AR.y0+12, AR.y1-4),
+                        t:.3 + i*.06, r:17, dmg:A*dmgMul, color:'#e8ecf5', own:h});
+      }
+      break; }
+
+    /* ---- PIN: it stays where it was shot ---- */
+    case 'pinshot': {
+      const n = sk.count || 5;
+      const live = B.mobs.filter(m => !m.dead).sort((a2,b2)=>dist(a2,h)-dist(b2,h));
+      for(let i = 0; i < n; i++){
+        const m = live[i];
+        if(!m) break;
+        m.rooted = Math.max(m.rooted||0, sk.dur || 2.6);
+        m.pinned = sk.dur || 2.6;
+        hurtMob(m, A*dmgMul/n, false, null);
+        B.arcs.push({ax:h.x, ay:h.y-8, bx:m.x, by:m.y-m.r, life:.22, max:.22,
+                     color:'#7cffa8', seed:0});
+        B.floats.push({x:m.x, y:m.y-m.r-12, vy:-14, life:.9, txt:'PINNED',
+          color:'#7cffa8', size:7});
+      }
+      break; }
+
+    /* ---- BRACE: she banks what lands and hands it back ---- */
+    case 'counterstance':
+      h.counter = {t:sk.dur || 3, banked:0, cut:.70, dmg:A*dmgMul*3.6};
+      h.shield += h.st.maxhp*.45;
+      B.floats.push({x:h.x, y:h.y-32, vy:-18, life:1.2, txt:'BRACED',
+        color:'#e0a52c', size:10});
+      break;
+
+    /* ---- ICE MIRROR: a wall that gives the shots back ---- */
+    case 'icemirror': {
+      const px2 = h.x + Math.cos(ang)*26, py2 = h.y + Math.sin(ang)*17;
+      for(let i = -1; i <= 1; i++){
+        B.walls.push({x:clamp(px2 - Math.sin(ang)*i*14, AR.x0+6, AR.x1-6),
+                      y:clamp(py2 + Math.cos(ang)*i*9, AR.y0+8, AR.y1-2),
+                      hp:A*dmgMul*3, max:A*dmgMul*3, life:sk.dur || 5,
+                      color:'#9fe8ff', mirror:A*dmgMul, own:h});
+      }
+      B.mobs.forEach(m => { if(!m.dead && Math.hypot(m.x-px2, m.y-py2) < 30){
+        m.frozen = Math.max(m.frozen, 1.8); hurtMob(m, A*dmgMul, false, null); }});
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.2, txt:'MIRROR',
+        color:'#9fe8ff', size:9});
+      break; }
+
+    /* ---- STATIC CLING: it rides whatever is nearest ---- */
+    case 'staticfield':
+      h.stat = {t:sk.dur || 6, host:tgt || null, dmg:A*dmgMul, tick:0};
+      if(tgt) hurtMob(tgt, A*dmgMul*.5, false, null);
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.1, txt:'CLING',
+        color:'#ffe14d', size:9});
+      break;
+
+    /* ---- GLAIVE THROW: she lets go of it, and it stays there ---- */
+    case 'glaivethrow': {
+      const t2 = tgt || {x:h.x+Math.cos(ang)*56, y:h.y+Math.sin(ang)*36};
+      const px2 = clamp(t2.x, AR.x0+10, AR.x1-10), py2 = clamp(t2.y, AR.y0+12, AR.y1-4);
+      B.fields.push({x:px2, y:py2, r:34, maxr:34, life:sk.dur || 2.2, max:sk.dur || 2.2,
+        dmg:A*dmgMul*.9, tick:0, color:'#c78a45', type:'burn', grind:true, own:h});
+      spawnShot({x:h.x, y:h.y-8, vx:(px2-h.x)*2.4, vy:(py2-h.y)*2.4, r:7,
+        dmg:A*dmgMul*.5, pierce:99, life:2.4, color:'#c78a45', art:'slash',
+        boomerang:.42, own:h});
+      B.floats.push({x:px2, y:py2-20, vy:-14, life:1.1, txt:'THROWN',
+        color:'#c78a45', size:9});
+      break; }
+
+    /* ---- SPLIT OFF: it takes a hit for him, then it goes off ---- */
+    case 'mitosis':
+      spawnPet({row:'slime', dmg:A*dmgMul*.5, life:sk.dur || 10, spd:96, rate:.6,
+        reach:14, scale:1.1, hp:h.st.maxhp*.45, color:'#5fd8e6',
+        pop:A*dmgMul, acid:true, own:h});
+      B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.2, txt:'SPLIT',
+        color:'#5fd8e6', size:9});
+      break;
+
+    /* ---- PROXY: somebody else can hold it ---- */
+    case 'soulbrand':
+      if(tgt){
+        h.proxy2 = {m:tgt, t:sk.dur || 7, share:.5};
+        tgt.branded = sk.dur || 7;
+        hurtMob(tgt, A*dmgMul, false, null);
+        B.arcs.push({ax:h.x, ay:h.y-12, bx:tgt.x, by:tgt.y-tgt.r, life:.5, max:.5,
+                     color:'#ff3355', seed:5});
+        B.floats.push({x:tgt.x, y:tgt.y-tgt.r-14, vy:-16, life:1.6, txt:'SIGNED OVER',
+          color:'#ff3355', size:9});
+      }
+      break;
+
+    /* ---- HOLD STILL: neither of them is going anywhere ---- */
+    case 'sawgrab':
+      if(tgt){
+        h.x = clamp(tgt.x - Math.cos(ang)*14, AR.x0+6, AR.x1-6);
+        h.y = clamp(tgt.y + 4, AR.y0+8, AR.y1-2);
+        h.grab = {m:tgt, t:sk.dur || 1.5, dmg:A*dmgMul, tick:0};
+        tgt.rooted = Math.max(tgt.rooted||0, sk.dur || 1.5);
+        tgt.frozen = Math.max(tgt.frozen, sk.dur || 1.5);
+        h.inv = .4;
+        B.floats.push({x:h.x, y:h.y-36, vy:-16, life:1.2, txt:'HOLD STILL',
+          color:'#c9302f', size:10});
+        B.shake = 8;
+      }
+      break;
+
+    /* ---- DOUBLE OR NOTHING: two rounds, and she calls it ---- */
+    case 'doubleshot': {
+      let crit = false;
+      for(let k = 0; k < 2; k++){
+        const c2 = Math.random() < h.st.crit + .12;
+        crit = crit || c2;
+        spawnShot({x:h.x+Math.cos(ang)*7, y:h.y-8+Math.sin(ang)*7 + (k?4:-4),
+          vx:Math.cos(ang)*430, vy:Math.sin(ang)*430, r:4, dmg:A*dmgMul*(c2?1.6:.8),
+          crit:c2, pierce:99, life:1.4, color:c2 ? '#7cffa8' : '#e0a52c',
+          art:'lance', shape:'beam'});
+      }
+      if(crit){
+        h.skill2T = 0;
+        B.floats.push({x:h.x, y:h.y-38, vy:-16, life:1.4, txt:'DOUBLE — PAID',
+          color:'#7cffa8', size:10});
+      } else {
+        B.floats.push({x:h.x, y:h.y-38, vy:-16, life:1.2, txt:'NOTHING',
+          color:'#a79ccb', size:9});
+      }
+      break; }
+
+    /* ---- TAIL SWEEP: the whole half circle behind her ---- */
+    case 'dragontail': {
+      const back = ang + Math.PI;
+      for(let i = 0; i < 7; i++){
+        const a2 = back - 0.9 + i*0.3;
+        B.strikes.push({x:h.x + Math.cos(a2)*40, y:h.y + Math.sin(a2)*26,
+          t:.05 + i*.035, r:22, dmg:A*dmgMul/2.2, knock:1, color:'#ff2e6a', own:h});
+      }
+      B.mobs.forEach(m => { if(!m.dead && dist(m,h) < 66){
+        m.frozen = Math.max(m.frozen, .7); }});                 // knocked flat
+      h.anim.atk = h.anim.atkMax = .34;
+      B.shake = 14; B.hitstop = .07;
+      break; }
+
     /* ---- SLUG: half a second of winding up, and then straight through ---- */
     case 'cannon': {
       B.floats.push({x:h.x, y:h.y-34, vy:-14, life:.6, txt:'BRACE', color:'#ffe14d', size:9});
@@ -4608,6 +4850,18 @@ function updatePets(dt){
       if(m.dead || dist(m, q) > m.r + 10*q.scale) continue;
       if(q.hurtT <= 0) hurtPet(q, (m.dmg || 8) * .55);
     }
+    if(q.decoy){                                     // it does not chase, it just stands
+      B.mobs.forEach(m2 => { if(!m2.dead && dist(m2, q) < 16 && q.cd <= 0){
+        q.cd = .4; asOwner(q.own, () => hurtMob(m2, q.dmg, true, null));
+        spawnHit(q.x, q.y-8, q.color, 'cut'); }});
+      if(q.life <= 0 && q.pop && !q.popped){
+        q.popped = true;
+        B.fields.push({x:q.x, y:q.y-4, r:6, maxr:58, life:.4, max:.4, dmg:q.pop,
+          set:new Set(), color:q.color, type:'nova', own:q.own});
+        spawnHit(q.x, q.y-6, q.color, 'nova'); B.shake = Math.max(B.shake, 8);
+      }
+      continue;
+    }
     const m = nearestMob(q.x, q.y, 420);
     let tx, ty;
     if(m){ tx = m.x; ty = m.y; } else { tx = h.x - h.face*22; ty = h.y + 6; }
@@ -4630,6 +4884,17 @@ function updatePets(dt){
     }
     q.x = clamp(q.x, AR.x0+4, AR.x1-4);
     q.y = clamp(q.y, AR.y0+8, AR.y1-2);
+  }
+  // some of them do not simply stop - they come apart where they were standing
+  for(const q of B.pets){
+    if(q.life > 0 || !q.pop || q.popped) continue;
+    q.popped = true;
+    B.fields.push({x:q.x, y:q.y-4, r:6, maxr:q.acid ? 46 : 58, life:.4, max:.4,
+      dmg:q.pop, set:new Set(), color:q.color, type:'nova', own:q.own});
+    if(q.acid) B.fields.push({x:q.x, y:q.y, r:34, maxr:34, life:4, max:4,
+      dmg:q.pop*.4, tick:0, color:q.color, type:'burn', own:q.own});
+    spawnHit(q.x, q.y-6, q.color, 'nova');
+    B.shake = Math.max(B.shake, 8);
   }
   B.pets = B.pets.filter(q => q.life > 0);
 }
@@ -4967,6 +5232,14 @@ function useBurst_(){
     case 'siege':
       B.burst = {type:'siege', t:4, tick:0, dmg:A*bu.dmg, sweep:-1};
       break;
+    /* ---- LANDSLIDE: the floor goes over and they all go with it ---- */
+    case 'avalanche': {
+      const wall = h.x < (AR.x0+AR.x1)/2 ? AR.x1-14 : AR.x0+14;
+      B.burst = {type:'avalanche', t:4, tick:0, dmg:A*bu.dmg, wall};
+      B.floats.push({x:h.x, y:h.y-46, vy:-12, life:2.6, txt:'LANDSLIDE',
+        color:'#c78a45', size:12});
+      B.shake = 24; Sfx.five();
+      break; }
     /* ---- IRON RAIN: the chain never stops, and it takes them with it ---- */
     case 'ironrain':
       B.burst = {type:'ironrain', t:4, tick:0, dmg:A*bu.dmg, a:0};
@@ -5427,6 +5700,19 @@ function updateBurst_(dt){
       h.anim.cast = .2;
       B.shake = Math.max(B.shake, 4);
       if(Math.random()<.5) Sfx.swing();
+    }
+  } else if(b.type === 'avalanche'){
+    if(b.tick <= 0){
+      b.tick = .18;
+      B.mobs.forEach(m => { if(m.dead) return;
+        m.x += (b.wall - m.x)*0.28;                 // dragged to the wall
+        m.rooted = Math.max(m.rooted||0, .5);
+        hurtMob(m, b.dmg*.34, false, null);
+      });
+      for(let i=0;i<10;i++) B.fx.push({x:rnd(AR.x1, AR.x0), y:rnd(AR.y1, AR.y0),
+        vx:(b.wall > (AR.x0+AR.x1)/2 ? 1 : -1)*rnd(200,80), vy:rnd(30,-30),
+        life:.5, c:'#c78a45', s:2});
+      B.shake = Math.max(B.shake, 9);
     }
   } else if(b.type === 'ironrain'){
     b.a += dt*5.2;
@@ -5935,6 +6221,61 @@ function stepHero(h, dt, pad){
           vy:Math.sin(a2)*40,life:.25,c:ELC[CHAR[h.mem.id].element],s:1}); }
     }
   }
+  if(h.brand){                                      // the blade is still alight
+    h.brand.t -= dt;
+    if(h.brand.t <= 0) h.brand = null;
+  }
+  if(h.imageSpd > 0){                               // he is faster while it stands
+    h.imageSpd -= dt;
+    if(h.imageSpd <= 0) h.st.spd /= 1.6;
+  }
+  if(h.counter){                                    // braced: it is being written down
+    h.counter.t -= dt;
+    if(h.counter.t <= 0){
+      const pay = h.counter.banked + h.counter.dmg;
+      B.fields.push({x:h.x, y:h.y-4, r:6, maxr:76, life:.4, max:.4, dmg:pay,
+        set:new Set(), color:'#e0a52c', type:'nova', own:h});
+      spawnHit(h.x, h.y-6, '#e0a52c', 'shock');
+      B.floats.push({x:h.x, y:h.y-38, vy:-16, life:1.4,
+        txt:'GIVEN BACK '+Math.round(pay), color:'#e0a52c', size:10});
+      B.shake = 14; B.hitstop = .07;
+      h.counter = null;
+    }
+  }
+  if(h.stat){                                       // the ball of static, riding a host
+    const S2 = h.stat; S2.t -= dt; S2.tick -= dt;
+    if(!S2.host || S2.host.dead) S2.host = nearestMob(h.x, h.y, 260);
+    if(S2.host && S2.tick <= 0){
+      S2.tick = .28;
+      B.mobs.forEach(m => { if(!m.dead && dist(m, S2.host) < 46)
+        hurtMob(m, S2.dmg*.4, Math.random()<.2, null); });
+      B.arcs.push({ax:S2.host.x, ay:S2.host.y-S2.host.r, bx:S2.host.x+rnd(24,-24),
+                   by:S2.host.y-S2.host.r-rnd(18), life:.18, max:.18,
+                   color:'#ffe14d', seed:rnd(9)});
+    }
+    if(S2.t <= 0) h.stat = null;
+  }
+  if(h.grab){                                       // held against the blade
+    const G2 = h.grab; G2.t -= dt; G2.tick -= dt;
+    if(!G2.m || G2.m.dead) G2.t = 0;
+    else {
+      G2.m.x = h.x + h.face*13; G2.m.y = h.y;
+      G2.m.rooted = Math.max(G2.m.rooted||0, .3);
+      G2.m.frozen = Math.max(G2.m.frozen, .3);
+      if(G2.tick <= 0){
+        G2.tick = .14;
+        hurtMob(G2.m, G2.dmg*.22, Math.random()<.3, null);
+        healHero(G2.dmg*.05, true);
+        for(let i=0;i<3;i++) B.fx.push({x:G2.m.x, y:G2.m.y-6,
+          vx:rnd(70,-70), vy:rnd(20,-60), life:.3, c:'#c9302f', s:1});
+      }
+    }
+    if(G2.t <= 0) h.grab = null;
+  }
+  if(h.proxy2){                                     // somebody else is holding it
+    h.proxy2.t -= dt;
+    if(!h.proxy2.m || h.proxy2.m.dead || h.proxy2.t <= 0) h.proxy2 = null;
+  }
   if(h.aegis){                                      // the shield, turning
     const G = h.aegis; G.t -= dt; G.a += dt*3.2;
     for(const sh of B.shots){
@@ -6195,6 +6536,9 @@ function update(dt){
     if(m.rooted>0) m.rooted-=dt;                 // pinned, but still swinging
     if(m.chilled>0) m.chilled-=dt;              // brittle for a while after the ice
     if(m.pulled>0) m.pulled-=dt;                // and still off balance from the chain
+    if(m.impaled>0) m.impaled-=dt;
+    if(m.pinned>0) m.pinned-=dt;
+    if(m.branded>0) m.branded-=dt;
     if(m.blind>0) m.blind-=dt;
     if(m.frozen>0){ m.frozen-=dt; continue; }
     const sp=m.spd*(1-m.slow)*((m.rooted||0)>0 ? 0 : 1);
@@ -6361,8 +6705,14 @@ function update(dt){
       let ate = false;
       for(const w of B.walls){                // a wall stops it dead
         if(Math.hypot(w.x-s.x, w.y-s.y) < 13 + s.r){
-          w.hp -= s.dmg; s.life = 0; ate = true;
-          spawnHit(s.x, s.y, w.color, 'burst');
+          w.hp -= s.dmg;
+          if(w.mirror){                       // an ice mirror gives it back as frost
+            spawnShot({x:w.x, y:w.y-4, vx:-s.vx*1.2, vy:-s.vy*1.2, r:s.r+1,
+              dmg:s.dmg*1.3 + w.mirror*.3, team:'hero', pierce:1, life:1.4,
+              color:'#9fe8ff', art:'shard', chill:1.6, own:w.own});
+            spawnHit(w.x, w.y, '#9fe8ff', 'frost');
+          } else spawnHit(s.x, s.y, w.color, 'burst');
+          s.life = 0; ate = true;
           break;
         }
       }
@@ -6405,8 +6755,17 @@ function update(dt){
       }
     } else if(f.type==='burn'){
       f.tick-=dt;
-      if(f.tick<=0){ f.tick=.4;
-        B.mobs.forEach(m=>{ if(!m.dead&&dist(m,f)<f.r+m.r) hurtMob(m,f.dmg*.4,false,null,'dot'); });
+      if(f.tick<=0){ f.tick = f.grind ? .16 : (f.rail ? .22 : .4);
+        const hit = f.rail ? new Set() : null;
+        B.mobs.forEach(m=>{
+          if(m.dead) return;
+          let on = dist(m,f) < f.r+m.r;
+          if(f.rail && !on) on = f.rail.some(sg => Math.hypot(m.x-sg.x, m.y-sg.y) < f.r+m.r);
+          if(!on || (hit && hit.has(m))) return;
+          if(hit) hit.add(m);                    // one tick per body, however long the rail
+          hurtMob(m, f.dmg*(f.grind ? .5 : .4), false, null, f.grind ? null : 'dot');
+          if(f.rail) m.rooted = Math.max(m.rooted||0, .3);
+        });
         if(f.mend) players().forEach(pl => {        // a flask is not picky about which side
           if(pl && !pl.mem.ko && dist(pl,f)<f.r) withHero(pl, () => healHero(f.mend)); });
       }

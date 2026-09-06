@@ -265,9 +265,24 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Fifty-six characters, and **no two share a pair of skills.** There are
-ninety-four distinct skill mechanics and fifty-five distinct Burst shapes
-behind them and they are mechanics, not reskins: a
+Fifty-six characters, and **no two share a single move.** There are
+**a hundred and ten distinct skill mechanics and fifty-six distinct Bursts**
+behind fifty-six characters — a hundred and sixty-eight slots in total, with
+only two duplicates in the whole roster, and both of those are deliberate:
+Shion's two hounds and Jinya's two named shadows are the same mechanic tuned
+differently on purpose, because a matched pair *is* the character.
+
+That was not true until recently. Sixteen slots used to point at a mechanic
+another character already owned — Kaito's second skill was Aoi's dash, Kassandra's
+thrust was Kagura's beam, Jun's leap was Rei's, Vex's rifle was Bao's. They were
+the same move in a different colour, which is the one thing a roster this size
+cannot afford. Every one of them was rebuilt into something only that character
+does: a rail of current you plant your feet for, a lance that pins and carries on
+into the next body when the first one dies, a saw that holds one enemy still and
+feeds on it, two rounds and a bet that pays the whole cooldown back if either
+crits.
+
+They are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
 spin you can walk around inside, planted mines, planted standards, a tether that
@@ -282,7 +297,7 @@ a pack in place, a stone that skips between four heads getting heavier each
 time, a sheathed stance that answers the whole room in ice, eight blade shards
 that break enemy bullets out of the air, and a cannon whose recoil moves the
 person firing it. Every character also has their own
-passive and their own Burst — fifty-five of the fifty-six Bursts are shapes
+passive and their own Burst — every one of the fifty-six Bursts is a shape
 nobody else has.
 
 ### 5★ — The Third Wave
