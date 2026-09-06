@@ -223,6 +223,20 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
 @keyframes linkpulse{50%{opacity:.45}}
 #link-cue.cool{color:var(--dim);animation:none}
 .sw.linkable{border-color:var(--gold);box-shadow:0 0 12px rgba(255,204,77,.8)}
+/* ---------- settings ---------- */
+.keycols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.keycols{grid-template-columns:1fr}}
+.keylist{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.keyrow{display:flex;align-items:center;gap:10px;padding:7px 10px;
+  border:2px solid var(--line);background:var(--panel);width:100%;text-align:left;
+  transition:border-color .12s,background .12s}
+.keyrow:hover{border-color:var(--purple);background:var(--panel2)}
+.keyrow .lbl{flex:1;font-size:12px;color:var(--dim)}
+.keyrow .cap{min-width:62px;text-align:center;padding:4px 8px;border:2px solid var(--line);
+  background:#0d0b18;font-family:"Press Start 2P",ui-monospace,monospace;font-size:9px;
+  color:var(--ink)}
+.keyrow.listening{border-color:var(--gold);background:var(--panel2)}
+.keyrow.listening .cap{color:var(--gold);border-color:var(--gold);animation:linkpulse .6s ease-in-out infinite}
 #raid-bar{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:min(520px,64%);
   pointer-events:none;text-align:center}
 #raid-bar .rbar{height:16px;background:#0d0b18;border:2px solid #000;box-shadow:0 0 0 2px #6b1730}
@@ -319,6 +333,8 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
             <p id="coop-blurb">Two players on one keyboard, on the same side. Take the Spire or either raid together.</p></button>
           <button class="card" id="go-versus"><h3 style="color:var(--pink)">▸ VERSUS · LOCAL</h3>
             <p>Two players on one keyboard, against each other. First one down loses.</p></button>
+          <button class="card" id="go-keys"><h3 style="color:var(--cyan)">▸ SETTINGS</h3>
+            <p>Rebind every key, for both players. Click a key, press the one you want.</p></button>
           <button class="card" id="go-dex"><h3>▸ COLLECTION</h3><p>All four characters, their full kit, and where to spend your Echoes.</p></button>
         </div>
         <div class="rule">
@@ -372,6 +388,43 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
     </div>
   </div>
 
+  <!-- ============ SETTINGS ============ -->
+  <div class="screen hidden" id="scr-keys">
+    <div class="topbar">
+      <button class="btn sm ghost" data-back>◀ Back</button>
+      <h2 class="px">SETTINGS</h2><div class="spacer"></div>
+      <div class="tiny muted">Controls</div>
+    </div>
+    <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="rule">
+        Click any key below and press the one you want in its place. <span class="hl">ESC</span>
+        cancels. If the key is already doing something else, the two simply
+        <span class="hl">trade places</span> — nothing is ever left unbound.<br>
+        Player one keeps player two's movement keys as a second set while nobody
+        else is playing, so a solo run works on both halves of the keyboard
+        whatever you bind here.
+      </div>
+      <div class="keycols">
+        <div>
+          <div class="rowc"><div class="px" style="font-size:10px;color:var(--cyan)">PLAYER 1</div></div>
+          <div id="keys-p1" class="keylist"></div>
+        </div>
+        <div>
+          <div class="rowc"><div class="px" style="font-size:10px;color:var(--green)">PLAYER 2</div></div>
+          <div id="keys-p2" class="keylist"></div>
+          <div class="tiny muted" style="margin-top:8px">
+            Player two also drops into any fight mid-room with
+            <b style="color:var(--green)">J</b>.
+          </div>
+        </div>
+      </div>
+      <div class="rowc">
+        <button class="btn sm ghost" id="keys-reset">Reset to defaults</button>
+        <span class="tiny muted" id="keys-note">Bindings save the moment you set them.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ CO-OP ============ -->
   <div class="screen hidden" id="scr-coop">
     <div class="topbar">
@@ -381,12 +434,9 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
     </div>
     <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
       <div class="rule">
-        <b>P1</b> — WASD to move, <span class="hl">SPACE</span> skill,
-        <span class="hl">E</span> second skill, <span class="hl">R</span> Burst,
-        <span class="hl">LEFT SHIFT</span> dash, <span class="hl">1 2 3</span> swap.<br>
-        <b>P2</b> — ARROW KEYS to move, <span class="hl">,</span> skill,
-        <span class="hl">.</span> second skill, <span class="hl">/</span> Burst,
-        <span class="hl">RIGHT SHIFT</span> dash, <span class="hl">8 9 0</span> swap.<br>
+        <b>P1</b> — <span class="hl" data-keys="p1"></span><br>
+        <b>P2</b> — <span class="hl" data-keys="p2"></span><br>
+        Change any of it in <span class="hl">SETTINGS</span>.<br>
         Each player gets their own corner of the screen: your four keys along
         the bottom with your skill names and cooldowns on them, and your own
         three characters sitting above — <span class="hl">click a portrait</span>
@@ -431,12 +481,9 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
     </div>
     <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
       <div class="rule">
-        <b>P1</b> — WASD to move, <span class="hl">SPACE</span> skill,
-        <span class="hl">E</span> second skill, <span class="hl">R</span> Burst,
-        <span class="hl">LEFT SHIFT</span> dash.<br>
-        <b>P2</b> — ARROW KEYS to move, <span class="hl">,</span> skill,
-        <span class="hl">.</span> second skill, <span class="hl">/</span> Burst,
-        <span class="hl">RIGHT SHIFT</span> dash.<br>
+        <b>P1</b> — <span class="hl" data-keys="p1"></span><br>
+        <b>P2</b> — <span class="hl" data-keys="p2"></span><br>
+        Rebind any of it in <span class="hl">SETTINGS</span>.<br>
         Want to fight <em>with</em> them instead? That is <span class="hl">CO-OP</span>
         on the Home screen — the Spire and both raids, two players, a squad each.
         Player two can also drop in at any moment mid-room with <span class="hl">J</span>.
@@ -1520,6 +1567,7 @@ const freshSave = () => ({
   perks: {},              // charId -> [perkId|null, perkId|null]
   coop: false,            // is a second player coming with you?
   squad2: [],             // and who they are bringing
+  keys: {},               // {p1:{action:code}, p2:{...}} - only what was changed
   recent: []
 });
 let S = freshSave();
@@ -2487,7 +2535,30 @@ const AR={x0:10,y0:30,x1:374,y1:208};
 let B=null;
 const keys={}, tapped={};
 addEventListener('keydown',e=>{
-  if(['Space','ShiftLeft','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if(keyListen){                       // Settings is waiting for a key
+    e.preventDefault();
+    const {side, action} = keyListen;
+    keyListen = null;
+    if(e.code !== 'Escape'){
+      const swapped = setBinding(side, action, e.code);
+      const note = $('#keys-note');
+      if(note) note.textContent = swapped
+        ? keyLabel(e.code) + ' was ' + (swapped.side === 'p1' ? 'P1' : 'P2') + '\u2019s '
+          + KEY_ACTIONS.find(a => a.id === swapped.action).name.toLowerCase()
+          + ' — the two traded places.'
+        : 'Bound to ' + keyLabel(e.code) + '.';
+      Sfx.ui();
+    }
+    renderKeys();
+    return;
+  }
+  // stop the browser scrolling or tabbing away on whatever the players bound
+  if(['Space','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)
+     || (PAD1_SOLO && [...PAD1_SOLO.left, ...PAD1_SOLO.right, ...PAD1_SOLO.up,
+          ...PAD1_SOLO.down, ...PAD1_SOLO.dash, PAD1.skill[0], PAD1.skill2[0],
+          PAD1.burst[0], ...PAD2.left, ...PAD2.right, ...PAD2.up, ...PAD2.down,
+          PAD2.skill[0], PAD2.skill2[0], PAD2.burst[0], ...PAD2.dash].includes(e.code)))
+    e.preventDefault();
   if(!keys[e.code]) tapped[e.code]=true;   // a tap shorter than one frame still counts
   keys[e.code]=true;
 });
@@ -2564,9 +2635,11 @@ function startBattle(kind){
       const bo = B.raid.boss;
       bo.maxhp *= COOP_HP; bo.hp = bo.maxhp;
     }
-    toast('CO-OP — P1: WASD · SPACE · E · R   |   P2: ARROWS · , · . · /');
+    const kb2 = sd => { const k = keymap(sd);
+      return [k.up,k.left,k.down,k.right,k.skill,k.skill2,k.burst].map(keyLabel).join(' · '); };
+    toast('CO-OP — P1: ' + kb2('p1') + '   |   P2: ' + kb2('p2'));
   }
-  buildSwapBar();
+  buildSwapBar(); paintKeycaps();
   show('battle'); resize();
 }
 function makeHero(mem){
@@ -2899,7 +2972,7 @@ function buildSwapBar(){
   R.squad.forEach((m,i)=>{
     const d=document.createElement('div'); d.className='sw'+(i===R.active?' active':'')+(m.ko?' ko':'');
     d.appendChild(spriteEl(CHAR[m.id],46));
-    d.insertAdjacentHTML('beforeend',`<div class="k">${i+1}</div><div class="mini"><i style="width:${Math.max(0,m.hp/m.maxhp*100)}%"></i></div>`);
+    d.insertAdjacentHTML('beforeend',`<div class="k">${keyLabel(PAD1.swap[i])}</div><div class="mini"><i style="width:${Math.max(0,m.hp/m.maxhp*100)}%"></i></div>`);
     d.dataset.i=i; bar.appendChild(d);
   });
   /* player two gets their own bar on their own side of the screen, keyed the
@@ -2912,7 +2985,7 @@ function buildSwapBar(){
     const d=document.createElement('div');
     d.className='sw'+(B.p2 && i===B.p2.slot?' active':'')+(m.ko?' ko':'');
     d.appendChild(spriteEl(CHAR[m.id],46));
-    d.insertAdjacentHTML('beforeend',`<div class="k">${[8,9,0][i]}</div><div class="mini"><i style="width:${Math.max(0,m.hp/m.maxhp*100)}%"></i></div>`);
+    d.insertAdjacentHTML('beforeend',`<div class="k">${keyLabel(PAD2.swap[i])}</div><div class="mini"><i style="width:${Math.max(0,m.hp/m.maxhp*100)}%"></i></div>`);
     d.dataset.i=i; bar2.appendChild(d);
   });
 }
@@ -4662,19 +4735,67 @@ function updateBurst(dt){
   if(b.t <= 0) B.burst = null;
 }
 
-/* Two sets of hands on one keyboard. Player one keeps the left side and the
-   arrows when nobody else is playing; the moment a second player joins, the
-   arrows go to them and player one is on WASD alone. */
-const PAD1 = {left:['KeyA'], right:['KeyD'], up:['KeyW'], down:['KeyS'],
-              skill:['Space'], skill2:['KeyE'], burst:['KeyR'],
-              dash:['ShiftLeft'], swap:['Digit1','Digit2','Digit3']};
-const PAD1_SOLO = {left:['KeyA','ArrowLeft'], right:['KeyD','ArrowRight'],
-              up:['KeyW','ArrowUp'], down:['KeyS','ArrowDown'],
-              skill:['Space'], skill2:['KeyE'], burst:['KeyR'],
-              dash:['ShiftLeft','ShiftRight'], swap:['Digit1','Digit2','Digit3']};
-const PAD2 = {left:['ArrowLeft'], right:['ArrowRight'], up:['ArrowUp'], down:['ArrowDown'],
-              skill:['Comma'], skill2:['Period'], burst:['Slash'],
-              dash:['ShiftRight'], swap:['Digit8','Digit9','Digit0']};
+/* ================================ KEYS ==================================
+   Two sets of hands on one keyboard, and both of them rebindable. The pads
+   the combat code reads are built from the save rather than written down, so
+   changing a binding in Settings changes what the game listens for on the
+   very next frame - and every keycap on the HUD is painted from the same
+   table, so the screen can never disagree with the keyboard.
+   Player one keeps the arrows as a second set of movement keys while nobody
+   else is playing; the moment a second player joins, the arrows are theirs. */
+const KEY_ACTIONS = [
+  {id:'up',    name:'Move up'},     {id:'down',  name:'Move down'},
+  {id:'left',  name:'Move left'},   {id:'right', name:'Move right'},
+  {id:'skill', name:'Skill'},       {id:'skill2',name:'Second skill'},
+  {id:'burst', name:'Burst'},       {id:'dash',  name:'Dash'},
+  {id:'swap1', name:'Character 1'}, {id:'swap2', name:'Character 2'},
+  {id:'swap3', name:'Character 3'}
+];
+const DEFAULT_KEYS = {
+  p1:{up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD',
+      skill:'Space', skill2:'KeyE', burst:'KeyR', dash:'ShiftLeft',
+      swap1:'Digit1', swap2:'Digit2', swap3:'Digit3'},
+  p2:{up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight',
+      skill:'Comma', skill2:'Period', burst:'Slash', dash:'ShiftRight',
+      swap1:'Digit8', swap2:'Digit9', swap3:'Digit0'}
+};
+const JOIN_KEY = 'KeyJ';                    // player two drops in mid-room
+const keymap = side => Object.assign({}, DEFAULT_KEYS[side], (S.keys||{})[side] || {});
+/* what a key is called on a keycap. The code is what the browser gives us;
+   this is what a person calls it. */
+const KEY_NAMES = {
+  Space:'SPC', ShiftLeft:'L-SHF', ShiftRight:'R-SHF',
+  ControlLeft:'L-CTL', ControlRight:'R-CTL', AltLeft:'L-ALT', AltRight:'R-ALT',
+  ArrowUp:'\u2191', ArrowDown:'\u2193', ArrowLeft:'\u2190', ArrowRight:'\u2192',
+  Enter:'ENT', Tab:'TAB', Backspace:'BSP', CapsLock:'CAPS', Backslash:'\\',
+  Comma:',', Period:'.', Slash:'/', Semicolon:';', Quote:"'",
+  BracketLeft:'[', BracketRight:']', Minus:'-', Equal:'=', Backquote:'`'
+};
+function keyLabel(code){
+  if(!code) return '—';
+  if(KEY_NAMES[code]) return KEY_NAMES[code];
+  if(/^Key.$/.test(code)) return code.slice(3);
+  if(/^Digit.$/.test(code)) return code.slice(5);
+  if(/^Numpad/.test(code)) return 'N'+code.slice(6);
+  if(/^F\d+$/.test(code)) return code;
+  return code.replace(/^(Key|Digit)/, '');
+}
+let PAD1, PAD1_SOLO, PAD2;
+function rebuildPads(){
+  const a = keymap('p1'), b = keymap('p2');
+  const pad = k => ({left:[k.left], right:[k.right], up:[k.up], down:[k.down],
+                     skill:[k.skill], skill2:[k.skill2], burst:[k.burst],
+                     dash:[k.dash], swap:[k.swap1, k.swap2, k.swap3]});
+  PAD1 = pad(a); PAD2 = pad(b);
+  // alone in there, player one may as well have both sets of movement keys
+  const plus = (mine, theirs) => mine.includes(theirs) ? mine : mine.concat(theirs);
+  PAD1_SOLO = Object.assign({}, PAD1, {
+    left: plus(PAD1.left,  b.left),  right:plus(PAD1.right, b.right),
+    up:   plus(PAD1.up,    b.up),    down: plus(PAD1.down,  b.down),
+    dash: plus(PAD1.dash,  b.dash)
+  });
+}
+rebuildPads();
 const held  = list => list.some(k => keys[k]);
 const tapAny = list => list.some(k => pressed(k));
 function moveVec(pad){
@@ -4722,6 +4843,7 @@ function coopSquad(){
    raid. Turning it on here is the only difference from pressing J mid-room -
    player two is simply already there when the fight starts.               */
 function renderCoop(){
+  paintKeycaps();
   const own = ROSTER.filter(id => owns(id));
   const g1 = $('#coop-p1'); g1.innerHTML = '';
   S.squad.forEach(id => g1.appendChild(charCard(CHAR[id], {sel:true})));
@@ -4750,6 +4872,78 @@ function renderCoop(){
     ? 'ON — player two joins every fight. Both raids and the Spire.'
     : 'Two players on one keyboard, on the same side. Take the Spire or either raid together.';
 }
+/* ---- rebinding ----------------------------------------------------------
+   A binding is stored only when it differs from the default, so the save
+   stays small and a future default change reaches anyone who never touched
+   that key. Setting a key that is already in use TRADES the two rather than
+   clearing one: an unbound action is a bug report waiting to happen.       */
+let keyListen = null;                       // {side, action} while capturing
+function setBinding(side, action, code){
+  S.keys = S.keys || {};
+  const cur = {p1:keymap('p1'), p2:keymap('p2')};
+  let swapped = null;
+  for(const sd of ['p1','p2']){
+    for(const a of KEY_ACTIONS){
+      if(cur[sd][a.id] === code && !(sd === side && a.id === action)){
+        swapped = {side:sd, action:a.id, was:cur[side][action]};
+      }
+    }
+  }
+  const put = (sd, a, c) => {
+    S.keys[sd] = S.keys[sd] || {};
+    if(DEFAULT_KEYS[sd][a] === c) delete S.keys[sd][a]; else S.keys[sd][a] = c;
+  };
+  put(side, action, code);
+  if(swapped) put(swapped.side, swapped.action, swapped.was);
+  save(); rebuildPads(); paintKeycaps();
+  return swapped;
+}
+function renderKeys(){
+  ['p1','p2'].forEach(side => {
+    const box = $('#keys-' + side); if(!box) return;
+    const map = keymap(side);
+    box.innerHTML = '';
+    KEY_ACTIONS.forEach(a => {
+      const r = document.createElement('button');
+      r.className = 'keyrow' + (keyListen && keyListen.side === side
+                                && keyListen.action === a.id ? ' listening' : '');
+      r.innerHTML = '<span class="lbl">' + a.name + '</span>'
+                  + '<span class="cap">' + (keyListen && keyListen.side === side
+                      && keyListen.action === a.id ? 'PRESS…' : keyLabel(map[a.id])) + '</span>';
+      r.onclick = () => { keyListen = {side, action:a.id}; Sfx.ui(); renderKeys(); };
+      box.appendChild(r);
+    });
+  });
+}
+/* every keycap the game draws comes from the same table the game listens to */
+function paintKeycaps(){
+  const a = keymap('p1'), b = keymap('p2');
+  const set = (sel, txt) => { const e = $(sel); if(e) e.textContent = txt; };
+  const caps = $$('.skills:not(.p2) .sk .key');
+  if(caps[0]) caps[0].textContent = keyLabel(a.skill);
+  if(caps[1]) caps[1].textContent = keyLabel(a.skill2);
+  if(caps[2]) caps[2].textContent = keyLabel(a.dash);
+  if(caps[3]) caps[3].textContent = keyLabel(a.burst);
+  const caps2 = $$('.skills.p2 .sk .key');
+  if(caps2[0]) caps2[0].textContent = keyLabel(b.skill);
+  if(caps2[1]) caps2[1].textContent = keyLabel(b.skill2);
+  if(caps2[2]) caps2[2].textContent = keyLabel(b.dash);
+  if(caps2[3]) caps2[3].textContent = keyLabel(b.burst);
+  // the two commas were only "big" because they were commas
+  caps2.forEach((e,i) => e.classList.toggle('big',
+    i < 2 && keyLabel(i === 0 ? b.skill : b.skill2).length === 1));
+  if(B) buildSwapBar();
+  const line = sd => {
+    const k = keymap(sd);
+    return [k.up,k.left,k.down,k.right].map(keyLabel).join(' ')
+      + ' move · ' + keyLabel(k.skill) + ' skill · ' + keyLabel(k.skill2)
+      + ' second · ' + keyLabel(k.burst) + ' Burst · ' + keyLabel(k.dash)
+      + ' dash · ' + [k.swap1,k.swap2,k.swap3].map(keyLabel).join(' ') + ' swap';
+  };
+  $$('[data-keys="p1"]').forEach(e => e.textContent = line('p1'));
+  $$('[data-keys="p2"]').forEach(e => e.textContent = line('p2'));
+}
+
 /* one player standing means the other gets picked back up */
 function rescueSide(side){
   const sq = side === 2 ? R.squad2 : R.squad;
@@ -4814,6 +5008,7 @@ function nearestPlayer(x, y){
 
 let vsPick = [null, null];
 function renderVersus(){
+  paintKeycaps();
   const own = ROSTER.filter(id => owns(id));
   if(!vsPick[0]) vsPick[0] = own[0] || 'aoi';
   if(!vsPick[1]) vsPick[1] = own[1] || own[0] || 'aoi';
@@ -4847,7 +5042,9 @@ function startPvp(a, b){
   B.hero.x = AR.x0 + 60; B.hero.y = (AR.y0+AR.y1)/2;
   joinP2();
   if(B.p2){ B.p2.x = AR.x1 - 60; B.p2.y = (AR.y0+AR.y1)/2; B.p2.face = -1; }
-  toast('P1: WASD · SPACE · E · R · L-SHIFT   |   P2: ARROWS · , · . · / · R-SHIFT');
+  const kb = sd => { const k = keymap(sd);
+    return [k.up,k.left,k.down,k.right,k.skill,k.skill2,k.burst,k.dash].map(keyLabel).join(' · '); };
+  toast('P1: ' + kb('p1') + '   |   P2: ' + kb('p2'));
 }
 function endPvp(winner){
   if(!B || B.done) return;
@@ -5870,12 +6067,8 @@ requestAnimationFrame(frame);
 /* -------------------------------- WIRING ------------------------------- */
 addEventListener('keydown',e=>{
   if($('#scr-battle').classList.contains('hidden')||!B) return;
-  if(e.code==='Digit1') swapTo(0);
-  if(e.code==='Digit2') swapTo(1);
-  if(e.code==='Digit3') swapTo(2);
-  if(e.code==='Digit8') swapP2(0);
-  if(e.code==='Digit9') swapP2(1);
-  if(e.code==='Digit0') swapP2(2);
+  const i1 = PAD1.swap.indexOf(e.code); if(i1 >= 0) swapTo(i1);
+  const i2 = PAD2.swap.indexOf(e.code); if(i2 >= 0) swapP2(i2);
 });
 $('#swapbar').addEventListener('click',e=>{
   const el=e.target.closest('.sw'); if(el) swapTo(+el.dataset.i);
@@ -5895,6 +6088,11 @@ $('#go-squad').onclick =()=>{ Sfx.ui(); renderSquad(); show('squad'); };
 $('#go-dex').onclick   =()=>{ Sfx.ui(); renderDex(null); show('dex'); };
 $('#go-versus').onclick=()=>{ Sfx.ui(); renderVersus(); show('versus'); };
 $('#go-coop').onclick  =()=>{ Sfx.ui(); renderCoop(); show('coop'); };
+$('#go-keys').onclick  =()=>{ Sfx.ui(); keyListen=null; renderKeys(); show('keys'); };
+$('#keys-reset').onclick=()=>{
+  S.keys = {}; save(); rebuildPads(); paintKeycaps(); keyListen=null; renderKeys();
+  Sfx.ui(); $('#keys-note').textContent = 'Back to the defaults.';
+};
 $('#coop-toggle').onclick=()=>{ S.coop = !S.coop; save(); Sfx.ui(); renderCoop(); };
 $('#coop-run').onclick =()=>{
   if(!S.squad.length){ toast('Player one needs a squad first.'); return; }
@@ -5912,8 +6110,11 @@ $('#coop-raid2').onclick=()=>{
 $('#go-raid').onclick  =()=>{ Sfx.ui(); startRaid('sovereign'); };
 /* player two drops in mid-fight */
 addEventListener('keydown', e => {
-  if(e.code !== 'KeyJ' || !B || B.pvp || B.p2) return;
-  if(joinP2()){ B.coop = true; toast('Player 2 joined — ARROWS to move, , . / and RIGHT SHIFT'); }
+  if(e.code !== JOIN_KEY || !B || B.pvp || B.p2) return;
+  if(joinP2()){ B.coop = true; paintKeycaps();
+    const k2 = keymap('p2');
+    toast('Player 2 joined — ' + [k2.up,k2.left,k2.down,k2.right].map(keyLabel).join(' ')
+          + ' to move, ' + [k2.skill,k2.skill2,k2.burst,k2.dash].map(keyLabel).join(' · ')); }
   else toast('Player 2 needs a second squad. Set one in SQUAD.');
 });
 $('#go-raid2').onclick =()=>{
@@ -5939,8 +6140,9 @@ addEventListener('keydown',e=>{ if(e.code==='Escape' && B && B.kind==='raid' && 
 fxImg.onload  = () => { fxReady = true; };
 fxImg.onerror = () => { fxReady = false; console.warn('fx atlas failed to load'); };
 fxImg.src = FX_SRC;
-atlas.onload  = () => { atlasReady = true;  load(); resize(); };
-atlas.onerror = () => { atlasReady = false; load(); resize(); console.warn('atlas failed to load'); };
+atlas.onload  = () => { atlasReady = true;  load(); rebuildPads(); paintKeycaps(); resize(); };
+atlas.onerror = () => { atlasReady = false; load(); rebuildPads(); paintKeycaps(); resize();
+                        console.warn('atlas failed to load'); };
 atlas.src = ATLAS_SRC;
 </script>
 <!-- ARTIFACT-BODY-END -->

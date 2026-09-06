@@ -83,6 +83,19 @@ down loses, and there is a rematch button.
 - **P1** — WASD to move, `SPACE` skill, `E` second skill, `R` Burst, `LEFT SHIFT` dash, `1 2 3` swap.
 - **P2** — arrow keys to move, `,` skill, `.` second skill, `/` Burst, `RIGHT SHIFT` dash, `8 9 0` swap.
 
+Those are only the defaults. **Settings** on the Home screen rebinds all
+eleven actions for **both** players — click a key, press the one you want.
+Binding a key that is already in use makes the two **trade places** rather
+than clearing one, so no action is ever left unbound, and `ESC` cancels a
+capture. Only the keys you actually changed are saved, so a future change to
+the defaults still reaches anyone who never touched that one.
+
+The pads the combat loop reads are **built from the save**, not written down,
+and every keycap the game draws — the four on each player's panel, the numbers
+on their character portraits, the control lines on the co-op and versus
+screens, the toast when player two joins — is painted from that same table. The
+screen cannot disagree with the keyboard.
+
 ### Co-op
 
 **Co-op** is the other half of it, on the same Home screen: two players on one
