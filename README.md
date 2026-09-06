@@ -184,8 +184,18 @@ Build a squad of up to 3 and climb the Spire — **3 floors, 24 rooms, 3 bosses*
 but you keep the shards.
 
 - **Move** WASD / arrows
-- **Attack** automatic — you auto-target the nearest enemy in range. You face
-  the way you're *moving*; the target only turns you when you stand still
+- **Attack** `V` — **on a button, and it chains.** Press it and you swing at the
+  nearest enemy in range; press again inside half a second and the second hit
+  lands wider; a third time and you get a finisher that hits for 185%, knocks
+  the room back and slows what it touches. Miss the window and the string
+  starts again. A press during the recovery is *buffered*, not eaten, so
+  pressing slightly early still lands. Three pips under the keycap show where
+  in the string you are. You still face the way you're *moving*; the target
+  only turns you when you stand still
+- **Attack, the old way** — automatic, swinging by itself whenever something is
+  in range. **Settings → Attack** flips between the two and nothing else
+  changes; this is a switch, not a rewrite. Player two gets their own attack
+  key (`;` by default) and their own independent string
 - **Skill** `SPACE`
 - **Second skill** `E` — each character's is completely different
 - **Burst** `R` — charges as you deal and take damage, empties on use. A Burst

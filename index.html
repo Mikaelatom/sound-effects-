@@ -199,6 +199,11 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
   overflow:hidden;text-align:center;padding:0 3px;line-height:1.2}
 .sk .key{font-weight:900;color:var(--cyan);font-size:11px}
 .sk .key.big{font-size:18px;line-height:.62}   /* a comma at 11px is a speck */
+.sk.atk{border-color:#4a6a8a}
+.sk .pips{position:absolute;left:0;right:0;bottom:2px;display:flex;gap:3px;justify-content:center}
+.sk .pips i{width:6px;height:3px;background:#2a2740;border:1px solid #000}
+.sk .pips i.on{background:var(--cyan)}
+.sk .pips i.on.fin{background:var(--gold)}
 .sk .cd{position:absolute;inset:0;background:rgba(6,5,12,.78);display:flex;align-items:center;
   justify-content:center;font-size:13px;font-weight:900}
 .sk.burst{border-color:#6b5a2a}
@@ -273,7 +278,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 #pad-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;
   border-radius:50%;background:rgba(176,124,255,.55);border:2px solid var(--purple);
   box-shadow:0 0 14px rgba(176,124,255,.5);pointer-events:none}
-#pad-btns{position:absolute;right:12px;bottom:10px;width:190px;height:150px;pointer-events:none}
+#pad-btns{position:absolute;right:12px;bottom:10px;width:236px;height:150px;pointer-events:none}
 .tb{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid var(--line);
   background:rgba(20,18,36,.72);color:var(--ink);font-size:9px;font-weight:900;letter-spacing:.04em;
   pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;
@@ -287,7 +292,14 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .tb u{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:rgba(6,5,12,.8);font-size:15px;font-weight:900;color:var(--gold);
   text-decoration:none;z-index:2}
-.tb[data-act="skill"]{right:6px;bottom:6px}
+.tb.atk{border-color:#4a6a8a}
+/* five buttons under one thumb: the two you press most on the outside, the
+   two-second reach behind them, the Burst furthest away of all */
+.tb[data-act="skill"] {right:4px;   bottom:4px}
+.tb[data-act="attack"]{right:76px;  bottom:0}
+.tb[data-act="skill2"]{right:6px;   bottom:74px}
+.tb[data-act="dash"]  {right:80px;  bottom:70px}
+.tb.burst             {right:152px; bottom:34px}
 .tb[data-act="skill2"]{right:74px;bottom:26px}
 .tb[data-act="dash"]{right:16px;bottom:74px}
 .tb.burst{right:88px;bottom:88px}
@@ -344,10 +356,12 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   #app.touch #pad-btns{width:48vw;height:52%;right:4vw;bottom:8%}
   #app.touch .tb{width:20vw;height:20vw;max-width:92px;max-height:92px}
   #app.touch .tb.burst{width:22vw;height:22vw;max-width:102px;max-height:102px}
-  #app.touch .tb[data-act="skill"]{right:0;bottom:0}
-  #app.touch .tb[data-act="skill2"]{right:22vw;bottom:8vw}
-  #app.touch .tb[data-act="dash"]{right:2vw;bottom:22vw}
-  #app.touch .tb.burst{right:24vw;bottom:26vw}
+  #app.touch #pad-btns{width:50vw;height:66vw}
+  #app.touch .tb[data-act="skill"] {right:0;     bottom:0}
+  #app.touch .tb[data-act="attack"]{right:23vw;  bottom:0}
+  #app.touch .tb[data-act="skill2"]{right:1vw;   bottom:22vw}
+  #app.touch .tb[data-act="dash"]  {right:24vw;  bottom:21vw}
+  #app.touch .tb.burst             {right:2vw;   bottom:43vw}
   #app.touch #swapbar{position:fixed;left:50%;right:auto;transform:translateX(-50%);
     bottom:auto;top:calc(var(--padtop,55vh) + 4px);z-index:22}
   #app.touch #swapbar .sw{width:52px;pointer-events:auto}
@@ -521,6 +535,17 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
           </div>
         </div>
       </div>
+      <div class="rule">
+        <b>Attack</b> — <span class="hl" id="atk-mode">on a button</span>.
+        On a button, the basic attack is yours to press and it chains: press
+        again inside half a second for a wider second hit, and a third time for
+        a finisher that knocks the room back. Automatic is the old behaviour —
+        it swings by itself whenever something is in range.
+      </div>
+      <div class="rowc">
+        <button class="btn" id="atk-toggle">Attack: BUTTON</button>
+        <span class="tiny muted">Switch back to automatic any time — nothing else changes.</span>
+      </div>
       <div class="rowc">
         <button class="btn sm ghost" id="keys-reset">Reset to defaults</button>
         <span class="tiny muted" id="keys-note">Bindings save the moment you set them.</span>
@@ -666,6 +691,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         </div>
       </div>
       <div class="skills">
+        <div class="sk atk hidden" id="sk-atk"><span class="key">V</span><span>Attack</span>
+          <div class="pips"><i></i><i></i><i></i></div></div>
         <div class="sk"><span class="key">SPC</span><span id="sk-name">Skill</span><div class="cd hidden" id="sk-cd">0</div></div>
         <div class="sk"><span class="key">E</span><span id="sk2-name">Skill</span><div class="cd hidden" id="sk2-cd">0</div></div>
         <div class="sk"><span class="key">SHF</span><span>Dash</span><div class="cd hidden" id="dash-cd">0</div></div>
@@ -673,6 +700,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
           <div class="fill" id="burst-fill"></div><div class="cd hidden" id="burst-cd">0</div></div>
       </div>
       <div class="skills p2 hidden" id="skills2">
+        <div class="sk atk hidden" id="p2sk-atk"><span class="key">;</span><span>Attack</span>
+          <div class="pips"><i></i><i></i><i></i></div></div>
         <div class="sk"><span class="key big">,</span><span id="p2sk-name">Skill</span><div class="cd hidden" id="p2sk-cd">0</div></div>
         <div class="sk"><span class="key big">.</span><span id="p2sk2-name">Skill</span><div class="cd hidden" id="p2sk2-cd">0</div></div>
         <div class="sk"><span class="key">R-SHF</span><span>Dash</span><div class="cd hidden" id="p2dash-cd">0</div></div>
@@ -688,6 +717,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
       <div id="pad" class="hidden">
         <div id="pad-stick"><div id="pad-knob"></div></div>
         <div id="pad-btns">
+          <button class="tb atk hidden" data-act="attack" id="tb-atk"><b>HIT</b></button>
           <button class="tb" data-act="dash"><b>DASH</b></button>
           <button class="tb" data-act="skill2"><b id="tb-skill2">E</b></button>
           <button class="tb" data-act="skill"><b id="tb-skill">SKILL</b></button>
@@ -1560,6 +1590,10 @@ const BURST_LOCKOUT = 20;
 const BURST_PER_DMG  = 0.00070;   // per point of damage dealt
 const BURST_PER_SEC  = 0.0180;    // and this much a second, just for being there
 const COOP_RESCUE_CD = 45;    // how long before a downed player can be picked up again
+const COMBO_BUFFER = 0.28;    // a press this far ahead of the recovery still lands
+const COMBO_WINDOW = 0.55;    // how long after a swing the next one still counts as a chain
+const COMBO_MUL  = [0, 1.00, 1.20, 1.85];   // what each hit of the string is worth
+const COMBO_NAME = ['', '', 'x2', 'FINISH'];
 const LINK_MUL = [1, 1.6, 2.1, 2.6];
 const ENTRANCE = {
   aoi:      {name:'Crescent Entry', type:'dash_slash',  dmg:2.2},
@@ -1852,6 +1886,7 @@ const freshSave = () => ({
   coop: false,            // is a second player coming with you?
   squad2: [],             // and who they are bringing
   keys: {},               // {p1:{action:code}, p2:{...}} - only what was changed
+  manualAttack: true,     // TEST: the basic attack is a button with a combo on it
   recent: []
 });
 let S = freshSave();
@@ -3339,9 +3374,10 @@ function spawnShot(o){
   s.life0 = s.life; s.trail = [];
   B.shots.push(s);
 }
-function heroAttack(){ return stamp(B.hero, heroAttack_); }
-function heroAttack_(){
+function heroAttack(step){ return stamp(B.hero, () => heroAttack_(step)); }
+function heroAttack_(step){
   const h=B.hero, c=CHAR[h.mem.id], M=R.mods;
+  const cs = step || 0, cm = COMBO_MUL[cs] || 1;
   const target=autoTarget(h, h.st.range*1.35);
   if(!target) return;
   const ang=Math.atan2(target.y-h.y, target.x-h.x);
@@ -3378,7 +3414,7 @@ function heroAttack_(){
   }
   let crit=Math.random()<h.st.crit;
   if(h.guaranteedCrit > 0){ crit = true; h.guaranteedCrit--; }
-  let dmg=h.st.atk*(crit?h.st.critD:1);
+  let dmg=h.st.atk*(crit?h.st.critD:1)*cm;
   if(c.id==='kuro' && h.hitCount%3===0) dmg *= .60;    // three cuts, 180% between them
   // Dain's missing half shows up when he is hurt enough to need it
   const longReach = c.id==='dain' && h.mem.hp < h.st.maxhp*.60;
@@ -3389,13 +3425,32 @@ function heroAttack_(){
       r: melee?7:3.2, dmg, crit, team:'hero',
       pierce: (melee?2:0)+M.pierce+(c.id==='kagura'||c.id==='aldric'?1:0),
       life: melee? (longReach ? .40 : .16) : 1.1, color:ELC[c.element],
-      shape: melee?'slash':'dot', art: melee ? 'slash' : (ART[c.id]||'orb') });
+      shape: melee?'slash':'dot', art: melee ? 'slash' : (ART[c.id]||'orb'),
+      r2: cs === 3 ? 1 : 0 });
     if(melee && i === 0){          // a wide streak behind the blade: pure motion
       spawnShot({ x:h.x+Math.cos(ang)*4, y:h.y-8+Math.sin(ang)*4,
         vx:Math.cos(ang)*300, vy:Math.sin(ang)*300, r:9, dmg:0, team:'none',
         pierce:99, life:.13, color:ELC[c.element], art:'smear' });
     }
   }
+  if(cs === 3){                      // the third hit is the one that matters
+    B.fields.push({x:h.x+Math.cos(ang)*(melee?22:14), y:h.y-4+Math.sin(ang)*(melee?14:9),
+      r:6, maxr:melee ? 46 : 34, life:.26, max:.26, dmg:h.st.atk*0.9,
+      set:new Set(), color:ELC[c.element], type:'nova', own:h});
+    B.mobs.forEach(m => { if(!m.dead && dist(m,h) < (melee ? 56 : 44)){
+      const a2 = Math.atan2(m.y-h.y, m.x-h.x);
+      m.x = clamp(m.x+Math.cos(a2)*13, AR.x0+6, AR.x1-6);
+      m.y = clamp(m.y+Math.sin(a2)*8, AR.y0+8, AR.y1-2);
+      m.slow = Math.max(m.slow, .4); m.slowT = Math.max(m.slowT, .8);
+    }});
+    spawnHit(h.x+Math.cos(ang)*20, h.y-6+Math.sin(ang)*13, ELC[c.element], 'shock');
+    B.hitstop = Math.max(B.hitstop, .06); B.shake = Math.max(B.shake, 9);
+    h.anim.atk = h.anim.atkMax = .34;
+  } else if(cs){
+    B.shake = Math.max(B.shake, 2);
+  }
+  if(cs) B.floats.push({x:h.x, y:h.y-44, vy:-18, life:.6, txt:COMBO_NAME[cs],
+    color: cs === 3 ? '#ffcc4d' : '#5fe6ff', size: cs === 3 ? 9 : 7});
   Sfx.swing();
 }
 function nearestMob(x,y,maxd){
@@ -5828,16 +5883,17 @@ function updateBurst_(dt){
 const KEY_ACTIONS = [
   {id:'up',    name:'Move up'},     {id:'down',  name:'Move down'},
   {id:'left',  name:'Move left'},   {id:'right', name:'Move right'},
+  {id:'attack',name:'Attack'},
   {id:'skill', name:'Skill'},       {id:'skill2',name:'Second skill'},
   {id:'burst', name:'Burst'},       {id:'dash',  name:'Dash'},
   {id:'swap1', name:'Character 1'}, {id:'swap2', name:'Character 2'},
   {id:'swap3', name:'Character 3'}
 ];
 const DEFAULT_KEYS = {
-  p1:{up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD',
+  p1:{up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', attack:'KeyV',
       skill:'Space', skill2:'KeyE', burst:'KeyR', dash:'ShiftLeft',
       swap1:'Digit1', swap2:'Digit2', swap3:'Digit3'},
-  p2:{up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight',
+  p2:{up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', attack:'Semicolon',
       skill:'Comma', skill2:'Period', burst:'Slash', dash:'ShiftRight',
       swap1:'Digit8', swap2:'Digit9', swap3:'Digit0'}
 };
@@ -5866,6 +5922,7 @@ let PAD1, PAD1_SOLO, PAD2;
 function rebuildPads(){
   const a = keymap('p1'), b = keymap('p2');
   const pad = k => ({left:[k.left], right:[k.right], up:[k.up], down:[k.down],
+                     attack:[k.attack],
                      skill:[k.skill], skill2:[k.skill2], burst:[k.burst],
                      dash:[k.dash], swap:[k.swap1, k.swap2, k.swap3]});
   PAD1 = pad(a); PAD2 = pad(b);
@@ -6034,18 +6091,14 @@ function paintKeycaps(){
   const a = keymap('p1'), b = keymap('p2');
   const set = (sel, txt) => { const e = $(sel); if(e) e.textContent = txt; };
   const caps = $$('.skills:not(.p2) .sk .key');
-  if(caps[0]) caps[0].textContent = keyLabel(a.skill);
-  if(caps[1]) caps[1].textContent = keyLabel(a.skill2);
-  if(caps[2]) caps[2].textContent = keyLabel(a.dash);
-  if(caps[3]) caps[3].textContent = keyLabel(a.burst);
+  const lab1 = [a.attack, a.skill, a.skill2, a.dash, a.burst];
+  caps.forEach((e,i) => { if(lab1[i]) e.textContent = keyLabel(lab1[i]); });
   const caps2 = $$('.skills.p2 .sk .key');
-  if(caps2[0]) caps2[0].textContent = keyLabel(b.skill);
-  if(caps2[1]) caps2[1].textContent = keyLabel(b.skill2);
-  if(caps2[2]) caps2[2].textContent = keyLabel(b.dash);
-  if(caps2[3]) caps2[3].textContent = keyLabel(b.burst);
-  // the two commas were only "big" because they were commas
+  const lab2 = [b.attack, b.skill, b.skill2, b.dash, b.burst];
+  caps2.forEach((e,i) => { if(lab2[i]) e.textContent = keyLabel(lab2[i]); });
+  // a single punctuation mark at 11px is a speck, so those get the big class
   caps2.forEach((e,i) => e.classList.toggle('big',
-    i < 2 && keyLabel(i === 0 ? b.skill : b.skill2).length === 1));
+    i < 3 && keyLabel(lab2[i]).length === 1));
   if(B) buildSwapBar();
   const a2 = keymap('p1');
   const tb = (sel, v) => { const e = $(sel); if(e) e.textContent = v; };
@@ -6056,7 +6109,8 @@ function paintKeycaps(){
     const k = keymap(sd);
     return [k.up,k.left,k.down,k.right].map(keyLabel).join(' ')
       + ' move · ' + keyLabel(k.skill) + ' skill · ' + keyLabel(k.skill2)
-      + ' second · ' + keyLabel(k.burst) + ' Burst · ' + keyLabel(k.dash)
+      + ' second · ' + keyLabel(k.attack) + ' attack · '
+      + keyLabel(k.burst) + ' Burst · ' + keyLabel(k.dash)
       + ' dash · ' + [k.swap1,k.swap2,k.swap3].map(keyLabel).join(' ') + ' swap';
   };
   $$('[data-keys="p1"]').forEach(e => e.textContent = line('p1'));
@@ -6423,10 +6477,39 @@ function stepHero(h, dt, pad){
       h.ghosts = h.ghosts.filter(g => g.life > 0);
     }
   }
-  if(h.atkT<=0){ const t=autoTarget(h, h.st.range*1.35);
-    if(t){ heroAttack();
-      const hs = (h.haste>0 ? 1 + h.hasteAmt : 1) * (h.mem.id==='rai' && h.haste>0 ? 1.1 : 1);
-      h.atkT = 1/(h.st.aspd*hs*(B.overcharge>0?2:1)); } }
+  /* ---- the basic attack ------------------------------------------------
+     Two ways to swing, chosen by one flag. Automatic is the original: the
+     moment the timer is up and something is in range, it swings on its own.
+     Manual puts the swing on a button and gives you a three-hit string for
+     pressing it on time - press again inside the window and the second lands
+     wider, a third lands as a finisher that knocks the room off its feet.
+     Miss the window and you start the string again.
+     S.manualAttack is the whole switch: turn it off and everything below the
+     first branch never runs.                                              */
+  const hs = (h.haste>0 ? 1 + h.hasteAmt : 1) * (h.mem.id==='rai' && h.haste>0 ? 1.1 : 1);
+  const swingT = 1/(h.st.aspd*hs*(B.overcharge>0?2:1));
+  if(!S.manualAttack){
+    if(h.atkT<=0){ const t=autoTarget(h, h.st.range*1.35);
+      if(t){ heroAttack(); h.atkT = swingT; } }
+  } else {
+    if(h.comboT > 0){ h.comboT -= dt; if(h.comboT <= 0) h.combo = 0; }
+    // A press during the recovery is remembered rather than thrown away. A
+    // combo that only counts presses landing in a window you cannot see is a
+    // combo that feels broken; buffering the input is what makes the string
+    // land when the player thinks it should.
+    if(h.atkBuf > 0) h.atkBuf -= dt;
+    if(tapAny(pad.attack)) h.atkBuf = COMBO_BUFFER;
+    if(h.atkBuf > 0 && h.atkT <= 0){
+      h.atkBuf = 0;
+      h.combo = (h.combo || 0) + 1;
+      if(h.combo > 3) h.combo = 1;
+      heroAttack(h.combo);
+      // the first two come out quick to keep the string alive; the finisher
+      // has to be paid for with a longer recovery
+      h.atkT = swingT * (h.combo === 3 ? 1.45 : 0.72);
+      h.comboT = h.atkT + COMBO_WINDOW;
+    }
+  }
   if(tapAny(pad.skill)) useSkill(1);
   if(tapAny(pad.skill2)) useSkill(2);
   if(tapAny(pad.burst)) useBurst();
@@ -7320,12 +7403,28 @@ function syncHud(){
     const c2d = $('#p2dash-cd');
     if(h2.dashT>0){ c2d.classList.remove('hidden'); c2d.textContent=h2.dashT.toFixed(1); }
     else c2d.classList.add('hidden');
+    const atk2 = $('#p2sk-atk');
+    if(atk2){
+      atk2.classList.toggle('hidden', !S.manualAttack);
+      const pips2 = atk2.querySelectorAll('.pips i');
+      pips2.forEach((e,i) => { e.classList.toggle('on', (h2.combo||0) > i);
+                               e.classList.toggle('fin', i === 2); });
+    }
     const bp2 = (h2.mem.burst||0), lock2 = burstLockLeft(h2);
     $('#p2burst-fill').style.height = Math.round(bp2*100)+'%';
     $('#p2sk-burst').classList.toggle('ready', bp2 >= 1 && lock2 <= 0);
     const b2cd = $('#p2burst-cd');
     if(b2cd){ b2cd.classList.toggle('hidden', lock2 <= 0); b2cd.textContent = Math.ceil(lock2); }
   }
+  const atk1 = $('#sk-atk');
+  if(atk1){
+    atk1.classList.toggle('hidden', !S.manualAttack);
+    const pips = atk1.querySelectorAll('.pips i');
+    pips.forEach((e,i) => { e.classList.toggle('on', (h.combo||0) > i);
+                            e.classList.toggle('fin', i === 2); });
+  }
+  const tba = $('#tb-atk');
+  if(tba) tba.classList.toggle('hidden', !(TOUCH && S.manualAttack));
   const bp=(h.mem.burst||0);
   const lock1 = burstLockLeft(h);
   $('#burst-fill').style.height=Math.round(bp*100)+'%';
@@ -7522,7 +7621,19 @@ $('#go-coop').onclick  =()=>{
   try{ renderCoop(); }                    // never be able to trap you in co-op
   catch(e){ console.warn('co-op render', e); }
 };
-$('#go-keys').onclick  =()=>{ Sfx.ui(); keyListen=null; renderKeys(); show('keys'); };
+$('#go-keys').onclick  =()=>{ Sfx.ui(); keyListen=null; renderKeys(); paintAtkMode(); show('keys'); };
+function paintAtkMode(){
+  const t = $('#atk-toggle'); if(!t) return;
+  t.textContent = 'Attack: ' + (S.manualAttack ? 'BUTTON' : 'AUTOMATIC');
+  t.classList.toggle('primary', !!S.manualAttack);
+  $('#atk-mode').textContent = S.manualAttack ? 'on a button' : 'automatic';
+}
+$('#atk-toggle').onclick=()=>{
+  S.manualAttack = !S.manualAttack; save(); Sfx.ui(); paintAtkMode(); paintKeycaps();
+  if(B) players().forEach(pl => { if(pl){ pl.combo = 0; pl.comboT = 0; } });
+  toast(S.manualAttack ? 'Attack is on a button — press it to start a string.'
+                       : 'Attack is automatic again.');
+};
 $('#keys-reset').onclick=()=>{
   S.keys = {}; save(); rebuildPads(); paintKeycaps(); keyListen=null; renderKeys();
   Sfx.ui(); $('#keys-note').textContent = 'Back to the defaults.';
