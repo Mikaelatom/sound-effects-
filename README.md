@@ -45,7 +45,7 @@ sniper, Gorou's Stonehide on a glass cannon, Shion's Pack Bond on Odette's
 puppets. That is what makes a 4★ you will never play worth pulling: you are not
 only collecting a character, you are collecting a part.
 
-**Fifty-two perks — one per character, every single one of them**, and they are real mechanics rather than
+**Fifty-six perks — one per character, every single one of them**, and they are real mechanics rather than
 flat numbers — a regen tick, a chain to a second enemy, a shield on arrival, an
 execute threshold, a nullified hit every nine seconds, summons that live half
 again as long. Set them in **Collection**; the same perk cannot go in both slots
@@ -75,7 +75,7 @@ trade damage for the best throughput in the game.
 
 ### One ultimate at a time
 
-A Burst is on a **fifty-second floor, per player**. The meter still says when
+A Burst is on a **twenty-second floor, per player**. The meter still says when
 you have earned one; this says how often anyone is allowed to have one at all.
 It is deliberately per *player* rather than per character — swapping to the next
 member of the squad and firing theirs is exactly the thing the floor exists to
@@ -83,9 +83,8 @@ stop — and it runs on real seconds, so it keeps counting down while you are on
 the map screen between rooms. A Burst you cannot fire yet is **not spent**: the
 meter stays full and the button shows the seconds left.
 
-Both raid DPS checks came down to match, since they were set when an ultimate
-came round every few seconds: the Sovereign from 26,000 to 20,000 and the
-Unmaker from 58,000 to 26,000.
+Both raids keep their full health pools — twenty seconds is short enough that
+a squad still gets a comparable number of ultimates into a five-minute fight.
 
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
@@ -233,7 +232,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Fifty-two characters across two rarities. They play completely differently.
+Fifty-six characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -266,8 +265,8 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Fifty-two characters, and **no two share a pair of skills.** There are
-eighty-six distinct skill mechanics and fifty-one distinct Burst shapes
+Fifty-six characters, and **no two share a pair of skills.** There are
+ninety-four distinct skill mechanics and fifty-five distinct Burst shapes
 behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
@@ -283,7 +282,7 @@ a pack in place, a stone that skips between four heads getting heavier each
 time, a sheathed stance that answers the whole room in ice, eight blade shards
 that break enemy bullets out of the air, and a cannon whose recoil moves the
 person firing it. Every character also has their own
-passive and their own Burst — fifty-one of the fifty-two Bursts are shapes
+passive and their own Burst — fifty-five of the fifty-six Bursts are shapes
 nobody else has.
 
 ### 5★ — The Third Wave
@@ -416,6 +415,26 @@ what makes Reverse The Tide land with something to reverse. Elle's every cast
 takes a second off her other cooldown. Bram's every third swing is a shockwave
 that knocks whatever it hits off its feet.
 
+### The Support Line
+
+Four characters whose whole job is the other two slots. None of them wins a
+fight on their own damage and none of them is meant to — they sit at the bottom
+of the damage table on purpose, and near the top of everything else.
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ☼ | **Wren Ashcombe** · *The Lamplighter* · 5★ Radiant | **Wardlight** — a lantern set down: anyone standing in the light heals every second and takes a quarter less | **Mend** — a hard heal to the whole squad, and whatever is burning, frozen or slowed on the one in front stops | **Vigil** — ten seconds where nobody in the squad can be taken below one point of health |
+| ⚡ | **Noa Ellery** · *The Battery* · 5★ Volt | **Jump Start** — somebody down gets up at 40%; nobody down and the one in front swings 45% faster | **Charge** — thirty per cent of a Burst, handed to every character in the squad at once | **Power Surge** — every cooldown in the squad gone, half a meter to everyone, and the room takes the discharge |
+| ♬ | **Cassia Brightwell** · 4★ Arcane | **Amplify** — eight seconds where everything the squad does lands 32% harder | **Resonate** — one enemy tuned: every hit on it rings out to another for 45% | **Crescendo** — nine seconds that start at +20% and climb to +90% |
+| ⛨ | **Teodor Kray** · 4★ Stone | **Aegis** — the shield turns for six seconds, eating enemy shots and throwing them back at whoever sent them | **On Me** — everything in the room comes at him instead, and he takes a 60% shield to be worth hitting | **Bastion** — ten seconds where the whole squad takes half damage and nothing can move him |
+
+Wren's heals also lay a **shield worth a third of them**, which stacks with
+Pim's. Noa fills the whole squad's **Burst meter 20% faster** just by being in
+it, which matters more now that a Burst is on a floor. Cassia's buffs last 25%
+longer than they say. Teodor takes 18% less himself and gives the **whole
+squad** 8% on top, so he is the only character who defends the two slots he is
+not standing in.
+
 ### 4★
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
@@ -448,7 +467,7 @@ It is the one place in the game where you build a loadout instead of finding
 one. After that it is your squad, their kits, and whether you can read what it
 is doing.
 
-### The Sovereign **20,000 HP** and
+### The Sovereign **26,000 HP** and
 **five minutes** before he enrages.
 
 This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
@@ -484,7 +503,7 @@ Losing still pays out on the damage you did.
 
 ### The Unmaker — Raid II
 
-Locked until the Sovereign falls. **26,000 HP, six minutes**, and it hits half
+Locked until the Sovereign falls. **58,000 HP, six minutes**, and it hits half
 again as hard. It has everything he has, plus three of its own:
 
 - **Sunder** — it comes apart into **three echoes**. While they stand it takes
@@ -525,25 +544,25 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Fifty-two
+**No two characters share a haircut, an outfit or a weapon.** Fifty-six
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
 circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie, a heavy layered shade, a swept
 white halo and short blunt bristles — each with its own fringe and its own
 ornament. One character has no weapon at all: Toya fights bare-handed, so his
 hands glow instead. Another wears a **blindfold** rather than an eye, and the
-light leaking out from under it is the whole character. Forty-one outfit shapes (skirt, robe,
+light leaking out from under it is the whole character. Forty-five outfit shapes (skirt, robe,
 dress, shorts, plate, jacket, apron, longcoat, wrap, coat, haori, kimono,
 hoodie, duster, mantle, tailcoat, a shinigami's shihakusho, full plate,
 harness gear, a surcoat, an open coat, a haramaki, a plain tee, a smock, a
 vest, a dress suit, a long dress and a gunner's rig among them) chosen
 **separately from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Fifty-one weapons and one pair of bare hands, one each. A roster where three people share a haircut in
+Fifty-five weapons and one pair of bare hands, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Fifty-two characters share one rig, and a pose is a **skeleton rather than a set of
+Fifty-six characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a

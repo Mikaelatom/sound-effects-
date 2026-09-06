@@ -547,6 +547,42 @@ CHARS = {
     metal='#d8c8a8', grip='#181210',
     face=dict(ew=5, eh=3, lash=0, droop=0, brow='thick', brow_h=1, nose=3, mouth=2),
     sleeve=0.14, style='wildmane', outfit='drumharness', wep='taikosticks'),
+
+ 'wren': dict(ink='#2a2410', hair='#d8c47a', hair2='#f2e2a8', hair3='#fff6d0', shine='#ffffff',
+    skin='#f7dcc0', skin2='#d3b698', skin3='#a8907a', blush='#ff9d9d',
+    eye='#8fe0c0', eye2='#1c6a54', brow='#d8c47a',
+    cloth='#f0ead8', cloth2='#ffffff', cloth3='#c9c0a4', trim='#e8c04a', accent='#8fe0c0',
+    leg='#b8b096', leg2='#ded6bc', boot='#6e6850',
+    metal='#f0d890', grip='#8a7a50',
+    face=dict(ew=6, eh=4, lash=2, droop=1, brow='soft', brow_h=3, nose=1, mouth=1),
+    sleeve=1.00, style='braidcrown', outfit='chaplainmantle', wep='lanternstaff'),
+
+ 'cass': dict(ink='#0e2222', hair='#1f6e6a', hair2='#38a09a', hair3='#78d0c8', shine='#c8fff8',
+    skin='#f2d4b8', skin2='#cdae92', skin3='#a38a74', blush='#ff9db0',
+    eye='#ffcf6a', eye2='#8a5f10', brow='#1f6e6a',
+    cloth='#1a1a26', cloth2='#2c2c40', cloth3='#101018', trim='#ffcf6a', accent='#38a09a',
+    leg='#2c2c40', leg2='#52526e', boot='#141420',
+    metal='#e8dcb0', grip='#101018',
+    face=dict(ew=6, eh=4, lash=1, droop=0, brow='angled', brow_h=2, nose=1, mouth=1),
+    sleeve=0.86, style='featheredcut', outfit='conductorvest', wep='baton'),
+
+ 'teo': dict(ink='#181410', hair='#4e4034', hair2='#6e5c4a', hair3='#96806a', shine='#c0aa90',
+    skin='#d9a878', skin2='#b5865a', skin3='#8d6742', blush='#c97a6a',
+    eye='#8fbf6a', eye2='#3a5a20', brow='#4e4034',
+    cloth='#3e4450', cloth2='#5a6170', cloth3='#252932', trim='#c8a860', accent='#8fbf6a',
+    leg='#4a5160', leg2='#737b8e', boot='#22262e',
+    metal='#cdd4de', grip='#252932',
+    face=dict(ew=5, eh=3, lash=0, droop=1, brow='thick', brow_h=1, nose=3, mouth=2),
+    sleeve=0.44, style='crest', outfit='tabard', wep='towershield'),
+
+ 'noa': dict(ink='#101828', hair='#2a2f3e', hair2='#454c62', hair3='#ffe14d', shine='#fff6b0',
+    skin='#eeceac', skin2='#c9a888', skin3='#9f8469', blush='#ff9d9d',
+    eye='#ffe14d', eye2='#8a6410', brow='#2a2f3e',
+    cloth='#1d2634', cloth2='#31405a', cloth3='#121822', trim='#ffe14d', accent='#4ad6ff',
+    leg='#31405a', leg2='#5c718f', boot='#161d28',
+    metal='#dfe6f0', grip='#121822',
+    face=dict(ew=6, eh=4, lash=1, droop=0, brow='soft', brow_h=2, nose=1, mouth=1),
+    sleeve=0.26, style='boltcrop', outfit='linesuit', wep='coilrod'),
 }
 
 ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
@@ -557,7 +593,8 @@ ORDER = ['aoi', 'kagura', 'ren', 'hinata', 'suzume', 'gorou',
          'jun', 'rai', 'kotone', 'vex', 'jinya',
          'sora', 'astra', 'kael', 'solen', 'dain', 'kuro',
          'nix', 'pim', 'corbin', 'aurel', 'vira', 'boro',
-         'ryoh', 'elle', 'sable', 'zeph', 'orin', 'bram']
+         'ryoh', 'elle', 'sable', 'zeph', 'orin', 'bram',
+         'wren', 'cass', 'teo', 'noa']
 
 # torso silhouette: half-width per row from SHOULDER down. Broad shoulders,
 # nipped waist, hips again -- the shape that reads as a figure and not a box.
@@ -891,6 +928,34 @@ def draw_torso(c, p, pose):
         c.rect(xh-8, HIP+10+dy, 16, 1, tr)
         c.ellipse(xh-11, HIP+5+dy, 5.0, 6.0, p['accent'])  # a drum slung behind the hip
         c.ellipse(xh-11, HIP+5+dy, 3.0, 4.0, cl3)
+    elif of == 'chaplainmantle':                          # a long pale mantle over a robe
+        for k in range(19):
+            w = 8 + k*0.24
+            c.rect(xh-w, HIP+dy+k, w*2, 1, cl if k % 5 else cl2)
+        c.rect(xh-10, HIP+dy, 20, 5, cl3)                 # the shoulder mantle, behind
+        c.rect(xh-10, HIP+4+dy, 20, 1, tr)
+        c.rect(xh+4, HIP+2+dy, 3, 15, tr)                 # the stole down the front edge
+        c.rect(xh-12, HIP+10+dy, 5, 11, cl2)
+    elif of == 'conductorvest':                           # a tailored waistcoat and tails
+        c.rect(xh-7, HIP+dy, 14, 11, cl)
+        c.rect(xh+3, HIP+dy, 4, 12, cl2)
+        for i in range(3): c.set(xh+4, HIP+2+dy+i*4, tr)
+        c.rect(xh-10, HIP+8+dy, 6, 13, cl3)               # the tails, trailing
+        c.rect(xh-7, HIP+11+dy, 14, 2, cl3)
+        c.rect(xh-7, HIP+dy, 14, 1, tr)
+    elif of == 'tabard':                                  # plate under a heavy tabard
+        c.rect(xh-8, HIP+dy, 16, 7, p['metal'])
+        c.rect(xh-8, HIP+dy, 16, 2, cl3)
+        c.rect(xh-6, HIP+2+dy, 12, 16, cl)                # the tabard itself
+        c.rect(xh-6, HIP+2+dy, 12, 1, tr)
+        c.rect(xh-6, HIP+17+dy, 12, 2, tr)
+        c.rect(xh-2, HIP+6+dy, 4, 8, cl2)
+    elif of == 'linesuit':                                # a technician's one-piece
+        c.rect(xh-7, HIP+dy, 14, 14, cl)
+        c.rect(xh-7, HIP+6+dy, 14, 2, cl3)
+        c.rect(xh+3, HIP+dy, 3, 14, cl2)
+        for i in range(3): c.set(xh+4, HIP+2+dy+i*4, tr)
+        c.rect(xh-8, HIP+3+dy, 3, 5, tr)                  # a strip of tape on the hip
     elif of == 'blackcoat':                               # long, closed, and it drinks light
         c.rect(xh-7, HIP+dy, 14, 6, cl)
         c.rect(xh-9, HIP+4+dy, 18, 18, cl3)
@@ -1487,6 +1552,42 @@ def hair_back(c, p, pose, cx, cy):
                     h1 if k % 2 else h2, 6, 3)
         c.rect(cx-14, cy-6, 5, 14, h2)
 
+    elif st == 'braidcrown':           # a plait laid round the crown, the rest gathered low
+        c.ellipse(cx-2, cy-1, 10.4, 9.6, h1)
+        for k in range(9):                                  # the crown plait
+            a = -0.5 + k*0.28
+            c.ellipse(cx-3+math.cos(a)*9, cy-9+math.sin(a)*3.2, 2.2, 2.0,
+                      h2 if k % 2 else h1)
+        for k in range(9):                                  # the low gather behind
+            w = 5 - abs(k-4)*0.32
+            c.ellipse(cx-10-sway*0.2, cy+3+k*1.3, w, 2.4, h1 if k % 2 else h2)
+        c.rect(cx-13, cy-2, 4, 8, h3)
+
+    elif st == 'featheredcut':         # short, layered, flicked out at the ends
+        c.ellipse(cx-1, cy-1, 10.0, 9.2, h1)
+        for k in range(8):
+            L = 8 + math.sin(k*0.9)*3
+            c.taper(cx-5, cy-9+k*2.1, cx-5-L+sway*0.5, cy-7+k*2.4, h1 if k % 2 else h2, 5, 2)
+        for k in range(3):
+            c.set(int(cx-12-k), int(cy+2+k*3), h3)
+
+    elif st == 'crest':                # cropped to the skull with a short ridge on top
+        c.ellipse(cx-1, cy, 9.6, 8.8, h1)
+        for k in range(7):
+            c.taper(cx-5+k*1.7, cy-9, cx-5+k*1.7+sway*0.15, cy-13-abs(k-3)*-0.6, h2, 4, 3)
+        c.rect(cx-11, cy-1, 4, 6, h1)
+        c.rect(cx-11, cy+4, 3, 3, h3)
+
+    elif st == 'boltcrop':             # short and spiked, with one lit streak through it
+        c.ellipse(cx-1, cy-1, 9.8, 9.0, h1)
+        for k in range(9):
+            a = -1.5 + k*0.34
+            L = 9 + (k % 3)*2.5
+            c.taper(cx-2, cy-6, cx-2-math.cos(a)*L+sway*0.4, cy-6-math.sin(a)*L,
+                    h1 if k % 3 else h2, 5, 2)
+        c.taper(cx-2, cy-6, cx-9+sway*0.4, cy-13, h3, 4, 2)   # the streak
+        c.rect(cx-11, cy-2, 4, 6, h2)
+
     elif st == 'monarch':                                  # sleek, parted, faintly lit
         c.ellipse(cx-1, cy-2, 11.2, 10.0, h1)
         for k in range(7):
@@ -1766,6 +1867,10 @@ def hair_front(c, p, pose, cx, cy):
     elif st == 'knotted':  c.set(cx-9, cy-9, ac)
     elif st == 'sidesweep':c.rect(cx-9, cy-9, 3, 2, ac)
     elif st == 'wavelong': c.rect(cx+1, cy-14, 4, 3, ac)
+    elif st == 'braidcrown':  c.taper(cx+6, cy-9, cx+9, cy-2, ac, 3, 1)
+    elif st == 'featheredcut':c.taper(cx+6, cy-8, cx+10, cy-4, ac, 4, 2)
+    elif st == 'crest':       c.rect(cx+6, cy-8, 3, 3, ac)
+    elif st == 'boltcrop':    c.taper(cx+5, cy-9, cx+10, cy-6, ac, 4, 2)
     elif st == 'topknotlong': c.rect(cx+5, cy-9, 3, 5, ac)
     elif st == 'doublebun':   c.taper(cx+6, cy-8, cx+9, cy-1, ac, 3, 1)
     elif st == 'widow':       c.taper(cx+7, cy-9, cx+9, cy-2, ac, 3, 1)
@@ -2185,6 +2290,45 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp-ux*13, hyp-uy*13-9, 7.0, 8.0, p['accent'])
         c.ellipse(hxp-ux*13, hyp-uy*13-9, 5.0, 6.0, p['cloth3'])
         c.ellipse(hxp-ux*13, hyp-uy*13-9, 4.0, 5.0, p['cloth2'])
+    elif w == 'lanternstaff':
+        # a tall staff with a lit lantern swinging off the top of it
+        L, hxp = 20, min(hxp, 34)
+        c.taper(hxp-ux*16, hyp-uy*16, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
+        ex, ey = hxp+ux*(L-2), hyp+uy*(L-2)
+        c.line(ex, ey, ex, ey+5, p['metal'], 1)
+        c.rect(ex-3, ey+5, 6, 7, p['metal'])
+        c.rect(ex-2, ey+6, 4, 5, p['trim'])
+        c.ellipse(ex, ey+8, 2.0, 2.4, p['shine'])
+        c.rect(ex-3, ey+11, 6, 1, p['metal'])
+    elif w == 'baton':
+        # a slim baton in the lead hand, a tuning fork tucked at the hip
+        L = 17
+        c.taper(hxp-ux*4, hyp-uy*4, hxp+ux*L, hyp+uy*L, p['metal'], 3, 1)
+        c.ellipse(hxp-ux*5, hyp-uy*5, 2.2, 2.2, p['grip'])
+        c.ellipse(hxp+ux*(L+1), hyp+uy*(L+1), 1.6, 1.6, p['trim'])
+        for k in range(2):
+            c.line(hxp-ux*16-nx*(1+k*3), hyp-uy*16-ny*(1+k*3)-4,
+                   hxp-ux*24-nx*(1+k*3), hyp-uy*24-ny*(1+k*3)-4, p['accent'], 1)
+        c.line(hxp-ux*14, hyp-uy*14-4, hxp-ux*17, hyp-uy*17-4, p['accent'], 2)
+    elif w == 'towershield':
+        # a slab of a shield on the lead arm, and a short mace behind it
+        c.rect(hxp-2, hyp-15, 8, 30, p['metal'])
+        c.rect(hxp-1, hyp-13, 6, 26, p['cloth2'])
+        c.rect(hxp-1, hyp-13, 6, 2, p['trim'])
+        c.rect(hxp-1, hyp+11, 6, 2, p['trim'])
+        c.ellipse(hxp+2, hyp, 2.6, 3.4, p['trim'])
+        c.taper(hxp-ux*10, hyp-uy*10+6, hxp-ux*20, hyp-uy*20+6, p['grip'], 3, 3)
+        c.ellipse(hxp-ux*22, hyp-uy*22+6, 3.2, 3.2, p['cloth3'])
+    elif w == 'coilrod':
+        # a copper rod wound with wire, arcing at the tip
+        L = 24
+        c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
+        for k in range(7):
+            c.line(hxp+ux*(4+k*2.4)-nx*3, hyp+uy*(4+k*2.4)-ny*3,
+                   hxp+ux*(5+k*2.4)+nx*3, hyp+uy*(5+k*2.4)+ny*3, p['metal'], 1)
+        c.ellipse(hxp+ux*(L+2), hyp+uy*(L+2), 2.8, 2.8, p['trim'])
+        c.set(int(hxp+ux*(L+5)+nx*2), int(hyp+uy*(L+5)+ny*2), p['accent'])
+        c.set(int(hxp+ux*(L+5)-nx*2), int(hyp+uy*(L+5)-ny*2), p['accent'])
     elif w == 'shadowblade':
         # black steel with a lit edge, and it smokes
         L, hxp = 29, min(hxp, 38)
