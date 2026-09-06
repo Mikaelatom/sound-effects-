@@ -17,9 +17,11 @@
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
   font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased;overflow:hidden}
-body{height:100vh;display:flex;align-items:center;justify-content:center}
+body{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none}
 .px{font-family:"Press Start 2P",ui-monospace,monospace;letter-spacing:.02em;line-height:1.7}
-#app{width:min(100vw,1184px);height:min(100vh,760px);position:relative;
+#app{width:min(100vw,1184px);height:min(100vh,760px);height:min(100dvh,760px);position:relative;
   background:
     radial-gradient(120% 90% at 50% -10%, #2a1f4d 0%, transparent 60%),
     radial-gradient(90% 70% at 100% 110%, #33204a 0%, transparent 55%),
@@ -259,6 +261,99 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .sw.ko{opacity:.35}
 .sw .mini{height:4px;background:#0d0b18;border:1px solid #000;margin-top:2px}
 .sw .mini i{display:block;height:100%;background:var(--green)}
+
+/* ---------- touch ----------
+   A phone has no keyboard, so the pad presses keys on its behalf: every
+   button writes the code that action is bound to straight into the same
+   `keys` table the keyboard writes to, and the whole input path downstream
+   - rebinding included - never learns the difference. */
+#pad{position:absolute;inset:0;pointer-events:none;z-index:20;touch-action:none}
+#pad-stick{position:absolute;left:14px;bottom:14px;width:120px;height:120px;border-radius:50%;
+  border:2px solid var(--line);background:rgba(20,18,36,.45);pointer-events:auto;touch-action:none}
+#pad-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;
+  border-radius:50%;background:rgba(176,124,255,.55);border:2px solid var(--purple);
+  box-shadow:0 0 14px rgba(176,124,255,.5);pointer-events:none}
+#pad-btns{position:absolute;right:12px;bottom:10px;width:190px;height:150px;pointer-events:none}
+.tb{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid var(--line);
+  background:rgba(20,18,36,.72);color:var(--ink);font-size:9px;font-weight:900;letter-spacing:.04em;
+  pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden}
+.tb:active,.tb.on{background:rgba(176,124,255,.5);border-color:var(--purple)}
+.tb.burst{border-color:#6b5a2a;width:72px;height:72px;font-size:10px}
+.tb.burst.ready{border-color:var(--gold);color:var(--gold);animation:brdy .9s ease-in-out infinite}
+.tb.burst i{position:absolute;left:0;right:0;bottom:0;height:0%;
+  background:linear-gradient(180deg,rgba(255,204,77,.5),rgba(255,204,77,.2))}
+.tb b{position:relative;z-index:1}
+.tb[data-act="skill"]{right:6px;bottom:6px}
+.tb[data-act="skill2"]{right:74px;bottom:26px}
+.tb[data-act="dash"]{right:16px;bottom:74px}
+.tb.burst{right:88px;bottom:88px}
+
+/* ---------- phones and tablets ---------- */
+@media (pointer:coarse){
+  #app.touch #scr-battle .sk{display:none}      /* the pad says it instead */
+  /* thumbs live in the bottom corners, so nothing else may */
+  #app.touch #swapbar{bottom:auto;top:46px;right:8px}
+  #app.touch #swapbar2{bottom:auto;top:46px;left:8px;right:auto}
+  #app.touch #scr-battle.coop #swapbar{left:8px;right:auto;bottom:auto;top:46px}
+  #app.touch #scr-battle.coop #swapbar2{right:8px;left:auto;bottom:auto;top:46px}
+  #app.touch #link-cue{right:auto;left:50%;transform:translateX(-50%);bottom:auto;top:26px}
+  #app.touch .swapbar .sw{pointer-events:auto}
+}
+@media (max-width:860px){
+  #app{width:100vw;height:100dvh;border-width:0}
+  .home-wrap{grid-template-columns:1fr}
+  .home-side{border-left:0;border-top:2px solid var(--line);max-height:26vh;padding:10px}
+  .menu{grid-template-columns:1fr;gap:8px}
+  .menu .card{padding:10px 12px}
+  .menu .card h3{font-size:10px;margin-bottom:3px}
+  .menu .card p{font-size:10.5px;line-height:1.5}
+  .home-main{padding:10px;gap:9px}
+  .sq .hpb{width:52px}
+  .sq{padding:4px 6px;gap:6px}
+  .banner-wrap{grid-template-columns:1fr}
+  .banner-side{border-left:0;border-top:2px solid var(--line)}
+  .topbar{flex-wrap:wrap;row-gap:6px;padding:8px 10px}
+  .topbar h2{font-size:11px}
+  .pill{font-size:9px;padding:4px 7px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))!important;gap:7px}
+  .ccard .nm{font-size:9px}
+  .relicgrid{grid-template-columns:1fr!important}
+  .rule{font-size:11px;line-height:1.65}
+  .btn{padding:10px 13px;font-size:11px}
+  .keycols{grid-template-columns:1fr}
+  #scr-battle .hud{font-size:8px;padding:5px 6px}
+  #scr-battle .hud .hpwrap{width:34vw}
+  .swapbar .sw{width:34px}
+  #link-cue{font-size:8px;bottom:auto;top:44px}
+  #scr-battle.coop #link-cue{bottom:auto;top:44px}
+}
+/* portrait: the arena on top, the thumbs underneath it where they belong */
+@media (max-width:860px) and (orientation:portrait){
+  #scr-battle{justify-content:flex-start;padding-top:8px}
+  /* the pad has to escape the stage box, which is only as tall as the arena */
+  #app.touch #pad{position:fixed;left:0;right:0;bottom:0;top:var(--padtop,55vh);inset:auto 0 0 0;
+    top:var(--padtop,55vh);
+    background:linear-gradient(180deg,rgba(11,10,18,.4),rgba(11,10,18,.96) 26%)}
+  #app.touch #pad-stick{width:40vw;height:40vw;max-width:190px;max-height:190px;
+    bottom:8%;left:5vw}
+  #app.touch #pad-knob{width:42%;height:42%;margin:0;transform:translate(-50%,-50%)}
+  #app.touch #pad-btns{width:48vw;height:52%;right:4vw;bottom:8%}
+  #app.touch .tb{width:20vw;height:20vw;max-width:92px;max-height:92px}
+  #app.touch .tb.burst{width:22vw;height:22vw;max-width:102px;max-height:102px}
+  #app.touch .tb[data-act="skill"]{right:0;bottom:0}
+  #app.touch .tb[data-act="skill2"]{right:22vw;bottom:8vw}
+  #app.touch .tb[data-act="dash"]{right:2vw;bottom:22vw}
+  #app.touch .tb.burst{right:24vw;bottom:26vw}
+  #app.touch #swapbar{position:fixed;left:50%;right:auto;transform:translateX(-50%);
+    bottom:auto;top:calc(var(--padtop,55vh) + 4px);z-index:22}
+  #app.touch #swapbar .sw{width:52px;pointer-events:auto}
+  #app.touch #pad-stick{bottom:6%}
+  #app.touch #pad-btns{bottom:6%}
+  #rotate-hint{position:fixed;bottom:auto;top:calc(var(--padtop,55vh) + 76px);z-index:21}
+}
+#rotate-hint{position:absolute;inset:auto 0 4px 0;text-align:center;font-size:9px;color:var(--dim);
+  pointer-events:none;z-index:30}
 
 /* ---------- overlays ---------- */
 .ov{position:absolute;inset:0;z-index:50;background:rgba(6,5,12,.9);display:flex;flex-direction:column;
@@ -584,6 +679,18 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
       <div class="swapbar" id="swapbar"></div>
       <div class="swapbar p2 hidden" id="swapbar2"></div>
       <div id="link-cue" class="hidden"><span id="link-txt">OPENING — SWAP TO LINK</span></div>
+      <!-- thumbs. Only ever shown on a touch screen; every button simply
+           presses the key it is bound to, so rebinding still works. -->
+      <div id="rotate-hint" class="hidden">Turn the phone sideways for a bigger arena</div>
+      <div id="pad" class="hidden">
+        <div id="pad-stick"><div id="pad-knob"></div></div>
+        <div id="pad-btns">
+          <button class="tb" data-act="dash"><b>DASH</b></button>
+          <button class="tb" data-act="skill2"><b id="tb-skill2">E</b></button>
+          <button class="tb" data-act="skill"><b id="tb-skill">SKILL</b></button>
+          <button class="tb burst" data-act="burst"><b id="tb-burst">BURST</b><i id="tb-fill"></i></button>
+        </div>
+      </div>
       <div id="raid-bar" class="hidden">
         <div class="rbar"><i id="raid-hp" style="width:100%"></i></div>
         <div id="raid-note"></div>
@@ -4836,6 +4943,7 @@ const held  = list => list.some(k => keys[k]);
 const tapAny = list => list.some(k => pressed(k));
 function moveVec(pad){
   const P = pad || (B && B.p2 ? PAD1 : PAD1_SOLO);
+  if(stick.on && P !== PAD2 && (stick.x || stick.y)) return {x:stick.x, y:stick.y};
   let x=0,y=0;
   if(held(P.left)) x--;
   if(held(P.right)) x++;
@@ -5000,6 +5108,11 @@ function paintKeycaps(){
   caps2.forEach((e,i) => e.classList.toggle('big',
     i < 2 && keyLabel(i === 0 ? b.skill : b.skill2).length === 1));
   if(B) buildSwapBar();
+  const a2 = keymap('p1');
+  const tb = (sel, v) => { const e = $(sel); if(e) e.textContent = v; };
+  tb('#tb-skill',  'SKILL');
+  tb('#tb-skill2', '2ND');
+  tb('#tb-burst',  'BURST');
   const line = sd => {
     const k = keymap(sd);
     return [k.up,k.left,k.down,k.right].map(keyLabel).join(' ')
@@ -6080,6 +6193,9 @@ function syncHud(){
   const bp=(h.mem.burst||0);
   $('#burst-fill').style.height=Math.round(bp*100)+'%';
   $('#sk-burst').classList.toggle('ready', bp>=1);
+  const tf = $('#tb-fill');
+  if(tf){ tf.style.height = Math.round(bp*100)+'%';
+          tf.parentElement.classList.toggle('ready', bp>=1); }
   const dc=$('#dash-cd');
   if(h.dashT>0){ dc.classList.remove('hidden'); dc.textContent=h.dashT.toFixed(1); }
   else dc.classList.add('hidden');
@@ -6106,14 +6222,106 @@ function syncHud(){
 }
 function resize(){
   const st = $('#stage'), app = $('#app');
-  const availW = app.clientWidth - 12, availH = app.clientHeight - 12;
+  const portrait = TOUCH && innerHeight > innerWidth;
+  // on a phone held upright the thumbs own the bottom of the screen, so the
+  // arena only gets the top of it - and it should fill every pixel of that
+  const pad = portrait ? 4 : 12;
+  const availW = app.clientWidth - pad;
+  const availH = (portrait ? Math.round(app.clientHeight*0.54) : app.clientHeight) - pad;
   let s = Math.min(availW/GW, availH/GH);
-  s = s >= 1 ? Math.floor(s) : s;      // crisp integer scale when it fits, else fit
+  if(!TOUCH) s = s >= 1 ? Math.floor(s) : s;   // crisp integer scale when it fits
   const w = Math.round(GW*s), h = Math.round(GH*s);
   cv.style.width = w+'px'; cv.style.height = h+'px';
   st.style.width = w+'px'; st.style.height = h+'px';
+  // held upright, the thumbs get everything under the arena - all of it, so
+  // there is no dead strip between what you are looking at and what you are
+  // holding
+  const padEl = $('#pad');
+  if(padEl && TOUCH){
+    if(portrait){
+      // the pad is fixed to the viewport, so it can own everything under the
+      // arena rather than being trapped inside a box the arena's own height
+      document.documentElement.style.setProperty('--padtop',
+        Math.round(st.getBoundingClientRect().bottom) + 'px');
+    } else {
+      document.documentElement.style.removeProperty('--padtop');
+    }
+    const hint = $('#rotate-hint');
+    if(hint) hint.classList.toggle('hidden', !portrait);
+  }
 }
 addEventListener('resize',resize);
+addEventListener('orientationchange',()=>setTimeout(resize,120));
+
+/* ================================ TOUCH =================================
+   No keyboard, so the thumbs press keys instead. A pad button writes the
+   code its action is bound to straight into the same `keys` table the
+   keyboard writes to, which means rebinding, player two, and every line of
+   input handling downstream all keep working without knowing a phone is
+   involved. The stick is the one exception: it is analog, so moveVec reads
+   it directly rather than through four fake key presses.                  */
+const TOUCH = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window
+              || navigator.maxTouchPoints > 0;
+const stick = {on:false, id:null, cx:0, cy:0, x:0, y:0};
+function padPress(action, down){
+  const code = keymap('p1')[action];
+  if(down){ if(!keys[code]) tapped[code] = true; keys[code] = true; }
+  else keys[code] = false;
+}
+function setupTouch(){
+  if(!TOUCH) return;
+  $('#app').classList.add('touch');
+  $('#pad').classList.remove('hidden');
+  const zone = $('#pad-stick'), knob = $('#pad-knob');
+  const R = () => zone.getBoundingClientRect();
+  const moveKnob = (dx, dy) => {
+    const r = R(), lim = r.width*0.34;
+    const d = Math.hypot(dx, dy) || 1, k = Math.min(1, d/lim);
+    stick.x = dx/d*k; stick.y = dy/d*k;
+    if(d < r.width*0.10){ stick.x = 0; stick.y = 0; }
+    knob.style.transform = 'translate(calc(-50% + '+(stick.x*lim)+'px), calc(-50% + '+(stick.y*lim)+'px))';
+  };
+  const start = e => {
+    for(const t of e.changedTouches){
+      if(stick.id !== null) break;
+      stick.id = t.identifier; stick.on = true;
+      const r = R(); stick.cx = r.left + r.width/2; stick.cy = r.top + r.height/2;
+      moveKnob(t.clientX-stick.cx, t.clientY-stick.cy);
+    }
+    e.preventDefault();
+  };
+  const move = e => {
+    for(const t of e.changedTouches)
+      if(t.identifier === stick.id) moveKnob(t.clientX-stick.cx, t.clientY-stick.cy);
+    e.preventDefault();
+  };
+  const end = e => {
+    for(const t of e.changedTouches) if(t.identifier === stick.id){
+      stick.id = null; stick.on = false; stick.x = 0; stick.y = 0;
+      knob.style.transform = 'translate(-50%,-50%)';
+    }
+  };
+  zone.addEventListener('touchstart', start, {passive:false});
+  zone.addEventListener('touchmove',  move,  {passive:false});
+  zone.addEventListener('touchend',   end);
+  zone.addEventListener('touchcancel',end);
+  $$('#pad-btns .tb').forEach(bt => {
+    const act = bt.dataset.act;
+    const down = e => { bt.classList.add('on'); padPress(act, true);  e.preventDefault(); };
+    const up   = e => { bt.classList.remove('on'); padPress(act, false); e.preventDefault(); };
+    bt.addEventListener('touchstart', down, {passive:false});
+    bt.addEventListener('touchend',   up,   {passive:false});
+    bt.addEventListener('touchcancel',up);
+    bt.addEventListener('mousedown',  down);
+    bt.addEventListener('mouseup',    up);
+    bt.addEventListener('mouseleave', () => { bt.classList.remove('on'); padPress(act, false); });
+  });
+  // a phone should not scroll, zoom or select while somebody is playing
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('touchmove', e => {
+    if(!$('#scr-battle').classList.contains('hidden')) e.preventDefault();
+  }, {passive:false});
+}
 
 /* ------------------------------ MAIN LOOP ------------------------------ */
 let last=performance.now();
@@ -6222,8 +6430,8 @@ addEventListener('keydown',e=>{ if(e.code==='Escape' && B && B.kind==='raid' && 
 fxImg.onload  = () => { fxReady = true; };
 fxImg.onerror = () => { fxReady = false; console.warn('fx atlas failed to load'); };
 fxImg.src = FX_SRC;
-atlas.onload  = () => { atlasReady = true;  load(); rebuildPads(); paintKeycaps(); resize(); };
-atlas.onerror = () => { atlasReady = false; load(); rebuildPads(); paintKeycaps(); resize();
+atlas.onload  = () => { atlasReady = true;  load(); rebuildPads(); paintKeycaps(); setupTouch(); resize(); };
+atlas.onerror = () => { atlasReady = false; load(); rebuildPads(); paintKeycaps(); setupTouch(); resize();
                         console.warn('atlas failed to load'); };
 atlas.src = ATLAS_SRC;
 </script>
