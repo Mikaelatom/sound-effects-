@@ -168,6 +168,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .node.now{opacity:1;border-color:var(--pink);box-shadow:0 0 18px rgba(255,95,162,.4);animation:bob 1.4s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-5px)}}
 .node.boss{border-color:var(--red)}
+.node.duel{border-color:var(--pink)}
+.node.duel .ic{color:var(--pink)}
 .connector{flex:0 0 auto;width:16px;height:2px;background:var(--line)}
 .gate{flex:0 0 auto;width:52px;text-align:center;font-size:8px;letter-spacing:.1em;color:var(--gold);
   border-left:2px dashed var(--gold);border-right:2px dashed var(--gold);padding:14px 4px;line-height:1.4}
@@ -2306,9 +2308,9 @@ function buildNodes(){
   const nodes = [];
   for(let f = 0; f < FLOORS; f++){
     // every floor ends on a boss; the middle shuffles so they don't feel identical
-    const plan = ['battle','battle','treasure','battle','elite','rest','battle','boss'];
-    if(f === 1){ plan[2] = 'elite'; plan[4] = 'treasure'; }
-    if(f === 2){ plan[1] = 'elite'; plan[3] = 'treasure'; plan[6] = 'elite'; }
+    const plan = ['battle','battle','treasure','duel','elite','rest','battle','boss'];
+    if(f === 1){ plan[2] = 'elite'; plan[4] = 'treasure'; plan[6] = 'duel'; }
+    if(f === 2){ plan[1] = 'elite'; plan[3] = 'treasure'; plan[5] = 'duel'; plan[6] = 'elite'; }
     plan.forEach(t => nodes.push({type:t, floor:f, depth:nodes.length, done:false}));
   }
   return nodes;
@@ -2379,7 +2381,7 @@ function renderMap(){
   $('#map-floor').textContent = FLOOR_NAMES[fl];
   $('#map-shards').textContent=R.shards;
   const t=$('#track'); t.innerHTML='';
-  const IC={battle:'⚔',elite:'☠',rest:'✚',treasure:'◈',boss:'👑'};
+  const IC={battle:'⚔',elite:'☠',rest:'✚',treasure:'◈',boss:'👑',duel:'⚔'};
   R.nodes.forEach((n,i)=>{
     if(i){
       const c=document.createElement('div');
@@ -2388,7 +2390,8 @@ function renderMap(){
       t.appendChild(c);
     }
     const d=document.createElement('div');
-    d.className='node'+(n.done?' done':'')+(i===R.depth?' now':'')+(n.type==='boss'?' boss':'');
+    d.className='node'+(n.done?' done':'')+(i===R.depth?' now':'')
+      +(n.type==='boss'?' boss':'')+(n.type==='duel'?' duel':'');
     d.innerHTML=`<div class="ic">${IC[n.type]}</div><div>${n.type.toUpperCase()}</div>`+
       `<div class="muted">${n.floor+1}-${(i % ROOMS_PER_FLOOR)+1}</div>`;
     t.appendChild(d);
@@ -2434,6 +2437,7 @@ function enterNode(){
     Sfx.win(); toast('Squad patched up.'); advance(); return;
   }
   if(n.type==='treasure'){ offerBoons(3, ()=>{ R.shards+=150; advance(); }); return; }
+  if(n.type==='duel'){ startBattle('duel'); return; }
   startBattle(n.type);
 }
 function offerBoons(count, done, title){
@@ -2888,7 +2892,49 @@ function pressed(code){
   return false;
 }
 
+/* ============================== RIVALS ==================================
+   Character-sized bosses that fight the way a player does. The trick is one
+   the versus mode already pays for: while a rival casts, the players are
+   installed as its enemy list, so every skill in the game - all hundred and
+   ten of them - works pointed the other way without a single special case.
+   Whatever the cast leaves lying around (a shot, a field, a called strike)
+   is stamped as the rival's on the way out, and the resolution loops check
+   that flag to decide whose face it lands in.
+   Their moves ARE the characters' moves, just bigger: a Rival's numbers are
+   the character's own multiplied by RIVAL_POWER, on a longer cooldown.    */
+const RIVAL_POWER = 2.1;
+/* a rival's own numbers are a character's, so what lands on you is scaled
+   down to something a person can survive being hit by */
+const RIVAL_HIT = 0.16;
+const RIVALS = [
+  {id:'aoi',    title:'the Unsheathed',    hp:520, spd:74, reach:34,
+   moves:['crescent','wide_slash','threesword']},
+  {id:'kagura', title:'the Starfallen',    hp:470, spd:56, reach:120,
+   moves:['rain','beam','sigilchain']},
+  {id:'ren',    title:'the Second One',    hp:480, spd:80, reach:32,
+   moves:['blink_strike','mark','garrote']},
+  {id:'rai',    title:'the First Form',    hp:500, spd:82, reach:46,
+   moves:['iaidraw','phantomedge','threesword']},
+  {id:'homura', title:'the Ember Ogre',    hp:620, spd:62, reach:44,
+   moves:['flamewave','burn_field','quake']},
+  {id:'toya',   title:'the Limitless',     hp:560, spd:60, reach:70,
+   moves:['bluepull','redpush','heavyair']},
+  {id:'kassandra', title:'the Crimson Lance', hp:540, spd:70, reach:40,
+   moves:['impale','cleave','quake']},
+  {id:'sable',  title:'the Red Countess',  hp:520, spd:76, reach:40,
+   moves:['lunge','reap','garrote']},
+  {id:'boro',   title:'the Siege Engine',  hp:600, spd:56, reach:120,
+   moves:['cannon','mortar','flak']},
+  {id:'vira',   title:'the Heavy Hour',    hp:520, spd:58, reach:96,
+   moves:['heavyair','sigilchain','vortex']},
+  {id:'dain',   title:'the Half Blade',    hp:540, spd:74, reach:40,
+   moves:['phantomedge','cleave','wide_slash']},
+  {id:'zeph',   title:'the Long Wind',     hp:500, spd:88, reach:46,
+   moves:['fanstorm','sandveil','crescent']}
+];
+const RIVAL = Object.fromEntries(RIVALS.map(r => [r.id, r]));
 const MOBS = {
+  rival:{hp:1, spd:70, dmg:16, r:7, ai:'rival', scale:1.15},
   warden:{hp:1, spd:34, dmg:12, r:7, ai:'chase', row:'brute', scale:1.25},
   sovereign:{hp:1, spd:16, dmg:20, r:18, ai:'sovereign', scale:3},
   unmaker:{hp:1, spd:14, dmg:22, r:19, ai:'sovereign', row:'unmaker', scale:3},
@@ -2904,6 +2950,7 @@ const MOBS = {
 function waveTable(kind, depth){
   const d=depth;
   if(kind==='raid' || kind==='pvp') return [[]];
+  if(kind==='duel') return [['rival']];
   if(kind==='boss') return [['boss']];
   const t=[];
   const n=kind==='elite'?3:3;
@@ -2931,6 +2978,7 @@ function startBattle(kind){
       shake:0, hitstop:0, t:0, done:false, clearT:0, turrets:[], fields:[], hits:[], burstLock:0,
       overcharge:0, encore:0, opening:0, combo:0, linkCd:0, linkUsed:[],
       arcs:[], mines:[], strikes:[], slowAll:0, banner:null, pets:[], walls:[], echoQ:[],
+      rival:null,
       pending:[],
       p2:null, pvp:false, harvest:[],
       coop:false, rescue1:0, rescue2:0,
@@ -2975,11 +3023,108 @@ function nextWave(){
   const list=B.waves[B.wave];
   B.spawnLock = list.length*0.09 + 0.35;
   list.forEach((type,i)=>{
-    setTimeout(()=>{ if(B&&!B.done) spawnMob(type); }, i*90);
+    setTimeout(()=>{ if(!B||B.done) return;
+      if(type === 'rival') spawnRival(); else spawnMob(type); }, i*90);
   });
   $('#hud-wave').textContent = B.kind==='boss' ? 'BOSS' : `WAVE ${B.wave+1}/${B.waves.length}`;
 }
 const COOP_HP = 1.7;          // what a second pair of hands costs the room
+/* whichever rivals this run has not thrown at you yet */
+function pickRival(){
+  R.duels = R.duels || [];
+  const left = RIVALS.filter(r => !R.duels.includes(r.id));
+  const r = pick(left.length ? left : RIVALS);
+  R.duels.push(r.id);
+  return r;
+}
+function spawnRival(){
+  const cfg = pickRival(), c = CHAR[cfg.id];
+  spawnMob('rival');
+  const m = B.mobs[B.mobs.length-1];
+  // a duel should last a good half minute, not a wave of adds
+  const scale = 2.7 * (1 + B.depth*0.16) * (B.coop ? COOP_HP*0.8 : 1);
+  m.rival = cfg;
+  m.row = cfg.id;
+  m.name = c.name + ', ' + cfg.title;
+  m.hp = m.maxhp = cfg.hp * scale;
+  m.atk = c.atk * (1 + B.depth*0.10) * RIVAL_POWER;
+  m.dmg = c.atk * 0.9 * (1 + B.depth*0.09);
+  m.spd = cfg.spd * 0.62;                      // it fights, it does not chase you down
+  m.reach = cfg.reach;
+  m.color = ELC[c.element];
+  m.mv = 0; m.mvT = 1.2; m.face = -1;
+  m.x = AR.x1 - 60; m.y = (AR.y0+AR.y1)/2;
+  B.rival = m;
+  B.floats.push({x:m.x, y:m.y-46, vy:-10, life:3,
+    txt:c.name.toUpperCase(), color:ELC[c.element], size:11});
+  toast(m.name + ' is waiting.');
+  Sfx.five();
+}
+/* ---- a rival casting: the players become its enemy list for the duration,
+   which is the same trick versus mode uses, and everything the cast leaves
+   behind is stamped as the rival's on the way out. ---- */
+function rivalHero(m){
+  const c = CHAR[m.rival.id];
+  if(!m.mirror){
+    m.mirror = {
+      mem:{id:m.rival.id, hp:m.hp, maxhp:m.maxhp, ko:false, burst:0},
+      st:{maxhp:m.maxhp, atk:m.atk, aspd:1.4, spd:m.spd, range:m.reach,
+          crit:.2, critD:1.9, cd:4, cdMul:1, dmgTaken:1, perk:freshPerkBag()},
+      x:m.x, y:m.y, vx:0, vy:0, r:7, face:m.face, side:3, rivalOf:m,
+      atkT:0, skillT:0, skill2T:0, dashT:0, dashing:0, inv:0, shield:0, flash:0,
+      swapT:0, hitCount:0, untouchable:0, bulwark:0, negT:0, combo:0,
+      anim:{t:0, moving:false, atk:0, atkMax:.3, cast:0, hurt:0}
+    };
+  }
+  const h = m.mirror;
+  h.x = m.x; h.y = m.y; h.face = m.face;
+  h.mem.hp = m.hp; h.st.atk = m.atk; h.st.maxhp = m.maxhp;
+  return h;
+}
+/* Run fn as the rival: the players stand in as its enemy list for the whole
+   call, and everything the call leaves behind is handed to the rival on the
+   way out. Deferred work goes through here too, or a move that lands half a
+   second late would come out of the cast pointed at the wrong side.       */
+function asRival(m, fn){
+  const realMobs = B.mobs;
+  syncPvpProxies(true);
+  const proxies = players().map(pl => pl.proxy).filter(Boolean);
+  if(proxies.length) B.mobs = proxies;
+  const pre = {};
+  for(const k of OWNED_LISTS) pre[k] = B[k] ? B[k].length : 0;
+  const preP = B.pending ? B.pending.length : 0;
+  try { fn(); } catch(e){ console.warn('rival cast', e); }
+  B.mobs = realMobs;
+  for(const k of OWNED_LISTS){
+    if(!B[k]) continue;
+    for(let i = pre[k]; i < B[k].length; i++){
+      const o = B[k][i]; if(!o) continue;
+      o.own = null; o.foe = m;
+      if(k === 'shots'){
+        // a shot goes straight to hurtHero, while fields and strikes are scaled
+        // on the way in - so scale it here, or a gunner hits six times harder
+        // than a duellist for the same multiplier
+        o.team = 'mob'; o.owner = null; o.side = 3; o.dmg *= RIVAL_HIT;
+      }
+      if(k === 'pets'){ B[k].splice(i, 1); i--; }   // it does not get to bring friends
+    }
+  }
+  if(B.pending) for(let i = preP; i < B.pending.length; i++) B.pending[i].foe = m;
+}
+function castAsRival(m, type, mul){
+  const h = rivalHero(m);
+  asRival(m, () => withHero(h, () => {
+    const sk = {name:type, type, dmg:mul, cd:4};
+    const src = [CHAR[m.rival.id].skill, CHAR[m.rival.id].skill2, CHAR[m.rival.id].burst]
+                .find(k => k && k.type === type);
+    if(src) Object.assign(sk, src, {type, dmg:mul});
+    castSkill_(sk, mul);
+  }));
+  // a move that moved the caster moved the rival: blinks and lunges are real
+  m.x = clamp(h.x, AR.x0+6, AR.x1-6); m.y = clamp(h.y, AR.y0+8, AR.y1-2);
+  m.face = h.face;
+  m.anim = h.anim;
+}
 function spawnMob(type){
   const t=MOBS[type];
   const co = B.coop ? COOP_HP : 1;
@@ -3000,6 +3145,9 @@ function spawnMob(type){
 function hurtMob(m, dmg, crit, kb, src){
   if(m.proxyFor){                                  // it is a person, not a monster
     if(m.proxyFor === B.hero) return;              // and not you
+    // outside versus these stand-ins only exist so a rival has something to
+    // aim at, so nothing of YOURS is allowed to land on one
+    if(!B.pvp && !(B.hero && B.hero.rivalOf)) return;
     hurtHero(dmg, m.proxyFor);
     spawnHit(m.x, m.y-6, '#ff5d5d', crit ? 'nova' : 'burst');
     return;
@@ -3458,6 +3606,7 @@ function nearestMob(x,y,maxd){
   for(const m of B.mobs){
     if(m.dead) continue;
     if(m.proxyFor && m.proxyFor === B.hero) continue;   // never target yourself
+    if(m.proxyFor && !B.pvp && !(B.hero && B.hero.rivalOf)) continue;  // and not a stand-in
     const d=Math.hypot(m.x-x,m.y-y); if(d<bd){bd=d;best=m;}
   }
   return best;
@@ -3465,12 +3614,12 @@ function nearestMob(x,y,maxd){
 /* In a versus match each player carries a stand-in inside B.mobs. Every skill
    in the game already knows how to hurt a mob, so this is what lets all
    ninety-nine of them work against a person without a single special case. */
-function syncPvpProxies(){
-  if(!B || !B.pvp) return;
+function syncPvpProxies(force){
+  if(!B || (!B.pvp && !force)) return;
   for(const pl of players()){
     if(!pl) continue;
     if(!pl.proxy){
-      pl.proxy = {type:'player', proxyFor:pl, ghost:true, x:pl.x, y:pl.y, r:pl.r+3,
+      pl.proxy = {type:'player', proxyFor:pl, ghost:true, decor:true, x:pl.x, y:pl.y, r:pl.r+3,
         hp:1e9, maxhp:1e9, dead:false, flash:0, hurtT:0, t:0, dmg:0, ai:'kite',
         slow:0, slowT:0, frozen:0, burn:0, burnT:0, curse:0, moving:false, scale:1};
       B.mobs.push(pl.proxy);
@@ -6590,13 +6739,18 @@ function update(dt){
     if(due.length){
       B.pending = B.pending.filter(q => q.t > 0);
       for(const q of due){
+        if(q.foe){                              // a rival's, so it lands the other way
+          if(q.foe.dead) continue;
+          asRival(q.foe, () => withHero(q.hero || B.hero, q.fn));
+          continue;
+        }
         const owner = q.hero || B.hero;
         if(owner.mem && owner.mem.ko) continue;
         withHero(owner, q.fn);
       }
     }
   }
-  syncPvpProxies();
+  syncPvpProxies(!!B.rival);
   updateBurst(dt);
   if(B.kind === 'raid') updateRaid(dt);
   stepHero(B.hero, dt, B.p2 ? PAD1 : PAD1_SOLO);
@@ -6654,6 +6808,41 @@ function update(dt){
       else if(m.state==='wind'){ if(m.stateT<=0){ m.state='dash'; m.stateT=.4; m.dvx=dx/d*300; m.dvy=dy/d*300; } }
       else if(m.state==='dash'){ m.x+=m.dvx*dt; m.y+=m.dvy*dt;
         if(m.stateT<=0){ m.state='idle'; m.cd=2.4; } }
+    }
+    else if(m.ai==='rival'){
+      // it plays the way you do: hold its range, tell you what is coming,
+      // then throw one of the three moves its character actually owns
+      m.stateT -= dt; m.mvT -= dt;
+      if(m.state === 'idle'){
+        const want = m.reach;
+        if(d > want*1.15){ m.x += dx/d*sp*dt; m.y += dy/d*sp*dt; m.moving = true; }
+        else if(d < want*0.65){ m.x -= dx/d*sp*dt; m.y -= dy/d*sp*dt; m.moving = true; }
+        else {                                   // circle, so it never just stands there
+          if(m.mvT <= 0){ m.mv = pick([1,-1]); m.mvT = rnd(1.6,.7); }
+          const a2 = Math.atan2(dy,dx) + Math.PI/2*m.mv;
+          m.x += Math.cos(a2)*sp*.75*dt; m.y += Math.sin(a2)*sp*.75*dt; m.moving = true;
+        }
+        m.cd -= dt;
+        if(m.cd <= 0){
+          m.next = m.rival.moves[(m.turn = ((m.turn||0)+1)) % m.rival.moves.length];
+          m.heavy = m.next === m.rival.moves[2];
+          m.state = 'wind'; m.stateT = m.heavy ? .85 : .55;
+          B.floats.push({x:m.x, y:m.y-40, vy:-12, life:.9,
+            txt:CHAR[m.rival.id][
+              m.rival.moves.indexOf(m.next) === 0 ? 'skill'
+              : m.rival.moves.indexOf(m.next) === 1 ? 'skill2' : 'burst'].name.toUpperCase(),
+            color:m.color, size:8});
+        }
+      } else if(m.state === 'wind'){
+        m.moving = false;
+        if(m.stateT <= 0){
+          const mul = (m.heavy ? 1.5 : 1) * RIVAL_POWER * 0.5 * (m.rival.power || 1);
+          castAsRival(m, m.next, mul);
+          m.state = 'idle';
+          m.cd = (m.heavy ? 3.6 : 2.2) * (B.depth > 12 ? .78 : 1);
+        }
+      }
+      m.face = dx < 0 ? -1 : 1;
     }
     else if(m.ai==='sovereign'){
       if(d > 70){ m.x += dx/d*sp*dt; m.y += dy/d*sp*dt; }
@@ -6819,6 +7008,29 @@ function update(dt){
   /* --- fields --- */
   for(const f of B.fields) asOwner(f.own, () => {
     f.life-=dt;
+    if(f.foe){                                   // a rival's, so it lands the other way
+      if(f.type==='nova'||f.type==='freeze'){
+        f.r=lerp(6,f.maxr,1-f.life/f.max);
+        f.set = f.set || new Set();
+        players().forEach(pl => { if(pl && !pl.mem.ko && !f.set.has(pl) && dist(pl,f)<f.r+pl.r){
+          f.set.add(pl); hurtHero(f.dmg*RIVAL_HIT, pl);
+          if(f.type==='freeze') pl.slow = .6, pl.slowT = 1.4; }});
+      } else if(f.type==='vortex'){
+        players().forEach(pl => { if(pl && !pl.mem.ko && dist(pl,f)<f.r+pl.r){
+          const a=Math.atan2(f.y-pl.y,f.x-pl.x);
+          pl.x+=Math.cos(a)*90*dt; pl.y+=Math.sin(a)*60*dt; }});
+        if(f.life<=dt) players().forEach(pl => { if(pl && !pl.mem.ko && dist(pl,f)<f.r+pl.r)
+          hurtHero((f.crush||f.dmg)*RIVAL_HIT, pl); });
+      } else if(f.type==='burn'){
+        f.tick-=dt;
+        if(f.tick<=0){ f.tick=.4;
+          players().forEach(pl => { if(pl && !pl.mem.ko && dist(pl,f)<f.r+pl.r)
+            hurtHero(f.dmg*.4*RIVAL_HIT, pl); }); }
+        if(Math.random()<.6) B.fx.push({x:f.x+rnd(f.r,-f.r), y:f.y+rnd(f.r*.5,-f.r*.5),
+          vx:0, vy:-24, life:.5, c:f.color||'#ff8b4d', s:1});
+      }
+      return;
+    }
     if(f.type==='nova'||f.type==='freeze'){
       f.r=lerp(6,f.maxr,1-f.life/f.max);
       B.mobs.forEach(m=>{ if(!m.dead&&!f.set.has(m)&&dist(m,f)<f.r+m.r){
@@ -6893,6 +7105,24 @@ function update(dt){
   /* --- called shots: they land where they were called, a beat later --- */
   for(const st of B.strikes) asOwner(st.own, () => {
     st.t-=dt;
+    if(st.foe){
+      if(st.t<=0 && !st.done){
+        st.done = true;
+        players().forEach(pl => { if(!pl || pl.mem.ko) return;
+          let on;
+          if(st.line){
+            on = false;
+            for(let k=0;k<st.len;k+=10)
+              if(Math.hypot(pl.x-(st.ax+st.dx*k), (pl.y-6)-(st.ay+st.dy*k)) < st.r+pl.r){ on=true; break; }
+          } else on = dist(pl, st) < st.r + pl.r;
+          if(on) hurtHero(st.dmg*RIVAL_HIT, pl);
+        });
+        spawnHit(st.line ? st.ax+st.dx*st.len*.5 : st.x,
+                 st.line ? st.ay+st.dy*st.len*.5 : st.y, st.color, 'nova');
+        B.shake = Math.max(B.shake, 6);
+      }
+      return;
+    }
     if(st.t<=0 && !st.done){
       st.done=true;
       if(st.line){                                   // a drawn line rather than a circle
@@ -7273,7 +7503,16 @@ function render(){
       }
       if(m.frozen > 0) drawFrame(ctx, m.row, mobFrame(m), mx, my, m.face < 0, m.scale, .55, '#5fe6ff');
       else              drawFrame(ctx, m.row, mobFrame(m), mx, my, m.face < 0, m.scale, m.flash);
-      if(m.type === 'boss' || m.type === 'brute' || m.type === 'warden'){
+      if(m.rival){
+        const w = 160, top = my - 124;
+        ctx.fillStyle = '#000'; ctx.fillRect(mx-w/2-2, top-2, w+4, 10);
+        ctx.fillStyle = m.color; ctx.fillRect(mx-w/2, top, w*clamp(m.hp/m.maxhp,0,1), 6);
+        ctx.font = 'bold 11px ui-monospace, monospace';
+        ctx.textAlign = 'center'; ctx.fillStyle = '#000';
+        ctx.fillText(m.name, mx+1, top-6); ctx.fillStyle = m.color;
+        ctx.fillText(m.name, mx, top-7);
+      }
+      else if(m.type === 'boss' || m.type === 'brute' || m.type === 'warden'){
         const w = m.type === 'boss' ? 130 : 46, top = my - (FH-8)*m.scale - 10;
         ctx.fillStyle = '#000'; ctx.fillRect(mx-w/2-2, top-2, w+4, 9);
         ctx.fillStyle = '#ff5d5d'; ctx.fillRect(mx-w/2, top, w*clamp(m.hp/m.maxhp,0,1), 5);

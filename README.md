@@ -206,7 +206,32 @@ but you keep the shards.
   character keeps their own HP and Burst meter for the whole run. When one is
   KO'd you drop to the next. All three down and the run is over.
 
-Rooms come in five flavours: battle, elite, rest, treasure, boss. Each floor
+### Duels
+
+Four rooms a run are a **Duel**: one character-sized boss, an empty arena, and
+nothing else. A Rival *is* a character — Aoi the Unsheathed, Toya the
+Limitless, Boro the Siege Engine — with that character's sprite, that
+character's element, and **that character's actual moves**, on longer
+cooldowns and hitting a great deal harder. It holds its own range, circles
+rather than standing still, names the move it is about to throw, and then
+throws it: Ren blinks behind you and marks you, Kassandra pins you on the end
+of the lance, Boro walks mortars across the floor, Zephyra throws fans that
+come back.
+
+They are not scripted patterns. The rival runs the **real skill code** — the
+same `castSkill` your characters use, all hundred and ten mechanics of it. The
+trick is the one Versus already pays for: while a rival casts, the players are
+installed as its enemy list, so every skill in the game works pointed the other
+way without a single special case, and whatever the cast leaves behind (a shot,
+a burning field, a called strike, work deferred half a second) is stamped as
+the rival's on the way out. A move that moves the caster moves the *rival* —
+blinks and lunges are real.
+
+Twelve of them, never the same one twice in a run. Against a headless squad
+that plays properly they take **twenty to seventy seconds** and cost between a
+tenth and three quarters of the squad's health.
+
+Rooms come in six flavours: battle, elite, **duel**, rest, treasure, boss. Each floor
 ends on a boss and the enemies keep scaling, so floor 3 is a different game
 from floor 1. After each fight you pick 1 of 3 **relics** — 20 of them,
 stacking into some genuinely stupid builds (Split Volley + Piercing Shot +
