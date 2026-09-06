@@ -231,6 +231,13 @@ Twelve of them, never the same one twice in a run. Against a headless squad
 that plays properly they take **twenty to seventy seconds** and cost between a
 tenth and three quarters of the squad's health.
 
+You can also **pick one**. **DUEL** on the Home screen lists all twelve — their
+portrait, their element, the range they fight at and the three moves they are
+actually bringing — and you choose your opponent the same way you choose a raid
+boss. Two relics on the way in, so it is a loadout decision rather than a coin
+toss. Every duel you win makes the next one **18% tougher** and the screen
+remembers which rivals you have already beaten.
+
 Rooms come in six flavours: battle, elite, **duel**, rest, treasure, boss. Each floor
 ends on a boss and the enemies keep scaling, so floor 3 is a different game
 from floor 1. After each fight you pick 1 of 3 **relics** — 20 of them,

@@ -448,6 +448,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
             <p>One fight, four phases, five minutes. Pick three relics on the way in — it is the one place you build a loadout instead of finding one.</p></button>
           <button class="card" id="go-raid2"><h3 id="raid2-head" style="color:var(--purple)">▸ RAID II · THE UNMAKER</h3>
             <p id="raid2-blurb">Six minutes. It splits into three, it eats your summons, and it takes your Bursts away. Beat the Sovereign first.</p></button>
+          <button class="card" id="go-duel"><h3 style="color:var(--pink)">▸ DUEL · CHALLENGE A RIVAL</h3>
+            <p id="duel-blurb">One character-sized boss, an empty arena, and their whole kit pointed at you. Pick which one.</p></button>
           <button class="card" id="go-coop"><h3 style="color:var(--green)">▸ CO-OP · LOCAL</h3>
             <p id="coop-blurb">Two players on one keyboard, on the same side. Take the Spire or either raid together.</p></button>
           <button class="card" id="go-versus"><h3 style="color:var(--pink)">▸ VERSUS · LOCAL</h3>
@@ -504,6 +506,29 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         <div class="spacer"></div>
         <button class="btn sm ghost" id="freeshards">Daily Stipend</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ DUEL ============ -->
+  <div class="screen hidden" id="scr-duel">
+    <div class="topbar">
+      <button class="btn sm ghost" data-back>◀ Back</button>
+      <h2 class="px">DUEL</h2><div class="spacer"></div>
+      <div class="pill">⚔ <b id="duel-count">0</b> won</div>
+    </div>
+    <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="rule">
+        A <b>Rival</b> is one of the cast, character-sized, running
+        <span class="hl">their own moves</span> on longer cooldowns and hitting a
+        great deal harder. No adds, no waves — just them, you, and whichever
+        three you brought. They get harder every time you win one.
+      </div>
+      <div class="rowc"><div class="px" style="font-size:10px;color:var(--pink)">CHOOSE YOUR OPPONENT</div>
+        <div class="tiny muted" id="duel-pickname">—</div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="duel-go">Fight</button></div>
+      <div class="grid" id="duel-grid"></div>
+      <div class="rule tiny" id="duel-kit"></div>
     </div>
   </div>
 
@@ -1884,6 +1909,7 @@ const freshSave = () => ({
   pity5: 0, pity4: 0, pulls: 0,
   best: 0, clears: 0, raidClears: 0, raidBest: 0, stipend: 0,
   raid2Clears: 0, raid2Best: 0,
+  duelClears: 0, duelWins: {},   // rivals you have beaten, and how many duels total
   perks: {},              // charId -> [perkId|null, perkId|null]
   coop: false,            // is a second player coming with you?
   squad2: [],             // and who they are bringing
@@ -3031,6 +3057,7 @@ function nextWave(){
 const COOP_HP = 1.7;          // what a second pair of hands costs the room
 /* whichever rivals this run has not thrown at you yet */
 function pickRival(){
+  if(R.duel && R.duelId) return RIVAL[R.duelId];   // you chose this one
   R.duels = R.duels || [];
   const left = RIVALS.filter(r => !R.duels.includes(r.id));
   const r = pick(left.length ? left : RIVALS);
@@ -3421,7 +3448,9 @@ function hurtHero(dmg, who){
       // the same deal the other way round: player two holds the room while
       // player one gets back on their feet
       if(B.p2 && !B.p2.mem.ko && (B.rescue1||0) <= 0){ rescueSide(1); return; }
-      B.done=true; const bid=B; setTimeout(()=>{ if(B===bid) endRun(false); },700);
+      B.done=true; const bid=B;
+      if(R && R.duel){ setTimeout(()=>{ if(B===bid) endDuel(false); }, 700); }
+      else setTimeout(()=>{ if(B===bid) endRun(false); },700);
     }
     else swapTo(nxt,true);
   }
@@ -6151,6 +6180,10 @@ function paintCoopState(){
     pill.title = S.coop ? 'Co-op is on — click to play alone again'
                         : 'Co-op is off — click to bring a second player';
   }
+  const db = $('#duel-blurb');
+  if(db) db.textContent = (S.duelClears||0)
+    ? (S.duelClears + ' won. They get 18% tougher every time — pick your next one.')
+    : 'One character-sized boss, an empty arena, and their whole kit pointed at you. Pick which one.';
   const cb = $('#coop-blurb');
   if(cb) cb.textContent = S.coop
     ? 'ON — player two joins every fight, in the Spire and in both raids. Rooms and bosses carry 70% more health for it.'
@@ -6326,6 +6359,100 @@ function nearestPlayer(x, y){
     if(d < bd){ bd = d; best = p; }
   }
   return best;
+}
+
+/* ============================= THE DUEL ROOM =============================
+   Rivals turn up on their own inside a run, but you should be able to walk
+   up to a specific one the same way you walk up to a raid boss - pick your
+   opponent, see exactly which three moves they are bringing, and go.      */
+let duelPick = RIVALS[0].id;
+function renderDuel(){
+  const g = $('#duel-grid'); if(!g) return;
+  $('#duel-count').textContent = S.duelClears || 0;
+  g.innerHTML = '';
+  RIVALS.forEach(rv => {
+    const c = CHAR[rv.id];
+    const won = (S.duelWins || {})[rv.id];
+    const card = charCard(c, {
+      sel: duelPick === rv.id,
+      onClick: () => { duelPick = rv.id; Sfx.ui(); renderDuel(); }
+    });
+    const tag = document.createElement('div');
+    tag.className = 'tiny';
+    tag.style.cssText = 'color:' + (won ? 'var(--green)' : 'var(--dim)') + ';font-size:8.5px';
+    tag.textContent = won ? ('beaten ×' + won) : rv.title;
+    card.appendChild(tag);
+    g.appendChild(card);
+  });
+  const rv = RIVAL[duelPick], c = CHAR[duelPick];
+  $('#duel-pickname').textContent = c.name + ', ' + rv.title;
+  // a rival's third move is sometimes borrowed from elsewhere in the roster,
+  // so fall back to whoever in the cast actually owns that mechanic
+  const slotOf = t => {
+    if(t === c.skill.type) return c.skill;
+    if(t === c.skill2.type) return c.skill2;
+    if(t === c.burst.type) return c.burst;
+    for(const q of CHARS)
+      for(const k of [q.skill, q.skill2, q.burst]) if(k && k.type === t) return k;
+    return null;
+  };
+  const moves = rv.moves.map((t, i) => {
+    const k = slotOf(t);
+    return '<b style="color:' + ELC[c.element] + '">'
+         + (k ? k.name : t) + (i === 2 ? ' (heavy)' : '') + '</b>';
+  }).join(' &nbsp;·&nbsp; ');
+  const tier = 1 + (S.duelClears || 0)*0.18;
+  $('#duel-kit').innerHTML =
+    '<b>' + c.name + '</b> &mdash; ' + c.element + ', fights at '
+    + (rv.reach > 80 ? 'range' : rv.reach > 44 ? 'mid' : 'arm\u2019s length')
+    + '.<br>Brings: ' + moves
+    + '<br><span class="muted">Health ' + Math.round(rv.hp*2.7*tier)
+    + ' &nbsp;·&nbsp; every duel you win makes the next one 18% tougher.</span>';
+}
+function startDuel(id){
+  if(!S.squad.length){ toast('Pick a squad first.'); return; }
+  R = { depth:Math.round((S.duelClears||0)*1.1), nodes:[], boons:[], shards:0,
+        mods:freshMods(), active:0, over:false, duel:true, duelId:id };
+  R.squad = S.squad.map(m => ({id:m, hp:0, maxhp:0, ko:false, burst:0}));
+  R.squad2 = coopSquad();
+  if(S.squad.includes('hinata')) R.mods.regen += .01;
+  if(S.squad.includes('nari'))   R.mods.atkM  += .10;
+  R.revives = 0;
+  // two relics on the way in, so a duel is a loadout decision like a raid is
+  draftRelics(2, () => {
+    R.squad.forEach(m => { const st = combatStats(m); m.maxhp = st.maxhp; m.hp = st.maxhp; });
+    startBattle('duel');
+  });
+}
+function endDuel(win){
+  const m = B && B.rival;
+  const pct = m ? clamp(1 - m.hp/m.maxhp, 0, 1) : 0;
+  const id = (R && R.duelId) || duelPick;
+  const c = CHAR[id], rv = RIVAL[id];
+  const earned = Math.round(win ? 6000 + (S.duelClears||0)*900 : 600*pct);
+  S.shards += earned;
+  if(win){
+    S.duelClears = (S.duelClears||0) + 1;
+    S.duelWins = S.duelWins || {};
+    S.duelWins[id] = (S.duelWins[id]||0) + 1;
+  }
+  save();
+  B = null;
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="px" style="font-size:18px;color:${win?'var(--gold)':'var(--red)'}">
+      ${win ? c.name.toUpperCase() + ' YIELDS' : 'YOU FALL'}</div>
+    <div class="tiny muted">${c.name}, ${rv.title} &nbsp;·&nbsp; you took them to ${Math.round(pct*100)}%</div>
+    <div class="px" style="font-size:13px;color:var(--gold)">+${earned} ◈</div>
+    <div class="tiny muted" style="max-width:440px;line-height:1.8">
+      A Rival plays the way you do: it holds its range, it tells you what is
+      coming, and then it throws it. Read the shout above its head &mdash; the
+      third move in its rotation is always the heavy one.</div>`;
+  const btn = document.createElement('button');
+  btn.className = 'btn primary px'; btn.textContent = 'Back to Home';
+  btn.onclick = () => { Sfx.ui(); ov.remove(); R = null; renderHome(); show('home'); };
+  ov.appendChild(btn);
+  $('#app').appendChild(ov);
+  win ? Sfx.win() : Sfx.lose();
 }
 
 let vsPick = [null, null];
@@ -7202,7 +7329,7 @@ function update(dt){
     }
   } else if(B.pvp){
     /* nothing to clear - it ends when one of them goes down */
-  } else if(!B.done && !B.mobs.length && B.spawnLock<=0){
+  } else if(!B.done && !B.mobs.some(m => !m.ghost) && B.spawnLock<=0){
     if(B.wave < B.waves.length-1){ nextWave(); }
     else { B.done=true; B.clearT=.7; }
   }
@@ -7215,6 +7342,7 @@ function update(dt){
 function finishRoom(){
   const kind=B.kind;
   if(kind === 'raid') return;
+  if(R && R.duel) return endDuel(true);           // a duel from the Home screen
   B=null;
   if(kind==='elite') R.shards+=250;
   if(kind==='boss') R.shards+=400 + R.depth*20;
@@ -7855,6 +7983,8 @@ $('#go-squad').onclick =()=>{ Sfx.ui(); renderSquad(); show('squad'); };
 $('#go-dex').onclick   =()=>{ Sfx.ui(); renderDex(null); show('dex'); };
 $('#go-versus').onclick=()=>{ Sfx.ui(); renderVersus(); show('versus'); };
 $('#home-coop').onclick=()=>{ Sfx.ui(); setCoop(!S.coop); };
+$('#go-duel').onclick  =()=>{ Sfx.ui(); show('duel'); try{ renderDuel(); }catch(e){ console.warn(e); } };
+$('#duel-go').onclick  =()=>{ Sfx.ui(); startDuel(duelPick); };
 $('#go-coop').onclick  =()=>{
   Sfx.ui(); show('coop');                 // open it first: a render fault must
   try{ renderCoop(); }                    // never be able to trap you in co-op
