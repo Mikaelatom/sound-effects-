@@ -224,6 +224,10 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
 #link-cue.cool{color:var(--dim);animation:none}
 .sw.linkable{border-color:var(--gold);box-shadow:0 0 12px rgba(255,204,77,.8)}
 /* ---------- settings ---------- */
+button.pill{cursor:pointer;font:inherit;color:inherit}
+.coop-pill b{color:var(--dim)}
+.coop-pill.on{border-color:var(--green);box-shadow:0 0 10px rgba(124,255,168,.35)}
+.coop-pill.on b{color:var(--green)}
 .keycols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:720px){.keycols{grid-template-columns:1fr}}
 .keylist{display:flex;flex-direction:column;gap:5px;margin-top:6px}
@@ -318,16 +322,17 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
       <div class="pill">◈ <b id="home-shards">0</b> Fate Shards</div>
       <div class="pill">★ <b id="home-owned">0</b>/<span id="home-total">46</span></div>
       <div class="pill">◇ <b id="home-echo">0</b> Echoes</div>
+      <button class="pill coop-pill" id="home-coop" title="Two players on one keyboard">2P <b id="home-coop-state">OFF</b></button>
     </div>
     <div class="home-wrap">
       <div class="home-main scroll">
         <div class="menu">
           <button class="card" id="go-banner"><h3>▸ SUMMON</h3><p>Pick who you want. Pull. The coin only decides if a second 5★ comes with them.</p></button>
           <button class="card" id="go-squad"><h3>▸ SQUAD</h3><p>Pick up to 3 characters to take into the dungeon.</p></button>
-          <button class="card" id="go-run"><h3>▸ DESCEND</h3><p>Climb the Spire. 3 floors, 24 rooms, 3 bosses, permanent death for the run.</p></button>
-          <button class="card" id="go-raid"><h3 style="color:var(--red)">▸ RAID · THE SOVEREIGN</h3>
+          <button class="card" id="go-run"><h3 id="run-head">▸ DESCEND</h3><p>Climb the Spire. 3 floors, 24 rooms, 3 bosses, permanent death for the run.</p></button>
+          <button class="card" id="go-raid"><h3 id="raid-head" style="color:var(--red)">▸ RAID · THE SOVEREIGN</h3>
             <p>One fight, four phases, five minutes. Pick three relics on the way in — it is the one place you build a loadout instead of finding one.</p></button>
-          <button class="card" id="go-raid2"><h3 style="color:var(--purple)">▸ RAID II · THE UNMAKER</h3>
+          <button class="card" id="go-raid2"><h3 id="raid2-head" style="color:var(--purple)">▸ RAID II · THE UNMAKER</h3>
             <p id="raid2-blurb">Six minutes. It splits into three, it eats your summons, and it takes your Bursts away. Beat the Sovereign first.</p></button>
           <button class="card" id="go-coop"><h3 style="color:var(--green)">▸ CO-OP · LOCAL</h3>
             <p id="coop-blurb">Two players on one keyboard, on the same side. Take the Spire or either raid together.</p></button>
@@ -1697,10 +1702,7 @@ function renderHome(){
       ? 'Six minutes and 58,000 health. It splits into three, it eats your summons, and it takes your Bursts away. Bring a tuned squad.'
       : 'Locked. Bring down the Sovereign first.';
   }
-  const cb = $('#coop-blurb');
-  if(cb) cb.textContent = S.coop
-    ? 'ON — player two joins every fight, in the Spire and in both raids. Rooms and bosses carry 70% more health for it.'
-    : 'Two players on one keyboard, on the same side. Take the Spire or either raid together.';
+  paintCoopState();
   $('#home-shards').textContent = S.shards;
   $('#home-owned').textContent = Object.keys(S.owned).length;
   $('#home-echo').textContent = S.echoes;
@@ -3013,7 +3015,8 @@ function spawnShot(o){
   s.life0 = s.life; s.trail = [];
   B.shots.push(s);
 }
-function heroAttack(){
+function heroAttack(){ return stamp(B.hero, heroAttack_); }
+function heroAttack_(){
   const h=B.hero, c=CHAR[h.mem.id], M=R.mods;
   const target=autoTarget(h, h.st.range*1.35);
   if(!target) return;
@@ -3086,8 +3089,21 @@ function useSkill(slot){
   if(B.linkCd <= 0) B.opening = LINK_WINDOW;     // the opening a Link Strike uses
   B.floats.push({x:h.x, y:h.y-46, vy:-16, life:.9, txt:'OPENING', color:'#5fe6ff', size:7});
 }
+const OWNED_LISTS = ['shots','fields','strikes','turrets','mines','walls','pets','arcs'];
+/* run fn, then hand everything it created to whoever cast it */
+function stamp(h, fn){
+  const pre = {};
+  for(const k of OWNED_LISTS) pre[k] = B[k] ? B[k].length : 0;
+  const out = fn();
+  for(const k of OWNED_LISTS){
+    if(!B[k]) continue;
+    for(let i = pre[k]; i < B[k].length; i++) if(B[k][i] && !B[k][i].own) B[k][i].own = h;
+  }
+  return out;
+}
 /* shared by both skill slots and by bursts */
-function castSkill(sk, dmgMul){
+function castSkill(sk, dmgMul){ return stamp(B.hero, () => castSkill_(sk, dmgMul)); }
+function castSkill_(sk, dmgMul){
   const h = B.hero, c = CHAR[h.mem.id], M = R.mods, A = h.st.atk;
   const tgt = nearestMob(h.x, h.y);
   let ang = tgt ? Math.atan2(tgt.y-h.y, tgt.x-h.x) : (h.face > 0 ? 0 : Math.PI);
@@ -4015,7 +4031,8 @@ function updatePets(dt){
     if(Math.abs(tx-q.x) > 2) q.face = tx < q.x ? -1 : 1;
     if(m && d <= q.reach && q.cd <= 0){
       q.cd = q.rate; q.strike = .26;
-      hurtMob(m, q.dmg*gang, Math.random() < .18, {x:Math.cos(a)*.5, y:Math.sin(a)*.5});
+      asOwner(q.own, () =>
+        hurtMob(m, q.dmg*gang, Math.random() < .18, {x:Math.cos(a)*.5, y:Math.sin(a)*.5}));
       spawnHit(m.x, m.y-m.r, q.color, 'cut');
       B.shake = Math.max(B.shake, q.scale > 1.3 ? 6 : 2);
     }
@@ -4061,7 +4078,8 @@ function popMark(m){
 }
 
 /* ------------------------------- BURSTS -------------------------------- */
-function useBurst(){
+function useBurst(){ return stamp(B.hero, useBurst_); }
+function useBurst_(){
   const h = B.hero, c = CHAR[h.mem.id];
   if((h.mem.burst || 0) < 1 || B.burst) return;
   h.mem.burst = 0;
@@ -4070,6 +4088,7 @@ function useBurst(){
   // locked for the whole Burst plus a beat after, so none of its damage
   // (or damage taken during it) feeds the meter
   B.burstLock = 2.6;
+  B.burstOwner = h;
   B.shake = 10; B.hitstop = .1; Sfx.five();
   B.floats.push({x:h.x, y:h.y-30, vy:-14, life:1.6, txt:bu.name.toUpperCase(),
     color:'#ffcc4d', size:8});
@@ -4414,6 +4433,11 @@ function useBurst(){
   }
 }
 function updateBurst(dt){
+  if(B.burst && B.burstOwner && B.burstOwner !== B.hero && !B.burstOwner.mem.ko)
+    return withHero(B.burstOwner, () => updateBurst_(dt));
+  return updateBurst_(dt);
+}
+function updateBurst_(dt){
   const b = B.burst; if(!b) return;
   const h = B.hero;
   b.t -= dt; b.tick -= dt;
@@ -4819,6 +4843,15 @@ function withHero(h, fn){
   try { return fn(); } finally { B.hero = old; R.active = oldA; R.squad = oldSq; }
 }
 const players = () => B.p2 ? [B.hero, B.p2] : [B.hero];
+/* Anything that outlives the frame it was created in - a shot in flight, a
+   field on the floor, a called strike, a summon - has to remember WHOSE it
+   was. Everything downstream of hurtMob reads B.hero: the perk bag, the
+   character passives, and the Burst meter the damage charges. Resolve a
+   second player's shot with player one installed and player one collects the
+   perks, the passives and the Burst charge. This is what stops that. */
+function asOwner(o, fn){
+  return (o && o.mem && B && o !== B.hero && !o.mem.ko) ? withHero(o, fn) : fn();
+}
 /* Player two never has to be set up in advance: they get the best three
    characters you own that player one is not already using. */
 function coopSquad(){
@@ -4842,8 +4875,39 @@ function coopSquad(){
    one side, each with their own squad of three, in the Spire or in either
    raid. Turning it on here is the only difference from pressing J mid-room -
    player two is simply already there when the fight starts.               */
+/* Co-op is a mode, not a menu item, so its state belongs where you can always
+   see it and always reach it - one click in the top bar, whatever screen the
+   menu happens to be scrolled to. */
+function paintCoopState(){
+  const pill = $('#home-coop');
+  if(pill){
+    pill.classList.toggle('on', !!S.coop);
+    $('#home-coop-state').textContent = S.coop ? 'ON' : 'OFF';
+    pill.title = S.coop ? 'Co-op is on — click to play alone again'
+                        : 'Co-op is off — click to bring a second player';
+  }
+  const cb = $('#coop-blurb');
+  if(cb) cb.textContent = S.coop
+    ? 'ON — player two joins every fight, in the Spire and in both raids. Rooms and bosses carry 70% more health for it.'
+    : 'Two players on one keyboard, on the same side. Take the Spire or either raid together.';
+  // and the things you launch say so too, so co-op is never a surprise
+  const tag = (sel, base) => { const e = $(sel); if(e) e.textContent = base + (S.coop ? ' · 2P' : ''); };
+  tag('#run-head', '▸ DESCEND');
+  tag('#raid-head', '▸ RAID · THE SOVEREIGN');
+  tag('#raid2-head', '▸ RAID II · THE UNMAKER');
+  const t = $('#coop-toggle');
+  if(t){ t.textContent = 'Co-op: ' + (S.coop ? 'ON' : 'OFF'); t.classList.toggle('primary', !!S.coop); }
+  const st = $('#coop-state');
+  if(st) st.textContent = S.coop
+    ? 'Player two joins the moment a fight starts — Spire, Sovereign or Unmaker.'
+    : 'Player two will not join automatically. J still drops them in mid-room.';
+}
+function setCoop(on){
+  S.coop = !!on; save(); paintCoopState();
+  toast(S.coop ? 'Co-op on — player two joins every fight.' : 'Co-op off — playing alone.');
+}
 function renderCoop(){
-  paintKeycaps();
+  paintKeycaps(); paintCoopState();
   const own = ROSTER.filter(id => owns(id));
   const g1 = $('#coop-p1'); g1.innerHTML = '';
   S.squad.forEach(id => g1.appendChild(charCard(CHAR[id], {sel:true})));
@@ -4862,15 +4926,6 @@ function renderCoop(){
   $('#coop-p2name').textContent = S.squad2.length
     ? S.squad2.map(id => CHAR[id].name.split(' ')[0]).join(' · ')
     : 'nobody picked — they will be given three you are not using';
-  $('#coop-toggle').textContent = 'Co-op: ' + (S.coop ? 'ON' : 'OFF');
-  $('#coop-toggle').classList.toggle('primary', !!S.coop);
-  $('#coop-state').textContent = S.coop
-    ? 'Player two joins the moment a fight starts — Spire, Sovereign or Unmaker.'
-    : 'Player two will not join automatically. J still drops them in mid-room.';
-  const blurb = $('#coop-blurb');
-  if(blurb) blurb.textContent = S.coop
-    ? 'ON — player two joins every fight. Both raids and the Spire.'
-    : 'Two players on one keyboard, on the same side. Take the Spire or either raid together.';
 }
 /* ---- rebinding ----------------------------------------------------------
    A binding is stored only when it differs from the default, so the save
@@ -5379,30 +5434,33 @@ function update(dt){
       for(const m of B.mobs){
         if(m.dead||s.hitSet.has(m)) continue;
         if(Math.hypot(m.x-s.x,m.y-(s.y+2))<m.r+s.r){
-          s.hitSet.add(m); hurtMob(m,s.dmg,s.crit,
-            {x:s.vx*.012*(s.knock||1), y:s.vy*.012*(s.knock||1)});
-          if(s.chill && !m.dead){ m.frozen = Math.max(m.frozen, s.chill); }
-          if(s.drain) healHero(s.dmg*s.drain);
-          if(M.chain>0){ const o=B.mobs.find(q=>q!==m&&!q.dead&&dist(q,m)<48);
-            if(o) hurtMob(o,s.dmg*M.chain,false,null); }
-          if(h.mem.id==='kaito' || B.overcharge>0){
-            let n=0;
-            for(const q of B.mobs){ if(q===m||q.dead||dist(q,m)>52) continue;
-              hurtMob(q, s.dmg*.45, false, null); if(++n >= (B.overcharge>0?2:1)) break; } }
-          if(h.mem.id==='chiyo'){
-            B.mobs.forEach(q=>{ if(q!==m&&!q.dead&&dist(q,m)<26) hurtMob(q,s.dmg*.6,false,null); }); }
-          if(h.mem.id==='toma' && m.hurtOnce) hurtMob(m, s.dmg*.25, false, null, 'dot');
-          m.hurtOnce = true;
-          if(s.split > 0){                       // splits, and the halves split again
-            for(let k=0;k<2;k++){
-              const a2 = Math.atan2(s.vy,s.vx) + (k?0.9:-0.9);
-              spawnShot({x:s.x, y:s.y, vx:Math.cos(a2)*210, vy:Math.sin(a2)*210,
-                r:s.r*.78, dmg:s.splitDmg, pierce:0, life:.9, color:s.color, art:'atom',
-                split:s.split-1, splitDmg:s.splitDmg*.6});
+          asOwner(s.own || s.owner, () => {
+            const hh = B.hero;                   // whoever actually fired this
+            s.hitSet.add(m); hurtMob(m,s.dmg,s.crit,
+              {x:s.vx*.012*(s.knock||1), y:s.vy*.012*(s.knock||1)});
+            if(s.chill && !m.dead){ m.frozen = Math.max(m.frozen, s.chill); }
+            if(s.drain) healHero(s.dmg*s.drain);
+            if(M.chain>0){ const o=B.mobs.find(q=>q!==m&&!q.dead&&dist(q,m)<48);
+              if(o) hurtMob(o,s.dmg*M.chain,false,null); }
+            if(hh.mem.id==='kaito' || B.overcharge>0){
+              let n=0;
+              for(const q of B.mobs){ if(q===m||q.dead||dist(q,m)>52) continue;
+                hurtMob(q, s.dmg*.45, false, null); if(++n >= (B.overcharge>0?2:1)) break; } }
+            if(hh.mem.id==='chiyo'){
+              B.mobs.forEach(q=>{ if(q!==m&&!q.dead&&dist(q,m)<26) hurtMob(q,s.dmg*.6,false,null); }); }
+            if(hh.mem.id==='toma' && m.hurtOnce) hurtMob(m, s.dmg*.25, false, null, 'dot');
+            m.hurtOnce = true;
+            if(s.split > 0){                     // splits, and the halves split again
+              for(let k=0;k<2;k++){
+                const a2 = Math.atan2(s.vy,s.vx) + (k?0.9:-0.9);
+                spawnShot({x:s.x, y:s.y, vx:Math.cos(a2)*210, vy:Math.sin(a2)*210,
+                  r:s.r*.78, dmg:s.splitDmg, pierce:0, life:.9, color:s.color, art:'atom',
+                  split:s.split-1, splitDmg:s.splitDmg*.6, own:s.own || s.owner});
+              }
+              spawnHit(s.x, s.y, s.color, 'atom');
             }
-            spawnHit(s.x, s.y, s.color, 'atom');
-          }
-          if(s.pierce>0) s.pierce--; else s.life=0;
+            if(s.pierce>0) s.pierce--; else s.life=0;
+          });
         }
       }
     } else {
@@ -5432,7 +5490,7 @@ function update(dt){
   B.shots=B.shots.filter(s=>s.life>0);
 
   /* --- fields --- */
-  for(const f of B.fields){
+  for(const f of B.fields) asOwner(f.own, () => {
     f.life-=dt;
     if(f.type==='nova'||f.type==='freeze'){
       f.r=lerp(6,f.maxr,1-f.life/f.max);
@@ -5447,7 +5505,7 @@ function update(dt){
         m.x+=Math.cos(a)*pull*dt*6; m.y+=Math.sin(a)*pull*dt*6; }});
       if(f.life<=dt){
         B.fields.push({x:f.x,y:f.y,r:6,maxr:64,life:.34,max:.34,dmg:f.crush||f.dmg,
-          set:new Set(),color:f.color,type:'nova'});
+          set:new Set(),color:f.color,type:'nova',own:f.own});
         spawnHit(f.x,f.y,f.color,'nova'); B.shake=Math.max(B.shake,f.crush?14:8);
       }
     } else if(f.type==='burn'){
@@ -5459,7 +5517,7 @@ function update(dt){
       }
       if(Math.random()<.6) B.fx.push({x:f.x+rnd(f.r,-f.r),y:f.y+rnd(f.r*.5,-f.r*.5),vx:0,vy:-24,life:.5,c:'#ff8b4d',s:1});
     }
-  }
+  });
   B.fields=B.fields.filter(f=>f.life>0);
 
   /* --- turrets, and the spirits that walk --- */
@@ -5472,10 +5530,11 @@ function update(dt){
       t.x = clamp(t.x, AR.x0+4, AR.x1-4); t.y = clamp(t.y, AR.y0+6, AR.y1-2);
     }
     if(t.cd<=0){
-      if(m){ t.cd=(t.roam?.42:.55) * (B.hero && B.hero.mem.id==='odette' ? .75 : 1);
+      if(m){ asOwner(t.own, () => {
+        t.cd=(t.roam?.42:.55) * (B.hero && B.hero.mem.id==='odette' ? .75 : 1);
         const a=Math.atan2(m.y-t.y,m.x-t.x);
         spawnShot({x:t.x,y:t.y,vx:Math.cos(a)*180,vy:Math.sin(a)*180,r:3,dmg:t.dmg,
-          team:'hero',life:1.2,color:t.color,art:t.art||'note'}); } }
+          team:'hero',life:1.2,color:t.color,art:t.art||'note',own:t.own}); }); } }
   }
   B.turrets=B.turrets.filter(t=>t.life>0);
 
@@ -5495,7 +5554,7 @@ function update(dt){
   B.mines=B.mines.filter(m=>m.life>0);
 
   /* --- called shots: they land where they were called, a beat later --- */
-  for(const st of B.strikes){
+  for(const st of B.strikes) asOwner(st.own, () => {
     st.t-=dt;
     if(st.t<=0 && !st.done){
       st.done=true;
@@ -5515,7 +5574,7 @@ function update(dt){
         B.shake=Math.max(B.shake,4);
       }
     }
-  }
+  });
   B.strikes=B.strikes.filter(st=>st.t>-.35);
 
   /* --- walls: they stand in the way and things break on them --- */
@@ -6087,25 +6146,30 @@ $('#go-banner').onclick=()=>{ Sfx.ui(); renderBanner(); show('banner'); };
 $('#go-squad').onclick =()=>{ Sfx.ui(); renderSquad(); show('squad'); };
 $('#go-dex').onclick   =()=>{ Sfx.ui(); renderDex(null); show('dex'); };
 $('#go-versus').onclick=()=>{ Sfx.ui(); renderVersus(); show('versus'); };
-$('#go-coop').onclick  =()=>{ Sfx.ui(); renderCoop(); show('coop'); };
+$('#home-coop').onclick=()=>{ Sfx.ui(); setCoop(!S.coop); };
+$('#go-coop').onclick  =()=>{
+  Sfx.ui(); show('coop');                 // open it first: a render fault must
+  try{ renderCoop(); }                    // never be able to trap you in co-op
+  catch(e){ console.warn('co-op render', e); }
+};
 $('#go-keys').onclick  =()=>{ Sfx.ui(); keyListen=null; renderKeys(); show('keys'); };
 $('#keys-reset').onclick=()=>{
   S.keys = {}; save(); rebuildPads(); paintKeycaps(); keyListen=null; renderKeys();
   Sfx.ui(); $('#keys-note').textContent = 'Back to the defaults.';
 };
-$('#coop-toggle').onclick=()=>{ S.coop = !S.coop; save(); Sfx.ui(); renderCoop(); };
+$('#coop-toggle').onclick=()=>{ Sfx.ui(); setCoop(!S.coop); };
 $('#coop-run').onclick =()=>{
   if(!S.squad.length){ toast('Player one needs a squad first.'); return; }
-  S.coop = true; save(); Sfx.ui(); startRun();
+  setCoop(true); Sfx.ui(); startRun();
 };
 $('#coop-raid').onclick =()=>{
   if(!S.squad.length){ toast('Player one needs a squad first.'); return; }
-  S.coop = true; save(); Sfx.ui(); startRaid('sovereign');
+  setCoop(true); Sfx.ui(); startRaid('sovereign');
 };
 $('#coop-raid2').onclick=()=>{
   if(!raidUnlocked('unmaker')){ toast('Bring down the Sovereign first.'); return; }
   if(!S.squad.length){ toast('Player one needs a squad first.'); return; }
-  S.coop = true; save(); Sfx.ui(); startRaid('unmaker');
+  setCoop(true); Sfx.ui(); startRaid('unmaker');
 };
 $('#go-raid').onclick  =()=>{ Sfx.ui(); startRaid('sovereign'); };
 /* player two drops in mid-fight */
