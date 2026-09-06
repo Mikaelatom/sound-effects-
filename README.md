@@ -73,6 +73,20 @@ numerically over-tuned changed by hand. Top to bottom is now about **5x**, most
 of the roster sits between 180 and 400 pack dps, and the two dedicated healers
 trade damage for the best throughput in the game.
 
+### One ultimate at a time
+
+A Burst is on a **fifty-second floor, per player**. The meter still says when
+you have earned one; this says how often anyone is allowed to have one at all.
+It is deliberately per *player* rather than per character — swapping to the next
+member of the squad and firing theirs is exactly the thing the floor exists to
+stop — and it runs on real seconds, so it keeps counting down while you are on
+the map screen between rooms. A Burst you cannot fire yet is **not spent**: the
+meter stays full and the button shows the seconds left.
+
+Both raid DPS checks came down to match, since they were set when an ultimate
+came round every few seconds: the Sovereign from 26,000 to 20,000 and the
+Unmaker from 58,000 to 26,000.
+
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
 - 4★: 9% base, **guaranteed within 10**
@@ -434,7 +448,7 @@ It is the one place in the game where you build a loadout instead of finding
 one. After that it is your squad, their kits, and whether you can read what it
 is doing.
 
-### The Sovereign **26,000 HP** and
+### The Sovereign **20,000 HP** and
 **five minutes** before he enrages.
 
 This fight assumes a **full R6 squad**. At R0 the damage simply is not there —
@@ -470,7 +484,7 @@ Losing still pays out on the damage you did.
 
 ### The Unmaker — Raid II
 
-Locked until the Sovereign falls. **58,000 HP, six minutes**, and it hits half
+Locked until the Sovereign falls. **26,000 HP, six minutes**, and it hits half
 again as hard. It has everything he has, plus three of its own:
 
 - **Sunder** — it comes apart into **three echoes**. While they stand it takes

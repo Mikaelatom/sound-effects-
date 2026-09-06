@@ -284,6 +284,9 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .tb.burst i{position:absolute;left:0;right:0;bottom:0;height:0%;
   background:linear-gradient(180deg,rgba(255,204,77,.5),rgba(255,204,77,.2))}
 .tb b{position:relative;z-index:1}
+.tb u{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,5,12,.8);font-size:15px;font-weight:900;color:var(--gold);
+  text-decoration:none;z-index:2}
 .tb[data-act="skill"]{right:6px;bottom:6px}
 .tb[data-act="skill2"]{right:74px;bottom:26px}
 .tb[data-act="dash"]{right:16px;bottom:74px}
@@ -667,14 +670,14 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         <div class="sk"><span class="key">E</span><span id="sk2-name">Skill</span><div class="cd hidden" id="sk2-cd">0</div></div>
         <div class="sk"><span class="key">SHF</span><span>Dash</span><div class="cd hidden" id="dash-cd">0</div></div>
         <div class="sk burst" id="sk-burst"><span class="key">R</span><span id="burst-name">Burst</span>
-          <div class="fill" id="burst-fill"></div></div>
+          <div class="fill" id="burst-fill"></div><div class="cd hidden" id="burst-cd">0</div></div>
       </div>
       <div class="skills p2 hidden" id="skills2">
         <div class="sk"><span class="key big">,</span><span id="p2sk-name">Skill</span><div class="cd hidden" id="p2sk-cd">0</div></div>
         <div class="sk"><span class="key big">.</span><span id="p2sk2-name">Skill</span><div class="cd hidden" id="p2sk2-cd">0</div></div>
         <div class="sk"><span class="key">R-SHF</span><span>Dash</span><div class="cd hidden" id="p2dash-cd">0</div></div>
         <div class="sk burst" id="p2sk-burst"><span class="key">/</span><span id="p2burst-name">Burst</span>
-          <div class="fill" id="p2burst-fill"></div></div>
+          <div class="fill" id="p2burst-fill"></div><div class="cd hidden" id="p2burst-cd">0</div></div>
       </div>
       <div class="swapbar" id="swapbar"></div>
       <div class="swapbar p2 hidden" id="swapbar2"></div>
@@ -688,7 +691,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
           <button class="tb" data-act="dash"><b>DASH</b></button>
           <button class="tb" data-act="skill2"><b id="tb-skill2">E</b></button>
           <button class="tb" data-act="skill"><b id="tb-skill">SKILL</b></button>
-          <button class="tb burst" data-act="burst"><b id="tb-burst">BURST</b><i id="tb-fill"></i></button>
+          <button class="tb burst" data-act="burst"><b id="tb-burst">BURST</b><i id="tb-fill"></i>
+            <u id="tb-cd" class="hidden">0</u></button>
         </div>
       </div>
       <div id="raid-bar" class="hidden">
@@ -1497,6 +1501,13 @@ const LINK_CD     = 9.0;      // and Link Strikes lock out for this long
    at the same rate, and damage only tops it up. A Burst is a thing that
    happens a few times a fight for everyone, rather than a rotation for
    half the roster and a rarity for the other half.                        */
+/* A hard floor between one Burst and the next. The meter says when you have
+   EARNED an ultimate; this says how often anyone is allowed to have one at
+   all. It is per player rather than per character on purpose - swapping to
+   the next member of the squad and firing theirs is exactly the spam this is
+   here to stop. Measured in real seconds, so it keeps running while you are
+   on the map screen between rooms. */
+const BURST_LOCKOUT = 50;
 const BURST_PER_DMG  = 0.00070;   // per point of damage dealt
 const BURST_PER_SEC  = 0.0180;    // and this much a second, just for being there
 const COOP_RESCUE_CD = 45;    // how long before a downed player can be picked up again
@@ -1905,7 +1916,7 @@ function renderHome(){
     const open = raidUnlocked('unmaker');
     r2.style.opacity = open ? 1 : .5;
     $('#raid2-blurb').textContent = open
-      ? 'Six minutes and 58,000 health. It splits into three, it eats your summons, and it takes your Bursts away. Bring a tuned squad.'
+      ? 'Six minutes and 26,000 health. It splits into three, it eats your summons, and it takes your Bursts away. Bring a tuned squad.'
       : 'Locked. Bring down the Sovereign first.';
   }
   paintCoopState();
@@ -2368,7 +2379,11 @@ function endRun(cleared){
    cast you must break with saved Bursts. Four minutes, then enrage. */
 /* Tuned so a squad of three R6 characters barely wins inside the timer.
    Anything less and you will not out-damage the gates and the enrage. */
-const RAID_HP = 26000, RAID_ENRAGE = 300;
+/* Both DPS checks were set when an ultimate came round every few seconds.
+   With a fifty-second floor between them, the same squad does a good deal
+   less over five minutes, so the walls come down to match - the fight is
+   meant to be a test of a tuned squad, not an arithmetic impossibility. */
+const RAID_HP = 20000, RAID_ENRAGE = 300;
 /* Two raids. The Sovereign is the wall you learn on; the Unmaker is what you
    bring a tuned squad to. Everything about it is bigger, and it has three
    mechanics of its own on top of his. */
@@ -2377,7 +2392,7 @@ const RAIDS = {
     hp:RAID_HP, enrage:RAID_ENRAGE, dmg:1.9, warden:1400, reward:30000,
     blurb:'One fight, four phases, five minutes.'},
   unmaker:   {id:'unmaker', row:'unmaker', name:'THE UNMAKER', tier:2,
-    hp:58000, enrage:360, dmg:2.9, warden:2400, reward:80000,
+    hp:26000, enrage:360, dmg:2.9, warden:2400, reward:80000,
     blurb:'Six minutes. It splits, it eats your summons, and it takes your Bursts away.'}
 };
 function raidUnlocked(id){ return id === 'sovereign' || S.raidClears > 0; }
@@ -4446,6 +4461,14 @@ function petFrame(q){
    pay for the next one, and the loop never closes - so Noir charges at a third
    of everyone else's rate, and nothing he does under the Pact charges it at
    all. The Pact is the cost of the Burst, not the engine for it. */
+/* seconds still to wait before this player may fire another Burst */
+function burstLockLeft(h){
+  if(!R) return 0;
+  R.burstAt = R.burstAt || [0, 0];
+  const at = R.burstAt[(h && h.side === 2) ? 1 : 0] || 0;
+  if(!at) return 0;
+  return Math.max(0, BURST_LOCKOUT - (performance.now() - at)/1000);
+}
 function burstRate(h){
   const c = CHAR[h.mem.id];
   if(h.pact > 0) return 0.25;                  // signed: it barely counts
@@ -4471,6 +4494,15 @@ function useBurst(){ return stamp(B.hero, useBurst_); }
 function useBurst_(){
   const h = B.hero, c = CHAR[h.mem.id];
   if((h.mem.burst || 0) < 1 || B.burst) return;
+  const wait = burstLockLeft(h);
+  if(wait > 0){                          // earned, but not yet allowed
+    B.floats.push({x:h.x, y:h.y-40, vy:-16, life:1.2,
+      txt:'ULTIMATE READY IN ' + Math.ceil(wait) + 's', color:'#ffcc4d', size:9});
+    Sfx.ui && Sfx.ui();
+    return;
+  }
+  R.burstAt = R.burstAt || [0, 0];
+  R.burstAt[h.side === 2 ? 1 : 0] = performance.now();
   h.mem.burst = 0;
   const bu = c.burst, A = h.st.atk;
   if(B.linkCd <= 0) B.opening = LINK_WINDOW + 0.6;
@@ -6641,16 +6673,26 @@ function syncHud(){
     const c2d = $('#p2dash-cd');
     if(h2.dashT>0){ c2d.classList.remove('hidden'); c2d.textContent=h2.dashT.toFixed(1); }
     else c2d.classList.add('hidden');
-    const bp2 = (h2.mem.burst||0);
+    const bp2 = (h2.mem.burst||0), lock2 = burstLockLeft(h2);
     $('#p2burst-fill').style.height = Math.round(bp2*100)+'%';
-    $('#p2sk-burst').classList.toggle('ready', bp2 >= 1);
+    $('#p2sk-burst').classList.toggle('ready', bp2 >= 1 && lock2 <= 0);
+    const b2cd = $('#p2burst-cd');
+    if(b2cd){ b2cd.classList.toggle('hidden', lock2 <= 0); b2cd.textContent = Math.ceil(lock2); }
   }
   const bp=(h.mem.burst||0);
+  const lock1 = burstLockLeft(h);
   $('#burst-fill').style.height=Math.round(bp*100)+'%';
-  $('#sk-burst').classList.toggle('ready', bp>=1);
+  $('#sk-burst').classList.toggle('ready', bp>=1 && lock1<=0);
+  const bcd = $('#burst-cd');
+  if(bcd){
+    bcd.classList.toggle('hidden', lock1<=0);
+    bcd.textContent = Math.ceil(lock1);
+  }
   const tf = $('#tb-fill');
   if(tf){ tf.style.height = Math.round(bp*100)+'%';
-          tf.parentElement.classList.toggle('ready', bp>=1); }
+          tf.parentElement.classList.toggle('ready', bp>=1 && lock1<=0); }
+  const tcd = $('#tb-cd');
+  if(tcd){ tcd.classList.toggle('hidden', lock1<=0); tcd.textContent = Math.ceil(lock1); }
   const dc=$('#dash-cd');
   if(h.dashT>0){ dc.classList.remove('hidden'); dc.textContent=h.dashT.toFixed(1); }
   else dc.classList.add('hidden');
