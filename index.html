@@ -196,6 +196,7 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
   display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:7.5px;gap:3px;
   overflow:hidden;text-align:center;padding:0 3px;line-height:1.2}
 .sk .key{font-weight:900;color:var(--cyan);font-size:11px}
+.sk .key.big{font-size:18px;line-height:.62}   /* a comma at 11px is a speck */
 .sk .cd{position:absolute;inset:0;background:rgba(6,5,12,.78);display:flex;align-items:center;
   justify-content:center;font-size:13px;font-weight:900}
 .sk.burst{border-color:#6b5a2a}
@@ -205,9 +206,17 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
 .sk.burst.ready .key{color:var(--gold)}
 @keyframes brdy{50%{box-shadow:0 0 14px rgba(255,204,77,.75)}}
 .swapbar{position:absolute;right:10px;bottom:8px;display:flex;gap:6px;pointer-events:none}
-.swapbar.p2{right:auto;left:10px;bottom:60px}   /* clear of player one's keycaps */
-.swapbar.p2 .sw{transform:scale(.86);transform-origin:bottom left}
-.swapbar.p2 .sw.active{border-color:var(--green)}
+/* In co-op each player owns their own half of the bottom of the screen:
+   their four keys along the outside edge and their own three characters
+   sitting on top of them. Single player is untouched. */
+.skills.p2{left:auto;right:10px}
+.skills.p2 .sk .key{color:var(--green)}
+.swapbar.p2{right:10px;bottom:60px}
+.swapbar.p2 .sw{pointer-events:auto;cursor:pointer}
+.swapbar.p2 .sw .k{color:var(--green)}
+.swapbar.p2 .sw.active{border-color:var(--green);box-shadow:0 0 10px rgba(124,255,168,.55)}
+#scr-battle.coop #swapbar{right:auto;left:10px;bottom:60px}
+#scr-battle.coop #link-cue{right:auto;left:50%;transform:translateX(-50%);bottom:60px}
 #link-cue{position:absolute;right:10px;bottom:62px;pointer-events:none;font-size:10px;
   font-weight:900;letter-spacing:.1em;color:#ffcc4d;text-shadow:1px 1px 0 #000;
   animation:linkpulse .6s ease-in-out infinite}
@@ -224,7 +233,8 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
 #raid-cast{margin-top:5px;font-size:10px;color:#fff;text-shadow:1px 1px 0 #000}
 #raid-cast .cbar{height:9px;background:#0d0b18;border:2px solid #000;margin-top:2px}
 #raid-cast .cbar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#5fe6ff,#7cffa8)}
-.sw{width:40px;border:2px solid var(--line);background:rgba(20,18,36,.85);padding:3px;text-align:center}
+.sw{width:40px;border:2px solid var(--line);background:rgba(20,18,36,.85);padding:3px;text-align:center;
+  pointer-events:auto;cursor:pointer}
 .sw canvas{image-rendering:pixelated}
 .sw .k{font-size:8.5px;color:var(--cyan);font-weight:900}
 .sw.active{border-color:var(--pink)}
@@ -377,6 +387,11 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
         <b>P2</b> — ARROW KEYS to move, <span class="hl">,</span> skill,
         <span class="hl">.</span> second skill, <span class="hl">/</span> Burst,
         <span class="hl">RIGHT SHIFT</span> dash, <span class="hl">8 9 0</span> swap.<br>
+        Each player gets their own corner of the screen: your four keys along
+        the bottom with your skill names and cooldowns on them, and your own
+        three characters sitting above — <span class="hl">click a portrait</span>
+        or use your swap keys to change character mid-fight. P1 is on the left,
+        P2 on the right.<br>
         Both players get their own squad, their own Bursts, their own perks and
         their own Link Strikes. While one of you is still standing the other is
         <span class="hl">picked back up</span> — the fight is only lost when you
@@ -506,6 +521,13 @@ canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
         <div class="sk"><span class="key">SHF</span><span>Dash</span><div class="cd hidden" id="dash-cd">0</div></div>
         <div class="sk burst" id="sk-burst"><span class="key">R</span><span id="burst-name">Burst</span>
           <div class="fill" id="burst-fill"></div></div>
+      </div>
+      <div class="skills p2 hidden" id="skills2">
+        <div class="sk"><span class="key big">,</span><span id="p2sk-name">Skill</span><div class="cd hidden" id="p2sk-cd">0</div></div>
+        <div class="sk"><span class="key big">.</span><span id="p2sk2-name">Skill</span><div class="cd hidden" id="p2sk2-cd">0</div></div>
+        <div class="sk"><span class="key">R-SHF</span><span>Dash</span><div class="cd hidden" id="p2dash-cd">0</div></div>
+        <div class="sk burst" id="p2sk-burst"><span class="key">/</span><span id="p2burst-name">Burst</span>
+          <div class="fill" id="p2burst-fill"></div></div>
       </div>
       <div class="swapbar" id="swapbar"></div>
       <div class="swapbar p2 hidden" id="swapbar2"></div>
@@ -2891,7 +2913,7 @@ function buildSwapBar(){
     d.className='sw'+(B.p2 && i===B.p2.slot?' active':'')+(m.ko?' ko':'');
     d.appendChild(spriteEl(CHAR[m.id],46));
     d.insertAdjacentHTML('beforeend',`<div class="k">${[8,9,0][i]}</div><div class="mini"><i style="width:${Math.max(0,m.hp/m.maxhp*100)}%"></i></div>`);
-    bar2.appendChild(d);
+    d.dataset.i=i; bar2.appendChild(d);
   });
 }
 /* player two swaps their own squad, on their own keys. They get no Link
@@ -5759,6 +5781,28 @@ function syncHud(){
     $('#hud2-hp').style.width = clamp(h2.mem.hp/h2.st.maxhp*100,0,100)+'%';
     $('#hud2-sh').style.width = clamp(h2.shield/h2.st.maxhp*100,0,100)+'%';
   }
+  /* player two reads their own kit off their own side of the screen: what the
+     two skills are called, what is on cooldown, and how full the Burst is */
+  $('#scr-battle').classList.toggle('coop', !!h2);
+  $('#skills2').classList.toggle('hidden', !h2);
+  if(h2){
+    const c2 = CHAR[h2.mem.id];
+    $('#p2sk-name').textContent    = c2.skill.name.split(' ')[0];
+    $('#p2sk2-name').textContent   = c2.skill2.name.split(' ')[0];
+    $('#p2burst-name').textContent = c2.burst.name.split(' ')[0];
+    const c2a = $('#p2sk-cd');
+    if(h2.skillT>0){ c2a.classList.remove('hidden'); c2a.textContent=Math.ceil(h2.skillT); }
+    else c2a.classList.add('hidden');
+    const c2b = $('#p2sk2-cd');
+    if(h2.skill2T>0){ c2b.classList.remove('hidden'); c2b.textContent=Math.ceil(h2.skill2T); }
+    else c2b.classList.add('hidden');
+    const c2d = $('#p2dash-cd');
+    if(h2.dashT>0){ c2d.classList.remove('hidden'); c2d.textContent=h2.dashT.toFixed(1); }
+    else c2d.classList.add('hidden');
+    const bp2 = (h2.mem.burst||0);
+    $('#p2burst-fill').style.height = Math.round(bp2*100)+'%';
+    $('#p2sk-burst').classList.toggle('ready', bp2 >= 1);
+  }
   const bp=(h.mem.burst||0);
   $('#burst-fill').style.height=Math.round(bp*100)+'%';
   $('#sk-burst').classList.toggle('ready', bp>=1);
@@ -5835,6 +5879,9 @@ addEventListener('keydown',e=>{
 });
 $('#swapbar').addEventListener('click',e=>{
   const el=e.target.closest('.sw'); if(el) swapTo(+el.dataset.i);
+});
+$('#swapbar2').addEventListener('click',e=>{
+  const el=e.target.closest('.sw'); if(el) swapP2(+el.dataset.i);
 });
 $('#btn-start').onclick=()=>{ Sfx.unlock(); Sfx.ui(); renderHome(); show('home'); };
 $('#btn-wipe').onclick=()=>{

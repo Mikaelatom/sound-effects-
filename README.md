@@ -96,6 +96,14 @@ Turn it on and player two is simply already there when a fight starts. Leave it
 off and they can still **drop into any fight** at any moment with `J`, taking
 the best three characters you own that player one is not using.
 
+Each player owns their own corner of the screen: four keycaps along the bottom
+carrying **their** skill names, **their** cooldowns and **their** Burst meter,
+with **their** three characters sitting above them. P1 keeps the left, P2 takes
+the right. Either player changes character mid-fight from their own bar —
+`1 2 3` and `8 9 0` respectively, or by clicking a portrait. Versus gets the
+same mirrored readout, so player two is never guessing at what their own
+cooldowns are doing.
+
 Two things fall out of a second player that need saying:
 
 - **Rooms and bosses carry 70% more health in co-op.** Two people is roughly
