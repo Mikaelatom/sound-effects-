@@ -782,33 +782,33 @@ const ELC = { Blade:'#8fb6ff', Arcane:'#b07cff', Shadow:'#ff6b7d', Radiant:'#ffe
 const CHARS = [
   { id:'aoi', name:'Aoi Shirogane', rarity:5, element:'Blade', role:'Duelist',
     hp:128, atk:17, aspd:1.9, range:34, spd:70, crit:.12,
-    skill: {name:'Crescent Rush', type:'dash_slash', cd:5,   dmg:3.1,
+    skill: {name:'Crescent Rush', type:'dash_slash', cd:5,   dmg:5.55,
             desc:'Dash straight through everything in a line, cutting for 310% ATK.'},
-    skill2:{name:'Iai Stance', type:'parry', cd:8,   dmg:6.5,
+    skill2:{name:'Iai Stance', type:'parry', cd:8,   dmg:11.63,
             desc:'Sheathe and wait. The next hit taken inside half a second is answered instead of felt — everything near her takes 650% ATK and she walks out clean.'},
-    burst: {name:'Thousand Cuts', type:'multi_slash', dmg:1.15,
+    burst: {name:'Thousand Cuts', type:'multi_slash', dmg:2.06,
             desc:'Two seconds of untouchable blade work \u2014 she hits everything nearby, over and over.'},
     passive:'Every 3rd basic attack strikes twice.',
     quote:'"Stand still. It hurts less that way."' },
 
   { id:'kagura', name:'Kagura Hoshimi', rarity:5, element:'Arcane', role:'Mage',
     hp:104, atk:19, aspd:1.2, range:110, spd:56, crit:.10,
-    skill: {name:'Starfall', type:'rain', cd:6,   dmg:2.3, count:8,
+    skill: {name:'Starfall', type:'rain', cd:6,   dmg:1.86, count:8,
             desc:'Eight stars are called down onto wherever the enemies are standing, one after another.'},
-    skill2:{name:'Astral Lance', type:'beam', cd:5.5, dmg:3.0,
+    skill2:{name:'Astral Lance', type:'beam', cd:5.5, dmg:2.43,
             desc:'A piercing lance of starlight that runs the whole room.'},
-    burst: {name:'Constellation', type:'star_swarm', dmg:1.3,
+    burst: {name:'Constellation', type:'star_swarm', dmg:1.05,
             desc:'Twenty-four homing stars pour out and hunt down everything on screen.'},
     passive:'Basic attacks pierce one extra enemy.',
     quote:'"I already know how this ends."' },
 
   { id:'ren', name:'Ren Kurosawa', rarity:5, element:'Shadow', role:'Assassin',
     hp:100, atk:21, aspd:2.1, range:30, spd:78, crit:.30,
-    skill: {name:'Death Mark', type:'mark', cd:7,   dmg:1.2, dur:4, share:.6,
+    skill: {name:'Death Mark', type:'mark', cd:7,   dmg:1.25, dur:4, share:.6,
             desc:'Brands one enemy. Everything done to it for four seconds is remembered, and 60% of the total detonates when the mark ends or the target dies.'},
-    skill2:{name:'Shadowstep', type:'blink_strike', cd:6,  dmg:3.4,
+    skill2:{name:'Shadowstep', type:'blink_strike', cd:6,  dmg:3.53,
             desc:'Step out of the world and back in behind the furthest enemy, gutting it on the way through.'},
-    burst: {name:'Nightfall',     type:'night_assault', dmg:1.6,
+    burst: {name:'Nightfall',     type:'night_assault', dmg:1.66,
             desc:'Become untouchable and cut every enemy in the room three times each.'},
     passive:'Crits deal 220% instead of 175%.',
     quote:'"You will not see the second one."' },
@@ -817,7 +817,7 @@ const CHARS = [
     hp:140, atk:13, aspd:1.3, range:70, spd:58, crit:.06,
     skill: {name:'Dawn Aegis', type:'heal_shield', cd:8,   dmg:0, heal:.35, shield:.4,
             desc:'Heals 35% and shields 40%, and every other member of the squad heals too.'},
-    skill2:{name:'Judgment Ray', type:'heal_beam', cd:5.5, dmg:2.2,
+    skill2:{name:'Judgment Ray', type:'heal_beam', cd:4.5, dmg:5.52,
             desc:'A beam that pierces everything and gives you back 40% of what it deals.'},
     burst: {name:'Rebirth Hymn',  type:'rebirth', dmg:0,
             desc:'Full-heal the squad, bring one fallen ally back, and go invulnerable for 4s.'},
@@ -826,42 +826,42 @@ const CHARS = [
 
   { id:'suzume', name:'Suzume Ayakawa', rarity:5, element:'Gale', role:'Ranger',
     hp:96, atk:16, aspd:1.6, range:150, spd:72, crit:.16,
-    skill: {name:'Split Volley', type:'barrage', cd:4.5, dmg:1.6, count:7,
+    skill: {name:'Split Volley', type:'barrage', cd:4.5, dmg:2.72, count:7,
             desc:'Seven arrows in a fan, each 160% ATK and each piercing.'},
-    skill2:{name:'Snare Arrows', type:'mines', cd:8,   dmg:3.4, count:5,
+    skill2:{name:'Snare Arrows', type:'mines', cd:8,   dmg:5.78, count:5,
             desc:'Five broadheads planted in the ground ahead of her. They arm in half a second and take the legs off whatever walks into them.'},
-    burst: {name:'Tempest Volley', type:'arrow_storm', dmg:1.1,
+    burst: {name:'Tempest Volley', type:'arrow_storm', dmg:1.87,
             desc:'Arrows fall out of the sky across the whole arena for three seconds.'},
     passive:'+25% attack range and +12% move speed. She fights at a distance and stays there.',
     quote:'"Come closer if you like. It is a long walk."' },
 
   { id:'gorou', name:'Gorou Tachibana', rarity:5, element:'Stone', role:'Guardian',
     hp:168, atk:14, aspd:1.1, range:34, spd:52, crit:.06,
-    skill: {name:'Seismic Slam', type:'quake', cd:5.5, dmg:2.4, count:7,
+    skill: {name:'Seismic Slam', type:'quake', cd:5.5, dmg:1.16, count:7,
             desc:'The ground splits away from him in a line, seven eruptions walking outward and throwing back everything they catch.'},
     skill2:{name:'Bulwark', type:'bulwark', cd:9,   dmg:0,
             desc:'A 55% shield for six seconds, and anything that touches him hurts itself doing it.'},
-    burst: {name:'Unbreakable',    type:'unbreakable', dmg:2.2,
+    burst: {name:'Unbreakable',    type:'unbreakable', dmg:0.85,
             desc:'Five seconds of nothing moving you \u2014 untouchable, and the ground around you keeps erupting.'},
     passive:'Takes 18% less damage, and attackers take 30% ATK back on contact.',
     quote:'"You can go around. Nobody ever does."' },
 
   { id:'yura', name:'Yura Shinomiya', rarity:5, element:'Frost', role:'Controller',
     hp:118, atk:16, aspd:1.4, range:88, spd:60, crit:.08,
-    skill: {name:'Glacier Bloom', type:'freeze_ring', cd:6.5, dmg:2.0,
+    skill: {name:'Glacier Bloom', type:'freeze_ring', cd:6.5, dmg:3.8,
             desc:'A ring of ice that freezes everything it touches solid.'},
     skill2:{name:'Still Air', type:'timeslow', cd:11,  dmg:0, dur:4,
             desc:'The room goes cold and slow. Every enemy on screen moves at half speed for four seconds. She does not.'},
-    burst: {name:'Absolute Zero',  type:'deep_freeze', dmg:2.4,
+    burst: {name:'Absolute Zero',  type:'deep_freeze', dmg:4.56,
             desc:'The whole room freezes for four seconds, and frozen enemies take double damage.'},
     passive:'Every hit slows for 1.5s. Frozen enemies take 40% extra damage from anyone.',
     quote:'"Winter is not cruel. It is only honest."' },
 
   { id:'kaito', name:'Kaito Amemiya', rarity:5, element:'Volt', role:'Striker',
     hp:110, atk:15, aspd:2.3, range:30, spd:80, crit:.20,
-    skill: {name:'Thunder Chain', type:'chain', cd:5,   dmg:2.2, count:6,
+    skill: {name:'Thunder Chain', type:'chain', cd:5,   dmg:3.81, count:6,
             desc:'A bolt that jumps between up to six bodies, hitting 28% harder with every jump it makes.'},
-    skill2:{name:'Thunder Rush', type:'dash_slash', cd:4,   dmg:2.6,
+    skill2:{name:'Thunder Rush', type:'dash_slash', cd:4,   dmg:4.51,
             desc:'Rocket forward as a bolt of current, shocking everything in the lane.'},
     burst: {name:'Overcharge',     type:'overcharge', dmg:0,
             desc:'Six seconds at double attack speed, and every hit arcs to two more enemies.'},
@@ -872,100 +872,100 @@ const CHARS = [
          with names and looks to match, and the sharpest kits in the game. --- */
   { id:'seryn', name:'Seryn Alba', title:'The Sworn King', rarity:5, element:'Radiant', role:'Knight',
     hp:158, atk:16, aspd:1.3, range:40, spd:58, crit:.10,
-    skill: {name:'Oathbreaker', type:'wide_slash', cd:6,   dmg:3.2,
+    skill: {name:'Oathbreaker', type:'wide_slash', cd:6,   dmg:5.75,
             desc:'One enormous arc that opens up everything standing around her.'},
-    skill2:{name:'Aegis of the Crown', type:'banner', cd:12,  dmg:1.6, dur:10,
+    skill2:{name:'Aegis of the Crown', type:'banner', cd:12,  dmg:2.87, dur:10,
             desc:'She plants the standard. For ten seconds the ground it holds burns the enemy and feeds whoever stands in it shield and health.'},
-    burst: {name:'Dawnbreaker', type:'sunlance', dmg:9.0,
+    burst: {name:'Dawnbreaker', type:'sunlance', dmg:16.16,
             desc:'The blade opens and a column of light crosses the entire arena. Everything in the line is deleted.'},
     passive:'Takes 15% less damage. She is meant to be stood in front of things.',
     quote:'"A crown is a promise. I have never broken one."' },
 
   { id:'aldric', name:'Aldric Vane', title:'The Faithless', rarity:5, element:'Blade', role:'Projector',
     hp:108, atk:18, aspd:1.7, range:124, spd:68, crit:.18,
-    skill: {name:'Broken Phantasm', type:'barrage', cd:4.5, dmg:1.5, count:9,
+    skill: {name:'Broken Phantasm', type:'barrage', cd:4.5, dmg:1.68, count:9,
             desc:'Nine blades thrown at once, each piercing.'},
-    skill2:{name:'Unlimited Blade', type:'spirit', cd:9,   dmg:1.4, dur:9,
+    skill2:{name:'Unlimited Blade', type:'spirit', cd:9,   dmg:1.57, dur:9,
             desc:'A projected sword takes on a life of its own for nine seconds, hunting down targets and firing on them while he fights.'},
-    burst: {name:'Endless Armoury', type:'blade_storm', dmg:1.2,
+    burst: {name:'Endless Armoury', type:'blade_storm', dmg:1.34,
             desc:'The sky fills with swords for three seconds and they all come down.'},
     passive:'Attacks pierce one extra enemy — he throws swords, not arrows.',
     quote:'"I can copy anything. It is not a gift."' },
 
   { id:'kassandra', name:'Kassandra Rue', title:'The Crimson Lance', rarity:5, element:'Flame', role:'Lancer',
     hp:104, atk:19, aspd:2.0, range:34, spd:84, crit:.22,
-    skill: {name:'Lance Dance', type:'whirl', cd:6,   dmg:3.0, dur:2.6,
+    skill: {name:'Lance Dance', type:'whirl', cd:6,   dmg:3.62, dur:2.6,
             desc:'Two and a half seconds of spinning steel. Everything inside her reach is cut, over and over, and she can keep moving through it.'},
-    skill2:{name:'Crimson Thrust', type:'beam', cd:5,   dmg:2.8,
+    skill2:{name:'Crimson Thrust', type:'beam', cd:5,   dmg:3.38,
             desc:'A thrust so fast it arrives as a line.'},
-    burst: {name:'Thousand Thrusts', type:'maelstrom', dmg:1.5,
+    burst: {name:'Thousand Thrusts', type:'maelstrom', dmg:1.81,
             desc:'Five seconds of a spinning lance that drags everything into her reach and keeps cutting.'},
     passive:'Anything below 40% HP is always a critical hit. She finishes what she starts.',
     quote:'"You are already behind."' },
 
   { id:'nyx', name:'Nyx Morrow', title:'The Ashen Witch', rarity:5, element:'Shadow', role:'Caster',
     hp:100, atk:20, aspd:1.1, range:118, spd:55, crit:.10,
-    skill: {name:'Rotwork', type:'plague', cd:6,   dmg:2.6,
+    skill: {name:'Rotwork', type:'plague', cd:6,   dmg:3.07,
             desc:'Infects one enemy. It rots for five seconds, and if it dies infected the rot jumps to everything standing near it.'},
-    skill2:{name:'Witch\'s Tithe', type:'drain', cd:7,   dmg:3.4, dur:2.4,
+    skill2:{name:'Witch\'s Tithe', type:'drain', cd:7,   dmg:4.02, dur:2.4,
             desc:'A tether to the nearest enemy. It bleeds for two and a half seconds and a third of that comes back to her.'},
-    burst: {name:'Grave Choir', type:'pandemic', dmg:2.6,
+    burst: {name:'Grave Choir', type:'pandemic', dmg:3.07,
             desc:'Everything on the screen catches the rot at once, and each thing that dies of it passes it on.'},
     passive:'Anything she damages is Cursed for 3s: it takes 15% more damage from everyone.',
     quote:'"Everything you love is on loan."' },
 
   { id:'momo', name:'Momo Tachibana', rarity:4, element:'Earth', role:'Bruiser',
     hp:126, atk:12, aspd:1.4, range:40, spd:60, crit:.08,
-    skill: {name:'Glaive Cyclone', type:'vortex', cd:6.5, dmg:3.0,
+    skill: {name:'Glaive Cyclone', type:'vortex', cd:6.5, dmg:5.7,
             desc:'The glaive drags everything within reach into one point, then lets go all at once.'},
-    skill2:{name:'Earthshaker', type:'wide_slash', cd:7,   dmg:2.6,
+    skill2:{name:'Earthshaker', type:'wide_slash', cd:7,   dmg:4.94,
             desc:'One huge sweep that clears the ground around her.'},
-    burst: {name:'Landslide', type:'maelstrom', dmg:1.25,
+    burst: {name:'Landslide', type:'maelstrom', dmg:2.38,
             desc:'The glaive becomes a whirlpool — everything nearby is hauled in and ground down.'},
     passive:'Every enemy she pulls in takes 20% more damage while it is inside her reach.',
     quote:'"Big stick. Simple plan."' },
 
   { id:'chiyo', name:'Chiyo Onodera', rarity:4, element:'Flame', role:'Mage',
     hp:98, atk:14, aspd:1.1, range:100, spd:58, crit:.10,
-    skill: {name:'Bomblets', type:'mines', cd:6,   dmg:2.8, count:4,
+    skill: {name:'Bomblets', type:'mines', cd:6,   dmg:2.56, count:4,
             desc:'Four bombs rolled out ahead of her, armed and waiting.'},
-    skill2:{name:'Firewall', type:'burn_field', cd:7,   dmg:1.6,
+    skill2:{name:'Firewall', type:'burn_field', cd:7,   dmg:1.47,
             desc:'A patch of burning ground that keeps burning for five seconds.'},
-    burst: {name:'Firestorm', type:'bombard', dmg:1.6,
+    burst: {name:'Firestorm', type:'bombard', dmg:1.47,
             desc:'Three seconds of called shells, landing wherever anything is still standing.'},
     passive:'Basic attacks explode for 60% in a small radius, and her burning ground lasts twice as long.',
     quote:'"It is FINE. It is mostly fine."' },
 
   { id:'nari', name:'Nari Tsukuda', rarity:4, element:'Radiant', role:'Support',
     hp:106, atk:11, aspd:1.4, range:92, spd:62, crit:.08,
-    skill: {name:'Chorus Mote', type:'turret', cd:6,   dmg:1.3,
+    skill: {name:'Chorus Mote', type:'turret', cd:6,   dmg:2.37,
             desc:'A mote that hangs in the air and sings at whatever comes near, for eight seconds.'},
     skill2:{name:'Refrain', type:'heal_shield', cd:8,   dmg:0, heal:.24, shield:.28,
             desc:'Heals and shields, and tops up the rest of the squad.'},
-    burst: {name:'Encore',         type:'encore', dmg:1.0,
+    burst: {name:'Encore',         type:'encore', dmg:1.82,
             desc:'Four motes at once, and the whole squad heals for eight seconds.'},
     passive:'+10% ATK for the whole squad.',
     quote:'"Do the cool thing. I will make it sound good."' },
 
   { id:'toma', name:'Toma Aida', rarity:4, element:'Volt', role:'Mage',
     hp:96, atk:13, aspd:1.2, range:104, spd:58, crit:.08,
-    skill: {name:'Shock Chain', type:'chain', cd:5.5, dmg:1.9, count:5,
+    skill: {name:'Shock Chain', type:'chain', cd:5.5, dmg:2.88, count:5,
             desc:'Current that leaps between five bodies, harder each time.'},
-    skill2:{name:'Ball Lightning', type:'boomerang', cd:6,   dmg:2.6,
+    skill2:{name:'Ball Lightning', type:'boomerang', cd:6,   dmg:3.94,
             desc:'A ball of current thrown out that turns around and comes back to him, hitting everything twice.'},
-    burst: {name:'Thunderhead', type:'thunderhead', dmg:1.5,
+    burst: {name:'Thunderhead', type:'thunderhead', dmg:2.27,
             desc:'Three and a half seconds of current leaping from body to body, harder with every jump.'},
     passive:'Anything already damaged this fight takes 25% more from him. He finishes crowds, not duels.',
     quote:'"Static. Everywhere. Sorry."' },
 
   /* ------------------------------ THE SECOND WAVE ----------------------- */
   { id:'atom', name:'Atom Vale', title:'The Half-Life', rarity:5, element:'Atomic', role:'Vanguard',
-    hp:126, atk:18, aspd:1.6, range:40, spd:66, crit:.13, burstRate:.38,
-    skill: {name:'Orbital', type:'orbit', cd:8, dmg:2.6, dur:5, count:3,
+    hp:126, atk:18, aspd:1.6, range:40, spd:66, crit:.13, burstRate:.62,
+    skill: {name:'Orbital', type:'orbit', cd:8, dmg:1.55, dur:5, count:3,
             desc:'Three electrons take up shells around him for five seconds, cutting everything they pass through. He can keep fighting inside it.'},
-    skill2:{name:'Fission', type:'fission', cd:5.5, dmg:2.8,
+    skill2:{name:'Fission', type:'fission', cd:5.5, dmg:1.67,
             desc:'One round that splits in two when it lands, and each half splits again.'},
-    burst: {name:'Critical Mass', type:'criticalmass', dmg:2.1,
+    burst: {name:'Critical Mass', type:'criticalmass', dmg:1.25,
             desc:'The shells collapse inward for two and a half seconds, dragging in everything they touch \u2014 and then the whole room goes. His meter fills at 38% of anyone else\u2019s, and only a quarter of that while Orbital is up.'},
     passive:'Half-Life \u2014 everything he damages keeps taking 25% of that hit again over the next two seconds.',
     quote:'"Everything comes apart. I just know the order."' },
@@ -974,77 +974,77 @@ const CHARS = [
     hp:158, atk:16, aspd:1.5, range:38, spd:64, crit:.10,
     skill: {name:'Red Mind', type:'rage', cd:12, dmg:0, dur:8, scale:1.4,
             desc:'For eight seconds she hits harder the closer she is to dying \u2014 up to 140% extra at the edge of it.'},
-    skill2:{name:'Skyfall', type:'leap', cd:6, dmg:3.4,
+    skill2:{name:'Skyfall', type:'leap', cd:6, dmg:2.62,
             desc:'Straight up, across, and down on top of whatever she picked.'},
-    burst: {name:'Bloodtide', type:'bloodtide', dmg:1.2,
+    burst: {name:'Bloodtide', type:'bloodtide', dmg:0.93,
             desc:'Seven seconds where she stops caring about her own health: double damage, and every body in reach feeds her back.'},
     passive:'Below half health she takes 25% less damage. She is hardest to kill when she is nearly dead.',
     quote:'"Good. Now it is a fight."' },
 
   { id:'odette', name:'Odette Lune', title:'The Marionettist', rarity:5, element:'Arcane', role:'Summoner',
     hp:100, atk:17, aspd:1.1, range:100, spd:56, crit:.10,
-    skill: {name:'Three Sisters', type:'puppets', cd:9, dmg:1.5, dur:8, count:3,
+    skill: {name:'Three Sisters', type:'puppets', cd:10, dmg:0.62, dur:7, count:3,
             desc:'Three puppets cut loose to hunt on their own for eight seconds while she keeps her distance.'},
-    skill2:{name:'Strung Up', type:'strings', cd:7, dmg:2.2, count:5, dur:2.4,
+    skill2:{name:'Strung Up', type:'strings', cd:7, dmg:0.99, count:5, dur:2.4,
             desc:'Up to five enemies are held in place for two and a half seconds \u2014 and held things take 40% more from everyone.'},
-    burst: {name:'Curtain Call', type:'curtaincall', dmg:1.6,
+    burst: {name:'Curtain Call', type:'curtaincall', dmg:0.72,
             desc:'Six puppets at once, and everything nearby is strung up while they work.'},
     passive:'Her puppets fire 25% faster, and anything they kill leaves a mote that heals her 4%.',
     quote:'"Sit up straight. You have a part to play."' },
 
   { id:'bao', name:'Bao Xun', rarity:4, element:'Flame', role:'Marksman',
     hp:96, atk:20, aspd:1.0, range:135, spd:54, crit:.16,
-    skill: {name:'Called Shot', type:'snipe', cd:5, dmg:3.0, scale:1.5,
+    skill: {name:'Called Shot', type:'snipe', cd:5, dmg:4.4, scale:1.5,
             desc:'One round that pierces everything and hits up to 150% harder the further away the target is.'},
-    skill2:{name:'Flak', type:'flak', cd:5.5, dmg:1.4, count:11,
+    skill2:{name:'Flak', type:'flak', cd:5.5, dmg:2.06, count:11,
             desc:'Eleven shells in a wall straight off the barrel. Everything in front of him, nothing else.'},
-    burst: {name:'Full Auto', type:'fullauto', dmg:1.0,
+    burst: {name:'Full Auto', type:'fullauto', dmg:1.47,
             desc:'Three seconds of emptying everything he is carrying into whatever is nearest.'},
     passive:'+50% damage against anything more than half a screen away, and none at point blank. Keep him back.',
     quote:'"Distance is just a discount on getting hit."' },
 
   { id:'iris', name:'Iris Solene', rarity:4, element:'Gale', role:'Skirmisher',
     hp:108, atk:17, aspd:1.7, range:44, spd:78, crit:.14,
-    skill: {name:'Hookshot', type:'hookshot', cd:4.5, dmg:2.6,
+    skill: {name:'Hookshot', type:'hookshot', cd:4.5, dmg:2.95,
             desc:'The hook goes out and something comes back \u2014 dragged to her feet, slowed, and cut on the way in.'},
-    skill2:{name:'Updraft', type:'updraft', cd:6.5, dmg:2.2,
+    skill2:{name:'Updraft', type:'updraft', cd:6.5, dmg:2.5,
             desc:'Everything around her goes up. What goes up is out of the fight, and the landing is what hurts.'},
-    burst: {name:'Skydance', type:'skydance', dmg:1.5,
+    burst: {name:'Skydance', type:'skydance', dmg:1.7,
             desc:'Three untouchable seconds where she never lands in the same place twice.'},
     passive:'+18% move speed, and every dash leaves a gust that cuts for 60% ATK.',
     quote:'"Catch up."' },
 
   { id:'shion', name:'Shion Kagemori', title:'The Ten Shades', rarity:5, element:'Shadow', role:'Shikigami',
     hp:114, atk:16, aspd:1.4, range:52, spd:66, crit:.12,
-    skill: {name:'Pale Fang', type:'hound', cd:9, dmg:1.5, row:'dogw', dur:18,
+    skill: {name:'Pale Fang', type:'hound', cd:9, dmg:1.44, row:'dogw', dur:18,
             spd:126, rate:.55, reach:14,
             desc:'The white one. It runs anything down and keeps biting for eighteen seconds \u2014 fast, and it never waits for you.'},
-    skill2:{name:'Black Fang', type:'hound', cd:13, dmg:2.1, row:'dogb', dur:999,
+    skill2:{name:'Black Fang', type:'hound', cd:13, dmg:2.01, row:'dogb', dur:999,
             spd:88, rate:.85, reach:16, bulk:1.1,
             desc:'The black one. Slower and heavier, and it does not leave \u2014 it stays out for the rest of the fight.'},
-    burst: {name:'The Wheel', type:'wheel', dmg:3.2,
+    burst: {name:'The Wheel', type:'wheel', dmg:3.07,
             desc:'The wheel-crowned one. It stays for the rest of the fight and it tears through everything in the room \u2014 including you, if you stand next to it. It is not on your side. It is just out.'},
     passive:'Every shikigami on the field makes the others hit 20% harder. He fights through them, not with them.',
     quote:'"Stay behind me. They are not fussy."' },
 
   { id:'toya', name:'Toya Shirakami', title:'The Limitless', rarity:5, element:'Arcane', role:'Sorcerer',
     hp:118, atk:19, aspd:1.3, range:96, spd:70, crit:.14,
-    skill: {name:'Lapse: Blue', type:'bluepull', cd:7, dmg:2.4,
+    skill: {name:'Lapse: Blue', type:'bluepull', cd:7, dmg:2.43,
             desc:'A point of pull. Everything in reach falls toward it for a second and a half, and then it shuts and crushes what it caught.'},
-    skill2:{name:'Reversal: Red', type:'redpush', cd:6, dmg:3.0,
+    skill2:{name:'Reversal: Red', type:'redpush', cd:6, dmg:3.04,
             desc:'The opposite of Blue. Everything near him is thrown away at once \u2014 and every enemy shot in that radius is simply gone.'},
-    burst: {name:'Hollow Purple', type:'purpleline', dmg:3.4,
+    burst: {name:'Hollow Purple', type:'purpleline', dmg:3.45,
             desc:'Blue and Red held together and let go in one line. It walks the length of the room and unmakes a corridor through it.'},
     passive:'Infinity \u2014 the first hit he would take every four seconds does not land at all.',
     quote:'"Nothing reaches me. That is the whole trick."' },
 
   { id:'yuuma', name:'Yuuma Sakaki', title:'The Vessel', rarity:5, element:'Flame', role:'Brawler',
     hp:146, atk:17, aspd:1.7, range:34, spd:74, crit:.12,
-    skill: {name:'Divergent Fist', type:'twinimpact', cd:4.5, dmg:2.2, second:1.5,
+    skill: {name:'Divergent Fist', type:'twinimpact', cd:4.5, dmg:0.84, second:1.5,
             desc:'The punch lands, and then it lands again a beat later on the same spot for 150% of the first.'},
-    skill2:{name:'Black Flash', type:'blackflash', cd:8, dmg:5.5, gain:.30,
+    skill2:{name:'Black Flash', type:'blackflash', cd:8, dmg:2.11, gain:.30,
             desc:'One strike that always lands as a critical, splashes into everything around it, and leaves him hitting 30% harder for six seconds.'},
-    burst: {name:'The Vessel Wakes', type:'possession', dmg:1.8,
+    burst: {name:'The Vessel Wakes', type:'possession', dmg:0.69,
             desc:'Nine seconds where he stops holding it back: double damage, 60% more attack speed, and everything close enough to touch feeds him.'},
     passive:'Every third hit on the same enemy detonates it for 90% ATK. He is built for staying on one thing.',
     quote:'"I know it is in there. It can wait its turn."' },
@@ -1052,113 +1052,113 @@ const CHARS = [
   /* ------------------------------ THE THIRD WAVE ------------------------ */
   { id:'suimu', name:'Suimu', title:'The Devourer', rarity:5, element:'Arcane', role:'Devourer',
     hp:132, atk:16, aspd:1.5, range:60, spd:68, crit:.11,
-    skill: {name:'Predation', type:'predator', cd:7, dmg:2.0, thresh:.30, count:3, cap:8,
+    skill: {name:'Predation', type:'predator', cd:7, dmg:2.91, thresh:.30, count:3, cap:8,
             desc:'Everything nearby under 30% health is simply eaten, and he keeps what he eats \u2014 +8% damage per meal, up to eight.'},
-    skill2:{name:'Split Off', type:'spirit', cd:9, dmg:1.6, dur:10,
+    skill2:{name:'Split Off', type:'spirit', cd:9, dmg:2.32, dur:10,
             desc:'A piece of himself walks away and starts hunting on its own for ten seconds.'},
-    burst: {name:'Body Split', type:'bodysplit', dmg:1.4,
+    burst: {name:'Body Split', type:'bodysplit', dmg:2.04,
             desc:'Three of him at once, each hunting for fourteen seconds, and the original heals a quarter of his health doing it.'},
     passive:'Anything he kills heals him 3% of his maximum.',
     quote:'"Do not take it personally. I take everything."' },
 
   { id:'homura', name:'Homura Akatsuki', title:'The Flame Ogre', rarity:5, element:'Flame', role:'Samurai',
     hp:134, atk:18, aspd:1.5, range:40, spd:70, crit:.13,
-    skill: {name:'Kagutsuchi', type:'flamewave', cd:5.5, dmg:1.9, count:9,
+    skill: {name:'Kagutsuchi', type:'flamewave', cd:5.5, dmg:1.6, count:9,
             desc:'A fan of fire off the blade, and the ground it crosses burns for four seconds afterwards.'},
-    skill2:{name:'Ember Step', type:'dash_slash', cd:4.5, dmg:2.9,
+    skill2:{name:'Ember Step', type:'dash_slash', cd:4.5, dmg:2.44,
             desc:'Through them, not around them.'},
-    burst: {name:'Inferno', type:'inferno', dmg:2.2,
+    burst: {name:'Inferno', type:'inferno', dmg:1.85,
             desc:'Six seconds of a fire that starts at his feet and does not stop growing until it has the whole room.'},
     passive:'Burning enemies take 25% more from him. Everything he does sets things on fire.',
     quote:'"Stand closer. It is warmer."' },
 
   { id:'mirika', name:'Mirika Nagatsuki', title:'The Dragonoid', rarity:5, element:'Chaos', role:'Destroyer',
     hp:126, atk:21, aspd:1.2, range:36, spd:76, crit:.15,
-    skill: {name:'Dragon Fist', type:'dragonfist', cd:6, dmg:7.0,
+    skill: {name:'Dragon Fist', type:'dragonfist', cd:6, dmg:16.86,
             desc:'She winds up for half a second, and then whatever was standing there is not.'},
-    skill2:{name:'Nova Push', type:'redpush', cd:6, dmg:2.6,
+    skill2:{name:'Nova Push', type:'redpush', cd:6, dmg:6.27,
             desc:'Everything within reach is thrown off its feet, and every enemy shot in it is gone.'},
-    burst: {name:'Dragon Roar', type:'dragonroar', dmg:4.0,
+    burst: {name:'Dragon Roar', type:'dragonroar', dmg:9.63,
             desc:'One shout. The whole room is knocked flat, set alight, and slowed to a crawl.'},
     passive:'She cannot be knocked back or slowed by anything, and her critical hits are 80% harder.',
     quote:'"Was that all of it? Do it again."' },
 
   { id:'noir', name:'Noir Vandelay', title:'The Primordial', rarity:5, element:'Shadow', role:'Warlock',
-    hp:112, atk:20, aspd:1.3, range:88, spd:66, crit:.14, burstRate:.30,
-    skill: {name:'The Pact', type:'demonpact', cd:11, dmg:2.4, cost:.15, gain:.85,
+    hp:112, atk:20, aspd:1.3, range:88, spd:66, crit:.14, burstRate:.55,
+    skill: {name:'The Pact', type:'demonpact', cd:11, dmg:3.48, cost:.15, gain:.85,
             dur:7, drain:.045,
             desc:'15% of his own health up front and 4.5% more every second it runs, for 85% more damage over seven seconds. One pact at a time \u2014 it will not layer, and signing again while it holds does nothing. It cannot kill him, but it will leave him on his last point.'},
-    skill2:{name:'Rot', type:'plague', cd:6, dmg:2.6,
+    skill2:{name:'Rot', type:'plague', cd:6, dmg:3.77,
             desc:'Infects one enemy; kill it infected and the rot moves to whatever was standing near it.'},
-    burst: {name:'Primordial', type:'primordial', dmg:1.9,
+    burst: {name:'Primordial', type:'primordial', dmg:2.75,
             desc:'Two shades cut loose for eight seconds, everything on screen cursed, and him at 35% more damage while it lasts. His meter fills at a third of anyone else\u2019s, and nothing he does under the Pact fills it at all \u2014 you get this once a fight, if you earn it.'},
     passive:'Below 50% health he deals 30% more. He is not in danger; you are.',
     quote:'"Of course. It would be my pleasure."' },
 
   { id:'alwyn', name:'Alwyn Fael', title:'The Long Memory', rarity:5, element:'Frost', role:'Archmage',
     hp:104, atk:19, aspd:1.1, range:120, spd:56, crit:.12,
-    skill: {name:'Echo', type:'echoflash', cd:6, dmg:1.0, delay:.8, power:.8,
+    skill: {name:'Echo', type:'echoflash', cd:6, dmg:1.9, delay:.8, power:.8,
             desc:'Whatever she cast last happens again, on its own, for 80% \u2014 and it costs nothing.'},
     skill2:{name:'Still Hour', type:'timeslow', cd:12, dmg:0, dur:4.5,
             desc:'Four and a half seconds where the room moves at half speed and she does not.'},
-    burst: {name:'Stop', type:'timestop', dmg:2.6,
+    burst: {name:'Stop', type:'timestop', dmg:4.94,
             desc:'Four seconds where nothing on the field moves at all, her attack speed more than doubles, and she walks between them.'},
     passive:'Her skills come back 20% faster, and every skill she casts leaves a frost ring behind it.',
     quote:'"I have watched this happen before. It goes badly for you."' },
 
   { id:'jun', name:'Jun Kirisaki', rarity:4, element:'Blade', role:'Butcher',
     hp:142, atk:16, aspd:1.6, range:32, spd:70, crit:.12,
-    skill: {name:'Rev', type:'grinder', cd:6, dmg:2.4, dur:3.0,
+    skill: {name:'Rev', type:'grinder', cd:6, dmg:2.58, dur:3.0,
             desc:'Three seconds of leaning on it. Everything in reach is ground down, and every body in there feeds him back.'},
-    skill2:{name:'Drop In', type:'leap', cd:6, dmg:3.0,
+    skill2:{name:'Drop In', type:'leap', cd:6, dmg:3.23,
             desc:'Up, across, and down on whatever he picked.'},
-    burst: {name:'Overdrive', type:'overdrive', dmg:2.0,
+    burst: {name:'Overdrive', type:'overdrive', dmg:2.15,
             desc:'Six seconds where it never stops turning and he moves 30% faster while it runs.'},
     passive:'He heals 12% of what the saw deals. The longer it is running, the harder he is to put down.',
     quote:'"Pull-start. Every time. Every time!"' },
 
   { id:'rai', name:'Rai Sudo', rarity:4, element:'Volt', role:'Iaido',
     hp:98, atk:19, aspd:1.4, range:44, spd:80, crit:.18,
-    skill: {name:'First Form', type:'iaidraw', cd:5, dmg:3.6, delay:.35, len:150,
+    skill: {name:'First Form', type:'iaidraw', cd:5, dmg:3.93, delay:.35, len:150,
             desc:'A line drawn across the room a third of a second before the sword moves. Everything on it is cut, and always critically.'},
-    skill2:{name:'Godspeed', type:'blink_strike', cd:6, dmg:3.2,
+    skill2:{name:'Godspeed', type:'blink_strike', cd:6, dmg:3.49,
             desc:'He is not there any more. He is behind them.'},
-    burst: {name:'Sixfold', type:'sixfold', dmg:2.4,
+    burst: {name:'Sixfold', type:'sixfold', dmg:2.62,
             desc:'Six draws in three seconds, each one somewhere else in the room, and untouchable through all of them.'},
     passive:'Every critical hit gives him 12% attack speed for four seconds, and it stacks.',
     quote:'"...I would rather be asleep. Fine."' },
 
   { id:'kotone', name:'Kotone Shiba', rarity:4, element:'Stone', role:'Bulwark',
     hp:168, atk:14, aspd:1.2, range:36, spd:58, crit:.08,
-    skill: {name:'Shield Wall', type:'shieldwall', cd:8, dmg:2.0, count:5, dur:9,
+    skill: {name:'Shield Wall', type:'shieldwall', cd:8, dmg:2.67, count:5, dur:9,
             desc:'Five slabs planted in front of her. Enemies bounce off them and enemy shots break on them, until they do not.'},
     skill2:{name:'Brace', type:'bulwark', cd:9, dmg:0,
             desc:'A 55% shield for six seconds, and anything that touches her hurts itself doing it.'},
-    burst: {name:'Fortress', type:'fortress', dmg:2.0,
+    burst: {name:'Fortress', type:'fortress', dmg:2.67,
             desc:'A full ring of wall around her, a 60% shield, and 30% of the whole squad\u2019s health back.'},
     passive:'She takes 20% less damage, and while any of her walls stand the whole squad takes 10% less.',
     quote:'"Behind me. Now, please."' },
 
   { id:'vex', name:'Vex Halloran', rarity:4, element:'Gale', role:'Gambler',
     hp:106, atk:18, aspd:1.3, range:110, spd:72, crit:.16,
-    skill: {name:'Roll', type:'dice', cd:5, dmg:2.2,
+    skill: {name:'Roll', type:'dice', cd:5, dmg:3.54,
             desc:'One of six things happens. Loaded damage, a heal and a shield, the room frozen, both cooldowns reset, a scatter of shells, or everything nearby taking 220%.'},
-    skill2:{name:'Called Shot', type:'snipe', cd:5.5, dmg:2.8, scale:1.3,
+    skill2:{name:'Called Shot', type:'snipe', cd:5.5, dmg:4.5, scale:1.3,
             desc:'One round that pierces everything and hits harder the further away the target is.'},
-    burst: {name:'Jackpot', type:'jackpot', dmg:1.8,
+    burst: {name:'Jackpot', type:'jackpot', dmg:2.9,
             desc:'Six rolls in three seconds and she pays for none of them.'},
     passive:'+20% critical chance, and a critical hit refunds 0.6s off both her cooldowns.',
     quote:'"House always wins. I am not the house."' },
 
   { id:'jinya', name:'Jinya Kurose', title:'The Shadow Monarch', rarity:5, element:'Shadow', role:'Monarch',
     hp:130, atk:18, aspd:1.6, range:38, spd:74, crit:.14,
-    skill: {name:'Ashen Knight', type:'shadowsummon', cd:12, dmg:2.0, row:'knight',
+    skill: {name:'Ashen Knight', type:'shadowsummon', cd:12, dmg:1.56, row:'knight',
             spd:74, rate:.85, reach:18, scale:1.35, bulk:1.2,
             desc:'The first one he ever raised. Slow, heavy, and it does not leave \u2014 it stands for the rest of the fight.'},
-    skill2:{name:'Hive Marshal', type:'shadowsummon', cd:12, dmg:1.5, row:'antking',
+    skill2:{name:'Hive Marshal', type:'shadowsummon', cd:12, dmg:1.17, row:'antking',
             spd:150, rate:.42, reach:13, scale:1.1, bulk:.7,
             desc:'The other one. Far too fast, hits far too often, and it also stays for the fight.'},
-    burst: {name:'Arise', type:'arise', dmg:1.2,
+    burst: {name:'Arise', type:'arise', dmg:0.94,
             desc:'Everything he has killed this fight gets back up on his side. Up to ten of them, in whatever shape they died in, for the rest of the room.'},
     passive:'Every enemy he kills is kept. Arise spends them \u2014 so the Burst is only ever as big as the fight has been.',
     quote:'"You do not stop working for me just because you died."' },
@@ -1181,22 +1181,22 @@ const CHARS = [
 
   { id:'astra', name:'Astra Valen', title:'Oath of the Vanguard', rarity:5, element:'Radiant', role:'Vanguard',
     hp:158, atk:16, aspd:1.4, range:36, spd:64, crit:.10,
-    skill: {name:'Breaker Charge', type:'shieldcharge', cd:6, dmg:2.6,
+    skill: {name:'Breaker Charge', type:'shieldcharge', cd:6, dmg:3.77,
             desc:'Shield up, head down, straight through the middle of them. Untouchable the whole way, and everything she passes is thrown aside.'},
-    skill2:{name:'Sworn Guard', type:'oathshield', cd:10, dmg:1.4, dur:6,
+    skill2:{name:'Sworn Guard', type:'oathshield', cd:10, dmg:2.03, dur:6,
             desc:'A 45% shield for six seconds, and while it holds, every hit she takes is paid straight back into the room.'},
-    burst: {name:'Holy Vow', type:'holyvow', dmg:1.6,
+    burst: {name:'Holy Vow', type:'holyvow', dmg:2.32,
             desc:'She plants the standard. For eight seconds the squad heals, everything inside burns with light, and she hits 60% harder.'},
     passive:'She takes 15% less damage, and the squad takes 8% less while her shield is up.',
     quote:'"I gave my word. That is the whole of it."' },
 
   { id:'kael', name:'Kael Riven', rarity:4, element:'Shadow', role:'Cutthroat',
     hp:104, atk:20, aspd:1.9, range:30, spd:80, crit:.24,
-    skill: {name:'Garrote', type:'garrote', cd:6, dmg:2.2, dur:3,
+    skill: {name:'Garrote', type:'garrote', cd:6, dmg:2.53, dur:3,
             desc:'He steps behind the nearest one, opens it, and leaves it bleeding for three seconds. It does not get to move while he does.'},
-    skill2:{name:'Smoke', type:'smokebomb', cd:8, dmg:1.2,
+    skill2:{name:'Smoke', type:'smokebomb', cd:8, dmg:1.38,
             desc:'Gone. Untouchable for a second, everything close loses him, and the next thing he does is a guaranteed critical.'},
-    burst: {name:'Bloodwork', type:'bloodwork', dmg:2.2,
+    burst: {name:'Bloodwork', type:'bloodwork', dmg:2.53,
             desc:'Everything already under 30% simply stops, all at once, and every one of them comes apart into a wave that hurts the rest.'},
     passive:'+30% damage to anything above 80% health. He would rather start the job than finish it.',
     quote:'"Nothing personal. It rarely is."' },
@@ -1214,88 +1214,88 @@ const CHARS = [
 
   { id:'dain', name:'Dain Ashgrove', title:'The Half Blade', rarity:5, element:'Blade', role:'Wanderer',
     hp:122, atk:19, aspd:1.7, range:34, spd:74, crit:.18,
-    skill: {name:'Phantom Edge', type:'phantomedge', cd:5, dmg:2.3,
+    skill: {name:'Phantom Edge', type:'phantomedge', cd:5, dmg:1.03,
             desc:'The missing half of the sword is still there. It reaches three times further than it looks and it cuts twice.'},
-    skill2:{name:'Shard Guard', type:'shardguard', cd:8, dmg:1.6, count:8, dur:6,
+    skill2:{name:'Shard Guard', type:'shardguard', cd:8, dmg:0.72, count:8, dur:6,
             desc:'Eight pieces of the broken blade hang around him. They break enemy shots out of the air, and they break on enemies.'},
-    burst: {name:'Reforge', type:'reforge', dmg:1.9,
+    burst: {name:'Reforge', type:'reforge', dmg:0.85,
             desc:'For eight seconds the blade is whole again — every swing becomes a full-length piercing sweep and hits 90% harder.'},
     passive:'Below 60% health his attacks gain the phantom reach for free.',
     quote:'"Half a sword is still a sword."' },
 
   { id:'kuro', name:'Kuro Zenji', rarity:4, element:'Blade', role:'Three Swords',
     hp:136, atk:18, aspd:1.5, range:36, spd:68, crit:.16,
-    skill: {name:'Three Cuts', type:'threesword', cd:5, dmg:1.9,
+    skill: {name:'Three Cuts', type:'threesword', cd:5, dmg:1.54,
             desc:'Three blades, three angles, one moment. They meet where the enemy is standing.'},
-    skill2:{name:'Flying Cut', type:'flyingcut', cd:6, dmg:2.6,
+    skill2:{name:'Flying Cut', type:'flyingcut', cd:6, dmg:2.1,
             desc:'A crescent thrown off the blade that crosses the whole room and gets bigger the further it goes.'},
-    burst: {name:'Asura', type:'asura', dmg:1.5,
+    burst: {name:'Asura', type:'asura', dmg:1.21,
             desc:'Nine blades for three seconds. Everything in front of him is cut, and cut, and cut.'},
     passive:'Every third attack cuts with all three swords for 180%.',
     quote:'"Which way was the enemy again?"' },
 
   { id:'nix', name:'Nix', rarity:4, element:'Gale', role:'Feral',
     hp:98, atk:17, aspd:2.2, range:28, spd:86, crit:.22,
-    skill: {name:'Pounce', type:'pounce', cd:5, dmg:1.1, count:4,
+    skill: {name:'Pounce', type:'pounce', cd:5, dmg:0.82, count:4,
             desc:'Onto the nearest one and off again, four sets of claws deep, before it works out where she went.'},
-    skill2:{name:'Catstep', type:'catstep', cd:6, dmg:1.5, count:3,
+    skill2:{name:'Catstep', type:'catstep', cd:6, dmg:1.12, count:3,
             desc:'Three dashes back to back, each leaving a claw trail. Land all three and most of the cooldown comes back.'},
-    burst: {name:'Nine Lives', type:'ninelives', dmg:1.5,
+    burst: {name:'Nine Lives', type:'ninelives', dmg:1.12,
             desc:'Three and a half seconds of nothing being able to touch her, hopping target to target — and she comes out of it at full health.'},
     passive:'Her dash comes back 40% faster and does not cost her the attack.',
     quote:'"Mine. That one is mine too."' },
 
   { id:'pim', name:'Pim Ottoline', rarity:4, element:'Arcane', role:'Apothecary',
     hp:112, atk:14, aspd:1.3, range:90, spd:66, crit:.08,
-    skill: {name:'Flask', type:'flask', cd:5, dmg:2.0, dur:4,
+    skill: {name:'Flask', type:'flask', cd:5, dmg:1.98, dur:4,
             desc:'It breaks where it lands. Enemies in the splash dissolve for four seconds, and anyone on your side standing in it heals.'},
     skill2:{name:'Tonic', type:'tonic', cd:9, dmg:0, shield:.40,
             desc:'She spends 15% of her own health and the whole squad walks away with a 40% shield and nothing slowing them down.'},
-    burst: {name:'Panacea', type:'panacea', dmg:1.2,
+    burst: {name:'Panacea', type:'panacea', dmg:1.18,
             desc:'Everyone back to full, a six-second field that keeps healing, and three flasks left standing to throw themselves at whatever comes.'},
     passive:'Every heal she causes also gives that person a small shield.',
     quote:'"Drink it. Do not ask what is in it."' },
 
   { id:'corbin', name:'Corbin Vale', rarity:4, element:'Earth', role:'Trapper',
     hp:126, atk:16, aspd:1.4, range:100, spd:70, crit:.14,
-    skill: {name:'Snare', type:'snare', cd:6, dmg:1.6, dur:2.4,
+    skill: {name:'Snare', type:'snare', cd:6, dmg:1.15, dur:2.4,
             desc:'A net over whatever is in front of him. Nothing caught in it moves for two and a half seconds, and everything hurts it more while it is held.'},
-    skill2:{name:'Skipping Stone', type:'stoneshot', cd:5, dmg:1.8, count:4,
+    skill2:{name:'Skipping Stone', type:'stoneshot', cd:5, dmg:1.30, count:5,
             desc:'One stone off the sling that bounces between four of them and hits harder on every bounce.'},
-    burst: {name:'Snarefield', type:'snarefield', dmg:2.0,
+    burst: {name:'Snarefield', type:'snarefield', dmg:1.1,
             desc:'The whole floor goes to netting. Everything is pinned for four seconds while the ground comes up underneath it.'},
     passive:'Anything rooted or slowed takes 20% more from the whole squad.',
     quote:'"Walk wherever you like. I already know where."' },
 
   { id:'aurel', name:'Aurel Sancti', title:'The Burning Suit', rarity:5, element:'Flame', role:'Striker',
     hp:124, atk:19, aspd:1.8, range:32, spd:78, crit:.16,
-    skill: {name:'Flurry', type:'flurrykick', cd:5, dmg:.9, count:6,
+    skill: {name:'Flurry', type:'flurrykick', cd:5, dmg:0.53, count:6,
             desc:'Six kicks into a cone in under a second, and the floor keeps burning where they landed.'},
-    skill2:{name:'Sky Kick', type:'skykick', cd:6.5, dmg:3.2,
+    skill2:{name:'Sky Kick', type:'skykick', cd:6.5, dmg:1.9,
             desc:'The nearest one goes up. He follows it up. It comes down considerably faster than it went.'},
-    burst: {name:'Hell Memory', type:'hellmemory', dmg:1.4,
+    burst: {name:'Hell Memory', type:'hellmemory', dmg:0.83,
             desc:'He catches. For eight seconds every step leaves fire, every swing is a burning arc, and he moves 50% faster.'},
     passive:'His hands stay in his pockets — he never hits with them, and everything he does burns.',
     quote:'"Do not put your hands on the food."' },
 
   { id:'vira', name:'Vira Nocturne', title:'The Heavy Hour', rarity:5, element:'Arcane', role:'Gravitist',
     hp:110, atk:19, aspd:1.2, range:105, spd:60, crit:.12,
-    skill: {name:'Heavy Air', type:'heavyair', cd:6, dmg:1.5, dur:3,
+    skill: {name:'Heavy Air', type:'heavyair', cd:6, dmg:1.14, dur:3,
             desc:'The air over them stops being polite. Everything close is pinned flat for three seconds and crushed the whole time.'},
-    skill2:{name:'Sigil Chain', type:'sigilchain', cd:6, dmg:2.2, count:3,
+    skill2:{name:'Sigil Chain', type:'sigilchain', cd:6, dmg:1.68, count:3,
             desc:'Three sigils dropped in a triangle. The lines between them are not somewhere you want to be standing.'},
-    burst: {name:'Singularity', type:'singularity', dmg:1.9,
+    burst: {name:'Singularity', type:'singularity', dmg:1.45,
             desc:'A point of collapse for four seconds. Everything is dragged into it, and then there is nothing at that point at all.'},
     passive:'Anything she has pinned takes 30% more from her.',
     quote:'"Down. All of you. Down."' },
 
   { id:'boro', name:'Boro Kessel', rarity:4, element:'Volt', role:'Gunner',
     hp:130, atk:18, aspd:1.1, range:130, spd:62, crit:.12,
-    skill: {name:'Slug', type:'cannon', cd:5.5, dmg:4.0,
+    skill: {name:'Slug', type:'cannon', cd:5.5, dmg:4.1,
             desc:'Half a second of winding the arm up, then one round that goes through everything in the room — and knocks him back out of the way.'},
-    skill2:{name:'Mortar', type:'mortar', cd:6, dmg:2.2, count:3,
+    skill2:{name:'Mortar', type:'mortar', cd:6, dmg:2.25, count:3,
             desc:'Three shells lobbed onto the three nearest heads. They arrive in the order they were fired.'},
-    burst: {name:'Siege', type:'siege', dmg:1.3,
+    burst: {name:'Siege', type:'siege', dmg:1.33,
             desc:'Four seconds of continuous fire, walking left to right across everything in front of him.'},
     passive:'Standing still for a second gives him +35% damage until he moves.',
     quote:'"Brace. I said BRACE."' }
@@ -1313,6 +1313,16 @@ const LINK_WINDOW = 2.0;      // how long an opening stands after a skill
 const LINK_CHAIN  = 1.0;      // a chained link leaves a tighter window than the first
 const LINK_MAX    = 3;        // links in one chain, then it is spent
 const LINK_CD     = 9.0;      // and Link Strikes lock out for this long
+/* ---- the Burst economy -------------------------------------------------
+   A meter that fills purely on damage dealt pays the characters who least
+   need paying: the harder you already hit, the more ultimates you get, and
+   the gap between the top of the roster and the bottom compounds every
+   fight. So most of the meter comes from a steady trickle everybody gets
+   at the same rate, and damage only tops it up. A Burst is a thing that
+   happens a few times a fight for everyone, rather than a rotation for
+   half the roster and a rarity for the other half.                        */
+const BURST_PER_DMG  = 0.00070;   // per point of damage dealt
+const BURST_PER_SEC  = 0.0180;    // and this much a second, just for being there
 const COOP_RESCUE_CD = 45;    // how long before a downed player can be picked up again
 const LINK_MUL = [1, 1.6, 2.1, 2.6];
 const ENTRANCE = {
@@ -2727,6 +2737,7 @@ function hurtMob(m, dmg, crit, kb, src){
     dmg *= d2 > 96 ? 1.5 : d2 < 34 ? 0.55 : 1;
   }
   if(m.frozen>0) dmg *= 1.4;                    // frozen things shatter
+  if((m.chilled||0) > 0) dmg *= 1.25;           // and what she has touched stays brittle
   if(m.curse > 0) dmg *= 1.15;                  // Nyx's curse helps the whole squad
   if(B.hero && B.hero.mem.id === 'nyx') m.curse = 3;
   if(B.hero && B.hero.mem.id === 'kassandra' && m.hp/m.maxhp < .40 && !crit){
@@ -2742,7 +2753,7 @@ function hurtMob(m, dmg, crit, kb, src){
   m.flash = Math.max(m.flash, (m.type==='sovereign'||m.type==='unmaker') ? .3 : .8);
   // damage dealt during a Burst does not charge the next one, or R would loop
   if(B.hero && B.burstLock <= 0)
-    B.hero.mem.burst = Math.min(1, (B.hero.mem.burst||0) + dmg*0.0016*burstRate(B.hero));
+    B.hero.mem.burst = Math.min(1, (B.hero.mem.burst||0) + dmg*BURST_PER_DMG*burstRate(B.hero));
   B.floats.push({x:m.x+rnd(6,-6),y:m.y-m.r*2-4,vy:-26,life:.7,txt:Math.round(dmg),
     color:crit?'#ffcc4d':'#fff', size:crit?7:6});
   if(kb){ m.x+=kb.x; m.y+=kb.y; }
@@ -3165,7 +3176,7 @@ function castSkill_(sk, dmgMul){
       break; }
     case 'freeze_ring':
       B.fields.push({x:h.x,y:h.y-4,r:6,maxr:78,life:.5,max:.5,dmg:A*dmgMul,set:new Set(),
-        color:'#5fe6ff',type:'freeze'});
+        color:'#5fe6ff',type:'freeze', brittle:c.id === 'yura' ? 8 : 0});
       break;
     case 'burn_field': {
       B.fields.push({x:h.x+Math.cos(ang)*36, y:h.y+Math.sin(ang)*36, r:44, maxr:44,
@@ -3539,11 +3550,12 @@ function castSkill_(sk, dmgMul){
     /* ---- DIVERGENT FIST: it lands, and then it lands again ---- */
     case 'twinimpact': {
       const tx2 = h.x + Math.cos(ang)*30, ty2 = h.y + Math.sin(ang)*20;
-      B.fields.push({x:tx2, y:ty2, r:6, maxr:44, life:.24, max:.24, dmg:A*dmgMul,
+      B.fields.push({x:tx2, y:ty2, r:6, maxr:30, life:.24, max:.24, dmg:A*dmgMul,
         set:new Set(), color:ELC[c.element], type:'nova'});
       spawnHit(tx2, ty2, ELC[c.element], 'cut');
-      // the second impact arrives a beat behind the first, on the same spot
-      B.strikes.push({x:tx2, y:ty2, t:.30, r:30, dmg:A*dmgMul*(sk.second || 1.4),
+      // the second impact arrives a beat behind the first, on the same spot.
+      // It is a punch, not a shockwave - it should not clear a room on its own.
+      B.strikes.push({x:tx2, y:ty2, t:.30, r:20, dmg:A*dmgMul*(sk.second || 1.4),
         color:'#ffd24d'});
       h.anim.atk = h.anim.atkMax = .32;
       B.shake = 8;
@@ -3556,8 +3568,8 @@ function castSkill_(sk, dmgMul){
         h.x = clamp(m2.x - Math.cos(ang)*16, AR.x0+4, AR.x1-4);
         h.y = clamp(m2.y + 4, AR.y0+8, AR.y1-2);
         hurtMob(m2, A*dmgMul, true, {x:Math.cos(ang)*.6, y:Math.sin(ang)*.4});
-        B.mobs.forEach(q => { if(!q.dead && q !== m2 && dist(q, m2) < 34)
-          hurtMob(q, A*dmgMul*.5, true, null); });
+        B.mobs.forEach(q => { if(!q.dead && q !== m2 && dist(q, m2) < 22)
+          hurtMob(q, A*dmgMul*.4, true, null); });
         spawnHit(m2.x, m2.y-m2.r, '#ffd24d', 'nova');
       }
       h.flash = 1; h.inv = .4; h.anim.atk = h.anim.atkMax = .3;
@@ -4059,8 +4071,8 @@ function petFrame(q){
    all. The Pact is the cost of the Burst, not the engine for it. */
 function burstRate(h){
   const c = CHAR[h.mem.id];
-  if(h.pact > 0) return 0;                     // signed: none of this counts
-  if(h.orbit) return 0.25;                     // the shells are not a charging station
+  if(h.pact > 0) return 0.25;                  // signed: it barely counts
+  if(h.orbit) return 0.45;                     // the shells are not a charging station
   return c.burstRate === undefined ? 1 : c.burstRate;
 }
 
@@ -4169,9 +4181,9 @@ function useBurst_(){
       break;
     /* ---- THE VESSEL WAKES: he stops holding it back ---- */
     case 'possession':
-      h.rage = {t:9, mul:2.0};
-      h.st.aspd *= 1.6; h.st.spd *= 1.25;
-      B.burst = {type:'possession', t:9, tick:0, dmg:A*bu.dmg, aspd:h.st.aspd, spd:h.st.spd};
+      h.rage = {t:7, mul:1.55};
+      h.st.aspd *= 1.35; h.st.spd *= 1.2;
+      B.burst = {type:'possession', t:7, tick:0, dmg:A*bu.dmg, aspd:h.st.aspd, spd:h.st.spd};
       h.shield += h.st.maxhp*.25;
       B.floats.push({x:h.x, y:h.y-44, vy:-14, life:2.4, txt:'IT IS AWAKE',
         color:'#e8657f', size:11});
@@ -4542,7 +4554,7 @@ function updateBurst_(dt){
       for(let i=0;i<5;i++) B.fx.push({x:h.x+rnd(18,-18), y:h.y-rnd(30),
         vx:rnd(30,-30), vy:-rnd(50,10), life:.5, c:'#e8657f', s:2});
     }
-    if(b.t <= dt){ h.st.aspd /= 1.6; h.st.spd /= 1.25; }  // and then it goes back to sleep
+    if(b.t <= dt){ h.st.aspd /= 1.35; h.st.spd /= 1.2; }  // and then it goes back to sleep
   } else if(b.type === 'criticalmass'){
     b.wound += dt;
     if(b.tick <= 0){                                   // it winds up, then it goes off
@@ -5284,6 +5296,10 @@ function update(dt){
   if(B.linkCd>0) B.linkCd-=dt;
   if(B.rescue1>0) B.rescue1-=dt;
   if(B.rescue2>0) B.rescue2-=dt;
+  if(B.burstLock <= 0) players().forEach(pl => {
+    if(pl && !pl.mem.ko)
+      pl.mem.burst = Math.min(1, (pl.mem.burst||0) + dt*BURST_PER_SEC*burstRate(pl));
+  });
   if(B.opening>0){ B.opening-=dt; if(B.opening<=0) endChain(); }
   if(B.encore>0){ B.encore-=dt; R.squad.forEach(m=>{ if(!m.ko) m.hp=Math.min(m.maxhp, m.hp+m.maxhp*.03*dt); }); }
 
@@ -5320,6 +5336,7 @@ function update(dt){
       if(m._bt>=.5){ m._bt=0; hurtMob(m,m.burn*.5,false,null,'dot'); if(m.dead) continue; } }
     if(m.slowT>0) m.slowT-=dt; else m.slow=0;
     if(m.rooted>0) m.rooted-=dt;                 // pinned, but still swinging
+    if(m.chilled>0) m.chilled-=dt;              // brittle for a while after the ice
     if(m.frozen>0){ m.frozen-=dt; continue; }
     const sp=m.spd*(1-m.slow)*((m.rooted||0)>0 ? 0 : 1);
     const dx=tgtP.x-m.x, dy=tgtP.y-m.y, d=Math.hypot(dx,dy)||1;
@@ -5496,7 +5513,8 @@ function update(dt){
       f.r=lerp(6,f.maxr,1-f.life/f.max);
       B.mobs.forEach(m=>{ if(!m.dead&&!f.set.has(m)&&dist(m,f)<f.r+m.r){
         f.set.add(m); hurtMob(m,f.dmg,false,{x:(m.x-f.x)*.16,y:(m.y-f.y)*.16});
-        if(f.type==='freeze'&&!m.dead) m.frozen=1.6; }});
+        if(f.type==='freeze'&&!m.dead) m.frozen=1.6;
+        if(f.brittle&&!m.dead) m.chilled=Math.max(m.chilled||0, f.brittle); }});
     } else if(f.type==='vortex'){
       // drags everything to the middle, then lets go all at once
       const k=1-f.life/f.max, P=f.pull||1;
@@ -5531,7 +5549,7 @@ function update(dt){
     }
     if(t.cd<=0){
       if(m){ asOwner(t.own, () => {
-        t.cd=(t.roam?.42:.55) * (B.hero && B.hero.mem.id==='odette' ? .75 : 1);
+        t.cd=(t.roam?.62:.72) * (B.hero && B.hero.mem.id==='odette' ? .82 : 1);
         const a=Math.atan2(m.y-t.y,m.x-t.x);
         spawnShot({x:t.x,y:t.y,vx:Math.cos(a)*180,vy:Math.sin(a)*180,r:3,dmg:t.dmg,
           team:'hero',life:1.2,color:t.color,art:t.art||'note',own:t.own}); }); } }
