@@ -45,12 +45,33 @@ sniper, Gorou's Stonehide on a glass cannon, Shion's Pack Bond on Odette's
 puppets. That is what makes a 4★ you will never play worth pulling: you are not
 only collecting a character, you are collecting a part.
 
-**Forty-six perks — one per character, every single one of them**, and they are real mechanics rather than
+**Fifty-two perks — one per character, every single one of them**, and they are real mechanics rather than
 flat numbers — a regen tick, a chain to a second enemy, a shield on arrival, an
 execute threshold, a nullified hit every nine seconds, summons that live half
 again as long. Set them in **Collection**; the same perk cannot go in both slots
 of one character, but it can be fitted to as many different characters as you
 like.
+
+### Balance
+
+The roster is tuned against a measurement, not a feeling. `tools`-side there is
+a headless harness that runs **every character for thirty seconds** against a
+stationary single target and a pack of five, at the range their kit was built
+for, plus a healing-throughput trial for the ones whose job is not damage. The
+first time it ran, the spread was **27x** from top to bottom.
+
+Most of that came from the Burst meter, which filled purely on damage dealt —
+so it paid the characters who least needed paying, and the gap compounded every
+fight. Most of the meter is now a **steady trickle everybody gets at the same
+rate**, with damage only topping it up. A Burst is a few times a fight for
+everyone rather than a rotation for half the roster and a rarity for the other
+half.
+
+The rest was per-character: damage numbers scaled toward a target band from the
+measurements, and the handful of kits that were structurally rather than
+numerically over-tuned changed by hand. Top to bottom is now about **5x**, most
+of the roster sits between 180 and 400 pack dps, and the two dedicated healers
+trade damage for the best throughput in the game.
 
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
@@ -198,7 +219,7 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ## The cast
 
-Forty-six characters across two rarities. They play completely differently.
+Fifty-two characters across two rarities. They play completely differently.
 
 ### 5★
 
@@ -231,8 +252,8 @@ squad up the way Yura does.
 
 ### No two of them play the same
 
-Forty-six characters, and **no two share a pair of skills.** There are
-seventy-four distinct skill mechanics and forty-five distinct Burst shapes
+Fifty-two characters, and **no two share a pair of skills.** There are
+eighty-six distinct skill mechanics and fifty-one distinct Burst shapes
 behind them and they are mechanics, not reskins: a
 parry that turns a hit into a counter, a mark that banks damage and pays it out
 in a lump, a chain that gets stronger with every body it jumps, a channelled
@@ -248,7 +269,7 @@ a pack in place, a stone that skips between four heads getting heavier each
 time, a sheathed stance that answers the whole room in ice, eight blade shards
 that break enemy bullets out of the air, and a cannon whose recoil moves the
 person firing it. Every character also has their own
-passive and their own Burst — forty-five of the forty-six Bursts are shapes
+passive and their own Burst — fifty-one of the fifty-two Bursts are shapes
 nobody else has.
 
 ### 5★ — The Third Wave
@@ -361,6 +382,26 @@ is a squad passive: anything rooted, slowed or frozen takes **20% more from
 everyone**, so he is a support who never has to hold the bow. Boro gets **+35%
 damage for standing still for a second**, and loses it the moment he moves.
 
+### The Fourth Wave
+
+| | Character | Skill (SPACE) | Skill (E) | Burst (R) |
+|---|---|---|---|---|
+| ⛓ | **Ryo Tsukigami** · *The Chained Moon* · 5★ Shadow | **Chain Reach** — the weight goes out, catches whatever is furthest away and drags it to his feet, cutting the line it travels | **Reap** — the sickle all the way round him, twice, and every body it catches gives some of itself back | **Iron Rain** — four seconds of the sickle running a wide circle at speed, dragging everything inward with it |
+| ❦ | **Sable Duquesne** · *The Red Countess* · 5★ Shadow | **Lunge** — one thrust through everything on a line, and a quarter of it comes back to her | **Blood Mist** — she stops being solid: untouchable, twice as fast, and everything she passes through is opened up | **Crimson Court** — eight seconds where everything feeds her and anything dying near her gets up on her side |
+| ≋ | **Zephyra Al-Nour** · *The Long Wind* · 5★ Gale | **Fan Storm** — cutting wind thrown out, which turns at the far end and comes back through them a second time | **Sand Veil** — a blinding cloud: whatever is inside cannot find her, and she is much harder to touch while it hangs | **Simoom** — a sandstorm that follows her for seven seconds, cutting and dragging everything to a crawl |
+| ✵ | **Orin Halloway** · *The Chartkeeper* · 5★ Arcane | **True North** — the astrolabe opens and sweeps a beam right the way around her, twice | **Reverse The Tide** — every enemy shot on screen stops, turns and goes back the way it came, now yours and harder | **Reckoning** — an impact on every enemy on the field, in the order she wrote them down |
+| ⚙ | **Elle Vantage** · 4★ Volt | **Wind Up** — the next five swings come out at triple speed and jump to a second target | **Spring Trap** — three loaded gears that bounce off the walls for six seconds and off whatever they hit | **Mainspring** — the whole squad off cooldown at once, and eight seconds at double attack speed |
+| ◉ | **Bram Kolt** · 4★ Stone | **War Beat** — three rings on the beat, each wider and heavier than the last | **March Tempo** — eight seconds where the whole squad swings 25% faster and moves 20% quicker | **Thunder Drum** — five seconds where every beat is a shockwave across the whole arena |
+
+Ryo's passive makes anything he has **pulled** take 30% more from him for four
+seconds, so the chain is a setup rather than a finisher. Sable heals off
+**everything** she does — and nobody else can heal her, so she is the one
+character a support cannot carry. Zephyra's dash has **two charges** and each
+one leaves a cutting gust. Orin slows enemy shots that pass near her, which is
+what makes Reverse The Tide land with something to reverse. Elle's every cast
+takes a second off her other cooldown. Bram's every third swing is a shockwave
+that knocks whatever it hits off its feet.
+
 ### 4★
 
 | | Character | Skill (SPACE) | Skill (E) | Burst (R) |
@@ -470,25 +511,25 @@ and legs that are half the figure. The torso silhouette is a per-row
 half-width table (`TORSO`), so reshaping the body is editing a list of
 numbers.
 
-**No two characters share a haircut, an outfit or a weapon.** Forty-six
+**No two characters share a haircut, an outfit or a weapon.** Fifty-two
 hairstyles — ponytail, curtain, spiky, bob, braid, crop, twin-tails, hime,
 wolfcut, slicked-back with an undercut, waves, a bun, ringlets, a mohawk, a
 circlet, a sidetail, messy, a topknot, floor-length, an undercut, a pixie, a heavy layered shade, a swept
 white halo and short blunt bristles — each with its own fringe and its own
 ornament. One character has no weapon at all: Toya fights bare-handed, so his
 hands glow instead. Another wears a **blindfold** rather than an eye, and the
-light leaking out from under it is the whole character. Thirty-five outfit shapes (skirt, robe,
+light leaking out from under it is the whole character. Forty-one outfit shapes (skirt, robe,
 dress, shorts, plate, jacket, apron, longcoat, wrap, coat, haori, kimono,
 hoodie, duster, mantle, tailcoat, a shinigami's shihakusho, full plate,
 harness gear, a surcoat, an open coat, a haramaki, a plain tee, a smock, a
 vest, a dress suit, a long dress and a gunner's rig among them) chosen
 **separately from the hair**; keying the skirt off the hairstyle, which is what the code
 used to do, is how three characters ended up dressed the same for no reason.
-Forty-five weapons and one pair of bare hands, one each. A roster where three people share a haircut in
+Fifty-one weapons and one pair of bare hands, one each. A roster where three people share a haircut in
 different colours reads as one character with palette swaps, which is the
 opposite of what a gacha needs.
 
-Forty-six characters share one rig, and a pose is a **skeleton rather than a set of
+Fifty-two characters share one rig, and a pose is a **skeleton rather than a set of
 absolute pixels**: `POSES` gives a body bounce, a lean, two foot positions
 (offset from centre plus how far off the ground), and two hand positions
 measured *from their own shoulder*. Limbs are drawn as two segments with a
