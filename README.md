@@ -348,6 +348,36 @@ healing and shielding, Suzume opens with a seven-arrow burst. Swapping with
 
 ---
 
+## The hub
+
+Six places to be, in a bar that is always on screen: **Home**, **Characters**,
+**Battle**, **Gacha**, **Inventory**, **Profile**. Nothing is more than one
+click inside a tab — the Roster and your Squad are two halves of Characters,
+every mode in the game sits on Battle, Settings is a button on Profile — and
+a screen one click in still lights its own tab, so you always know where you
+are. It replaced a flat dump of ten cards on the front page.
+
+Hovering any character card — the roster, the squad screens, the versus
+grids, the rival board — shows who they are without a click: name, element,
+rarity, role, Resonance, and their three moves. Clicking still opens the full
+page. One delegated tooltip serves every card on screen, so a wall of
+fifty-six of them costs nothing.
+
+The palette is **parchment, ink and aged bronze** rather than the black and
+cyan it started as: a cast who fight with weapons out of the past were living
+in a sci-fi shell. Base `#efe3c8`, panels `#f7efdb`, structure and text in
+umber `#3b2b1d`/`#2c2015`, bronze `#b8863a` for borders and buttons and
+`#d9a44a` when they light up. Rarity keeps its own layer on top — gold
+`#c9a227` for 5★, muted purple `#8a5fb0` for 4★. Element colours are lit for
+a dark arena, so the menus print them as a darkened mix of the same hue.
+The arena itself is untouched: it keeps its dark ground.
+
+**Erase Save** is no longer a button next to Start. It lives under Profile,
+behind an overlay that will not accept yes — you have to type **DELETE**
+before it will do anything.
+
+---
+
 ## The cast
 
 Fifty-six characters across two rarities. They play completely differently.

@@ -7,11 +7,21 @@
 <!-- ARTIFACT-BODY-START -->
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+/* ---------------------------------------------------------------------
+   The hub is parchment, ink and aged bronze. The cast fight with weapons
+   out of the past, and a black-and-cyan sci-fi shell was arguing with
+   them. The named accents kept their meanings - pink is still the
+   player, red is still danger - they were simply re-mixed to sit on
+   paper instead of glowing off a dark screen.
+   The arena keeps its own dark ground; this is the menus only.
+   --------------------------------------------------------------------- */
 :root{
-  --bg:#0b0a12; --bg2:#141224; --panel:#1b1830; --panel2:#241f3d;
-  --line:#3a3160; --ink:#efe9ff; --dim:#a79ccb;
-  --pink:#ff5fa2; --cyan:#5fe6ff; --gold:#ffcc4d; --purple:#b07cff; --green:#7cffa8; --red:#ff5d5d;
-  --r3:#7f8bbf; --r4:#b07cff; --r5:#ffcc4d;
+  --bg:#efe3c8; --bg2:#e7d9ba; --panel:#f7efdb; --panel2:#e3d3ac;
+  --line:#b8863a; --line2:#d9a44a;
+  --ink:#2c2015; --head:#3b2b1d; --sub:#5a4530; --dim:#7a6a52;
+  --pink:#a83b63; --cyan:#2f6f86; --gold:#a8761f; --purple:#6b4a8f;
+  --green:#3f7a45; --red:#a8382f;
+  --r3:#8c7a5e; --r4:#8a5fb0; --r5:#c9a227;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
@@ -23,11 +33,59 @@ body{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:
 .px{font-family:"Press Start 2P",ui-monospace,monospace;letter-spacing:.02em;line-height:1.7}
 #app{width:min(100vw,1184px);height:min(100vh,760px);height:min(100dvh,760px);position:relative;
   background:
-    radial-gradient(120% 90% at 50% -10%, #2a1f4d 0%, transparent 60%),
-    radial-gradient(90% 70% at 100% 110%, #33204a 0%, transparent 55%),
+    radial-gradient(120% 90% at 50% -8%, #fbf5e4 0%, transparent 62%),
+    radial-gradient(90% 70% at 100% 110%, #dcc99f 0%, transparent 58%),
     var(--bg);
   border:2px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
 @media(max-width:1200px){#app{border-width:0}}
+
+.seg{display:inline-flex;border:2px solid var(--line);overflow:hidden}
+.seg button{padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--sub);background:var(--panel)}
+.seg button.on{background:var(--line);color:#fdf6e6}
+.seg button+button{border-left:2px solid var(--line)}
+
+/* ---------- the tab bar ----------
+   One row of fixed places to be, always on screen in the hub. Everything a
+   tab owns is reachable in a single click from it - nothing is buried two
+   deep, which is what the old flat card dump on the home screen was really
+   a symptom of. */
+#tabs{display:flex;gap:0;flex:0 0 auto;border-bottom:2px solid var(--line);
+  background:linear-gradient(180deg,var(--panel),var(--panel2));padding:0 6px}
+#tabs .tab{padding:11px 16px 9px;font-size:11px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--sub);border-bottom:3px solid transparent;
+  transition:color .12s,border-color .12s,background .12s}
+#tabs .tab:hover{color:var(--head);background:rgba(217,164,74,.16)}
+#tabs .tab.on{color:var(--head);border-bottom-color:var(--line);background:rgba(217,164,74,.26)}
+#tabs .sp{flex:1}
+#tabs .res{display:flex;align-items:center;gap:12px;padding-right:8px;font-size:11px;
+  font-weight:700;color:var(--sub)}
+#tabs .res b{color:var(--head)}
+#screens{position:relative;flex:1;min-height:0}
+#tabs{overflow-x:auto;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+@media(max-width:860px){
+  #tabs .tab{padding:9px 9px 7px;font-size:9.5px;letter-spacing:.03em}
+  #tabs .res{font-size:9px;gap:7px}
+}
+/* on a phone the six places to be are the whole bar; the running totals are
+   on the screens that are about them */
+@media(max-width:560px){
+  #tabs .res, #tabs .sp{display:none}
+  #tabs .tab{padding:9px 6px 7px;font-size:9px;flex:1 1 0;text-align:center}
+}
+/* ---------- hover tooltip ----------
+   Enough to choose from without committing to a click: who they are, what
+   they are made of, and one line on what they do. The click still opens the
+   full page. One implementation, so every card that carries the data reads
+   the same way. */
+#tip{position:absolute;z-index:90;pointer-events:none;max-width:270px;
+  border:2px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 10px;font-size:11px;line-height:1.5;box-shadow:0 4px 0 rgba(60,43,29,.22)}
+#tip .tn{font-weight:800;color:var(--head);font-size:12px}
+#tip .tm{color:var(--sub);font-size:10px;margin:2px 0 4px;display:flex;gap:6px;flex-wrap:wrap}
+#tip .tk{color:var(--ink)}
+#tip.hidden{display:none}
 
 /* ---------- generic ---------- */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
@@ -40,17 +98,17 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
   padding:11px 18px;border:2px solid var(--line);background:var(--panel);
   border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   transition:transform .08s, background .12s, border-color .12s;white-space:nowrap}
-.btn:hover:not(:disabled){background:var(--panel2);border-color:var(--purple);transform:translateY(-1px)}
+.btn:hover:not(:disabled){background:var(--panel2);border-color:var(--line2);transform:translateY(-1px)}
 .btn:active:not(:disabled){transform:translateY(1px)}
 .btn:disabled{opacity:.38;cursor:not-allowed}
-.btn.primary{background:linear-gradient(180deg,var(--pink),#d83b81);border-color:#ff9dc6;color:#fff;
-  box-shadow:0 3px 0 #8d1f4e}
-.btn.primary:hover:not(:disabled){background:linear-gradient(180deg,#ff79b3,#e64a90)}
-.btn.gold{background:linear-gradient(180deg,#ffd873,#e0a52c);border-color:#ffeeb8;color:#3a2600;box-shadow:0 3px 0 #96690e}
+.btn.primary{background:linear-gradient(180deg,#d9a44a,#b8863a);border-color:#8a6224;color:#2c2015;
+  box-shadow:0 3px 0 #8a6224;font-weight:800}
+.btn.primary:hover:not(:disabled){background:linear-gradient(180deg,#e8b45e,#c9922f)}
+.btn.gold{background:linear-gradient(180deg,#e8c977,#c9a227);border-color:#8a6224;color:#2c2015;box-shadow:0 3px 0 #8a6224}
 .btn.ghost{background:transparent}
 .btn.sm{padding:7px 12px;font-size:10px}
 .topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:2px solid var(--line);
-  background:rgba(11,10,18,.72);backdrop-filter:blur(6px);flex:0 0 auto}
+  background:rgba(247,239,219,.86);backdrop-filter:blur(6px);flex:0 0 auto;color:var(--head)}
 .topbar h2{margin:0;font-size:13px}
 .spacer{flex:1}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border:2px solid var(--line);
@@ -63,8 +121,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 /* ---------- title ---------- */
 #title{align-items:center;justify-content:center;text-align:center;gap:22px;padding:24px}
 #title .logo{font-size:clamp(22px,5.2vw,46px);line-height:1.25;
-  color:#fff;text-shadow:0 0 18px rgba(255,95,162,.65), 4px 4px 0 #6a1b45}
-#title .logo span{color:var(--cyan);text-shadow:0 0 18px rgba(95,230,255,.6), 4px 4px 0 #17566a}
+  color:#3b2b1d;text-shadow:4px 4px 0 #d9a44a}
+#title .logo span{color:#8a2f4a;text-shadow:4px 4px 0 #d9a44a}
 #title .tag{max-width:520px;font-size:13px;line-height:1.7;color:var(--dim)}
 #title .tag em{color:var(--gold);font-style:normal}
 .stars{position:absolute;inset:0;pointer-events:none;opacity:.55}
@@ -73,12 +131,12 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .home-wrap{flex:1;display:grid;grid-template-columns:1fr 300px;gap:0;min-height:0}
 .home-main{padding:20px;display:flex;flex-direction:column;gap:14px;min-height:0}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.menu .card{border:2px solid var(--line);background:linear-gradient(180deg,var(--panel),#15122a);
+.menu .card{border:2px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--panel2));
   padding:16px;text-align:left;transition:transform .1s,border-color .12s}
-.menu .card:hover{border-color:var(--pink);transform:translateY(-2px)}
-.menu .card h3{margin:0 0 6px;font-size:11px;color:var(--cyan)}
-.menu .card p{margin:0;font-size:11.5px;color:var(--dim);line-height:1.6}
-.home-side{border-left:2px solid var(--line);background:rgba(20,18,36,.6);padding:16px;
+.menu .card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:0 3px 0 rgba(184,134,58,.35)}
+.menu .card h3{margin:0 0 6px;font-size:11px;color:var(--head)}
+.menu .card p{margin:0;font-size:11.5px;color:var(--sub);line-height:1.6}
+.home-side{border-left:2px solid var(--line);background:rgba(227,211,172,.55);padding:16px;
   display:flex;flex-direction:column;gap:10px;min-height:0}
 
 /* ---------- roster / cards ---------- */
@@ -90,8 +148,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .ccard .nm{font-size:10.5px;font-weight:700;text-align:center;line-height:1.3}
 .ccard .rr{font-size:9px;letter-spacing:.08em}
 .ccard.r3{border-color:var(--r3)} .ccard.r4{border-color:var(--r4)} .ccard.r5{border-color:var(--r5)}
-.ccard.r5{background:linear-gradient(180deg,#3a2c12,#1d1730)}
-.ccard.r4{background:linear-gradient(180deg,#2c2145,#1a1630)}
+.ccard.r5{background:linear-gradient(180deg,#f6e6b4,#efe0bd)}
+.ccard.r4{background:linear-gradient(180deg,#eadff2,#e6dcc4)}
 .ccard.sel{outline:3px solid var(--cyan);outline-offset:-1px}
 .ccard.locked{opacity:.34;filter:grayscale(1)}
 .ccard .res{position:absolute;top:3px;right:4px;font-size:9px;color:var(--gold);font-weight:800}
@@ -103,7 +161,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .banner-main{position:relative;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:0;
   background:radial-gradient(80% 70% at 30% 20%, rgba(176,124,255,.16), transparent 60%)}
 .feat{display:flex;gap:16px;align-items:center;border:2px solid var(--r5);padding:14px;
-  background:linear-gradient(110deg,#3a2b12,#1b1631 70%)}
+  background:linear-gradient(110deg,#f6e6b4,#e9dbb6 70%)}
 .feat canvas{image-rendering:pixelated;flex:0 0 auto;
   filter:drop-shadow(0 0 12px rgba(255,204,77,.45))}
 .feat h3{margin:0 0 4px;font-size:14px}
@@ -111,15 +169,15 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .rule{border:2px dashed var(--line);padding:12px;font-size:11.5px;line-height:1.75;color:var(--dim)}
 .rule b{color:var(--cyan)}
 .rule .hl{color:var(--gold)}
-.banner-side{border-left:2px solid var(--line);background:rgba(20,18,36,.6);padding:14px;
+.banner-side{border-left:2px solid var(--line);background:rgba(227,211,172,.55);padding:14px;
   display:flex;flex-direction:column;gap:10px;min-height:0}
 .pity{border:2px solid var(--line);padding:10px;font-size:11px;line-height:1.7}
-.bar{height:9px;background:#0d0b18;border:1px solid var(--line);margin-top:6px;overflow:hidden}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink))}
+.bar{height:9px;background:var(--panel2);border:1px solid var(--line);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--line2),var(--line))}
 
 /* ---------- pull overlay ---------- */
 #pull{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:18px;background:rgba(6,5,12,.975);backdrop-filter:blur(3px);padding:20px;text-align:center}
+  justify-content:center;gap:18px;background:rgba(239,227,200,.975);backdrop-filter:blur(3px);padding:20px;text-align:center}
 #pull .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .reveal{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-end}
 .rcard{width:118px;border:3px solid var(--line);background:var(--panel);padding:10px 6px;
@@ -127,11 +185,11 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
   animation:pop .38s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes pop{from{opacity:0;transform:scale(.5) translateY(24px)}to{opacity:1;transform:none}}
 .rcard canvas{image-rendering:pixelated}
-.rcard.r5{border-color:var(--r5);box-shadow:0 0 26px rgba(255,204,77,.55);background:linear-gradient(180deg,#4a3714,#1d1730)}
-.rcard.r4{border-color:var(--r4);box-shadow:0 0 16px rgba(176,124,255,.4)}
+.rcard.r5{border-color:var(--r5);box-shadow:0 0 26px rgba(201,162,39,.5);background:linear-gradient(180deg,#f6e6b4,#efe0bd)}
+.rcard.r4{border-color:var(--r4);box-shadow:0 0 16px rgba(138,95,176,.32)}
 .rcard .nm{font-size:11px;font-weight:800;text-align:center;line-height:1.3}
 .rcard .sub{font-size:9px;color:var(--gold);font-weight:700}
-.rcard .new{position:absolute;margin:-8px 0 0 62px;font-size:8.5px;color:#0b0a12;background:var(--cyan);
+.rcard .new{position:absolute;margin:-8px 0 0 62px;font-size:8.5px;color:#fdf6e6;background:var(--pink);
   padding:1px 4px;font-weight:900}
 /* coin */
 .coinstage{display:flex;flex-direction:column;align-items:center;gap:14px}
@@ -176,7 +234,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 .squadbar{display:flex;gap:8px;flex-wrap:wrap}
 .sq{border:2px solid var(--line);background:var(--panel);padding:6px 8px;display:flex;align-items:center;gap:8px}
 .sq canvas{image-rendering:pixelated}
-.sq .hpb{width:74px;height:7px;background:#0d0b18;border:1px solid var(--line)}
+.sq .hpb{width:74px;height:7px;background:var(--panel2);border:1px solid var(--line)}
 .sq .hpb i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#3fd07a)}
 .sq.ko{opacity:.4}
 .boonlist{display:flex;flex-wrap:wrap;gap:6px}
@@ -246,7 +304,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .keyrow:hover{border-color:var(--purple);background:var(--panel2)}
 .keyrow .lbl{flex:1;font-size:12px;color:var(--dim)}
 .keyrow .cap{min-width:62px;text-align:center;padding:4px 8px;border:2px solid var(--line);
-  background:#0d0b18;font-family:"Press Start 2P",ui-monospace,monospace;font-size:9px;
+  background:var(--panel2);font-family:"Press Start 2P",ui-monospace,monospace;font-size:9px;
   color:var(--ink)}
 .keyrow.listening{border-color:var(--gold);background:var(--panel2)}
 .keyrow.listening .cap{color:var(--gold);border-color:var(--gold);animation:linkpulse .6s ease-in-out infinite}
@@ -375,7 +433,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   pointer-events:none;z-index:30}
 
 /* ---------- overlays ---------- */
-.ov{position:absolute;inset:0;z-index:50;background:rgba(6,5,12,.9);display:flex;flex-direction:column;
+.ov{position:absolute;inset:0;z-index:50;background:rgba(239,227,200,.94);display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
 .choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .choice{width:190px;border:2px solid var(--line);background:var(--panel);padding:16px 13px;text-align:left;
@@ -386,7 +444,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .relic{border:2px solid var(--line);background:var(--panel);padding:9px 10px;text-align:left;
   transition:transform .1s,border-color .12s}
 .relic:hover{border-color:var(--cyan);transform:translateY(-2px)}
-.relic.picked{border-color:var(--gold);background:linear-gradient(180deg,#3a2c12,#1d1730);
+.relic.picked{border-color:var(--gold);background:linear-gradient(180deg,#f6e6b4,#efe0bd);
   box-shadow:0 0 12px rgba(255,204,77,.4)}
 .relic .ic{font-size:17px;line-height:1;margin-bottom:3px}
 .relic h4{margin:0 0 3px;font-size:10.5px;color:var(--cyan)}
@@ -397,7 +455,7 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   text-align:left;transition:transform .1s,border-color .12s}
 .perkslot:hover{border-color:var(--purple);transform:translateY(-2px)}
 .perkslot.filled{border-style:solid;border-color:var(--purple);
-  background:linear-gradient(180deg,#2c2145,#1a1630)}
+  background:linear-gradient(180deg,#ece1f5,#e6dcc4)}
 .perkslot .ic{font-size:18px;line-height:1;margin-bottom:4px}
 .perkslot h4{margin:0 0 3px;font-size:10.5px;color:var(--purple)}
 .perkslot p{margin:0;font-size:10px;color:var(--dim);line-height:1.5}
@@ -405,14 +463,29 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 .choice h4{margin:0 0 6px;font-size:11px;color:var(--cyan)}
 .choice p{margin:0;font-size:11px;color:var(--dim);line-height:1.6}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;
-  background:var(--panel);border:2px solid var(--purple);padding:9px 16px;font-size:11.5px;font-weight:700;
-  animation:tin .25s ease-out}
+  background:var(--panel);border:2px solid var(--line);color:var(--ink);padding:9px 16px;
+  font-size:11.5px;font-weight:700;box-shadow:0 3px 0 rgba(184,134,58,.4);animation:tin .25s ease-out}
 @keyframes tin{from{opacity:0;transform:translate(-50%,14px)}}
 </style>
 </head>
 <body>
 <div id="app">
 
+  <nav id="tabs" class="hidden">
+    <button class="tab" data-tab="home">Home</button>
+    <button class="tab" data-tab="chars">Characters</button>
+    <button class="tab" data-tab="battle">Battle</button>
+    <button class="tab" data-tab="gacha">Gacha</button>
+    <button class="tab" data-tab="inv">Inventory</button>
+    <button class="tab" data-tab="profile">Profile</button>
+    <div class="sp"></div>
+    <div class="res">
+      <span>◈ <b id="res-shards">0</b></span>
+      <span>◇ <b id="res-echo">0</b></span>
+      <span>★ <b id="res-owned">0</b></span>
+    </div>
+  </nav>
+  <div id="screens">
   <!-- ============ TITLE ============ -->
   <div class="screen" id="scr-title">
     <canvas class="stars" id="stars"></canvas>
@@ -423,7 +496,6 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         The coin only decides if a <em>second one</em> comes with them.</p>
       <div class="rowc">
         <button class="btn primary px" id="btn-start">Start</button>
-        <button class="btn ghost sm" id="btn-wipe">Erase Save</button>
       </div>
       <div class="tiny muted">WASD move &nbsp;·&nbsp; SPACE + E skills &nbsp;·&nbsp; R burst &nbsp;·&nbsp; SHIFT dash &nbsp;·&nbsp; 1/2/3 swap</div>
     </div>
@@ -433,31 +505,18 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   <div class="screen hidden" id="scr-home">
     <div class="topbar">
       <h2 class="px">HOME</h2><div class="spacer"></div>
-      <div class="pill">◈ <b id="home-shards">0</b> Fate Shards</div>
-      <div class="pill">★ <b id="home-owned">0</b>/<span id="home-total">56</span></div>
-      <div class="pill">◇ <b id="home-echo">0</b> Echoes</div>
+      <div class="tiny muted" id="home-daily"></div>
       <button class="pill coop-pill" id="home-coop" title="Two players on one keyboard">2P <b id="home-coop-state">OFF</b></button>
     </div>
     <div class="home-wrap">
       <div class="home-main scroll">
         <div class="menu">
-          <button class="card" id="go-banner"><h3>▸ SUMMON</h3><p>Pick who you want. Pull. The coin only decides if a second 5★ comes with them.</p></button>
-          <button class="card" id="go-squad"><h3>▸ SQUAD</h3><p>Pick up to 3 characters to take into the dungeon.</p></button>
-          <button class="card" id="go-run"><h3 id="run-head">▸ DESCEND</h3><p>Climb the Spire. 3 floors, 24 rooms, 3 bosses, permanent death for the run.</p></button>
-          <button class="card" id="go-raid"><h3 id="raid-head" style="color:var(--red)">▸ RAID · THE SOVEREIGN</h3>
-            <p>One fight, four phases, five minutes. Pick three relics on the way in — it is the one place you build a loadout instead of finding one.</p></button>
-          <button class="card" id="go-raid2"><h3 id="raid2-head" style="color:var(--purple)">▸ RAID II · THE UNMAKER</h3>
-            <p id="raid2-blurb">Six minutes. It splits into three, it eats your summons, and it takes your Bursts away. Beat the Sovereign first.</p></button>
-          <button class="card" id="go-duel"><h3 style="color:var(--pink)">▸ DUEL · CHALLENGE A RIVAL</h3>
-            <p id="duel-blurb">One character-sized boss, an empty arena, and their whole kit pointed at you. Pick which one.</p></button>
-          <button class="card" id="go-coop"><h3 style="color:var(--green)">▸ CO-OP · LOCAL</h3>
-            <p id="coop-blurb">Two players on one keyboard, on the same side. Take the Spire or either raid together.</p></button>
-          <button class="card" id="go-versus"><h3 style="color:var(--pink)">▸ VERSUS · LOCAL</h3>
-            <p>Two players on one keyboard, against each other. First one down loses.</p></button>
-          <button class="card" id="go-keys"><h3 style="color:var(--cyan)">▸ SETTINGS</h3>
-            <p>Rebind every key, for both players. Click a key, press the one you want.</p></button>
-          <button class="card" id="go-dex"><h3>▸ COLLECTION</h3><p>All four characters, their full kit, and where to spend your Echoes.</p></button>
+          <button class="card" id="go-run"><h3 id="run-head">▸ CONTINUE · DESCEND</h3>
+            <p>Climb the Spire. 3 floors, 24 rooms, 3 bosses, permanent death for the run.</p></button>
+          <button class="card" id="home-to-battle"><h3>▸ ALL MODES</h3>
+            <p>Raids, duels, co-op and versus — everything that is a fight, in one place.</p></button>
         </div>
+        <div class="feat" id="home-feat" style="cursor:pointer"></div>
         <div class="rule">
           <b>Twin Fate rule</b> — every 5★ pull gives you your <span class="hl">chosen character, guaranteed</span>.
           Then a coin flips: <span class="hl">heads</span> and a second 5★ joins them. Tails and you just keep the one
@@ -471,6 +530,71 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         <div id="home-squad" class="squadbar" style="flex-direction:column"></div>
         <div class="spacer"></div>
         <div class="tiny muted" id="home-best"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BATTLE HUB ============ -->
+  <div class="screen hidden" id="scr-modes" data-tab="battle">
+    <div class="topbar">
+      <h2 class="px">BATTLE</h2><div class="spacer"></div>
+      <div class="tiny muted">Every fight in the game, one click from here</div>
+    </div>
+    <div class="home-main scroll" style="flex:1">
+        <div class="menu">
+          <button class="card" id="go-run2"><h3 id="run-head2">▸ DESCEND</h3><p>Climb the Spire. 3 floors, 24 rooms, 3 bosses, permanent death for the run.</p></button>
+          <button class="card" id="go-raid"><h3 id="raid-head" style="color:var(--red)">▸ RAID · THE SOVEREIGN</h3>
+            <p>One fight, four phases, five minutes. Pick three relics on the way in — it is the one place you build a loadout instead of finding one.</p></button>
+          <button class="card" id="go-raid2"><h3 id="raid2-head" style="color:var(--purple)">▸ RAID II · THE UNMAKER</h3>
+            <p id="raid2-blurb">Six minutes. It splits into three, it eats your summons, and it takes your Bursts away. Beat the Sovereign first.</p></button>
+          <button class="card" id="go-duel"><h3 style="color:var(--pink)">▸ DUEL · CHALLENGE A RIVAL</h3>
+            <p id="duel-blurb">One character-sized boss, an empty arena, and their whole kit pointed at you. Pick which one.</p></button>
+          <button class="card" id="go-coop"><h3 style="color:var(--green)">▸ CO-OP · LOCAL</h3>
+            <p id="coop-blurb">Two players on one keyboard, on the same side. Take the Spire or either raid together.</p></button>
+          <button class="card" id="go-versus"><h3 style="color:var(--pink)">▸ VERSUS · LOCAL</h3>
+            <p>Two players on one keyboard, against each other. First one down loses.</p></button>
+          </div>
+    </div>
+  </div>
+
+  <!-- ============ INVENTORY ============ -->
+  <div class="screen hidden" id="scr-inv" data-tab="inv">
+    <div class="topbar">
+      <h2 class="px">INVENTORY</h2><div class="spacer"></div>
+      <div class="pill">◈ <b id="inv-shards">0</b> Fate Shards</div>
+      <div class="pill">◇ <b id="inv-echo">0</b> Echoes</div>
+    </div>
+    <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="px" style="font-size:10px;color:var(--head)">ECHO BANK</div>
+      <div class="rule" id="inv-echo-box"></div>
+      <div class="px" style="font-size:10px;color:var(--head)">MATERIALS</div>
+      <div class="rule tiny" id="inv-mats">Nothing banked yet. Descend runs will drop crafting
+        materials here.</div>
+      <div class="px" style="font-size:10px;color:var(--head)">WEAPONS</div>
+      <div class="rule tiny" id="inv-weps">No weapons yet.</div>
+    </div>
+  </div>
+
+  <!-- ============ PROFILE ============ -->
+  <div class="screen hidden" id="scr-profile" data-tab="profile">
+    <div class="topbar">
+      <h2 class="px">PROFILE</h2><div class="spacer"></div>
+      <button class="pill coop-pill" id="prof-coop" title="Two players on one keyboard">2P <b id="prof-coop-state">OFF</b></button>
+    </div>
+    <div class="scroll" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="px" style="font-size:10px;color:var(--head)">RECORDS</div>
+      <div class="rule" id="prof-records"></div>
+      <div class="px" style="font-size:10px;color:var(--head)">SETTINGS</div>
+      <div class="rowc">
+        <button class="btn" id="go-keys">Controls &amp; attack mode</button>
+        <span class="tiny muted">Rebind every key for both players, and switch the attack between
+          a button and automatic.</span>
+      </div>
+      <div class="px" style="font-size:10px;color:var(--red)">DANGER</div>
+      <div class="rowc">
+        <button class="btn ghost" id="prof-wipe" style="border-color:var(--red);color:var(--red)">Erase save</button>
+        <span class="tiny muted">Deletes everything on this device: characters, shards, Echoes,
+          records. There is no undo.</span>
       </div>
     </div>
   </div>
@@ -655,9 +779,10 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   </div>
 
   <!-- ============ SQUAD ============ -->
-  <div class="screen hidden" id="scr-squad">
+  <div class="screen hidden" id="scr-squad" data-tab="chars">
     <div class="topbar">
-      <button class="btn sm ghost" data-back>◀ Back</button>
+      <div class="seg"><button data-chars="roster">Roster</button>
+        <button data-chars="squad" class="on">Squad</button></div>
       <h2 class="px">SQUAD</h2><div class="spacer"></div>
       <div class="tiny muted" id="squad-hint">Click to add / remove · max 3</div>
     </div>
@@ -665,9 +790,10 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   </div>
 
   <!-- ============ COLLECTION ============ -->
-  <div class="screen hidden" id="scr-dex">
+  <div class="screen hidden" id="scr-dex" data-tab="chars">
     <div class="topbar">
-      <button class="btn sm ghost" data-back>◀ Back</button>
+      <div class="seg"><button data-chars="roster" class="on">Roster</button>
+        <button data-chars="squad">Squad</button></div>
       <h2 class="px">COLLECTION</h2><div class="spacer"></div>
       <div class="tiny muted">Resonance from duplicates and Echoes &nbsp;·&nbsp; two tuning slots on every character</div>
     </div>
@@ -761,6 +887,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
     </div>
   </div>
 
+  </div><!-- /#screens -->
+  <div id="tip" class="hidden"></div>
   <div id="overlay-root"></div>
 </div>
 
@@ -986,6 +1114,14 @@ function mobFrame(m){
 }
 
 /* ================================ DATA ================================== */
+/* The element colours are lit for a dark arena. On parchment the pale ones
+   (Radiant, Frost, Volt) vanish, so the menus use a darkened mix of the same
+   hue - same identity, readable as ink. */
+function elInk(el){
+  const h = ELC[el] || '#2c2015';
+  const m = (i) => Math.round(parseInt(h.slice(1+i*2, 3+i*2), 16) * 0.52 + 0x2c*0.48);
+  return '#' + [0,1,2].map(i => m(i).toString(16).padStart(2,'0')).join('');
+}
 const ELC = { Blade:'#8fb6ff', Arcane:'#b07cff', Shadow:'#ff6b7d', Radiant:'#ffe08a',
   Gale:'#7cffa8', Stone:'#e0a52c', Frost:'#5fe6ff', Volt:'#ffe14d', Flame:'#ff8b4d',
   Earth:'#c78a45', Atomic:'#c08bff', Chaos:'#ff2e6a' };
@@ -2107,10 +2243,34 @@ function doPull(n){
 }
 
 /* =============================== UI PLUMBING =========================== */
+/* Which tab owns which screen. A screen one click inside a tab still
+   lights that tab up, so you always know where you are. */
+const TAB_OF = { home:'home', dex:'chars', squad:'chars', modes:'battle',
+  coop:'battle', versus:'battle', duel:'battle', banner:'gacha', inv:'inv',
+  profile:'profile', keys:'profile' };
 function show(id){
   $$('.screen').forEach(s=>s.classList.add('hidden'));
   $('#scr-'+id).classList.remove('hidden');
+  const tab = TAB_OF[id];                       // title, map and battle have none
+  $('#tabs').classList.toggle('hidden', !tab);
+  $$('#tabs .tab').forEach(t => t.classList.toggle('on', t.dataset.tab === tab));
+  if(tab) paintResources();
 }
+/* the three numbers that matter, in the bar, on every screen that has one */
+function paintResources(){
+  const owned = ROSTER.filter(id => owns(id)).length;
+  const set = (sel, v) => { const el = $(sel); if(el) el.textContent = v; };
+  set('#res-shards', S.shards); set('#res-echo', S.echoes||0); set('#res-owned', owned);
+}
+/* Each tab lands on its own screen, and renders it on the way in. */
+const TAB_GO = {
+  home:    () => { renderHome(); show('home'); },
+  chars:   () => { renderDex(null); show('dex'); },
+  battle:  () => { renderModes(); show('modes'); },
+  gacha:   () => { renderBanner(); show('banner'); },
+  inv:     () => { renderInv(); show('inv'); },
+  profile: () => { renderProfile(); show('profile'); },
+};
 function toast(msg){
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
   $('#app').appendChild(t); setTimeout(()=>t.remove(),1900);
@@ -2123,17 +2283,63 @@ function charCard(c,{locked=false,sel=false,slot=null,onClick=null}={}){
   const rr=document.createElement('div'); rr.className='rr';
   rr.style.color = c.rarity === 5 ? 'var(--r5)' : 'var(--r4)';
   rr.textContent='★'.repeat(c.rarity);
-  const el=document.createElement('div'); el.className='el tiny'; el.style.color=ELC[c.element];
+  const el=document.createElement('div'); el.className='el tiny'; el.style.color=elInk(c.element);
   el.textContent=c.element;
   d.append(nm,rr,el);
   if(!locked && resOf(c.id)>0){ const r=document.createElement('div'); r.className='res'; r.textContent='R'+resOf(c.id); d.appendChild(r); }
   if(slot!=null){ const s=document.createElement('div'); s.className='slot'; s.textContent=slot; d.appendChild(s); }
   if(onClick) d.onclick=()=>{Sfx.ui();onClick();};
+  tipFor(d, c.id);                       // hovering says who they are; clicking still opens them
   return d;
 }
 
+/* ---- hover tooltips ---------------------------------------------------
+   Enough to choose from without committing to a click. One delegated
+   tooltip element rather than one per card, so a screen full of fifty-six
+   of them costs nothing, and anything that can name a character can carry
+   one - roster cards, squad cards, the versus grids, the rival board.   */
+function tipFor(el, id){ el.dataset.tip = id; }
+function tipHTML(id){
+  const c = CHAR[id];
+  if(!c) return '';
+  const r = resOf(id), have = owns(id);
+  return `<div class="tn">${c.name}</div>
+    <div class="tm"><span style="color:${elInk(c.element)}">◆ ${c.element}</span>
+      <span>${'★'.repeat(c.rarity)}</span><span>${c.role}</span>
+      <span>${have ? 'R'+r : 'not owned'}</span></div>
+    <div class="tk">${c.skill.name} · ${c.skill2.name} · <b>${c.burst.name}</b></div>`;
+}
+(function tooltips(){
+  const tip = () => $('#tip');
+  let shown = null;
+  const place = (e, el) => {
+    const t = tip(), box = $('#app').getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    t.style.left = Math.min(r.left - box.left + r.width + 10,
+                            box.width - t.offsetWidth - 8) + 'px';
+    t.style.top  = Math.max(6, Math.min(r.top - box.top,
+                            box.height - t.offsetHeight - 8)) + 'px';
+    void e;
+  };
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest && e.target.closest('[data-tip]');
+    if(!el || el === shown) return;
+    const html = tipHTML(el.dataset.tip);
+    if(!html) return;
+    shown = el;
+    const t = tip(); t.innerHTML = html; t.classList.remove('hidden'); place(e, el);
+  });
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest && e.target.closest('[data-tip]');
+    if(el && el === shown){ shown = null; tip().classList.add('hidden'); }
+  });
+  // a screen change must not leave one hanging over the next screen
+  document.addEventListener('click', () => { shown = null; tip().classList.add('hidden'); }, true);
+})();
+
 /* ------------------------------- HOME ---------------------------------- */
-function renderHome(){
+/* the gates on the mode cards - painted wherever those cards are looked at */
+function paintModeGates(){
   const r2 = $('#go-raid2');
   if(r2){
     const open = raidUnlocked('unmaker');
@@ -2142,10 +2348,29 @@ function renderHome(){
       ? 'Six minutes and 58,000 health. It splits into three, it eats your summons, and it takes your Bursts away. Bring a tuned squad.'
       : 'Locked. Bring down the Sovereign first.';
   }
+}
+function renderHome(){
+  paintModeGates();
   paintCoopState();
-  $('#home-shards').textContent = S.shards;
-  $('#home-owned').textContent = Object.keys(S.owned).length;
-  $('#home-echo').textContent = S.echoes;
+  paintResources();
+  /* what you are pulling on, sitting on the front page where it belongs */
+  const fb = $('#home-feat');
+  if(fb){
+    const f = CHAR[S.banner.five];
+    fb.innerHTML = '';
+    fb.appendChild(spriteEl(f, 96));
+    const info = document.createElement('div');
+    info.innerHTML = `<div class="px" style="font-size:10px;color:var(--head)">FEATURED SUMMON</div>
+      <h3 style="margin:6px 0 2px">${f.name}</h3>
+      <div class="tiny"><span style="color:${elInk(f.element)}">${f.element}</span> · ${f.role} · ★★★★★</div>
+      <div class="desc">Every 5★ on this banner <b>is ${f.name}</b>. The coin only decides whether a
+        second one comes with them.</div>`;
+    fb.appendChild(info);
+    fb.onclick = () => { Sfx.ui(); TAB_GO.gacha(); };
+  }
+  const day = Math.floor(Date.now()/86400000);
+  const dn = $('#home-daily');
+  if(dn) dn.textContent = S.stipend === day ? 'Daily stipend claimed' : 'Daily stipend is waiting in Gacha';
   const box=$('#home-squad'); box.innerHTML='';
   S.squad.forEach(id=>{
     const c=CHAR[id]; const d=document.createElement('div'); d.className='sq';
@@ -2162,6 +2387,42 @@ function renderHome(){
 }
 
 /* ------------------------------ BANNER --------------------------------- */
+/* ---- the three screens the tab bar added ------------------------------ */
+function renderModes(){
+  paintModeGates();
+  paintCoopState();
+  const d = $('#duel-blurb');
+  if(d) d.textContent = (S.duelClears||0)
+    ? `One rival, their whole kit pointed at you. ${S.duelClears} beaten so far — each win makes the next one harder.`
+    : 'One character-sized boss, an empty arena, and their whole kit pointed at you. Pick which one.';
+}
+function renderInv(){
+  $('#inv-shards').textContent = S.shards;
+  $('#inv-echo').textContent = S.echoes || 0;
+  const per = ECHOES_PER_RES;
+  $('#inv-echo-box').innerHTML = `You hold <b class="hl">${S.echoes||0}</b> Echoes. Every pull that
+    isn't a 5★ pays these out. Spend <b>${per}</b> of them on any character in
+    <b>Characters</b> to push their Resonance up one rank — so no pull is ever wasted.
+    <div class="bar" style="max-width:280px"><i style="width:${Math.min(100,(S.echoes||0)%per/per*100)}%"></i></div>`;
+  const mats = $('#inv-mats');
+  mats.textContent = 'Nothing banked yet. Descend runs will drop crafting materials here.';
+  const weps = $('#inv-weps');
+  weps.textContent = 'No weapons yet.';
+}
+function renderProfile(){
+  const owned = ROSTER.filter(id => owns(id)).length;
+  const r6 = ROSTER.filter(id => owns(id) && S.owned[id].res >= 6).length;
+  $('#prof-records').innerHTML =
+    `<div>Deepest room reached — <b class="hl">${S.best || 0}</b></div>
+     <div>Spire clears — <b class="hl">${S.clears || 0}</b></div>
+     <div>Rivals beaten — <b class="hl">${S.duelClears || 0}</b></div>
+     <div>Raids cleared — <b class="hl">${(S.raidClears||0) + (S.raid2Clears||0)}</b></div>
+     <div>Summons — <b class="hl">${S.pulls || 0}</b></div>
+     <div>Roster — <b class="hl">${owned}</b>/${ROSTER.length} owned, <b class="hl">${r6}</b> at R6</div>`;
+  const st = $('#prof-coop-state'); if(st) st.textContent = S.coop ? 'ON' : 'OFF';
+  $('#prof-coop').classList.toggle('on', !!S.coop);
+}
+
 function renderBanner(){
   $('#ban-shards').textContent = S.shards;
   const f = CHAR[S.banner.five];
@@ -2169,7 +2430,7 @@ function renderBanner(){
   fb.appendChild(spriteEl(f, 132));
   const info = document.createElement('div');
   info.innerHTML = `<h3 class="px" style="color:var(--gold)">${f.name}</h3>
-    <div class="tiny"><span style="color:${ELC[f.element]}">${f.element}</span> · ${f.role} · ★★★★★</div>
+    <div class="tiny"><span style="color:${elInk(f.element)}">${f.element}</span> · ${f.role} · ★★★★★</div>
     <div class="desc"><b style="color:var(--cyan)">${f.skill.name}</b> (SPACE) — ${f.skill.desc}<br>
       <b style="color:var(--cyan)">${f.skill2.name}</b> (E) — ${f.skill2.desc}<br>
       <b style="color:var(--gold)">${f.burst.name}</b> (R, Burst) — ${f.burst.desc}</div>
@@ -6313,10 +6574,11 @@ function coopSquad(){
    see it and always reach it - one click in the top bar, whatever screen the
    menu happens to be scrolled to. */
 function paintCoopState(){
-  const pill = $('#home-coop');
-  if(pill){
+  for(const [pid, sid] of [['#home-coop','#home-coop-state'], ['#prof-coop','#prof-coop-state']]){
+    const pill = $(pid);
+    if(!pill) continue;
     pill.classList.toggle('on', !!S.coop);
-    $('#home-coop-state').textContent = S.coop ? 'ON' : 'OFF';
+    $(sid).textContent = S.coop ? 'ON' : 'OFF';
     pill.title = S.coop ? 'Co-op is on — click to play alone again'
                         : 'Co-op is off — click to bring a second player';
   }
@@ -8240,17 +8502,48 @@ $('#swapbar2').addEventListener('click',e=>{
   const el=e.target.closest('.sw'); if(el) swapP2(+el.dataset.i);
 });
 $('#btn-start').onclick=()=>{ Sfx.unlock(); Sfx.ui(); renderHome(); show('home'); };
-$('#btn-wipe').onclick=()=>{
-  if(confirm('Erase your save? Every character and shard is gone.')){
-    localStorage.removeItem(SAVE_KEY); S=freshSave(); save(); toast('Save erased.');
-  }
-};
+/* Erasing a save is the one button in the game that cannot be undone, so it
+   is not on the front page any more and it does not take yes for an answer:
+   you have to type the word. A misclick cannot spell. */
+function eraseSaveFlow(){
+  Sfx.ui();
+  const ov = document.createElement('div'); ov.className = 'ov'; ov.style.zIndex = 95;
+  ov.innerHTML = `<div class="px" style="font-size:14px;color:var(--red)">ERASE SAVE</div>
+    <div class="rule" style="max-width:460px;text-align:left">
+      This deletes <b>everything on this device</b> — every character you own, your shards and
+      Echoes, your Resonance, your records and your settings. It cannot be undone and there is
+      no copy anywhere else.<br><br>
+      Type <b class="hl">DELETE</b> below to confirm.</div>
+    <input id="wipe-word" autocomplete="off" spellcheck="false"
+      style="font:inherit;font-size:13px;letter-spacing:.18em;text-align:center;padding:9px 12px;
+             width:220px;border:2px solid var(--line);background:var(--panel);color:var(--ink)">
+    <div class="rowc"><button class="btn ghost" id="wipe-no">Cancel</button>
+      <button class="btn" id="wipe-yes" disabled
+        style="border-color:var(--red);color:var(--red)">Erase everything</button></div>`;
+  $('#overlay-root').appendChild(ov);
+  const word = ov.querySelector('#wipe-word'), yes = ov.querySelector('#wipe-yes');
+  word.focus();
+  word.oninput = () => { yes.disabled = word.value.trim().toUpperCase() !== 'DELETE'; };
+  word.onkeydown = e => { e.stopPropagation(); if(e.key === 'Enter' && !yes.disabled) yes.click(); };
+  ov.querySelector('#wipe-no').onclick = () => { Sfx.ui(); ov.remove(); };
+  yes.onclick = () => {
+    if(yes.disabled) return;
+    localStorage.removeItem(SAVE_KEY); S = freshSave(); save();
+    ov.remove(); renderHome(); show('home'); toast('Save erased.');
+  };
+}
 $$('[data-back]').forEach(b=>b.onclick=()=>{ Sfx.ui(); renderHome(); show('home'); });
-$('#go-banner').onclick=()=>{ Sfx.ui(); renderBanner(); show('banner'); };
-$('#go-squad').onclick =()=>{ Sfx.ui(); renderSquad(); show('squad'); };
-$('#go-dex').onclick   =()=>{ Sfx.ui(); renderDex(null); show('dex'); };
+$$('#tabs .tab').forEach(t => t.onclick = () => { Sfx.ui(); TAB_GO[t.dataset.tab](); });
+$$('[data-chars]').forEach(bt => bt.onclick = () => {
+  Sfx.ui();
+  if(bt.dataset.chars === 'squad'){ renderSquad(); show('squad'); }
+  else { renderDex(null); show('dex'); }
+});
+$('#home-to-battle').onclick=()=>{ Sfx.ui(); TAB_GO.battle(); };
+$('#go-run2').onclick  =()=>{ $('#go-run').click(); };
+$('#prof-wipe').onclick=()=>{ eraseSaveFlow(); };
+$('#prof-coop').onclick=()=>{ Sfx.ui(); setCoop(!S.coop); renderProfile(); };
 $('#go-versus').onclick=()=>{ Sfx.ui(); renderVersus(); show('versus'); };
-$('#home-coop').onclick=()=>{ Sfx.ui(); setCoop(!S.coop); };
 $('#go-duel').onclick  =()=>{ Sfx.ui(); show('duel'); try{ renderDuel(); }catch(e){ console.warn(e); } };
 $('#duel-go').onclick  =()=>{ Sfx.ui(); startDuel(duelPick); };
 $('#go-coop').onclick  =()=>{
