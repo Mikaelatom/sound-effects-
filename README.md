@@ -222,8 +222,17 @@ little over a radian either side of where they are facing — and it moves with
 them. Walk into somebody mid-swing and it lands; back off and it whiffs. Each
 body it reaches is hit **once** per swing, so the characters who swing more
 than once in a beat (Kuro's third cut, Elle mid-wind-up) fold into a single
-heavier arc instead of spraying crescents that used to miss on the spread. The
-arc you can see is drawn where the blade is and carries no damage of its own.
+heavier arc instead of spraying crescents that used to miss on the spread.
+
+**Nothing is thrown, and nothing is spawned.** The swing is drawn: the sword
+itself, tapered from the hand, travelling through the same arc that does the
+damage, with the path it has already cut trailing behind it — one ribbon,
+widest just behind the blade, tapering to a point where the cut began, and
+gone by the time the arm settles. The sword is slow leaving the shoulder,
+quick through the middle and slow on the follow-through, and the string
+alternates direction: down across, back the other way, then a wider finisher.
+Every edge of it lands on the game's own pixel grid, so it belongs to the
+same drawing as the character holding it.
 
 Both halves now **report the hit**, because a sword landing and an arrow
 landing should not feel like the same event. Melee shakes the screen hard

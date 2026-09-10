@@ -3631,19 +3631,17 @@ function heroAttack_(step){
       dmg: dmg * shots, crit, ang,
       reach: h.st.range*MELEE_REACH_K + MELEE_REACH_PAD + (longReach ? 34 : 0),
       arc: MELEE_ARC + (shots > 1 ? 0.18 : 0),
+      /* which way the blade travels through the arc. The string alternates -
+         down across, back the other way, then the finisher opens wider still
+         - so a three-hit string looks like three different cuts. */
+      dir: (cs === 2 ? -1 : 1), wide: cs === 3 ? 1.30 : 1,
       color: ELC[c.element], set: new Set(), finisher: cs === 3
     };
-    /* the arc you can see: deco:true so it touches nothing, and it barely
-       travels - it sits where the blade is, out at the edge of the reach,
-       instead of sailing off like the projectile it used to be. */
-    const vis = h.st.range*MELEE_REACH_K*0.55;
-    spawnShot({ x:h.x+Math.cos(ang)*vis, y:h.y-8+Math.sin(ang)*vis*0.62,
-      vx:Math.cos(ang)*46, vy:Math.sin(ang)*30, r:7, dmg:0, deco:true,
-      pierce:99, life:.15, color:ELC[c.element], shape:'slash', art:'slash',
-      r2: cs === 3 ? 1 : 0 });
-    spawnShot({ x:h.x+Math.cos(ang)*vis*0.6, y:h.y-8+Math.sin(ang)*vis*0.38,
-      vx:Math.cos(ang)*70, vy:Math.sin(ang)*44, r:9, dmg:0, deco:true,
-      pierce:99, life:.12, color:ELC[c.element], art:'smear' });
+    /* Nothing is spawned. The swing is drawn as the blade itself, sweeping
+       through the arc with its trail behind it - see the swing block in
+       render(). It is the character's own animation, not a thing thrown. */
+    h.anim.atk = h.anim.atkMax = MELEE_DELAY + MELEE_ACTIVE + .07;
+    Sfx.swing();
   } else {
     for(let i=0;i<shots;i++){
       const spread=(shots>1? (i-(shots-1)/2)*0.20 : 0);
@@ -7141,10 +7139,7 @@ function update(dt){
       if(s.y > AR.y1-2){ s.y = AR.y1-2; s.vy = -Math.abs(s.vy); s.hitSet.clear(); }
     } else if(s.boomerang === undefined &&
        (s.x<AR.x0-8||s.x>AR.x1+8||s.y<AR.y0-8||s.y>AR.y1+8)) s.life=0;
-    if(s.deco){
-      /* the swing's visible arc: it is drawn and nothing more. Left in the
-         damage lanes it would touch bodies for zero and hand out i-frames. */
-    } else if(s.team==='hero' && B.pvp){
+    if(s.team==='hero' && B.pvp){
       const foe = s.side === 1 ? B.p2 : B.hero;
       if(foe && !foe.mem.ko && !s.hitSet.has(foe) &&
          Math.hypot(foe.x-s.x, (foe.y-8)-s.y) < foe.r + s.r){
@@ -7468,6 +7463,86 @@ function drawHits(ctx){
   }
 }
 
+/* ---- the blade, and the air it just went through ------------------------
+   A melee swing is the character's own animation: the sword sweeps through
+   the arc it damages, and what you see behind it is the path it has already
+   travelled - one smooth ribbon, widest at the blade, thinning to nothing
+   where the cut began. Nothing leaves the character and nothing flies, so
+   move and the whole thing moves with you.                                */
+function drawSwing(ctx, h){
+  const S = h.swing;
+  if(S.t > S.live) return;                         // still coiling: no blade yet
+  const u  = clamp(1 - S.t/S.live, 0, 1);          // 0 as it starts, 1 as it ends
+  const sw = S.arc * 0.92 * (S.wide || 1);         // how far round it travels
+  /* a real cut is not paced evenly: the sword is slow leaving the shoulder,
+     quick through the middle, and slow again on the follow-through */
+  const ease = k => k*k*(3 - 2*k);
+  const at = k => { k = clamp(k, 0, 1); return S.ang + S.dir*(-sw + 2*sw*ease(k)); };
+  /* the sword is drawn a little inside the reach it damages at, because the
+     reach counts to a body's centre and a body has a width of its own */
+  const R  = S.reach*PX*0.84, WID = R*0.22;
+  /* everything here lands on the game's pixel grid: the arena is drawn at
+     three screen pixels to one logic pixel, and a smooth vector curve laid
+     over pixel art looks like it came from a different game */
+  const q = v => Math.round(v/PX)*PX;
+  const fade = u > .72 ? 1 - (u-.72)/.28 : 1;      // and it dies as the arm settles
+  ctx.save();
+  ctx.translate(h.x*PX, (h.y-11)*PX);
+  ctx.scale(1, 0.62);                              // the floor is seen at an angle
+  /* the ribbon, as one shape: outer edge along the reach, inner edge coming
+     back with the width tapering off toward the start of the cut. Three
+     passes over shrinking tails give the fade without a single seam. */
+  const ribbon = (tail, alpha) => {
+    const k0 = Math.max(0, u - tail);
+    if(u - k0 < .01) return;
+    const N = 24;
+    ctx.globalAlpha = alpha*fade; ctx.fillStyle = S.color;
+    ctx.beginPath();
+    for(let i = 0; i <= N; i++){                   // out along the blade's path
+      const k = k0 + (u-k0)*(i/N), a = at(k);
+      const x = q(Math.cos(a)*R), y = q(Math.sin(a)*R);
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    for(let i = N; i >= 0; i--){                   // and back, thinning as it goes
+      const g = i/N, k = k0 + (u-k0)*g, a = at(k);
+      // a crescent: pointed at the tail, pointed at the blade, full in between
+      const r = R - WID*Math.pow(Math.sin(Math.PI*g), .75);
+      ctx.lineTo(q(Math.cos(a)*r), q(Math.sin(a)*r));
+    }
+    ctx.closePath(); ctx.fill();
+  };
+  ribbon(.48, .18); ribbon(.30, .22); ribbon(.14, .28);
+  /* the hot edge the blade is dragging */
+  ctx.globalAlpha = .8*fade; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for(let i = 0; i <= 8; i++){
+    const k = Math.max(0, u-.20) + (u - Math.max(0, u-.20))*(i/8), a = at(k);
+    const x = q(Math.cos(a)*R*0.98), y = q(Math.sin(a)*R*0.98);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.stroke();
+  /* the sword itself: a tapered blade out of the hand, not a beam */
+  const a = at(u), c = Math.cos(a), s2 = Math.sin(a);
+  const nx = -s2, ny = c;                          // across the blade
+  const hilt = R*0.20, tip = R, hw = 3.2;
+  ctx.globalAlpha = .95*fade;
+  ctx.fillStyle = S.color;
+  ctx.beginPath();
+  ctx.moveTo(q(c*hilt + nx*hw), q(s2*hilt + ny*hw));
+  ctx.lineTo(q(c*tip*0.97), q(s2*tip*0.97));
+  ctx.lineTo(q(c*tip), q(s2*tip));
+  ctx.lineTo(q(c*hilt - nx*hw), q(s2*hilt - ny*hw));
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffffff';                       // the light down its edge
+  ctx.beginPath();
+  ctx.moveTo(q(c*hilt + nx*hw*.42), q(s2*hilt + ny*hw*.42));
+  ctx.lineTo(q(c*tip*0.94), q(s2*tip*0.94));
+  ctx.lineTo(q(c*hilt - nx*hw*.42), q(s2*hilt - ny*hw*.42));
+  ctx.closePath(); ctx.fill();
+  ctx.lineCap = 'butt'; ctx.globalAlpha = 1;
+  ctx.restore();
+}
 function drawShot(ctx, s){
   const x = s.x*PX, y = s.y*PX, r = s.r*PX;
   const fade = clamp(s.life/s.life0, 0, 1);
@@ -7761,6 +7836,7 @@ function render(){
       if(blink) ctx.globalAlpha = .4;
       drawFrame(ctx, h.mem.id, heroFrame(h), hx, hy, h.face < 0, 1, h.flash);
       ctx.globalAlpha = 1;
+      if(h.swing) drawSwing(ctx, h);
     }
   }
   drawHits(ctx);
