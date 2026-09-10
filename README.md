@@ -224,15 +224,32 @@ body it reaches is hit **once** per swing, so the characters who swing more
 than once in a beat (Kuro's third cut, Elle mid-wind-up) fold into a single
 heavier arc instead of spraying crescents that used to miss on the spread.
 
-**Nothing is thrown, and nothing is spawned.** The swing is drawn: the sword
-itself, tapered from the hand, travelling through the same arc that does the
-damage, with the path it has already cut trailing behind it — one ribbon,
-widest just behind the blade, tapering to a point where the cut began, and
-gone by the time the arm settles. The sword is slow leaving the shoulder,
-quick through the middle and slow on the follow-through, and the string
-alternates direction: down across, back the other way, then a wider finisher.
-Every edge of it lands on the game's own pixel grid, so it belongs to the
-same drawing as the character holding it.
+**Nothing is thrown, and nothing is spawned.** The swing is the character's
+own animation, and the only effect is the **trail off the sword they are
+already holding**. The generator that draws the sprites also writes out where
+the hand is and which way the weapon points on every frame of the swing, plus
+how long that character's weapon is, so the game reads the tip of the blade
+straight off the picture — interpolated between poses, because the drawing
+steps and the steel does not. What you see is the path of that tip over the
+last tenth of a second. It cannot be the wrong size for the weapon: it *is*
+the weapon.
+
+The swing itself was rebuilt to be worth watching. **Seven frames** instead of
+five, held about a third of a second, so you can follow it: coil, wind,
+launch, strike, through, recover, settle. Both hands go to the hilt on
+anything heavier than a knife — a nodachi is not swung one-handed — and the
+legs carry it: the weight goes back onto the rear foot, the front foot leaves
+the floor, and the whole body lands on it with the front knee folded and the
+rear leg straight out behind. The character **steps into the cut**, so a swing
+covers ground instead of being a wave from a standstill.
+
+Because the hitbox is now the weapon, **reach is per weapon**: Kassandra's
+spear out-reaches Aoi's katana, and Nix, who fights with claws, has to be on
+top of you. The blades were lengthened to suit — a katana went from 26 pixels
+to 31, an axe from 19 to 24 — and where a longer blade would have left the
+56-pixel frame, the cut is angled down more steeply instead of being shortened.
+Every edge of the trail lands on the game's own pixel grid, so it belongs to
+the same drawing as the character holding it.
 
 Both halves now **report the hit**, because a sword landing and an arrow
 landing should not feel like the same event. Melee shakes the screen hard

@@ -21,7 +21,7 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 import zlib, struct, base64, os, sys, math
 
 W, H = 56, 96
-FRAMES = 18
+FRAMES = 20
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 28.0       # centre column
 FEET  = 92         # baseline every actor stands on
@@ -632,26 +632,37 @@ POSES = [
  dict(bob=-2, lean=1,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, sh=0),
  dict(bob=-1, lean=0, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
 
- # 10-14 the attack, in five: coil, wind, strike, follow-through, settle.
- # Three frames made a swing that arrived without ever being thrown; the coil
- # and the follow-through are what give it weight.
- # 10 coil: weight shifting back, blade starting to come up
- dict(bob=0,  lean=-2, feet=((-7,0), (5,0)),   hb=(-4,24), hf=(-5,16), wep=-0.5, eye='fierce', sway=-3, hd=-1),
- # 11 wind: fully loaded, blade behind the shoulder, front foot light
- dict(bob=1,  lean=-5, feet=((-9,0), (6,2,-2)), hb=(-6,22), hf=(-10,6), wep=-1.0, eye='fierce', sway=-7, hd=-3),
- # 12 strike: everything arrives at once, onto the front foot
- dict(bob=1,  lean=7,  feet=((-12,1,3), (12,0,-1)), hb=(-4,26), hf=(10,3), wep=1.00, eye='fierce', sway=9, hd=5),
- # 13 follow-through: the blade keeps going past the target, she is overextended
- dict(bob=2,  lean=5,  feet=((-11,0,2), (11,0,0)), hb=(-2,27), hf=(6,20), wep=0.80, eye='fierce', sway=6, hd=3),
- # 14 settle: back to guard
+ # 10-16 the attack, in seven. Five frames made a cut you could follow only
+ # if you knew it was coming; seven give the wind somewhere to load and the
+ # follow-through somewhere to land. `both` puts the trailing hand on the
+ # hilt: a sword this size is not swung one-handed, and the second arm is
+ # most of what makes a swing look like it costs something.
+ # The legs do the work. A cut is a step: the weight goes back onto the rear
+ # foot, the front foot comes off the floor, and then the whole body lands on
+ # it - front knee folded hard, rear leg straight out behind, heel peeled up.
+ # 10 coil: weight settling back, blade starting to come up
+ dict(bob=0,  lean=-3, feet=((-8,0,1,2), (5,0,-1,2)),   hb=(-4,24), hf=(-5,16), wep=-0.45, eye='fierce', sway=-3, hd=-1, both=1),
+ # 11 wind: fully loaded over the back leg, front foot light
+ dict(bob=2,  lean=-7, feet=((-10,0,2,5), (7,3,-3,3)),  hb=(-6,22), hf=(-11,4), wep=-0.85, eye='fierce', sway=-8, hd=-3, both=1),
+ # 12 launch: the front foot is in the air and the blade is already moving
+ dict(bob=-1, lean=2,  feet=((-13,0,3,2), (10,5,-3,6)), hb=(-4,24), hf=(-2,2),  wep=-0.35, eye='fierce', sway=3, hd=3, both=1),
+ # 13 strike: everything lands at once, onto the front foot
+ dict(bob=2,  lean=8,  feet=((-15,0,5,0), (13,0,-1,6)), hb=(-3,25), hf=(9,4),   wep=1.15, eye='fierce', sway=9, hd=6, both=1),
+ # 14 through: the blade carries past, the lunge at its deepest
+ dict(bob=4,  lean=7,  feet=((-16,0,4,0), (14,0,0,9)),  hb=(-2,27), hf=(8,17),  wep=1.45, eye='fierce', sway=7, hd=4, both=1),
+ # 15 recover: the weight comes back off the front foot
+ dict(bob=3,  lean=4,  feet=((-12,0,2,1), (10,1,-1,4)), hb=(-2,27), hf=(8,25),  wep=0.95, eye='fierce', sway=4, hd=2, both=1),
+ # 16 settle: back to guard
  dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.45, eye='fierce', sway=3, hd=1),
- # 15 dash: airborne, back leg trailing, front knee tucked
+ # 17 dash: airborne, back leg trailing, front knee tucked
  dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11, hd=5, hdy=-1),
- # 16 cast: both hands raised
+ # 18 cast: both hands raised
  dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3, hd=0, hdy=-1),
- # 17 hurt: knocked back onto the heels
+ # 19 hurt: knocked back onto the heels
  dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9, hd=-3, hdy=1),
 ]
+
+ATK_FRAMES = [10, 11, 12, 13, 14, 15, 16]   # the swing, in order
 
 def head_pos(pose):
     """Where the head sits. It carries the same forward TURN the torso does -
@@ -671,8 +682,30 @@ def shoulder(pose, back):
     return (CX + dx + pose['lean']*0.4 + sw,
             SHOULDER + 2 + pose['bob'] + (1 if back else 0) - abs(sw)*0.2)
 
-def hand(pose, back):
-    """absolute hand position, always measured from its own shoulder"""
+# Weapons heavy enough that a character would never swing them one-handed.
+# On the attack frames the trailing hand leaves its pose offset and goes to
+# the hilt instead, under the leading one.
+TWO_HAND = {'katana', 'tachi', 'odachi', 'nodachi', 'greatsword', 'greataxe',
+            'glaive', 'spear', 'scythe', 'icelance', 'hammer', 'sunaxe',
+            'chainsaw', 'atomblade', 'shadowblade', 'brokenblade', 'hookblade',
+            'baton', 'coilrod', 'lanternstaff', 'rapier'}
+
+def wep_axis(pose):
+    """the direction the weapon points this frame, as the weapon itself works it out"""
+    ph = pose['wep']
+    ang = math.radians(-25 + (ph * 70 if ph >= 0 else ph * 110))
+    return math.cos(ang), math.sin(ang)
+
+def two_handed(p, pose):
+    return bool(pose.get('both')) and p is not None and p['wep'] in TWO_HAND
+
+def hand(pose, back, p=None):
+    """absolute hand position, always measured from its own shoulder - except
+    the trailing hand on a two-handed swing, which is on the hilt"""
+    if back and two_handed(p, pose):
+        hxp, hyp = hand(pose, False)
+        ux, uy = wep_axis(pose)
+        return (hxp - ux*6.5, hyp - uy*6.5)
     sx, sy = shoulder(pose, back)
     d = pose['hb'] if back else pose['hf']
     return (sx + d[0], sy + d[1])
@@ -1048,7 +1081,7 @@ def draw_arm(c, p, pose, back):
     cl  = p['cloth3'] if back else p['cloth']
     cl2 = p['cloth3'] if back else p['cloth2']
     sx, sy = shoulder(pose, back)
-    hxp, hyp = hand(pose, back)
+    hxp, hyp = hand(pose, back, p)
     t = p['sleeve']
     side = -1 if back else 1
     # shoulder cap, tapering upper arm, elbow, then a slimmer forearm
@@ -1888,6 +1921,39 @@ def hair_front(c, p, pose, cx, cy):
 
 
 # ------------------------------------------------------------------ weapons --
+# How far each weapon reaches past the hand, in sprite pixels - the same
+# numbers the drawing below works to. The game reads these (patched in as
+# WEP_R) so a swing's arc is the length of the weapon actually in the hand
+# instead of a size somebody picked by eye.
+WEP_L = {
+ 'katana':31, 'tachi':31, 'odachi':34, 'nodachi':33, 'greatsword':33,
+ 'rapier':32, 'shadowblade':32, 'atomblade':32, 'spear':34, 'glaive':26,
+ 'icelance':26, 'greataxe':24, 'sunaxe':24, 'scythe':26, 'hammer':24,
+ 'chainsaw':27, 'brokenblade':21, 'hookblade':22, 'daggers':17,
+ 'kusarigama':26, 'baton':17, 'coilrod':22, 'lanternstaff':20, 'wand':17,
+ 'astrolabe':17, 'staff':22,
+ # dual wield and thrown-open weapons: the reach of the arm that is out
+ 'twinsabre':20, 'sabres':20, 'twinswords':20, 'threeswords':24,
+ 'warfans':20, 'taikosticks':16, 'towershield':16,
+ # fists, feet, and things worn rather than held
+ 'claws':14, 'gauntlet':12, 'wraps':11, 'dragongaunt':14, 'emberboot':14,
+ 'gearfist':15, 'gloves':11, 'bare':10, 'gearfist2':15,
+}
+# Where a weapon's grip is allowed to sit, when the drawing pulls the hand in
+# to keep a long blade inside the 56px frame. The export below reads the same
+# numbers, so the trail the game draws starts where the hilt actually is.
+WEP_CLAMP = {'katana':36, 'icelance':32, 'glaive':31, 'greatsword':29,
+ 'spear':28, 'atomblade':34, 'greataxe':25, 'scythe':25, 'nodachi':28,
+ 'sunaxe':25, 'brokenblade':35, 'rapier':36, 'lanternstaff':34,
+ 'shadowblade':34, 'odachi':30, 'wand':38, 'chainsaw':29, 'tachi':34,
+ 'coilrod':36}
+
+ARM_R = 14      # hand out from the middle of the body, in the same pixels
+
+def wep_reach(key):
+    """centre of the character to the tip of what they are holding"""
+    return ARM_R + WEP_L.get(CHARS[key]['wep'], 20)
+
 def draw_weapon(c, p, pose):
     w = p['wep']
     hxp, hyp = hand(pose, False)
@@ -1897,7 +1963,7 @@ def draw_weapon(c, p, pose):
     ux, uy = math.cos(ang), math.sin(ang)
     nx, ny = -uy, ux
     if w == 'katana':
-        L, hxp = 26, min(hxp, 44)
+        L, hxp = 31, min(hxp, 36)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)               # tsuka
         c.line(hxp-ux*3-nx*4, hyp-uy*3-ny*4, hxp-ux*3+nx*4, hyp-uy*3+ny*4, p['accent'], 3)
         c.taper(hxp+ux*3+nx*2.4, hyp+uy*3+ny*2.4,
@@ -1940,7 +2006,7 @@ def draw_weapon(c, p, pose):
         c.rect(gx-11, gy-3, 4, 7, p['accent'])                # fletching
         c.rect(gx-2, gy-4, 5, 9, p['grip'])                   # grip
     elif w == 'hammer':
-        L = 20
+        L = 24
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
         hx2, hy2 = hxp+ux*L, hyp+uy*L
         px2, py2 = -uy, ux
@@ -1954,7 +2020,7 @@ def draw_weapon(c, p, pose):
                 c.set(hx2 + px2*a2 + ux*b2, hy2 + py2*a2 + uy*b2, col)
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])                 # grip wrap
     elif w == 'icelance':
-        L, hxp = 22, min(hxp, 34)
+        L, hxp = 26, min(hxp, 32)
         c.taper(hxp-ux*9, hyp-uy*9, hxp+ux*(L-6), hyp+uy*(L-6), p['grip'], 4, 3)
         c.taper(hxp+ux*5, hyp+uy*5, hxp+ux*L, hyp+uy*L, p['metal'], 6, 2)
         c.line(hxp+ux*7, hyp+uy*7, hxp+ux*(L-2), hyp+uy*(L-2), '#ffffff', 1)
@@ -1973,7 +2039,7 @@ def draw_weapon(c, p, pose):
         for k in range(4):                                    # arc of current
             c.set(hx4+7+k*2, hy4-6+((k%2)*4-2), p['accent'])
     elif w == 'glaive':
-        L, hxp = 21, min(hxp, 33)
+        L, hxp = 26, min(hxp, 31)
         c.taper(hxp-ux*14, hyp-uy*14, hxp+ux*(L-8), hyp+uy*(L-8), p['grip'], 4, 4)
         tx, ty = hxp+ux*L, hyp+uy*L
         c.taper(hxp+ux*(L-9), hyp+uy*(L-9), tx, ty, p['metal'], 8, 2)
@@ -1999,7 +2065,7 @@ def draw_weapon(c, p, pose):
         for k in range(3):
             c.line(bx3+2+k, by3+2, bx3+15+k, by3-13, p['accent'], 1)
     elif w == 'greatsword':
-        L, hxp = 30, min(hxp, 30)
+        L, hxp = 33, min(hxp, 29)
         c.taper(hxp-ux*11, hyp-uy*11, hxp, hyp, p['grip'], 5, 5)              # long grip
         c.line(hxp-ux*2-nx*7, hyp-uy*2-ny*7, hxp-ux*2+nx*7, hyp-uy*2+ny*7, p['accent'], 4)
         c.taper(hxp+ux*4+nx*2.6, hyp+uy*4+ny*2.6,
@@ -2036,7 +2102,7 @@ def draw_weapon(c, p, pose):
             c.set(bx3+16+k*2, by3+2+k*3, p['accent'])
     elif w == 'atomblade':
         # a straight sword with the nucleus set in the guard and a ring around it
-        L, hxp = 28, min(hxp, 40)
+        L, hxp = 32, min(hxp, 34)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*6, hyp-uy*3-ny*6, hxp-ux*3+nx*6, hyp-uy*3+ny*6, p['accent'], 3)
         c.taper(hxp+ux*3+nx*2.2, hyp+uy*3+ny*2.2,
@@ -2052,7 +2118,7 @@ def draw_weapon(c, p, pose):
         for k in (8, 15, 22):
             c.set(hxp+ux*k+nx*0.5, hyp+uy*k+ny*0.5, p['trim'])     # runes down the fuller
     elif w == 'greataxe':
-        L, hxp = 19, min(hxp, 26)          # keep the head on the frame, not past it
+        L, hxp = 24, min(hxp, 25)          # keep the head on the frame, not past it
         c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
         hx2, hy2 = hxp+ux*(L-4), hyp+uy*(L-4)
         # half-pixel steps, or the rotation leaves holes and the bit looks speckled
@@ -2069,7 +2135,7 @@ def draw_weapon(c, p, pose):
             c.set(hx2 + nx*k + ux*e, hy2 + ny*k + uy*e, '#ffffff')
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'scythe':
-        L, hxp = 20, min(hxp, 26)
+        L, hxp = 26, min(hxp, 25)
         c.taper(hxp-ux*18, hyp-uy*18, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)   # snath
         tx, ty = hxp+ux*L, hyp+uy*L - 16               # the head rides high on the snath
         c.taper(hxp+ux*(L-4), hyp+uy*(L-4), tx, ty, p['grip'], 4, 3)
@@ -2095,7 +2161,7 @@ def draw_weapon(c, p, pose):
         c.set(hxp+ux*(L+1), hyp+uy*(L+1), p['accent'])                       # muzzle glow
         c.set(hxp+ux*(L+2), hyp+uy*(L+2), p['trim'])
     elif w == 'hookblade':
-        L = 18
+        L = 22
         c.taper(hxp-ux*6, hyp-uy*6, hxp, hyp, p['grip'], 4, 4)
         c.taper(hxp+ux*2, hyp+uy*2, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)
         for k in range(7):                                         # the hook curls back
@@ -2137,7 +2203,7 @@ def draw_weapon(c, p, pose):
         for k in range(5):                                  # the gas line, trailing back
             c.set(hxp-ux*(9+k*3)-4, hyp-uy*(9+k*3)+math.sin(k)*2, p['trim'])
     elif w == 'sunaxe':
-        L, hxp = 20, min(hxp, 26)
+        L, hxp = 24, min(hxp, 25)
         c.taper(hxp-ux*14, hyp-uy*14, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)
         hx2, hy2 = hxp+ux*(L-4), hyp+uy*(L-4)
         for ki in range(-20, 21):                           # a broad sun-bit
@@ -2154,7 +2220,7 @@ def draw_weapon(c, p, pose):
             c.set(hx2 + math.cos(a2)*14, hy2 + math.sin(a2)*13, p['accent'])
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'brokenblade':
-        L, hxp = 17, min(hxp, 38)                           # snapped off halfway
+        L, hxp = 21, min(hxp, 35)                           # snapped off halfway
         c.taper(hxp-ux*9, hyp-uy*9, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*2-nx*5, hyp-uy*2-ny*5, hxp-ux*2+nx*5, hyp-uy*2+ny*5, p['accent'], 3)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 6, 5)
@@ -2249,7 +2315,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp+ux*7, hyp+uy*7, 2.6, 2.6, p['accent'])
     elif w == 'rapier':
         # very long, very thin, with a swept cage over the hand
-        L = 32
+        L, hxp = 32, min(hxp, 36)
         c.taper(hxp-ux*7, hyp-uy*7, hxp, hyp, p['grip'], 3, 3)
         c.ellipse(hxp-ux*8, hyp-uy*8, 2.4, 2.4, p['trim'])         # the pommel
         for k in range(5):                                         # the cage
@@ -2331,7 +2397,7 @@ def draw_weapon(c, p, pose):
         c.set(int(hxp+ux*(L+5)-nx*2), int(hyp+uy*(L+5)-ny*2), p['accent'])
     elif w == 'shadowblade':
         # black steel with a lit edge, and it smokes
-        L, hxp = 29, min(hxp, 38)
+        L, hxp = 32, min(hxp, 34)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*5, hyp-uy*3-ny*5, hxp-ux*3+nx*5, hyp-uy*3+ny*5, p['accent'], 3)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['ink'], 5, 2)
@@ -2397,7 +2463,7 @@ def draw_weapon(c, p, pose):
             c.set(tx2 + math.cos(a2)*8, ty2 + math.sin(a2)*7, p['trim'])
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'chainsaw':
-        L, hxp = 24, min(hxp, 30)
+        L, hxp = 27, min(hxp, 29)
         c.rect(hxp-6, hyp-5, 10, 11, p['cloth3'])           # the housing
         c.rect(hxp-5, hyp-4, 8, 5, p['cloth2'])
         c.rect(hxp-8, hyp-1, 3, 6, p['grip'])
@@ -2410,7 +2476,7 @@ def draw_weapon(c, p, pose):
             c.set(hxp+ux*k+nx*off, hyp+uy*k+ny*off, '#ffffff')
         c.set(hxp+ux*L, hyp+uy*L, p['accent'])
     elif w == 'tachi':
-        L, hxp = 27, min(hxp, 36)                           # slim and straight
+        L, hxp = 31, min(hxp, 34)                           # slim and straight
         c.taper(hxp-ux*9, hyp-uy*9, hxp, hyp, p['grip'], 3, 3)
         c.line(hxp-ux*2-nx*4, hyp-uy*2-ny*4, hxp-ux*2+nx*4, hyp-uy*2+ny*4, p['accent'], 2)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 3, 2)
@@ -2499,7 +2565,12 @@ def draw_weapon(c, p, pose):
         c.rect(bx+3, by+4, 2, 2, p['accent']); c.rect(bx+10, by+8, 2, 2, p['accent'])
 
 def grip_hand(c, p, pose):
-    """redraw the front hand over the weapon so it reads as held, not floating"""
+    """redraw the hands over the weapon so it reads as held, not floating -
+    and on a two-handed swing that is both of them, stacked on the hilt"""
+    if two_handed(p, pose):
+        bx, by = hand(pose, True, p)
+        c.ellipse(bx, by+1, 2.9, 3.0, p['skin2'])
+        c.rect(bx-2, by+2, 4, 1, p['skin3'])
     hxp, hyp = hand(pose, False)
     c.ellipse(hxp, hyp+1, 3.0, 3.2, p['skin'])
     c.rect(hxp-2, hyp+2, 4, 1, p['skin3'])
@@ -3002,11 +3073,36 @@ def main():
     src = open(idx).read()
     import re
     new, n = re.subn(r'const ATLAS_SRC = "[^"]*";', lambda _: 'const ATLAS_SRC = "%s";' % uri, src)
-    if n:
+    # and the weapon reaches, so a swing is drawn the length of the weapon
+    tbl = ','.join('%s:%d' % (k, wep_reach(k)) for k in ORDER)
+    new, n2 = re.subn(r'const WEP_R = \{[^}]*\};',
+                      lambda _: 'const WEP_R = {%s};' % tbl, new)
+    tbl2 = ','.join('%s:%d' % (k, WEP_L.get(CHARS[k]['wep'], 20)) for k in ORDER)
+    new, n3 = re.subn(r'const WEP_L = \{[^}]*\};',
+                      lambda _: 'const WEP_L = {%s};' % tbl2, new)
+    # where the hand is and which way the weapon points, frame by frame through
+    # the swing, straight out of the poses these sprites were drawn from
+    grip = []
+    for f in ATK_FRAMES:
+        pose = POSES[f]
+        hxp, hyp = hand(pose, False)
+        ux, uy = wep_axis(pose)
+        grip.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
+    tbl3 = ','.join('%s:%d' % (k, WEP_CLAMP.get(CHARS[k]['wep'], 99)) for k in ORDER)
+    new, n5 = re.subn(r'const WEP_GRIPX = \{[^}]*\};',
+                      lambda _: 'const WEP_GRIPX = {%s};' % tbl3, new)
+    new, n4 = re.subn(r'const ATK_GRIP = \[[^;]*\];',
+                      lambda _: 'const ATK_GRIP = [%s];' % ','.join(grip), new)
+    if n and n2 and n3 and n4 and n5:
         open(idx, 'w').write(new)
-        print('patched index.html (%d KB of atlas)' % (len(uri)//1024))
+        print('patched index.html (%d KB of atlas, %d weapons, %d swing frames)'
+              % (len(uri)//1024, len(ORDER), len(ATK_FRAMES)))
     else:
-        print('index.html has no ATLAS_SRC -- add it, then re-run')
+        missing = [n2 and 'atlas' or '', 'atlas' if not n else '',
+                   'WEP_R' if not n2 else '', 'WEP_L' if not n3 else '',
+                   'ATK_GRIP' if not n4 else '']
+        print('index.html is missing %s -- add the constant, then re-run'
+              % ', '.join(x for x in missing if x and x != 'atlas' or x == 'atlas'))
 
 if __name__ == '__main__':
     main()
