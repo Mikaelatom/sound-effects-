@@ -1670,11 +1670,12 @@ const MELEE_ARC     = 0.95;   // radians either side of where you are facing
    on the frames where the sword is actually coming down. */
 const MELEE_ACTIVE  = 0.16;
 const MELEE_DELAY   = 0.14;
-/* the freeze on contact. A fighting game stops the world for a moment when
-   something lands, and the moment is most of why it feels like it landed. */
-const MELEE_SHAKE   = 8.0, MELEE_HITSTOP = 0.065;
+/* The freeze on contact. A moment of stopped world is most of why a hit
+   reads as a hit - but only a moment: enough to feel the weight land, not
+   enough to throw the room around every time you swing. */
+const MELEE_SHAKE   = 5.6, MELEE_HITSTOP = 0.046;
 const MELEE_LUNGE   = 60;     // logic units a second, forward, while cutting
-const RANGED_SHAKE  = 2.5;
+const RANGED_SHAKE  = 1.8;
 /* How far a swing actually reaches, in logic units: the weapon's own length,
    plus a body's front, plus what the character's reach stat is worth over the
    middle of the melee roster. The blade you see is drawn to the first term,

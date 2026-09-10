@@ -263,12 +263,18 @@ over instead of greying it out, and it carries the character's element — pale
 steel for Aoi, cyan for Sora, fire for Homura.
 
 Both halves now **report the hit**, because a sword landing and an arrow
-landing should not feel like the same event. Melee shakes the screen hard
-(8, and 1.35× that on the finisher), **freezes the frame for 65ms** — the
-stop is most of why a hit feels like it landed — throws sparks along the
-blade's line and plays a low thump with a bright crack over it. Ranged shakes
-lightly (2.5) and plays the same shape thinner and quieter. Only the *basic*
-attack reports; skills keep the feedback they were tuned with.
+landing should not feel like the same event. Melee shakes the screen (5.6,
+and 1.35× that on the finisher), **freezes the frame for 46ms** — the stop is
+most of why a hit feels like it landed — throws sparks along the blade's line
+and plays a low thump with a bright crack over it. Ranged shakes lightly (1.8)
+and plays the same shape thinner and quieter. Only the *basic* attack reports;
+skills keep the feedback they were tuned with.
+
+All of that fires **once per swing**, however many bodies the arc caught: a
+fuller swing lands up to 1.24× heavier and that is the whole difference.
+Shaking and freezing per body turned a cut through a pack into a jackhammer
+and stacked the same sample on itself four times in a frame. Sparks stay per
+body, since those belong to the thing that was hit.
 
 The melee finisher used to set off a **shockwave** — a nova ring, the room
 shoved outwards and slowed, a white flash. It read as a spell going off rather
