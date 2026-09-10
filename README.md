@@ -206,6 +206,33 @@ but you keep the shards.
   character keeps their own HP and Burst meter for the whole run. When one is
   KO'd you drop to the next. All three down and the run is over.
 
+### How a hit lands
+
+The roster splits on one number it already carried: **reach under 50 is melee,
+everything else is ranged**, and the data draws the line for you — the widest
+melee character is Elle at 46 and the closest ranged one is Shion at 52.
+**Thirty-one melee, twenty-five ranged.** A sword in the sprite does not
+decide it: **Aldric Vane throws his blades** (reach 124) and Odette fights
+through puppets and strings with the scythe as a silhouette, so both stay
+ranged and neither gets a swing.
+
+A **melee** attack is not a thing that flies. Pressing `V` puts a live arc on
+the character — 45ms of wind, then 130ms of blade, out to their reach and a
+little over a radian either side of where they are facing — and it moves with
+them. Walk into somebody mid-swing and it lands; back off and it whiffs. Each
+body it reaches is hit **once** per swing, so the characters who swing more
+than once in a beat (Kuro's third cut, Elle mid-wind-up) fold into a single
+heavier arc instead of spraying crescents that used to miss on the spread. The
+arc you can see is drawn where the blade is and carries no damage of its own.
+
+Both halves now **report the hit**, because a sword landing and an arrow
+landing should not feel like the same event. Melee shakes the screen hard
+(7.5, and 1.35× that on the finisher), freezes the frame for 45ms, throws
+sparks along the blade's line and plays a low thump with a bright crack over
+it. Ranged shakes lightly (2.5) and plays the same shape thinner and quieter —
+enough to read as an impact, clearly not a sword. Only the *basic* attack
+reports; skills keep the feedback they were tuned with.
+
 ### Duels
 
 Four rooms a run are a **Duel**: one character-sized boss, an empty arena, and

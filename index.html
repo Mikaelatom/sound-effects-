@@ -1617,6 +1617,18 @@ const BURST_LOCKOUT = 20;
 const BURST_PER_DMG  = 0.00070;   // per point of damage dealt
 const BURST_PER_SEC  = 0.0180;    // and this much a second, just for being there
 const COOP_RESCUE_CD = 45;    // how long before a downed player can be picked up again
+/* ---- how a basic attack lands -----------------------------------------
+   Melee is a swept arc bolted to the character: it connects the frame the
+   blade reaches the body, so walking into someone lands and backing off
+   whiffs. Ranged keeps its projectile. Both now report the hit - the melee
+   one heavier than the ranged one, because a sword landing and an arrow
+   landing should not feel like the same event.                           */
+const MELEE_REACH_K = 0.80, MELEE_REACH_PAD = 13;
+const MELEE_ARC     = 0.95;   // radians either side of where you are facing
+const MELEE_ACTIVE  = 0.13;   // how long the blade is live
+const MELEE_DELAY   = 0.045;  // and how long after the press it goes live
+const MELEE_SHAKE   = 7.5, MELEE_HITSTOP = 0.045;
+const RANGED_SHAKE  = 2.5;
 const COMBO_BUFFER = 0.28;    // a press this far ahead of the recovery still lands
 const COMBO_WINDOW = 0.55;    // how long after a swing the next one still counts as a chain
 const COMBO_MUL  = [0, 1.00, 1.20, 1.85];   // what each hit of the string is worth
@@ -1884,6 +1896,20 @@ const Sfx = (()=>{
         const g=a.createGain(); g.gain.value=.42; s.connect(g); g.connect(master); s.start(); }
       else tone(220+ri(120),.06,'square',.1,-120); },
     swing(){ tone(760,.05,'triangle',.06,-380); },
+    /* the sound of a basic attack CONNECTING. Heavy is a sword finding a
+       body: a low thump with a bright crack over it. Light is an arrow
+       arriving: the same shape, thinner and quieter. */
+    impact(heavy){
+      if(muted) return;
+      if(heavy){
+        noise(.09,.20);
+        tone(96 + ri(26), .13, 'sine',     .26, -46);
+        tone(430 + ri(90), .045,'square',   .09, -260);
+      } else {
+        noise(.045,.07);
+        tone(300 + ri(80), .05, 'triangle', .07, -150);
+      }
+    },
     skill(){ tone(180,.28,'sawtooth',.12,620); },
     dash(){ noise(.09,.09); },
     hurt(){ tone(160,.2,'sawtooth',.16,-90); },
@@ -3595,19 +3621,40 @@ function heroAttack_(step){
   if(c.id==='kuro' && h.hitCount%3===0) dmg *= .60;    // three cuts, 180% between them
   // Dain's missing half shows up when he is hurt enough to need it
   const longReach = c.id==='dain' && h.mem.hp < h.st.maxhp*.60;
-  for(let i=0;i<shots;i++){
-    const spread=(shots>1? (i-(shots-1)/2)*0.20 : 0);
-    spawnShot({ x:h.x+Math.cos(ang)*6, y:h.y-8+Math.sin(ang)*6,
-      vx:Math.cos(ang+spread)*(melee?260:200), vy:Math.sin(ang+spread)*(melee?260:200),
-      r: melee?7:3.2, dmg, crit, team:'hero',
-      pierce: (melee?2:0)+M.pierce+(c.id==='kagura'||c.id==='aldric'?1:0),
-      life: melee? (longReach ? .40 : .16) : 1.1, color:ELC[c.element],
-      shape: melee?'slash':'dot', art: melee ? 'slash' : (ART[c.id]||'orb'),
+  if(melee){
+    /* The swing is a hitbox that lives on the character for a few frames, so
+       it lands when the blade actually reaches somebody. Extra swings (Kuro's
+       third, Elle's wound-up gauntlet) fold into one heavier arc rather than
+       becoming several projectiles. */
+    h.swing = {
+      t: MELEE_ACTIVE + MELEE_DELAY, live: MELEE_ACTIVE,
+      dmg: dmg * shots, crit, ang,
+      reach: h.st.range*MELEE_REACH_K + MELEE_REACH_PAD + (longReach ? 34 : 0),
+      arc: MELEE_ARC + (shots > 1 ? 0.18 : 0),
+      color: ELC[c.element], set: new Set(), finisher: cs === 3
+    };
+    /* the arc you can see: deco:true so it touches nothing, and it barely
+       travels - it sits where the blade is, out at the edge of the reach,
+       instead of sailing off like the projectile it used to be. */
+    const vis = h.st.range*MELEE_REACH_K*0.55;
+    spawnShot({ x:h.x+Math.cos(ang)*vis, y:h.y-8+Math.sin(ang)*vis*0.62,
+      vx:Math.cos(ang)*46, vy:Math.sin(ang)*30, r:7, dmg:0, deco:true,
+      pierce:99, life:.15, color:ELC[c.element], shape:'slash', art:'slash',
       r2: cs === 3 ? 1 : 0 });
-    if(melee && i === 0){          // a wide streak behind the blade: pure motion
-      spawnShot({ x:h.x+Math.cos(ang)*4, y:h.y-8+Math.sin(ang)*4,
-        vx:Math.cos(ang)*300, vy:Math.sin(ang)*300, r:9, dmg:0, team:'none',
-        pierce:99, life:.13, color:ELC[c.element], art:'smear' });
+    spawnShot({ x:h.x+Math.cos(ang)*vis*0.6, y:h.y-8+Math.sin(ang)*vis*0.38,
+      vx:Math.cos(ang)*70, vy:Math.sin(ang)*44, r:9, dmg:0, deco:true,
+      pierce:99, life:.12, color:ELC[c.element], art:'smear' });
+  } else {
+    for(let i=0;i<shots;i++){
+      const spread=(shots>1? (i-(shots-1)/2)*0.20 : 0);
+      spawnShot({ x:h.x+Math.cos(ang)*6, y:h.y-8+Math.sin(ang)*6,
+        vx:Math.cos(ang+spread)*200, vy:Math.sin(ang+spread)*200,
+        r:3.2, dmg, crit, team:'hero',
+        pierce: M.pierce+(c.id==='kagura'||c.id==='aldric'?1:0),
+        life:1.1, color:ELC[c.element],
+        shape:'dot', art: ART[c.id]||'orb',
+        basic:true,                       // so the impact reads, and only for this
+        r2: cs === 3 ? 1 : 0 });
     }
   }
   if(cs === 3){                      // the third hit is the one that matters
@@ -6551,6 +6598,41 @@ function stepHero(h, dt, pad){
           vy:Math.sin(a2)*40,life:.25,c:ELC[CHAR[h.mem.id].element],s:1}); }
     }
   }
+  if(h.swing){
+    /* A melee swing is not a thing that flies: it is a live arc in front of
+       the character for a few frames. It moves with them, so stepping into
+       somebody lands and stepping away whiffs, and each body it reaches is
+       hit once. */
+    const S2 = h.swing; S2.t -= dt;
+    if(S2.t <= S2.live && S2.t > 0){                    // past the wind, blade live
+      for(const m of B.mobs){
+        if(m.dead || S2.set.has(m)) continue;
+        if(m.proxyFor && m.proxyFor === h) continue;
+        if(m.proxyFor && !B.pvp && !h.rivalOf) continue;
+        const dx2 = m.x - h.x, dy2 = (m.y-4) - (h.y-4);
+        const d2 = Math.hypot(dx2, dy2);
+        if(d2 > S2.reach + m.r) continue;
+        let da = Math.atan2(dy2, dx2) - S2.ang;
+        while(da >  Math.PI) da -= Math.PI*2;
+        while(da < -Math.PI) da += Math.PI*2;
+        if(Math.abs(da) > S2.arc) continue;
+        S2.set.add(m);
+        // knocked back about as far as the old slash threw them, so a swing
+        // still buys the space it used to and the cadence stays honest
+        hurtMob(m, S2.dmg, S2.crit,
+          {x:Math.cos(S2.ang)*(S2.finisher?4.2:3.1), y:Math.sin(S2.ang)*(S2.finisher?2.8:2.1)});
+        // it landed, and it should feel like it landed
+        spawnHit(m.x, m.y - m.r*0.7, S2.color, S2.crit ? 'nova' : 'cut');
+        B.shake = Math.max(B.shake, S2.finisher ? MELEE_SHAKE*1.35 : MELEE_SHAKE);
+        B.hitstop = Math.max(B.hitstop, S2.finisher ? MELEE_HITSTOP*1.6 : MELEE_HITSTOP);
+        Sfx.impact(true);
+        for(let k=0;k<5;k++) B.fx.push({x:m.x, y:m.y-m.r*0.7,
+          vx:Math.cos(S2.ang)*rnd(120,30), vy:Math.sin(S2.ang)*rnd(90,-30),
+          life:.22, c:'#ffffff', s:1});
+      }
+    }
+    if(S2.t <= 0) h.swing = null;
+  }
   if(h.brand){                                      // the blade is still alight
     h.brand.t -= dt;
     if(h.brand.t <= 0) h.brand = null;
@@ -7059,7 +7141,10 @@ function update(dt){
       if(s.y > AR.y1-2){ s.y = AR.y1-2; s.vy = -Math.abs(s.vy); s.hitSet.clear(); }
     } else if(s.boomerang === undefined &&
        (s.x<AR.x0-8||s.x>AR.x1+8||s.y<AR.y0-8||s.y>AR.y1+8)) s.life=0;
-    if(s.team==='hero' && B.pvp){
+    if(s.deco){
+      /* the swing's visible arc: it is drawn and nothing more. Left in the
+         damage lanes it would touch bodies for zero and hand out i-frames. */
+    } else if(s.team==='hero' && B.pvp){
       const foe = s.side === 1 ? B.p2 : B.hero;
       if(foe && !foe.mem.ko && !s.hitSet.has(foe) &&
          Math.hypot(foe.x-s.x, (foe.y-8)-s.y) < foe.r + s.r){
@@ -7073,6 +7158,10 @@ function update(dt){
         if(Math.hypot(m.x-s.x,m.y-(s.y+2))<m.r+s.r){
           asOwner(s.own || s.owner, () => {
             const hh = B.hero;                   // whoever actually fired this
+            if(s.basic){                         // a basic shot landing, not a skill
+              B.shake = Math.max(B.shake, RANGED_SHAKE);
+              Sfx.impact(false);
+            }
             s.hitSet.add(m); hurtMob(m,s.dmg,s.crit,
               {x:s.vx*.012*(s.knock||1), y:s.vy*.012*(s.knock||1)});
             if(s.chill && !m.dead){ m.frozen = Math.max(m.frozen, s.chill); }
