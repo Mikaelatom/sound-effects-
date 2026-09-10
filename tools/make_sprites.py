@@ -1077,9 +1077,12 @@ def draw_torso(c, p, pose):
         c.rect(xh-10, HIP+9+dy, 4, 6, cl3)
 
 def draw_arm(c, p, pose, back):
-    sk  = p['skin2'] if back else p['skin']
-    cl  = p['cloth3'] if back else p['cloth']
-    cl2 = p['cloth3'] if back else p['cloth2']
+    # the trailing arm is normally in shadow; when it comes across the body to
+    # take the hilt it is in front, and has to be lit like it
+    front_ish = (not back) or two_handed(p, pose)
+    sk  = p['skin'] if front_ish else p['skin2']
+    cl  = p['cloth'] if front_ish else p['cloth3']
+    cl2 = p['cloth2'] if front_ish else p['cloth3']
     sx, sy = shoulder(pose, back)
     hxp, hyp = hand(pose, back, p)
     t = p['sleeve']
@@ -2599,13 +2602,19 @@ def draw_char(key, frame):
     p, pose = CHARS[key], POSES[frame]
     c = Cv(W, H)
     cx, cy = head_pos(pose)
+    # A second hand on the hilt is no use behind the body, where the torso
+    # covers it. On a two-handed swing the trailing arm comes ACROSS the
+    # chest, drawn over the torso like the leading one, and the two hands
+    # stack on the grip where you can see them.
+    both = two_handed(p, pose)
     if p.get('cape'): draw_cape(c, p, pose)
     hair_back(c, p, pose, cx, cy)
-    draw_arm(c, p, pose, True)
+    if not both: draw_arm(c, p, pose, True)
     draw_legs(c, p, pose)
     draw_torso(c, p, pose)
     draw_head(c, p, pose)
     hair_front(c, p, pose, cx, cy)
+    if both: draw_arm(c, p, pose, True)
     draw_arm(c, p, pose, False)
     draw_weapon(c, p, pose)
     grip_hand(c, p, pose)

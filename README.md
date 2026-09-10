@@ -184,14 +184,18 @@ Build a squad of up to 3 and climb the Spire — **3 floors, 24 rooms, 3 bosses*
 but you keep the shards.
 
 - **Move** WASD / arrows
-- **Attack** `V` — **on a button, and it chains.** Press it and you swing at the
-  nearest enemy in range; press again inside half a second and the second hit
-  lands wider; a third time and you get a finisher that hits for 185%, knocks
-  the room back and slows what it touches. Miss the window and the string
-  starts again. A press during the recovery is *buffered*, not eaten, so
-  pressing slightly early still lands. Three pips under the keycap show where
-  in the string you are. You still face the way you're *moving*; the target
-  only turns you when you stand still
+- **Attack** `V` — **a tap, and it chains.** Every swing is its own press:
+  holding the key down does nothing after the first one, so the string is
+  something you play rather than something you lean on. Press, and the
+  character swings; press again after the recovery and the second hit lands
+  wider; a third time and you get a finisher worth 185%. Miss the window and
+  the string starts again. Each swing is paid for with about **half a second**
+  of recovery, half again as much after the finisher, and no character however
+  fast gets under the floor — a string you can machine-gun is not a string. A
+  press that arrives while the last swing is still finishing is **buffered**,
+  not eaten. Three pips under the keycap show where in the string you are. You
+  still face the way you're *moving*; the target only turns you when you stand
+  still
 - **Attack, the old way** — automatic, swinging by itself whenever something is
   in range. **Settings → Attack** flips between the two and nothing else
   changes; this is a switch, not a rewrite. Player two gets their own attack
@@ -251,13 +255,26 @@ to 31, an axe from 19 to 24 — and where a longer blade would have left the
 Every edge of the trail lands on the game's own pixel grid, so it belongs to
 the same drawing as the character holding it.
 
+What you see off the blade is a **crescent laid along the path it took**: a
+wide soft band, a brighter one inside it, and a white core down the middle
+where the edge actually went, pointed at both ends because a cut starts and
+finishes at a point. It goes on **additively**, so it brightens what it passes
+over instead of greying it out, and it carries the character's element — pale
+steel for Aoi, cyan for Sora, fire for Homura.
+
 Both halves now **report the hit**, because a sword landing and an arrow
 landing should not feel like the same event. Melee shakes the screen hard
-(7.5, and 1.35× that on the finisher), freezes the frame for 45ms, throws
-sparks along the blade's line and plays a low thump with a bright crack over
-it. Ranged shakes lightly (2.5) and plays the same shape thinner and quieter —
-enough to read as an impact, clearly not a sword. Only the *basic* attack
-reports; skills keep the feedback they were tuned with.
+(8, and 1.35× that on the finisher), **freezes the frame for 65ms** — the
+stop is most of why a hit feels like it landed — throws sparks along the
+blade's line and plays a low thump with a bright crack over it. Ranged shakes
+lightly (2.5) and plays the same shape thinner and quieter. Only the *basic*
+attack reports; skills keep the feedback they were tuned with.
+
+The melee finisher used to set off a **shockwave** — a nova ring, the room
+shoved outwards and slowed, a white flash. It read as a spell going off rather
+than as a sword landing, so it is gone, damage and all: the third hit is a
+sword, and a sword is what it hits with. A *ranged* finisher keeps its ring,
+having no blade to put the weight in.
 
 ### Duels
 
