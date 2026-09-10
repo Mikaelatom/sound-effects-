@@ -10,7 +10,8 @@ atlas PNG, and patches the base64 data URI straight into index.html.
     python3 tools/make_sprites.py mobs       # tools/mobs.png, enemies at 5x
     python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 3x
 
-Frames are 56x96. Row = actor, column = frame.
+Frames are 72x96. Row = actor, column = frame - wide enough that a
+drawn katana has somewhere to go.
   Characters  0 idle-a  1 idle-b  2-5 walk  6 windup  7 strike  8 recover
               9 dash  10 cast  11 hurt
   Enemies     0-1 idle  2-5 move  6 telegraph  7 attack  8 special  9 hurt
@@ -20,10 +21,10 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 """
 import zlib, struct, base64, os, sys, math
 
-W, H = 56, 96
+W, H = 72, 96
 FRAMES = 20
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CX    = 28.0       # centre column
+CX    = 36.0       # centre column
 FEET  = 92         # baseline every actor stands on
 HEADY = 16         # head centre
 SHOULDER = 29      # top of the torso
@@ -607,8 +608,8 @@ TORSO = [8, 9, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 9, 9]
 #   hb / hf = back and front hand, as an offset FROM THAT SHOULDER
 POSES = [
  # 0-1 idle: a slow breath, weight on both feet
- dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=0.00, eye='open',   sway=0),
- dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=0.05, eye='open',   sway=2),
+ dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=1.00, eye='open',   sway=0),
+ dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=1.03, eye='open',   sway=2),
 
  # 2-9 walk: the full eight-frame cycle, twice through
  # contact - down - passing - up, once for each leg. Feet carry a third
@@ -619,18 +620,18 @@ POSES = [
  # The near leg leads first; on frame 6 the far leg takes over, which is why
  # the two halves are not mirrors of each other but the same poses swapped.
  # contact A - near heel lands out front, far toe still pushing off
- dict(bob=1,  lean=2,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=0.10, eye='open', sway=4, hd=1, sh=2),
+ dict(bob=1,  lean=2,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=1.06, eye='open', sway=4, hd=1, sh=2),
  # down A - the front knee folds hard to take the weight
- dict(bob=3,  lean=3,  feet=((-13,3,3,4), (6,0,0,5)),    hb=(5,24),  hf=(-5,27), wep=0.06, eye='open', sway=5, hd=2, hdy=1, sh=1),
+ dict(bob=3,  lean=3,  feet=((-13,3,3,4), (6,0,0,5)),    hb=(5,24),  hf=(-5,27), wep=1.03, eye='open', sway=5, hd=2, hdy=1, sh=1),
  # passing A - the far knee comes up under the body, foot tucked behind it
- dict(bob=-2, lean=1,  feet=((-2,10,2,7), (0,0,0,1)),    hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, sh=0),
+ dict(bob=-2, lean=1,  feet=((-2,10,2,7), (0,0,0,1)),    hb=(0,26),  hf=(0,26),  wep=0.98, eye='open', sway=2, sh=0),
  # up A - that leg swings out in front, still bent, reaching for the ground
- dict(bob=-1, lean=0, feet=((8,5,-3,3), (-7,0,2,0)),    hb=(-4,27), hf=(4,24),  wep=0.04, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
+ dict(bob=-1, lean=0, feet=((8,5,-3,3), (-7,0,2,0)),    hb=(-4,27), hf=(4,24),  wep=1.01, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
  # contact B - the same four, with the legs swapped over
- dict(bob=1,  lean=2,  feet=((11,0,-2,0), (-11,1,3,1)),  hb=(-8,28), hf=(8,23),  wep=0.10, eye='open', sway=4, hd=1, sh=2),
- dict(bob=3,  lean=3,  feet=((6,0,0,5),   (-13,3,3,4)),  hb=(-5,27), hf=(5,24),  wep=0.06, eye='open', sway=5, hd=2, hdy=1, sh=1),
- dict(bob=-2, lean=1,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.00, eye='open', sway=2, sh=0),
- dict(bob=-1, lean=0, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=0.04, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
+ dict(bob=1,  lean=2,  feet=((11,0,-2,0), (-11,1,3,1)),  hb=(-8,28), hf=(8,23),  wep=1.06, eye='open', sway=4, hd=1, sh=2),
+ dict(bob=3,  lean=3,  feet=((6,0,0,5),   (-13,3,3,4)),  hb=(-5,27), hf=(5,24),  wep=1.03, eye='open', sway=5, hd=2, hdy=1, sh=1),
+ dict(bob=-2, lean=1,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.98, eye='open', sway=2, sh=0),
+ dict(bob=-1, lean=0, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=1.01, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
 
  # 10-16 the attack, in seven. Five frames made a cut you could follow only
  # if you knew it was coming; seven give the wind somewhere to load and the
@@ -653,7 +654,7 @@ POSES = [
  # 15 recover: the weight comes back off the front foot
  dict(bob=3,  lean=4,  feet=((-12,0,2,1), (10,1,-1,4)), hb=(-2,27), hf=(8,25),  wep=0.95, eye='fierce', sway=4, hd=2, both=1),
  # 16 settle: back to guard
- dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=0.45, eye='fierce', sway=3, hd=1),
+ dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=1.00, eye='fierce', sway=3, hd=1),
  # 17 dash: airborne, back leg trailing, front knee tucked
  dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11, hd=5, hdy=-1),
  # 18 cast: both hands raised
@@ -1929,33 +1930,46 @@ def hair_front(c, p, pose, cx, cy):
 # WEP_R) so a swing's arc is the length of the weapon actually in the hand
 # instead of a size somebody picked by eye.
 WEP_L = {
- 'katana':31, 'tachi':31, 'odachi':34, 'nodachi':33, 'greatsword':33,
- 'rapier':32, 'shadowblade':32, 'atomblade':32, 'spear':34, 'glaive':26,
- 'icelance':26, 'greataxe':24, 'sunaxe':24, 'scythe':26, 'hammer':24,
- 'chainsaw':27, 'brokenblade':21, 'hookblade':22, 'daggers':17,
- 'kusarigama':26, 'baton':17, 'coilrod':22, 'lanternstaff':20, 'wand':17,
+ 'katana':41, 'tachi':40, 'odachi':47, 'nodachi':45, 'greatsword':43,
+ 'rapier':41, 'shadowblade':41, 'atomblade':41, 'spear':46, 'glaive':35,
+ 'icelance':34, 'greataxe':29, 'sunaxe':29, 'scythe':34, 'hammer':28,
+ 'chainsaw':33, 'brokenblade':27, 'hookblade':28, 'daggers':19,
+ 'kusarigama':28, 'baton':18, 'coilrod':23, 'lanternstaff':21, 'wand':17,
  'astrolabe':17, 'staff':22,
  # dual wield and thrown-open weapons: the reach of the arm that is out
- 'twinsabre':20, 'sabres':20, 'twinswords':20, 'threeswords':24,
- 'warfans':20, 'taikosticks':16, 'towershield':16,
+ 'twinsabre':22, 'sabres':22, 'twinswords':22, 'threeswords':26,
+ 'warfans':21, 'taikosticks':16, 'towershield':16,
  # fists, feet, and things worn rather than held
  'claws':14, 'gauntlet':12, 'wraps':11, 'dragongaunt':14, 'emberboot':14,
- 'gearfist':15, 'gloves':11, 'bare':10, 'gearfist2':15,
+ 'gearfist':15, 'gloves':11, 'bare':10,
 }
+
 # Where a weapon's grip is allowed to sit, when the drawing pulls the hand in
 # to keep a long blade inside the 56px frame. The export below reads the same
 # numbers, so the trail the game draws starts where the hilt actually is.
-WEP_CLAMP = {'katana':36, 'icelance':32, 'glaive':31, 'greatsword':29,
- 'spear':28, 'atomblade':34, 'greataxe':25, 'scythe':25, 'nodachi':28,
- 'sunaxe':25, 'brokenblade':35, 'rapier':36, 'lanternstaff':34,
- 'shadowblade':34, 'odachi':30, 'wand':38, 'chainsaw':29, 'tachi':34,
- 'coilrod':36}
+WEP_CLAMP = {'katana':4, 'icelance':4, 'glaive':3, 'greatsword':1,
+ 'spear':0, 'atomblade':6, 'greataxe':-3, 'scythe':-3, 'nodachi':0,
+ 'sunaxe':-3, 'brokenblade':7, 'rapier':4, 'lanternstaff':6,
+ 'shadowblade':6, 'odachi':2, 'wand':10, 'chainsaw':1, 'tachi':6,
+ 'coilrod':8}
 
 ARM_R = 14      # hand out from the middle of the body, in the same pixels
 
 def wep_reach(key):
     """centre of the character to the tip of what they are holding"""
     return ARM_R + WEP_L.get(CHARS[key]['wep'], 20)
+
+def fitL(L, hxp, hyp, ux, uy, pad=3):
+    """Shorten a blade only as far as it must to stay inside the frame.
+
+    A long weapon at a shallow angle runs off the edge, and a clipped sword
+    looks broken in a way a slightly shorter one never does. Every pose keeps
+    the full length it can and no pose loses more than it has to."""
+    for lim, d, v in ((W-1-pad, ux, hxp), (pad, -ux, -hxp),
+                      (H-1-pad, uy, hyp), (2, -uy, -hyp)):
+        if d > 0.01:
+            L = min(L, (lim - v) / d)
+    return int(max(6, L))   # whole pixels: some blades are drawn by stepping along them
 
 def draw_weapon(c, p, pose):
     w = p['wep']
@@ -1966,7 +1980,8 @@ def draw_weapon(c, p, pose):
     ux, uy = math.cos(ang), math.sin(ang)
     nx, ny = -uy, ux
     if w == 'katana':
-        L, hxp = 31, min(hxp, 36)
+        hxp = min(hxp, CX + 4)
+        L = fitL(41, hxp, hyp, ux, uy)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)               # tsuka
         c.line(hxp-ux*3-nx*4, hyp-uy*3-ny*4, hxp-ux*3+nx*4, hyp-uy*3+ny*4, p['accent'], 3)
         c.taper(hxp+ux*3+nx*2.4, hyp+uy*3+ny*2.4,
@@ -2009,7 +2024,7 @@ def draw_weapon(c, p, pose):
         c.rect(gx-11, gy-3, 4, 7, p['accent'])                # fletching
         c.rect(gx-2, gy-4, 5, 9, p['grip'])                   # grip
     elif w == 'hammer':
-        L = 24
+        L = fitL(28, hxp, hyp, ux, uy)
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
         hx2, hy2 = hxp+ux*L, hyp+uy*L
         px2, py2 = -uy, ux
@@ -2023,7 +2038,8 @@ def draw_weapon(c, p, pose):
                 c.set(hx2 + px2*a2 + ux*b2, hy2 + py2*a2 + uy*b2, col)
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])                 # grip wrap
     elif w == 'icelance':
-        L, hxp = 26, min(hxp, 32)
+        hxp = min(hxp, CX + 4)
+        L = fitL(34, hxp, hyp, ux, uy)
         c.taper(hxp-ux*9, hyp-uy*9, hxp+ux*(L-6), hyp+uy*(L-6), p['grip'], 4, 3)
         c.taper(hxp+ux*5, hyp+uy*5, hxp+ux*L, hyp+uy*L, p['metal'], 6, 2)
         c.line(hxp+ux*7, hyp+uy*7, hxp+ux*(L-2), hyp+uy*(L-2), '#ffffff', 1)
@@ -2042,7 +2058,8 @@ def draw_weapon(c, p, pose):
         for k in range(4):                                    # arc of current
             c.set(hx4+7+k*2, hy4-6+((k%2)*4-2), p['accent'])
     elif w == 'glaive':
-        L, hxp = 26, min(hxp, 31)
+        hxp = min(hxp, CX + 3)
+        L = fitL(35, hxp, hyp, ux, uy)
         c.taper(hxp-ux*14, hyp-uy*14, hxp+ux*(L-8), hyp+uy*(L-8), p['grip'], 4, 4)
         tx, ty = hxp+ux*L, hyp+uy*L
         c.taper(hxp+ux*(L-9), hyp+uy*(L-9), tx, ty, p['metal'], 8, 2)
@@ -2068,7 +2085,8 @@ def draw_weapon(c, p, pose):
         for k in range(3):
             c.line(bx3+2+k, by3+2, bx3+15+k, by3-13, p['accent'], 1)
     elif w == 'greatsword':
-        L, hxp = 33, min(hxp, 29)
+        hxp = min(hxp, CX + 1)
+        L = fitL(43, hxp, hyp, ux, uy)
         c.taper(hxp-ux*11, hyp-uy*11, hxp, hyp, p['grip'], 5, 5)              # long grip
         c.line(hxp-ux*2-nx*7, hyp-uy*2-ny*7, hxp-ux*2+nx*7, hyp-uy*2+ny*7, p['accent'], 4)
         c.taper(hxp+ux*4+nx*2.6, hyp+uy*4+ny*2.6,
@@ -2086,7 +2104,8 @@ def draw_weapon(c, p, pose):
             c.line(bx3+ax*4, by3+ay*4, bx3+ax*15, by3+ay*15, '#ffffff', 1)
             c.rect(bx3-2, by3-3, 4, 2, p['cloth2'])
     elif w == 'spear':
-        L, hxp = 34, min(hxp, 28)
+        hxp = min(hxp, CX + 0)
+        L = fitL(46, hxp, hyp, ux, uy)
         c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*(L-9), hyp+uy*(L-9), p['grip'], 4, 4)
         c.taper(hxp+ux*(L-11), hyp+uy*(L-11), hxp+ux*L, hyp+uy*L, p['metal'], 7, 2)
         c.line(hxp+ux*(L-9), hyp+uy*(L-9), hxp+ux*(L-1), hyp+uy*(L-1), '#ffffff', 1)
@@ -2105,7 +2124,8 @@ def draw_weapon(c, p, pose):
             c.set(bx3+16+k*2, by3+2+k*3, p['accent'])
     elif w == 'atomblade':
         # a straight sword with the nucleus set in the guard and a ring around it
-        L, hxp = 32, min(hxp, 34)
+        hxp = min(hxp, CX + 6)
+        L = fitL(41, hxp, hyp, ux, uy)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*6, hyp-uy*3-ny*6, hxp-ux*3+nx*6, hyp-uy*3+ny*6, p['accent'], 3)
         c.taper(hxp+ux*3+nx*2.2, hyp+uy*3+ny*2.2,
@@ -2121,7 +2141,8 @@ def draw_weapon(c, p, pose):
         for k in (8, 15, 22):
             c.set(hxp+ux*k+nx*0.5, hyp+uy*k+ny*0.5, p['trim'])     # runes down the fuller
     elif w == 'greataxe':
-        L, hxp = 24, min(hxp, 25)          # keep the head on the frame, not past it
+        hxp = min(hxp, CX + -3)
+        L = fitL(29, hxp, hyp, ux, uy)          # keep the head on the frame, not past it
         c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
         hx2, hy2 = hxp+ux*(L-4), hyp+uy*(L-4)
         # half-pixel steps, or the rotation leaves holes and the bit looks speckled
@@ -2138,7 +2159,8 @@ def draw_weapon(c, p, pose):
             c.set(hx2 + nx*k + ux*e, hy2 + ny*k + uy*e, '#ffffff')
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'scythe':
-        L, hxp = 26, min(hxp, 25)
+        hxp = min(hxp, CX + -3)
+        L = fitL(34, hxp, hyp, ux, uy)
         c.taper(hxp-ux*18, hyp-uy*18, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)   # snath
         tx, ty = hxp+ux*L, hyp+uy*L - 16               # the head rides high on the snath
         c.taper(hxp+ux*(L-4), hyp+uy*(L-4), tx, ty, p['grip'], 4, 3)
@@ -2155,7 +2177,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(tx, ty+3, 1.4, 1.4, '#ffffff')
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'rifle':
-        L = 24
+        L = fitL(24, hxp, hyp, ux, uy)
         c.taper(hxp-ux*9, hyp-uy*9, hxp+ux*L, hyp+uy*L, p['metal'], 4, 3)    # barrel
         c.line(hxp+ux*4, hyp+uy*4, hxp+ux*(L-2), hyp+uy*(L-2), p['cloth3'], 1)
         c.taper(hxp-ux*10, hyp-uy*10, hxp-ux*17, hyp-uy*17+4, p['grip'], 6, 5)  # stock
@@ -2164,7 +2186,7 @@ def draw_weapon(c, p, pose):
         c.set(hxp+ux*(L+1), hyp+uy*(L+1), p['accent'])                       # muzzle glow
         c.set(hxp+ux*(L+2), hyp+uy*(L+2), p['trim'])
     elif w == 'hookblade':
-        L = 22
+        L = fitL(28, hxp, hyp, ux, uy)
         c.taper(hxp-ux*6, hyp-uy*6, hxp, hyp, p['grip'], 4, 4)
         c.taper(hxp+ux*2, hyp+uy*2, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)
         for k in range(7):                                         # the hook curls back
@@ -2176,7 +2198,8 @@ def draw_weapon(c, p, pose):
             ly = hyp + 3 + math.sin(k*1.1)*2.2
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
     elif w == 'nodachi':
-        L, hxp = 33, min(hxp, 28)                          # long, slim, slightly curved
+        hxp = min(hxp, CX + 0)
+        L = fitL(45, hxp, hyp, ux, uy)                          # long, slim, slightly curved
         c.taper(hxp-ux*11, hyp-uy*11, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*4, hyp-uy*3-ny*4, hxp-ux*3+nx*4, hyp-uy*3+ny*4, p['accent'], 2)
         for k in range(4, L):
@@ -2206,7 +2229,8 @@ def draw_weapon(c, p, pose):
         for k in range(5):                                  # the gas line, trailing back
             c.set(hxp-ux*(9+k*3)-4, hyp-uy*(9+k*3)+math.sin(k)*2, p['trim'])
     elif w == 'sunaxe':
-        L, hxp = 24, min(hxp, 25)
+        hxp = min(hxp, CX + -3)
+        L = fitL(29, hxp, hyp, ux, uy)
         c.taper(hxp-ux*14, hyp-uy*14, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)
         hx2, hy2 = hxp+ux*(L-4), hyp+uy*(L-4)
         for ki in range(-20, 21):                           # a broad sun-bit
@@ -2223,7 +2247,8 @@ def draw_weapon(c, p, pose):
             c.set(hx2 + math.cos(a2)*14, hy2 + math.sin(a2)*13, p['accent'])
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'brokenblade':
-        L, hxp = 21, min(hxp, 35)                           # snapped off halfway
+        hxp = min(hxp, CX + 7)
+        L = fitL(27, hxp, hyp, ux, uy)                           # snapped off halfway
         c.taper(hxp-ux*9, hyp-uy*9, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*2-nx*5, hyp-uy*2-ny*5, hxp-ux*2+nx*5, hyp-uy*2+ny*5, p['accent'], 3)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 6, 5)
@@ -2288,7 +2313,7 @@ def draw_weapon(c, p, pose):
         for k in range(3):                                   # and a hand growing out of it
             c.taper(hx4+4, hy4, hx4+11+k, hy4-5+k*5, p['skin2'], 3, 2)
     elif w == 'armcannon':
-        L = 22
+        L = fitL(22, hxp, hyp, ux, uy)
         c.taper(hxp-ux*6, hyp-uy*6, hxp+ux*L, hyp+uy*L, p['metal'], 8, 7)
         c.taper(hxp-ux*4, hyp-uy*4, hxp+ux*(L-2), hyp+uy*(L-2), p['cloth2'], 5, 4)
         for k in range(3):
@@ -2300,7 +2325,7 @@ def draw_weapon(c, p, pose):
         c.rect(hxp-8, hyp-6, 5, 3, p['trim'])
     elif w == 'kusarigama':
         # a short sickle in the hand and a weighted chain trailing off behind
-        L = 13
+        L = fitL(13, hxp, hyp, ux, uy)
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*3, hyp+uy*3, p['grip'], 4, 3)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 4, 3)
         c.taper(hxp+ux*L, hyp+uy*L, hxp+ux*(L-5)+nx*9, hyp+uy*(L-5)+ny*9, p['metal'], 3, 1)
@@ -2318,7 +2343,8 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp+ux*7, hyp+uy*7, 2.6, 2.6, p['accent'])
     elif w == 'rapier':
         # very long, very thin, with a swept cage over the hand
-        L, hxp = 32, min(hxp, 36)
+        hxp = min(hxp, CX + 4)
+        L = fitL(41, hxp, hyp, ux, uy)
         c.taper(hxp-ux*7, hyp-uy*7, hxp, hyp, p['grip'], 3, 3)
         c.ellipse(hxp-ux*8, hyp-uy*8, 2.4, 2.4, p['trim'])         # the pommel
         for k in range(5):                                         # the cage
@@ -2339,7 +2365,7 @@ def draw_weapon(c, p, pose):
         c.taper(hxp-ux*22, hyp-uy*22-4, hxp-ux*13, hyp-uy*13-6, p['cloth3'], 3, 2)
     elif w == 'astrolabe':
         # a ringed disc on the end of a short haft, and it turns
-        L = 17
+        L = fitL(17, hxp, hyp, ux, uy)
         c.taper(hxp-ux*10, hyp-uy*10, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
         ex, ey = hxp+ux*(L+6), hyp+uy*(L+6)
         c.ellipse(ex, ey, 7.6, 7.6, p['metal'])
@@ -2361,7 +2387,8 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp-ux*13, hyp-uy*13-9, 4.0, 5.0, p['cloth2'])
     elif w == 'lanternstaff':
         # a tall staff with a lit lantern swinging off the top of it
-        L, hxp = 20, min(hxp, 34)
+        hxp = min(hxp, CX + 6)
+        L = fitL(20, hxp, hyp, ux, uy)
         c.taper(hxp-ux*16, hyp-uy*16, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
         ex, ey = hxp+ux*(L-2), hyp+uy*(L-2)
         c.line(ex, ey, ex, ey+5, p['metal'], 1)
@@ -2371,7 +2398,7 @@ def draw_weapon(c, p, pose):
         c.rect(ex-3, ey+11, 6, 1, p['metal'])
     elif w == 'baton':
         # a slim baton in the lead hand, a tuning fork tucked at the hip
-        L = 17
+        L = fitL(17, hxp, hyp, ux, uy)
         c.taper(hxp-ux*4, hyp-uy*4, hxp+ux*L, hyp+uy*L, p['metal'], 3, 1)
         c.ellipse(hxp-ux*5, hyp-uy*5, 2.2, 2.2, p['grip'])
         c.ellipse(hxp+ux*(L+1), hyp+uy*(L+1), 1.6, 1.6, p['trim'])
@@ -2390,7 +2417,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp-ux*22, hyp-uy*22+6, 3.2, 3.2, p['cloth3'])
     elif w == 'coilrod':
         # a copper rod wound with wire, arcing at the tip
-        L = 24
+        L = fitL(24, hxp, hyp, ux, uy)
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
         for k in range(7):
             c.line(hxp+ux*(4+k*2.4)-nx*3, hyp+uy*(4+k*2.4)-ny*3,
@@ -2400,7 +2427,8 @@ def draw_weapon(c, p, pose):
         c.set(int(hxp+ux*(L+5)-nx*2), int(hyp+uy*(L+5)-ny*2), p['accent'])
     elif w == 'shadowblade':
         # black steel with a lit edge, and it smokes
-        L, hxp = 32, min(hxp, 34)
+        hxp = min(hxp, CX + 6)
+        L = fitL(41, hxp, hyp, ux, uy)
         c.taper(hxp-ux*10, hyp-uy*10, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*5, hyp-uy*3-ny*5, hxp-ux*3+nx*5, hyp-uy*3+ny*5, p['accent'], 3)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['ink'], 5, 2)
@@ -2422,7 +2450,8 @@ def draw_weapon(c, p, pose):
             c.set(hxp+2 + math.cos(a2)*8, hyp+wob + math.sin(a2)*7, p['trim'])
         c.ellipse(hxp+6, hyp+3+wob, 2.0, 1.6, p['trim'])   # a drip pulling away
     elif w == 'odachi':
-        L, hxp = 34, min(hxp, 30)                          # very long, gently curved
+        hxp = min(hxp, CX + 2)
+        L = fitL(47, hxp, hyp, ux, uy)                          # very long, gently curved
         c.taper(hxp-ux*12, hyp-uy*12, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*5, hyp-uy*3-ny*5, hxp-ux*3+nx*5, hyp-uy*3+ny*5, p['accent'], 3)
         for k in range(4, L):
@@ -2455,7 +2484,8 @@ def draw_weapon(c, p, pose):
             c.set(hx4 + 4 + t2*9, hy4 - 2 + math.sin(t2*7 + ph*4)*4*t2,
                   p['accent'] if k % 3 == 0 else p['cloth2'])
     elif w == 'wand':
-        L, hxp = 17, min(hxp, 38)
+        hxp = min(hxp, CX + 10)
+        L = fitL(17, hxp, hyp, ux, uy)
         c.taper(hxp-ux*7, hyp-uy*7, hxp+ux*L, hyp+uy*L, p['grip'], 4, 2)
         c.line(hxp-ux*4, hyp-uy*4, hxp+ux*(L-2), hyp+uy*(L-2), p['metal'], 1)
         tx2, ty2 = hxp+ux*(L+2), hyp+uy*(L+2)
@@ -2466,7 +2496,8 @@ def draw_weapon(c, p, pose):
             c.set(tx2 + math.cos(a2)*8, ty2 + math.sin(a2)*7, p['trim'])
         c.rect(hxp-3, hyp-3, 6, 7, p['grip'])
     elif w == 'chainsaw':
-        L, hxp = 27, min(hxp, 29)
+        hxp = min(hxp, CX + 1)
+        L = fitL(33, hxp, hyp, ux, uy)
         c.rect(hxp-6, hyp-5, 10, 11, p['cloth3'])           # the housing
         c.rect(hxp-5, hyp-4, 8, 5, p['cloth2'])
         c.rect(hxp-8, hyp-1, 3, 6, p['grip'])
@@ -2479,7 +2510,8 @@ def draw_weapon(c, p, pose):
             c.set(hxp+ux*k+nx*off, hyp+uy*k+ny*off, '#ffffff')
         c.set(hxp+ux*L, hyp+uy*L, p['accent'])
     elif w == 'tachi':
-        L, hxp = 31, min(hxp, 34)                           # slim and straight
+        hxp = min(hxp, CX + 6)
+        L = fitL(40, hxp, hyp, ux, uy)                           # slim and straight
         c.taper(hxp-ux*9, hyp-uy*9, hxp, hyp, p['grip'], 3, 3)
         c.line(hxp-ux*2-nx*4, hyp-uy*2-ny*4, hxp-ux*2+nx*4, hyp-uy*2+ny*4, p['accent'], 2)
         c.taper(hxp+ux*3, hyp+uy*3, hxp+ux*L, hyp+uy*L, p['metal'], 3, 2)
@@ -2498,7 +2530,7 @@ def draw_weapon(c, p, pose):
         c.rect(bx3-5, by3+9, 10, 3, p['trim'])
         c.ellipse(hxp, hyp, 3.0, 3.2, p['skin'])
     elif w == 'revolver':
-        L = 13
+        L = fitL(13, hxp, hyp, ux, uy)
         c.taper(hxp-ux*4, hyp-uy*4, hxp+ux*L, hyp+uy*L, p['metal'], 4, 3)
         c.ellipse(hxp+ux*4, hyp+uy*4, 3.4, 3.4, p['cloth3'])   # the cylinder
         c.ellipse(hxp+ux*4, hyp+uy*4, 1.6, 1.6, p['trim'])
@@ -2545,7 +2577,8 @@ def draw_weapon(c, p, pose):
             c.set(bx3 - 2 - k, by3 + 3 + math.sin(k)*2, p['accent'])
     elif w == 'coilrod':
         # a tesla rod: a wound coil on a short shaft, arcing between its rings
-        L, hxp = 20, min(hxp, 36)
+        hxp = min(hxp, CX + 8)
+        L = fitL(20, hxp, hyp, ux, uy)
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)
         for k in range(4):                                 # the windings
             bx3, by3 = hxp+ux*(7+k*3), hyp+uy*(7+k*3)
@@ -3097,7 +3130,7 @@ def main():
         hxp, hyp = hand(pose, False)
         ux, uy = wep_axis(pose)
         grip.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
-    tbl3 = ','.join('%s:%d' % (k, WEP_CLAMP.get(CHARS[k]['wep'], 99)) for k in ORDER)
+    tbl3 = ','.join('%s:%d' % (k, CX + WEP_CLAMP.get(CHARS[k]['wep'], 99)) for k in ORDER)
     new, n5 = re.subn(r'const WEP_GRIPX = \{[^}]*\};',
                       lambda _: 'const WEP_GRIPX = {%s};' % tbl3, new)
     new, n4 = re.subn(r'const ATK_GRIP = \[[^;]*\];',

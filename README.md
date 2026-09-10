@@ -249,9 +249,18 @@ covers ground instead of being a wave from a standstill.
 
 Because the hitbox is now the weapon, **reach is per weapon**: Kassandra's
 spear out-reaches Aoi's katana, and Nix, who fights with claws, has to be on
-top of you. The blades were lengthened to suit — a katana went from 26 pixels
-to 31, an axe from 19 to 24 — and where a longer blade would have left the
-56-pixel frame, the cut is angled down more steeply instead of being shortened.
+top of you.
+
+The blades are **long** now, the way a katana on a 4.7-head figure should be:
+26 pixels originally, 31 after the first pass, **41** today, and an odachi 47.
+That needed room the sprite did not have, so the frame itself went from 56
+pixels wide to **72** — nothing in the drawing is absolute, every limb and prop
+is measured from the centre column, so the figure simply gained margin on both
+sides. Where a pose would still push a blade off the edge, `fitL` shortens that
+one pose by exactly as much as it must and no more: a clipped sword looks
+broken in a way a slightly shorter one never does. And a long blade is not
+carried out in front, so the idle and walk frames now rest it at 45° the way
+somebody actually holds one.
 Every edge of the trail lands on the game's own pixel grid, so it belongs to
 the same drawing as the character holding it.
 
@@ -371,6 +380,13 @@ umber `#3b2b1d`/`#2c2015`, bronze `#b8863a` for borders and buttons and
 `#c9a227` for 5★, muted purple `#8a5fb0` for 4★. Element colours are lit for
 a dark arena, so the menus print them as a darkened mix of the same hue.
 The arena itself is untouched: it keeps its dark ground.
+
+Small text is **sans, not the pixel face** — at ten pixels, tracked out, a
+pixel font is texture rather than words, so the section labels read as labels
+and the headline face is kept for headlines. Numbers carry thousands
+separators, the resource strip says what it is counting rather than leaving
+three glyphs to fend for themselves, and the Back buttons that duplicated a
+tab are gone.
 
 **Erase Save** is no longer a button next to Start. It lives under Profile,
 behind an overlay that will not accept yes — you have to type **DELETE**
