@@ -965,8 +965,13 @@ function heroFrame(h){
        it settles - that unevenness is the difference between a swing that
        reads as a swing and one that reads as a flipbook. */
     const k = 1 - a.atk/a.atkMax;
-    return AF.atk[k < .16 ? 0 : k < .30 ? 1 : k < .40 ? 2 : k < .50 ? 3
-                : k < .66 ? 4 : k < .82 ? 5 : 6];
+    /* Not seven equal slices. The coil and the wind set up, the launch is a
+       snap you are not meant to read, and then the two frames where the
+       blade is actually out and travelling hold for nearly half the swing
+       between them - those are the ones doing the work. The recovery lets
+       go quickly so the next press is not waiting on it. */
+    return AF.atk[k < .14 ? 0 : k < .26 ? 1 : k < .32 ? 2 : k < .54 ? 3
+                : k < .74 ? 4 : k < .88 ? 5 : 6];
   }
   if(a.moving) return AF.walk[Math.floor(a.t*13) % 8];
   return AF.idle[Math.floor(a.t*2.2) % 2];
@@ -1922,7 +1927,7 @@ const BOON = Object.fromEntries(BOONS.map(b=>[b.id,b]));
 
 /* ================================ AUDIO ================================= */
 const Sfx = (()=>{
-  let ac=null, hitBuf=null, muted=false, master=null;
+  let ac=null, hitBuf=null, muted=false, master=null, lastImpact = -1e9;
   function ctx(){
     if(!ac){
       ac = new (window.AudioContext||window.webkitAudioContext)();
@@ -1961,6 +1966,12 @@ const Sfx = (()=>{
        arriving: the same shape, thinner and quieter. */
     impact(heavy){
       if(muted) return;
+      /* Several things landing in the same instant - a swing through a pack,
+         a volley arriving together - is one impact to the ear. Without this
+         the same sample plays four times inside a frame and clips. */
+      const now = performance.now();
+      if(now - lastImpact < 55) return;
+      lastImpact = now;
       if(heavy){
         noise(.09,.20);
         tone(96 + ri(26), .13, 'sine',     .26, -46);
@@ -6710,6 +6721,7 @@ function stepHero(h, dt, pad){
         h.x = clamp(h.x + Math.cos(S2.ang)*push, AR.x0+4, AR.x1-4);
         h.y = clamp(h.y + Math.sin(S2.ang)*push*0.62, AR.y0+6, AR.y1-2);
       }
+      let landed = 0;
       for(const m of B.mobs){
         if(m.dead || S2.set.has(m)) continue;
         if(m.proxyFor && m.proxyFor === h) continue;
@@ -6721,20 +6733,30 @@ function stepHero(h, dt, pad){
         while(da >  Math.PI) da -= Math.PI*2;
         while(da < -Math.PI) da += Math.PI*2;
         if(Math.abs(da) > S2.arc) continue;
-        S2.set.add(m);
+        S2.set.add(m); landed++;
         /* a shove, not a punt: the blade only reaches as far as the blade
            reaches, so knocking them out of it would just make the next swing
            whiff. The finisher is allowed to throw them. */
         hurtMob(m, S2.dmg, S2.crit,
           {x:Math.cos(S2.ang)*(S2.finisher?3.6:2.4), y:Math.sin(S2.ang)*(S2.finisher?2.4:1.6)});
-        // it landed, and it should feel like it landed
+        // sparks belong to the body that was hit, so those stay per body
         spawnHit(m.x, m.y - m.r*0.7, S2.color, S2.crit ? 'nova' : 'cut');
-        B.shake = Math.max(B.shake, S2.finisher ? MELEE_SHAKE*1.35 : MELEE_SHAKE);
-        B.hitstop = Math.max(B.hitstop, S2.finisher ? MELEE_HITSTOP*1.6 : MELEE_HITSTOP);
-        Sfx.impact(true);
-        for(let k=0;k<5;k++) B.fx.push({x:m.x, y:m.y-m.r*0.7,
+        for(let k=0;k<4;k++) B.fx.push({x:m.x, y:m.y-m.r*0.7,
           vx:Math.cos(S2.ang)*rnd(120,30), vy:Math.sin(S2.ang)*rnd(90,-30),
           life:.22, c:'#ffffff', s:1});
+      }
+      /* The screen only gets shaken once per swing, however many bodies the
+         arc caught. One cut is one impact: shaking and freezing per body
+         turned a swing through a pack into a jackhammer, and stacked the
+         same sound on itself four times in a frame. A fuller swing lands a
+         little heavier, and that is all. */
+      if(landed && !S2.rang){
+        S2.rang = true;
+        const heft = S2.finisher ? 1.35 : 1;
+        const many = 1 + Math.min(landed - 1, 2) * 0.12;
+        B.shake = Math.max(B.shake, MELEE_SHAKE * heft * many);
+        B.hitstop = Math.max(B.hitstop, MELEE_HITSTOP * heft);
+        Sfx.impact(true);
       }
     }
     if(S2.t <= 0) h.swing = null;
