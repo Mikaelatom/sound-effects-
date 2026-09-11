@@ -401,6 +401,23 @@ separators, the resource strip says what it is counting rather than leaving
 three glyphs to fend for themselves, and the Back buttons that duplicated a
 tab are gone.
 
+The **combat HUD keeps its own palette**. The menus went to parchment and
+the overlay on the arena came with them, which is how skill names ended up as
+dark brown text on a near-black floor. `#scr-battle` now redefines the same
+variable names — ink, dim, line, cyan, gold — as the version you can read off
+a black floor, so every rule in the HUD flips at once and the menus are
+untouched.
+
+The skill boxes were rebuilt around the thing they exist for: **the name of
+the move**. They were 84 pixels of box with 7.5px text and `overflow:hidden`,
+and the code was cutting every name to its first word to fit — so Aoi's Burst
+read "Thousand". The box is bigger, the name gets two lines, the cooldown
+sits over the top instead of through the middle, and the Burst meter fills
+behind the text rather than across it. The phone pad names its buttons too —
+a button that says SKILL tells you nothing — and its five buttons were laid
+out twice in the stylesheet, which had the attack button sitting on top of
+the second skill.
+
 **Erase Save** is no longer a button next to Start. It lives under Profile,
 behind an overlay that will not accept yes — you have to type **DELETE**
 before it will do anything.
