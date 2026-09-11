@@ -279,57 +279,62 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
   color:var(--ink)}
 #stage{position:relative;line-height:0}
 canvas#game{image-rendering:pixelated;display:block;background:#0d0b1a}
-.hud{position:absolute;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;
-  pointer-events:none;font-size:10px}
-.hud .hpwrap{flex:0 0 auto;width:180px}
+.hud{position:absolute;left:0;right:0;top:0;padding:calc(var(--hud,1)*7px) calc(var(--hud,1)*9px);
+  display:flex;gap:10px;align-items:flex-start;pointer-events:none;
+  font-size:calc(var(--hud,1)*10px)}
+.hud .hpwrap{flex:0 0 auto;width:calc(var(--hud,1)*170px)}
 .hud .nm{font-weight:800;text-shadow:1px 1px 0 #000;margin-bottom:3px}
 .hbar{height:11px;background:#0d0b18;border:2px solid #000;box-shadow:0 0 0 1px var(--line)}
 .hbar i{display:block;height:100%;background:linear-gradient(90deg,#ff6b6b,#ff9d5f);transition:width .12s}
 .sbar{height:5px;margin-top:2px;background:#0d0b18;border:2px solid #000}
 .sbar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),#8ad4ff)}
 .hud .right{margin-left:auto;text-align:right;text-shadow:1px 1px 0 #000;line-height:1.7}
-.skills{position:absolute;left:10px;bottom:8px;display:flex;gap:8px;pointer-events:none}
+.skills{position:absolute;left:calc(var(--hud,1)*10px);bottom:calc(var(--hud,1)*8px);
+  display:flex;gap:calc(var(--hud,1)*7px);pointer-events:none}
 /* A key cap on top, the move's name under it, and room for the name to be a
    name. The old box was 56px wide with 7.5px text and overflow hidden, which
    meant every skill in the game was called something you could not read. */
-.sk{width:84px;height:60px;border:2px solid var(--line);background:var(--panel);position:relative;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;
-  overflow:hidden;text-align:center;padding:5px 4px 4px;line-height:1.15;
+.sk{width:calc(var(--hud,1)*76px);height:calc(var(--hud,1)*50px);
+  border:2px solid var(--line);background:var(--panel);position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;
+  overflow:hidden;text-align:center;padding:calc(var(--hud,1)*4px) 3px 3px;line-height:1.12;
   box-shadow:0 2px 0 rgba(0,0,0,.55)}
-.sk .key{position:relative;z-index:1;font-weight:900;color:var(--cyan);font-size:12px;
-  letter-spacing:.04em;text-shadow:0 1px 0 #000}
-.sk .key.big{font-size:19px;line-height:.66}   /* a comma at 12px is a speck */
+.sk .key{position:relative;z-index:1;font-weight:900;color:var(--cyan);
+  font-size:calc(var(--hud,1)*11px);letter-spacing:.04em;text-shadow:0 1px 0 #000}
+.sk .key.big{font-size:calc(var(--hud,1)*18px);line-height:.66}  /* a comma is a speck */
 /* two lines, because the moves are called things like Crescent Rush and
    Thousand Cuts and half a name is no name at all */
-.sk .nm{position:relative;z-index:1;font-size:9px;font-weight:700;color:var(--ink);
-  max-width:100%;line-height:1.12;display:-webkit-box;-webkit-line-clamp:2;
+.sk .nm{position:relative;z-index:1;font-size:calc(var(--hud,1)*8.5px);font-weight:700;
+  color:var(--ink);max-width:100%;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 0 #000}
 .sk.atk .nm{-webkit-line-clamp:1}
 .sk.atk{border-color:#4a6a8a}
 .sk .pips{position:absolute;left:0;right:0;bottom:3px;display:flex;gap:4px;justify-content:center;z-index:1}
-.sk .pips i{width:8px;height:3px;background:#4a4468;border:1px solid #000}
+.sk .pips i{width:calc(var(--hud,1)*7px);height:3px;background:#4a4468;border:1px solid #000}
 .sk .pips i.on{background:var(--cyan)}
 .sk .pips i.on.fin{background:var(--gold)}
 .sk .cd{position:absolute;inset:0;z-index:2;background:rgba(8,6,16,.8);display:flex;align-items:center;
-  justify-content:center;font-size:18px;font-weight:900;color:#fff;text-shadow:0 2px 0 #000}
+  justify-content:center;font-size:calc(var(--hud,1)*16px);font-weight:900;color:#fff;
+  text-shadow:0 2px 0 #000}
 .sk.burst{border-color:#6b5a2a}
 .sk.burst .fill{position:absolute;left:0;right:0;bottom:0;height:0%;z-index:0;
   background:linear-gradient(180deg,rgba(255,204,77,.38),rgba(255,204,77,.14));pointer-events:none}
 .sk.burst.ready{border-color:var(--gold);animation:brdy .9s ease-in-out infinite}
 .sk.burst.ready .key{color:var(--gold)}
 @keyframes brdy{50%{box-shadow:0 0 14px rgba(255,204,77,.75)}}
-.swapbar{position:absolute;right:10px;bottom:8px;display:flex;gap:6px;pointer-events:none}
+.swapbar{position:absolute;right:calc(var(--hud,1)*10px);bottom:calc(var(--hud,1)*8px);
+  display:flex;gap:calc(var(--hud,1)*5px);pointer-events:none}
 /* In co-op each player owns their own half of the bottom of the screen:
    their four keys along the outside edge and their own three characters
    sitting on top of them. Single player is untouched. */
-.skills.p2{left:auto;right:10px}
+.skills.p2{left:auto;right:calc(var(--hud,1)*10px)}
 .skills.p2 .sk .key{color:var(--green)}
 .skills{gap:7px}
-.swapbar.p2{right:10px;bottom:60px}
+.swapbar.p2{right:calc(var(--hud,1)*10px);bottom:calc(var(--hud,1)*56px)}
 .swapbar.p2 .sw{pointer-events:auto;cursor:pointer}
 .swapbar.p2 .sw .k{color:var(--green)}
 .swapbar.p2 .sw.active{border-color:var(--green);box-shadow:0 0 10px rgba(124,255,168,.55)}
-#scr-battle.coop #swapbar{right:auto;left:10px;bottom:60px}
+#scr-battle.coop #swapbar{right:auto;left:calc(var(--hud,1)*10px);bottom:calc(var(--hud,1)*56px)}
 #scr-battle.coop #link-cue{right:auto;left:50%;transform:translateX(-50%);bottom:60px}
 #link-cue{position:absolute;right:10px;bottom:62px;pointer-events:none;font-size:10px;
   font-weight:900;letter-spacing:.1em;color:#ffcc4d;text-shadow:1px 1px 0 #000;
@@ -365,8 +370,8 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 #raid-cast{margin-top:5px;font-size:10px;color:#fff;text-shadow:1px 1px 0 #000}
 #raid-cast .cbar{height:9px;background:#0d0b18;border:2px solid #000;margin-top:2px}
 #raid-cast .cbar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#5fe6ff,#7cffa8)}
-.sw{width:40px;border:2px solid var(--line);background:rgba(20,18,36,.85);padding:3px;text-align:center;
-  pointer-events:auto;cursor:pointer}
+.sw{width:calc(var(--hud,1)*38px);border:2px solid var(--line);background:rgba(20,18,36,.85);
+  padding:2px;text-align:center;pointer-events:auto;cursor:pointer}
 .sw canvas{image-rendering:pixelated}
 .sw .k{font-size:8.5px;color:var(--cyan);font-weight:900}
 .sw.active{border-color:var(--pink)}
@@ -453,29 +458,36 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
 }
 /* portrait: the arena on top, the thumbs underneath it where they belong */
 @media (max-width:860px) and (orientation:portrait){
-  #scr-battle{justify-content:flex-start;padding-top:8px}
+  /* A 16:9 arena on an upright phone is short whatever we do - it is limited
+     by the width of the screen, not the height. So it sits in the MIDDLE of
+     what is left above the thumbs rather than hugging the top with a band of
+     nothing under it. */
+  #scr-battle{justify-content:center;padding-top:0;
+    padding-bottom:calc(100dvh - var(--padtop,56vh))}
   /* the pad has to escape the stage box, which is only as tall as the arena */
   #app.touch #pad{position:fixed;left:0;right:0;bottom:0;top:var(--padtop,55vh);inset:auto 0 0 0;
     top:var(--padtop,55vh);
     background:linear-gradient(180deg,rgba(11,10,18,.4),rgba(11,10,18,.96) 26%)}
-  #app.touch #pad-stick{width:40vw;height:40vw;max-width:190px;max-height:190px;
-    bottom:8%;left:5vw}
+  /* The controls are pinned to the bottom of the screen in a cluster rather
+     than spread over everything under the arena. A 16:9 arena on an upright
+     phone is short whatever we do; it should not also be crowded. */
+  #app.touch #pad-stick{width:33vw;height:33vw;max-width:160px;max-height:160px;
+    bottom:4%;left:4vw}
   #app.touch #pad-knob{width:42%;height:42%;margin:0;transform:translate(-50%,-50%)}
-  #app.touch #pad-btns{width:48vw;height:52%;right:4vw;bottom:8%}
-  #app.touch .tb{width:20vw;height:20vw;max-width:92px;max-height:92px}
-  #app.touch .tb.burst{width:22vw;height:22vw;max-width:102px;max-height:102px}
-  #app.touch #pad-btns{width:50vw;height:66vw}
+  #app.touch .tb{width:16.5vw;height:16.5vw;max-width:78px;max-height:78px}
+  #app.touch .tb.burst{width:18vw;height:18vw;max-width:86px;max-height:86px}
+  #app.touch #pad-btns{width:44vw;height:52vw;right:3vw;bottom:4%}
   #app.touch .tb[data-act="skill"] {right:0;     bottom:0}
-  #app.touch .tb[data-act="attack"]{right:23vw;  bottom:0}
-  #app.touch .tb[data-act="skill2"]{right:1vw;   bottom:22vw}
-  #app.touch .tb[data-act="dash"]  {right:24vw;  bottom:21vw}
-  #app.touch .tb.burst             {right:2vw;   bottom:43vw}
+  #app.touch .tb[data-act="attack"]{right:19vw;  bottom:0}
+  #app.touch .tb[data-act="skill2"]{right:1vw;   bottom:18.5vw}
+  #app.touch .tb[data-act="dash"]  {right:20vw;  bottom:17.5vw}
+  #app.touch .tb.burst             {right:2vw;   bottom:36vw}
   #app.touch #swapbar{position:fixed;left:50%;right:auto;transform:translateX(-50%);
-    bottom:auto;top:calc(var(--padtop,55vh) + 4px);z-index:22}
+    bottom:auto;top:calc(var(--stagebot,55vh) + 6px);z-index:22}
   #app.touch #swapbar .sw{width:52px;pointer-events:auto}
   #app.touch #pad-stick{bottom:6%}
   #app.touch #pad-btns{bottom:6%}
-  #rotate-hint{position:fixed;bottom:auto;top:calc(var(--padtop,55vh) + 76px);z-index:21}
+  #rotate-hint{position:fixed;bottom:auto;top:calc(var(--stagebot,55vh) + 62px);z-index:21}
 }
 #rotate-hint{position:absolute;inset:auto 0 4px 0;text-align:center;font-size:9px;color:var(--dim);
   pointer-events:none;z-index:30}
@@ -8620,12 +8632,17 @@ function resize(){
   // arena only gets the top of it - and it should fill every pixel of that
   const pad = portrait ? 4 : 12;
   const availW = app.clientWidth - pad;
-  const availH = (portrait ? Math.round(app.clientHeight*0.54) : app.clientHeight) - pad;
+  const availH = (portrait ? Math.round(app.clientHeight*0.60) : app.clientHeight) - pad;
   let s = Math.min(availW/GW, availH/GH);
   if(!TOUCH) s = s >= 1 ? Math.floor(s) : s;   // crisp integer scale when it fits
   const w = Math.round(GW*s), h = Math.round(GH*s);
   cv.style.width = w+'px'; cv.style.height = h+'px';
   st.style.width = w+'px'; st.style.height = h+'px';
+  /* The HUD is HTML sitting over a canvas that scales with the window, so
+     without this it keeps its full size while the arena shrinks under it and
+     ends up owning half the screen. Everything in the HUD is sized off this,
+     with a floor so the text never goes to soup on a tiny window. */
+  st.style.setProperty('--hud', Math.max(.62, Math.min(1, s)).toFixed(3));
   // held upright, the thumbs get everything under the arena - all of it, so
   // there is no dead strip between what you are looking at and what you are
   // holding
@@ -8634,8 +8651,11 @@ function resize(){
     if(portrait){
       // the pad is fixed to the viewport, so it can own everything under the
       // arena rather than being trapped inside a box the arena's own height
+      const sb = Math.round(st.getBoundingClientRect().bottom);
       document.documentElement.style.setProperty('--padtop',
-        Math.round(st.getBoundingClientRect().bottom) + 'px');
+        Math.round(Math.max(sb, innerHeight * 0.56)) + 'px');
+      // the portraits belong under the arena, not floating in the gap below it
+      document.documentElement.style.setProperty('--stagebot', sb + 'px');
     } else {
       document.documentElement.style.removeProperty('--padtop');
     }
