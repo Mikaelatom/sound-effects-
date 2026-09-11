@@ -697,8 +697,11 @@ POSES = [
  dict(bob=0,  lean=-9, feet=((-6,0,-3), (9,3,-2)),  hb=(-8,14), hf=(8,14), wep=0.10, eye='hurt', sway=-12, hd=-5, hdy=2, sh=-2),
  # 28 reel: back on the heels, the furthest off balance it gets
  dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)),  hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9,  hd=-3, hdy=1),
- # 29 gather: coming back up under themselves
- dict(bob=3,  lean=-2, feet=((-7,0), (7,0)),        hb=(-4,21), hf=(5,21), wep=0.60, eye='hurt', sway=-4,  hd=-1),
+ # 29 gather: coming back up, and slightly PAST where they started - the
+ # body swings a little forward of neutral before it settles, and the hair
+ # whips the other way after being thrown back. Without that overshoot the
+ # recoil eases to a stop, which reads as slowing down rather than recovering.
+ dict(bob=3,  lean=2,  feet=((-7,0), (8,0)),        hb=(-3,22), hf=(6,22), wep=0.60, eye='hurt', sway=3,   hd=1),
 ]
 
 # The layout, named once. index.html's AF table is the same list on the other

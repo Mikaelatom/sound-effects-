@@ -358,6 +358,29 @@ line of new machinery. Every fourth time the cycle passes through rest the
 character **blinks**; the eyes were always capable of closing, both idle
 frames had simply been eyes-open since the beginning.
 
+**None of the sequences is cut into equal slices.** Dividing a sequence evenly
+is what makes four good frames read as a flipbook, and it is the failure the
+swing had its own curve built to avoid. The three new states get the same
+treatment, as weights rather than milliseconds — the mechanic owns the
+duration, and the weights only decide how it is divided:
+
+| | frames hold | the longest is |
+|---|---|---|
+| Dash | 32% / 21% / 47% | the settle; the mid-dash is a blur you are not meant to read |
+| Cast | 30% / 35% / 10% / 25% | the **build** — in a PvP game the tell is the point |
+| Hurt | 18% / 47% / 35% | the stagger; the impact snaps past in a frame |
+
+Over a 450ms cast that is 133/150/50/117ms and over a 280ms hurt it is
+50/133/83ms, measured in a real fight. Because they are proportions, a short
+dash and a long one keep the same shape instead of one of them turning into a
+slideshow. Idle is the exception: half a second a frame, evenly, because a
+breath has no accents — with a blink every six seconds.
+
+Each sequence also **overshoots** on the way back. The hurt recovery swings a
+little forward of neutral before it settles, so the hair whips back after
+being thrown forward; without that the recoil eases to a stop, which reads as
+slowing down rather than recovering.
+
 **A sword at rest trails behind them.** Held out in front is a guard stance,
 and a character who never leaves guard reads as permanently mid-fight. Blades
 now sit at a carry angle — back and low, swinging gently with the walk,
