@@ -228,6 +228,19 @@ body it reaches is hit **once** per swing, so the characters who swing more
 than once in a beat (Kuro's third cut, Elle mid-wind-up) fold into a single
 heavier arc instead of spraying crescents that used to miss on the spread.
 
+**Every weapon class swings differently.** One animation for the whole roster
+had a knife-fighter chopping like a woodsman, so there are six now, and a
+character is put on one by what they are holding:
+
+| | the swing |
+|---|---|
+| **Sword** (10) | a long cut that starts behind the hip and finishes level out front, thrown off a deep lunge |
+| **Dagger** (7) | two short cross-cuts, hands close in, no wind-up worth the name |
+| **Heavy** (6) | the overhead chop, which is what an axe is actually for |
+| **Polearm** (3) | a thrust: the point goes, the body follows, nothing rotates |
+| **Fist** (5) | jab, then the hips turn over and the rear hand follows |
+| **Ranged** (25) | no swing at all — raise, fire, ride the recoil |
+
 **Nothing is thrown, and nothing is spawned.** The swing is the character's
 own animation, and the only effect is the **trail off the sword they are
 already holding**. The generator that draws the sprites also writes out where

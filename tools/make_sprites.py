@@ -10,7 +10,7 @@ atlas PNG, and patches the base64 data URI straight into index.html.
     python3 tools/make_sprites.py mobs       # tools/mobs.png, enemies at 5x
     python3 tools/make_sprites.py preview    # tools/preview.png, whole sheet at 3x
 
-Frames are 72x96. Row = actor, column = frame - wide enough that a
+Frames are 96x96. Row = actor, column = frame - wide enough that a
 drawn katana has somewhere to go.
   Characters  0 idle-a  1 idle-b  2-5 walk  6 windup  7 strike  8 recover
               9 dash  10 cast  11 hurt
@@ -21,10 +21,10 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 """
 import zlib, struct, base64, os, sys, math
 
-W, H = 72, 96
+W, H = 96, 96
 FRAMES = 20
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CX    = 36.0       # centre column
+CX    = 48.0       # centre column
 FEET  = 92         # baseline every actor stands on
 HEADY = 16         # head centre
 SHOULDER = 29      # top of the torso
@@ -665,6 +665,97 @@ POSES = [
 
 ATK_FRAMES = [10, 11, 12, 13, 14, 15, 16]   # the swing, in order
 
+# ---------------------------------------------------------------- attacks ---
+# One swing for the whole roster made a knife-fighter chop like a woodsman.
+# Each weapon class gets its own seven frames, and the frame table below is
+# what the game reads to draw the trail, so the two can never disagree.
+#
+#   sword    a long cut that starts behind the hip and ends level out front,
+#            thrown off a deep lunge - the shape the reference sheet uses
+#   dagger   two short cross-cuts, hands close in, no wind-up worth the name
+#   heavy    the overhead chop, which is what an axe is actually for
+#   polearm  a thrust: the point goes, the body follows, nothing rotates
+#   fist     jab, then the hips turn over and the rear hand follows
+#   ranged   no swing at all - raise, fire, ride the recoil
+ATK_SETS = {
+ 'sword': [
+  dict(bob=1,  lean=-4, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-8,18), hf=(-13,12), wdeg=196, eye='fierce', sway=-4, hd=-2, both=1),
+  dict(bob=3,  lean=-8, feet=((-12,0,2,6),(8,4,-3,4)),  hb=(-10,15),hf=(-18,7),  wdeg=212, eye='fierce', sway=-9, hd=-4, both=1),
+  dict(bob=-1, lean=3,  feet=((-14,0,3,3),(11,6,-3,7)), hb=(-6,14), hf=(-8,2),   wdeg=258, eye='fierce', sway=4,  hd=3,  both=1),
+  dict(bob=1,  lean=9,  feet=((-17,0,5,0),(15,0,-1,6)), hb=(-2,16), hf=(6,1),    wdeg=326, eye='fierce', sway=10, hd=6,  both=1),
+  dict(bob=4,  lean=8,  feet=((-19,0,4,0),(17,0,0,9)),  hb=(0,20),  hf=(13,7),   wdeg=6,   eye='fierce', sway=8,  hd=5,  both=1),
+  dict(bob=3,  lean=5,  feet=((-14,0,2,1),(12,1,-1,5)), hb=(-2,24), hf=(11,16),  wdeg=40,  eye='fierce', sway=5,  hd=2,  both=1),
+  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-3,26), hf=(8,26),   wdeg=45,  eye='fierce', sway=3,  hd=1),
+ ],
+ 'dagger': [
+  dict(bob=0,  lean=-2, feet=((-7,0,0,2),(6,0,-1,2)),   hb=(2,16),  hf=(-4,14),  wdeg=200, eye='fierce', sway=-2, hd=-1),
+  dict(bob=1,  lean=-4, feet=((-9,0,1,3),(7,2,-2,3)),   hb=(4,14),  hf=(-10,10), wdeg=232, eye='fierce', sway=-5, hd=-2),
+  dict(bob=0,  lean=6,  feet=((-12,0,3,1),(12,1,-2,5)), hb=(6,18),  hf=(10,13),  wdeg=18,  eye='fierce', sway=7,  hd=4),
+  dict(bob=2,  lean=7,  feet=((-14,0,4,0),(14,0,-1,6)), hb=(12,8),  hf=(4,20),   wdeg=312, eye='fierce', sway=9,  hd=5),
+  dict(bob=1,  lean=8,  feet=((-15,0,4,0),(15,0,0,7)),  hb=(14,12), hf=(12,5),   wdeg=350, eye='fierce', sway=8,  hd=5),
+  dict(bob=2,  lean=4,  feet=((-11,0,2,1),(11,1,-1,4)), hb=(8,18),  hf=(9,17),   wdeg=28,  eye='fierce', sway=4,  hd=2),
+  dict(bob=1,  lean=2,  feet=((-8,0),(8,0)),            hb=(3,22),  hf=(7,24),   wdeg=40,  eye='fierce', sway=2,  hd=1),
+ ],
+ 'heavy': [
+  dict(bob=0,  lean=-3, feet=((-8,0,1,2),(5,0,-1,2)),   hb=(-4,24), hf=(-5,16),  wep=-0.45, eye='fierce', sway=-3, hd=-1, both=1),
+  dict(bob=2,  lean=-7, feet=((-10,0,2,5),(7,3,-3,3)),  hb=(-6,22), hf=(-11,4),  wep=-0.85, eye='fierce', sway=-8, hd=-3, both=1),
+  dict(bob=-1, lean=2,  feet=((-13,0,3,2),(10,5,-3,6)), hb=(-4,24), hf=(-2,2),   wep=-0.35, eye='fierce', sway=3,  hd=3,  both=1),
+  dict(bob=2,  lean=8,  feet=((-15,0,5,0),(13,0,-1,6)), hb=(-3,25), hf=(9,4),    wep=1.15,  eye='fierce', sway=9,  hd=6,  both=1),
+  dict(bob=4,  lean=7,  feet=((-16,0,4,0),(14,0,0,9)),  hb=(-2,27), hf=(8,17),   wep=1.45,  eye='fierce', sway=7,  hd=4,  both=1),
+  dict(bob=3,  lean=4,  feet=((-12,0,2,1),(10,1,-1,4)), hb=(-2,27), hf=(8,25),   wep=0.95,  eye='fierce', sway=4,  hd=2,  both=1),
+  dict(bob=2,  lean=2,  feet=((-8,0),(8,0)),            hb=(-3,26), hf=(7,28),   wep=1.00,  eye='fierce', sway=3,  hd=1),
+ ],
+ 'polearm': [
+  dict(bob=0,  lean=-3, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-8,20), hf=(-12,14), wdeg=340, eye='fierce', sway=-3, hd=-1, both=1),
+  dict(bob=2,  lean=-6, feet=((-11,0,2,5),(8,3,-3,4)),  hb=(-11,18),hf=(-15,11), wdeg=352, eye='fierce', sway=-7, hd=-3, both=1),
+  dict(bob=-1, lean=2,  feet=((-13,0,3,2),(11,5,-3,6)), hb=(-6,17), hf=(-6,10),  wdeg=358, eye='fierce', sway=3,  hd=2,  both=1),
+  dict(bob=1,  lean=9,  feet=((-18,0,5,0),(16,0,-1,5)), hb=(2,15),  hf=(10,9),   wdeg=2,   eye='fierce', sway=10, hd=6,  both=1),
+  dict(bob=2,  lean=10, feet=((-20,0,4,0),(18,0,0,7)),  hb=(4,15),  hf=(14,9),   wdeg=4,   eye='fierce', sway=11, hd=6,  both=1),
+  dict(bob=2,  lean=5,  feet=((-14,0,2,1),(12,1,-1,4)), hb=(-2,18), hf=(6,12),   wdeg=350, eye='fierce', sway=5,  hd=2,  both=1),
+  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-4,22), hf=(4,18),   wdeg=336, eye='fierce', sway=3,  hd=1,  both=1),
+ ],
+ 'fist': [
+  dict(bob=0,  lean=-2, feet=((-8,0,0,2),(6,0,-1,2)),   hb=(0,12),  hf=(-2,10),  wdeg=0, eye='fierce', sway=-2, hd=-1),
+  dict(bob=1,  lean=-4, feet=((-10,0,1,3),(7,1,-2,3)),  hb=(-4,12), hf=(0,9),    wdeg=0, eye='fierce', sway=-5, hd=-2),
+  dict(bob=0,  lean=6,  feet=((-12,0,3,1),(12,1,-2,4)), hb=(-2,12), hf=(12,6),   wdeg=0, eye='fierce', sway=7,  hd=4),
+  dict(bob=2,  lean=9,  feet=((-15,0,4,0),(15,0,-1,5)), hb=(10,8),  hf=(4,10),   wdeg=0, eye='fierce', sway=10, hd=6),
+  dict(bob=2,  lean=10, feet=((-16,0,4,0),(16,0,0,6)),  hb=(14,7),  hf=(2,12),   wdeg=0, eye='fierce', sway=11, hd=6),
+  dict(bob=2,  lean=4,  feet=((-11,0,2,1),(11,1,-1,4)), hb=(4,11),  hf=(2,11),   wdeg=0, eye='fierce', sway=4,  hd=2),
+  dict(bob=1,  lean=2,  feet=((-8,0),(8,0)),            hb=(-1,13), hf=(1,12),   wdeg=0, eye='fierce', sway=2,  hd=1),
+ ],
+ 'ranged': [
+  dict(bob=0,  lean=-1, feet=((-6,0),(5,0)),      hb=(-3,18), hf=(2,14), wep=0.20, eye='fierce', sway=-1),
+  dict(bob=1,  lean=0,  feet=((-7,0),(6,0)),      hb=(-4,16), hf=(4,10), wep=0.10, eye='fierce', sway=0,  hd=1),
+  dict(bob=0,  lean=2,  feet=((-8,0),(7,0)),      hb=(-4,15), hf=(7,8),  wep=0.05, eye='fierce', sway=2,  hd=2),
+  dict(bob=-1, lean=4,  feet=((-9,0,1),(8,0,-1)), hb=(-5,14), hf=(9,7),  wep=0.00, eye='fierce', sway=3,  hd=3),
+  dict(bob=1,  lean=1,  feet=((-9,0,1),(8,0,-1)), hb=(-4,16), hf=(6,10), wep=0.25, eye='fierce', sway=1,  hd=1),
+  dict(bob=1,  lean=0,  feet=((-7,0),(6,0)),      hb=(-3,18), hf=(4,14), wep=0.55, eye='open',   sway=0),
+  dict(bob=1,  lean=0,  feet=((-6,0),(5,0)),      hb=(-2,20), hf=(3,18), wep=0.85, eye='open',   sway=0),
+ ],
+}
+
+# which swing a weapon belongs to
+WEP_CLASS = {
+ 'katana':'sword', 'tachi':'sword', 'odachi':'sword', 'nodachi':'sword',
+ 'rapier':'sword', 'shadowblade':'sword', 'atomblade':'sword',
+ 'brokenblade':'sword', 'hookblade':'sword', 'chainsaw':'sword',
+ 'daggers':'dagger', 'sabres':'dagger', 'twinsabre':'dagger',
+ 'twinswords':'dagger', 'threeswords':'dagger', 'warfans':'dagger',
+ 'claws':'dagger', 'taikosticks':'dagger',
+ 'greatsword':'heavy', 'greataxe':'heavy', 'sunaxe':'heavy', 'hammer':'heavy',
+ 'towershield':'heavy',
+ 'spear':'polearm', 'glaive':'polearm', 'icelance':'polearm',
+ 'scythe':'polearm', 'kusarigama':'polearm', 'lanternstaff':'polearm',
+ 'gauntlet':'fist', 'wraps':'fist', 'gloves':'fist', 'bare':'fist',
+ 'dragongaunt':'fist', 'emberboot':'fist', 'gearfist':'fist',
+}
+def wep_class(p):
+    return WEP_CLASS.get(p['wep'], 'ranged')
+
+def atk_pose(p, frame):
+    """the pose for one frame of THIS character's swing"""
+    return ATK_SETS[wep_class(p)][ATK_FRAMES.index(frame)]
+
 def head_pos(pose):
     """Where the head sits. It carries the same forward TURN the torso does -
     without it the skull sits back behind a turned body and the face reads as
@@ -692,9 +783,17 @@ TWO_HAND = {'katana', 'tachi', 'odachi', 'nodachi', 'greatsword', 'greataxe',
             'baton', 'coilrod', 'lanternstaff', 'rapier'}
 
 def wep_axis(pose):
-    """the direction the weapon points this frame, as the weapon itself works it out"""
-    ph = pose['wep']
-    ang = math.radians(-25 + (ph * 70 if ph >= 0 else ph * 110))
+    """the direction the weapon points this frame.
+
+    `wep` is the old phase curve, which can only describe an overhead chop -
+    it runs from up-behind to down-in-front and nothing else. A pose may give
+    `wdeg` instead and name the angle outright, which is what a horizontal
+    cut, a thrust and a pair of knives all need."""
+    if 'wdeg' in pose:
+        ang = math.radians(pose['wdeg'])
+    else:
+        ph = pose['wep']
+        ang = math.radians(-25 + (ph * 70 if ph >= 0 else ph * 110))
     return math.cos(ang), math.sin(ang)
 
 def two_handed(p, pose):
@@ -1974,10 +2073,12 @@ def fitL(L, hxp, hyp, ux, uy, pad=3):
 def draw_weapon(c, p, pose):
     w = p['wep']
     hxp, hyp = hand(pose, False)
-    ph = pose['wep']
-    deg = -25 + (ph * 70 if ph >= 0 else ph * 110)
-    ang = math.radians(deg)
-    ux, uy = math.cos(ang), math.sin(ang)
+    ux, uy = wep_axis(pose)
+    ang = math.atan2(uy, ux)
+    deg = math.degrees(ang)
+    # a few weapons wobble, flicker or spark along their length, and use the
+    # pose's phase purely as a seed for that - any value that moves will do
+    ph = pose.get('wep', deg/70.0)
     nx, ny = -uy, ux
     if w == 'katana':
         hxp = min(hxp, CX + 4)
@@ -2632,7 +2733,8 @@ def draw_cape(c, p, pose):
     c.rect(x-5, top-2, 11, 1, p['trim'])
 
 def draw_char(key, frame):
-    p, pose = CHARS[key], POSES[frame]
+    p = CHARS[key]
+    pose = atk_pose(p, frame) if frame in ATK_FRAMES else POSES[frame]
     c = Cv(W, H)
     cx, cy = head_pos(pose)
     # A second hand on the hilt is no use behind the body, where the torso
@@ -3125,16 +3227,22 @@ def main():
     # where the hand is and which way the weapon points, frame by frame through
     # the swing, straight out of the poses these sprites were drawn from
     grip = []
-    for f in ATK_FRAMES:
-        pose = POSES[f]
-        hxp, hyp = hand(pose, False)
-        ux, uy = wep_axis(pose)
-        grip.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
+    for cls, poses in ATK_SETS.items():
+        rows = []
+        for pose in poses:
+            hxp, hyp = hand(pose, False)
+            ux, uy = wep_axis(pose)
+            rows.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
+        grip.append('%s:[%s]' % (cls, ','.join(rows)))
     tbl3 = ','.join('%s:%d' % (k, CX + WEP_CLAMP.get(CHARS[k]['wep'], 99)) for k in ORDER)
     new, n5 = re.subn(r'const WEP_GRIPX = \{[^}]*\};',
                       lambda _: 'const WEP_GRIPX = {%s};' % tbl3, new)
-    new, n4 = re.subn(r'const ATK_GRIP = \[[^;]*\];',
-                      lambda _: 'const ATK_GRIP = [%s];' % ','.join(grip), new)
+    new, n4 = re.subn(r'const ATK_GRIP = \{[^;]*\};',
+                      lambda _: 'const ATK_GRIP = {%s};' % ','.join(grip), new)
+    tbl4 = ','.join("%s:'%s'" % (k, wep_class(CHARS[k])) for k in ORDER)
+    new, n6 = re.subn(r'const WEP_CLASS = \{[^}]*\};',
+                      lambda _: 'const WEP_CLASS = {%s};' % tbl4, new)
+    n5 = n5 and n6
     if n and n2 and n3 and n4 and n5:
         open(idx, 'w').write(new)
         print('patched index.html (%d KB of atlas, %d weapons, %d swing frames)'
