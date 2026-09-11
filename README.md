@@ -86,6 +86,36 @@ meter stays full and the button shows the seconds left.
 Both raids keep their full health pools — twenty seconds is short enough that
 a squad still gets a comparable number of ultimates into a five-minute fight.
 
+### The character actually does the ultimate
+
+Every Burst in the game used to be a light show that happened *around* a
+character standing still. Kassandra's **Thousand Thrusts** is five seconds of
+spear work and she never once moved the spear.
+
+A Burst now starts a **performance**: for as long as it runs, the character
+replays their own attack animation on a cadence that matches what the Burst
+is. Thirty-one of the fifty-six have a hand-set beat — `maelstrom` re-strikes
+every 0.16s for 4.6 seconds, `dragonroar` is one long 0.35s roar, artillery
+Bursts hold a cast pose instead of swinging — and the rest fall back to a
+single cast. Kassandra's ultimate now runs **twenty-eight separate poses**,
+animating three quarters of its length, with the blade trail coming off the
+lance on every one of them.
+
+Fixing that exposed why a thrust had never read: the lance was **shrinking**.
+The sprite generator shortens a weapon rather than let it run off the 96px
+frame, and a level thrust pushes the hand so far forward that a 46px spear had
+only 19px of room left — so across the strike the point sat pinned at the frame
+edge while the shaft was eaten from behind. The polearm frames were rebuilt to
+chamber the point **high and back** and drive it down and forward, which keeps
+the lance full length the whole way and moves the tip 27px forward and 39px
+down between chamber and strike.
+
+The other half of it was colour. A haft painted in the character's own grip
+tone disappears into their coat, which is why Momo's glaive looked like a
+floating blade head. Every long shaft — spear, glaive, icelance, scythe,
+lanternstaff — now gets **one light line down its top edge**, floored to a grey
+so a black haft gets a visible edge rather than a black one.
+
 ### Rates
 - 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
 - 4★: 9% base, **guaranteed within 10**
@@ -303,11 +333,11 @@ character is put on one by what they are holding:
 | | the swing |
 |---|---|
 | **Sword** (10) | a long cut that starts behind the hip and finishes level out front, thrown off a deep lunge |
-| **Dagger** (7) | two short cross-cuts, hands close in, no wind-up worth the name |
+| **Dagger** (8) | two short cross-cuts, hands close in, no wind-up worth the name |
 | **Heavy** (6) | the overhead chop, which is what an axe is actually for |
-| **Polearm** (3) | a thrust: the point goes, the body follows, nothing rotates |
-| **Fist** (5) | jab, then the hips turn over and the rear hand follows |
-| **Ranged** (25) | no swing at all — raise, fire, ride the recoil |
+| **Polearm** (6) | a thrust: the point chambers high and back, then drives down and forward off the lunge |
+| **Fist** (7) | jab, then the hips turn over and the rear hand follows |
+| **Ranged** (19) | no swing at all — raise, fire, ride the recoil |
 
 **Nothing is thrown, and nothing is spawned.** The swing is the character's
 own animation, and the only effect is the **trail off the sword they are

@@ -674,7 +674,9 @@ ATK_FRAMES = [10, 11, 12, 13, 14, 15, 16]   # the swing, in order
 #            thrown off a deep lunge - the shape the reference sheet uses
 #   dagger   two short cross-cuts, hands close in, no wind-up worth the name
 #   heavy    the overhead chop, which is what an axe is actually for
-#   polearm  a thrust: the point goes, the body follows, nothing rotates
+#   polearm  a thrust: the point is chambered high and back, then drives
+#            down and forward off the lunge - the lance keeps its full
+#            length the whole way, which a level thrust cannot in frame
 #   fist     jab, then the hips turn over and the rear hand follows
 #   ranged   no swing at all - raise, fire, ride the recoil
 ATK_SETS = {
@@ -706,13 +708,13 @@ ATK_SETS = {
   dict(bob=2,  lean=2,  feet=((-8,0),(8,0)),            hb=(-3,26), hf=(7,28),   wep=1.00,  eye='fierce', sway=3,  hd=1),
  ],
  'polearm': [
-  dict(bob=0,  lean=-3, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-8,20), hf=(-12,14), wdeg=340, eye='fierce', sway=-3, hd=-1, both=1),
-  dict(bob=2,  lean=-6, feet=((-11,0,2,5),(8,3,-3,4)),  hb=(-11,18),hf=(-15,11), wdeg=352, eye='fierce', sway=-7, hd=-3, both=1),
-  dict(bob=-1, lean=2,  feet=((-13,0,3,2),(11,5,-3,6)), hb=(-6,17), hf=(-6,10),  wdeg=358, eye='fierce', sway=3,  hd=2,  both=1),
-  dict(bob=1,  lean=9,  feet=((-18,0,5,0),(16,0,-1,5)), hb=(2,15),  hf=(10,9),   wdeg=2,   eye='fierce', sway=10, hd=6,  both=1),
-  dict(bob=2,  lean=10, feet=((-20,0,4,0),(18,0,0,7)),  hb=(4,15),  hf=(14,9),   wdeg=4,   eye='fierce', sway=11, hd=6,  both=1),
-  dict(bob=2,  lean=5,  feet=((-14,0,2,1),(12,1,-1,4)), hb=(-2,18), hf=(6,12),   wdeg=350, eye='fierce', sway=5,  hd=2,  both=1),
-  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-4,22), hf=(4,18),   wdeg=336, eye='fierce', sway=3,  hd=1,  both=1),
+  dict(bob=0,  lean=-3, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-6,18), hf=(-8,13),  wdeg=332, eye='fierce', sway=-3, hd=-1, both=1),
+  dict(bob=2,  lean=-7, feet=((-12,0,2,6),(8,4,-3,4)),  hb=(-6,18), hf=(-16,8),  wdeg=310, eye='fierce', sway=-8, hd=-3, both=1),
+  dict(bob=-1, lean=1,  feet=((-14,0,3,3),(11,5,-3,6)), hb=(-6,18), hf=(-15,12), wdeg=342, eye='fierce', sway=1,  hd=1,  both=1),
+  dict(bob=1,  lean=9,  feet=((-18,0,5,0),(16,0,-1,5)), hb=(-6,18), hf=(-13,10), wdeg=356, eye='fierce', sway=9,  hd=5,  both=1),
+  dict(bob=2,  lean=11, feet=((-21,0,4,0),(19,0,0,7)),  hb=(-6,18), hf=(-12,10), wdeg=2,   eye='fierce', sway=11, hd=6,  both=1),
+  dict(bob=2,  lean=5,  feet=((-14,0,2,1),(12,1,-1,4)), hb=(-6,18), hf=(-14,12), wdeg=344, eye='fierce', sway=5,  hd=2,  both=1),
+  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-6,18), hf=(-11,16), wdeg=332, eye='fierce', sway=3,  hd=1,  both=1),
  ],
  'fist': [
   dict(bob=0,  lean=-2, feet=((-8,0,0,2),(6,0,-1,2)),   hb=(0,12),  hf=(-2,10),  wdeg=0, eye='fierce', sway=-2, hd=-1),
@@ -811,9 +813,24 @@ def hand(pose, back, p=None):
     return (sx + d[0], sy + d[1])
 
 def shade(col, f):
-    """same colour, dimmed - used to push the far limb back in depth"""
+    """same colour, dimmed - used to push the far limb back in depth. Over 1
+    it lightens instead, which is how a shaft gets a highlight down its top."""
     r, g, b = (int(col[i:i+2], 16) for i in (1, 3, 5))
-    return '#%02x%02x%02x' % (int(r*f), int(g*f), int(b*f))
+    return '#%02x%02x%02x' % tuple(min(255, max(0, int(v*f))) for v in (r, g, b))
+
+def lit_shaft(c, x0, y0, x1, y1, nx, ny, col):
+    """one light line down the top edge of a haft.
+
+    A shaft painted in the character's own dark grip colour disappears into
+    their coat, which leaves a polearm looking like a floating blade head.
+    This is the whole reason a spear reads as a long thing."""
+    r, g, b = (int(col[i:i+2], 16) for i in (1, 3, 5))
+    r, g, b = (int(v + (255 - v)*0.42) for v in (r, g, b))
+    top = max(r, g, b)
+    if top < 104:                 # a black haft needs a grey edge, not a black one
+        k = 104.0 / max(top, 1)
+        r, g, b = (min(255, int(v*k)) for v in (r, g, b))
+    c.line(x0 - nx, y0 - ny, x1 - nx, y1 - ny, '#%02x%02x%02x' % (r, g, b), 1)
 
 def bent(c, x0, y0, x1, y1, bend, col, w0, w1):
     """two-segment limb with a knee/elbow pushed out perpendicular to the line"""
@@ -2142,6 +2159,7 @@ def draw_weapon(c, p, pose):
         hxp = min(hxp, CX + 4)
         L = fitL(34, hxp, hyp, ux, uy)
         c.taper(hxp-ux*9, hyp-uy*9, hxp+ux*(L-6), hyp+uy*(L-6), p['grip'], 4, 3)
+        lit_shaft(c, hxp-ux*8, hyp-uy*8, hxp+ux*(L-7), hyp+uy*(L-7), nx, ny, p['grip'])
         c.taper(hxp+ux*5, hyp+uy*5, hxp+ux*L, hyp+uy*L, p['metal'], 6, 2)
         c.line(hxp+ux*7, hyp+uy*7, hxp+ux*(L-2), hyp+uy*(L-2), '#ffffff', 1)
         for k in (9, 14, 19):                                 # frost barbs
@@ -2162,6 +2180,7 @@ def draw_weapon(c, p, pose):
         hxp = min(hxp, CX + 3)
         L = fitL(35, hxp, hyp, ux, uy)
         c.taper(hxp-ux*14, hyp-uy*14, hxp+ux*(L-8), hyp+uy*(L-8), p['grip'], 4, 4)
+        lit_shaft(c, hxp-ux*13, hyp-uy*13, hxp+ux*(L-9), hyp+uy*(L-9), nx, ny, p['grip'])
         tx, ty = hxp+ux*L, hyp+uy*L
         c.taper(hxp+ux*(L-9), hyp+uy*(L-9), tx, ty, p['metal'], 8, 2)
         c.line(hxp+ux*(L-7)-uy*3, hyp+uy*(L-7)+ux*3, tx, ty, '#ffffff', 1)
@@ -2208,6 +2227,8 @@ def draw_weapon(c, p, pose):
         hxp = min(hxp, CX + 0)
         L = fitL(46, hxp, hyp, ux, uy)
         c.taper(hxp-ux*15, hyp-uy*15, hxp+ux*(L-9), hyp+uy*(L-9), p['grip'], 4, 4)
+        lit_shaft(c, hxp-ux*14, hyp-uy*14, hxp+ux*(L-10), hyp+uy*(L-10),
+                  nx, ny, p['grip'])
         c.taper(hxp+ux*(L-11), hyp+uy*(L-11), hxp+ux*L, hyp+uy*L, p['metal'], 7, 2)
         c.line(hxp+ux*(L-9), hyp+uy*(L-9), hxp+ux*(L-1), hyp+uy*(L-1), '#ffffff', 1)
         c.line(hxp+ux*(L-12)-nx*4, hyp+uy*(L-12)-ny*4,
@@ -2263,6 +2284,7 @@ def draw_weapon(c, p, pose):
         hxp = min(hxp, CX + -3)
         L = fitL(34, hxp, hyp, ux, uy)
         c.taper(hxp-ux*18, hyp-uy*18, hxp+ux*L, hyp+uy*L, p['grip'], 4, 3)   # snath
+        lit_shaft(c, hxp-ux*17, hyp-uy*17, hxp+ux*(L-1), hyp+uy*(L-1), nx, ny, p['grip'])
         tx, ty = hxp+ux*L, hyp+uy*L - 16               # the head rides high on the snath
         c.taper(hxp+ux*(L-4), hyp+uy*(L-4), tx, ty, p['grip'], 4, 3)
         for ki in range(60):                           # a long blade sweeping forward
@@ -2491,6 +2513,7 @@ def draw_weapon(c, p, pose):
         hxp = min(hxp, CX + 6)
         L = fitL(20, hxp, hyp, ux, uy)
         c.taper(hxp-ux*16, hyp-uy*16, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
+        lit_shaft(c, hxp-ux*15, hyp-uy*15, hxp+ux*(L-1), hyp+uy*(L-1), nx, ny, p['grip'])
         ex, ey = hxp+ux*(L-2), hyp+uy*(L-2)
         c.line(ex, ey, ex, ey+5, p['metal'], 1)
         c.rect(ex-3, ey+5, 6, 7, p['metal'])
