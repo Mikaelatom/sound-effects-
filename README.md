@@ -308,6 +308,31 @@ but you keep the shards.
   character keeps their own HP and Burst meter for the whole run. When one is
   KO'd you drop to the next. All three down and the run is over.
 
+### Down is down
+
+A character could be dead in every menu and still walking around in the fight.
+When the last of a squad fell, the code set a flag, scheduled the RUN OVER
+screen seven tenths of a second later, and then **kept simulating the
+character who had just died** — they walked, they swung, they took more
+damage, and the swap bar was never rebuilt, so it still showed them upright
+while `mem.ko` said otherwise. Player two's step guarded against this; player
+one's never had.
+
+The guard now lives in `stepHero` instead of at one of its two call sites, so
+it holds for both players and for anything added later: **a character who is
+down does not act**. Three more places were closed behind it — nothing lands
+on somebody already down, the swap bar is rebuilt the instant the flag flips
+rather than only on the paths that happen to swap afterwards, and a fallen
+character is no longer drawn standing up.
+
+Two adjacent leaks fell out of the same read. When player two's character went
+down, the dying hero object was **re-pointed at the live character replacing
+it**, so anything still holding that object could kill the newcomer. And every
+character swap in versus left its stand-in behind in the mob list — pointing
+at a hero nobody was playing, parked where they had been standing, still
+routing damage into a live squad member. They piled up one per swap; they are
+now cleared as they go stale.
+
 ### How a hit lands
 
 The roster splits on one number it already carried: **reach under 50 is melee,

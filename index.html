@@ -3999,6 +3999,7 @@ function healHero(v, self){
 }
 function hurtHero(dmg, who){
   const h = who || B.hero;
+  if(h.mem.ko) return;                   // already down; nothing lands twice
   if(h.parry > 0){                       // caught it - nothing lands, everything pays
     h.parry = 0; h.inv = .9;
     B.mobs.forEach(m=>{ if(!m.dead && dist(m,h) < 56)
@@ -4075,6 +4076,7 @@ function hurtHero(dmg, who){
       return;
     }
     h.mem.hp=0; h.mem.ko=true;
+    buildSwapBar();                      // the bar never lags the state
     for(let i=0;i<16;i++) B.fx.push({x:h.x,y:h.y-8,vx:rnd(80,-80),vy:rnd(20,-90),life:.7,c:'#ff5d5d',s:1});
     if(h.side === 2){                                  // player two goes down alone
       const sq = R.squad2 || [];
@@ -4089,7 +4091,7 @@ function hurtHero(dmg, who){
           color:'#ff5d5d', size:10});
         if(B.pvp) endPvp(1);
         else if(B.coop) toast('Player two is out. Finish it alone.');
-      } else { h.mem = sq[nxt]; const nh = makeHero(sq[nxt]);
+      } else { const nh = makeHero(sq[nxt]);
         nh.side = 2; nh.slot = nxt; nh.x = h.x; nh.y = h.y; nh.inv = 1.2; B.p2 = nh; }
       buildSwapBar();
       return;
@@ -4323,7 +4325,17 @@ function nearestMob(x,y,maxd){
    ninety-nine of them work against a person without a single special case. */
 function syncPvpProxies(force){
   if(!B || (!B.pvp && !force)) return;
-  for(const pl of players()){
+  /* Swapping character builds a new hero object, and the one it replaced
+     left its stand-in behind in B.mobs - pointing at somebody nobody is
+     playing, parked wherever they were standing, still routing damage to a
+     live squad member through hurtHero. They piled up one per swap. Spliced
+     rather than filtered: asRival borrows this array by identity. */
+  const live = players().filter(Boolean);
+  for(let i = B.mobs.length - 1; i >= 0; i--){
+    const m = B.mobs[i];
+    if(m.proxyFor && !live.includes(m.proxyFor)) B.mobs.splice(i, 1);
+  }
+  for(const pl of live){
     if(!pl) continue;
     if(!pl.proxy){
       pl.proxy = {type:'player', proxyFor:pl, ghost:true, decor:true, x:pl.x, y:pl.y, r:pl.r+3,
@@ -4336,6 +4348,7 @@ function syncPvpProxies(force){
 }
 function useSkill(slot){
   const h = B.hero;
+  if(h.mem.ko) return;                   // the dead cast nothing
   const c = CHAR[h.mem.id];
   const sk = slot === 2 ? c.skill2 : c.skill;
   const cdKey = slot === 2 ? 'skill2T' : 'skillT';
@@ -5890,7 +5903,7 @@ function actBeat(h, kind, hold){
   else h.anim.atk = h.anim.atkMax = hold;
 }
 
-function useBurst(){ return stamp(B.hero, useBurst_); }
+function useBurst(){ return B.hero.mem.ko ? undefined : stamp(B.hero, useBurst_); }
 function useBurst_(){
   const h = B.hero, c = CHAR[h.mem.id];
   if((h.mem.burst || 0) < 1 || B.burst) return;
@@ -7257,6 +7270,13 @@ function endPvp(winner){
    player's hero installed as B.hero, so all the combat code below reads the
    right stats without knowing there is more than one of them. */
 function stepHero(h, dt, pad){
+  /* Down is down. Between the hit that kills the last of a squad and the
+     end-of-run screen seven tenths of a second later, player one used to go
+     on walking, swinging and taking damage while every menu that reads
+     mem.ko had already written them off. Player two's call site guarded
+     this and player one's did not; the invariant belongs here, where it
+     holds for both of them and for anything added later. */
+  if(h.mem.ko) return;
   const M = R.mods;
   h.inv=Math.max(0,h.inv-dt); h.flash=Math.max(0,h.flash-dt*5);
   h.atkT-=dt; h.skillT=Math.max(0,h.skillT-dt); h.skill2T=Math.max(0,h.skill2T-dt);
@@ -8538,8 +8558,8 @@ function render(){
   /* entities, sorted back to front */
   const ents = [...B.mobs.filter(m => !m.ghost).map(m => ({y:m.y, m})),
                 ...B.pets.map(q => ({y:q.y, q})),
-                {y:B.hero.y, h:B.hero}];
-  if(B.p2) ents.push({y:B.p2.y, h:B.p2});
+                ...(B.hero.mem.ko ? [] : [{y:B.hero.y, h:B.hero}])];
+  if(B.p2 && !B.p2.mem.ko) ents.push({y:B.p2.y, h:B.p2});
   ents.sort((p,q) => p.y-q.y);
   for(const e of ents){
     if(e.q){                                        // a shikigami
