@@ -19,10 +19,10 @@ drawn katana has somewhere to go.
 Figures are drawn at roughly 4.7 heads, so proportions read as anime rather
 than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 """
-import zlib, struct, base64, os, sys, math
+import zlib, struct, base64, os, re, sys, math
 
 W, H = 96, 96
-FRAMES = 20
+FRAMES = 30
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 48.0       # centre column
 FEET  = 92         # baseline every actor stands on
@@ -607,17 +607,28 @@ TORSO = [8, 9, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 9, 9]
 #   feet = ((x offset from centre, how far off the ground), ...) for L and R
 #   hb / hf = back and front hand, as an offset FROM THAT SHOULDER
 POSES = [
- # 0-1 idle: a slow breath, weight on both feet
- dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=1.00, eye='open',   sway=0),
- dict(bob=1,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=1.03, eye='open',   sway=2),
+ # ---- 0-3 idle: a breath, plus 4, the blink -------------------------------
+ # Two frames one pixel apart read as a photograph. This is a four-frame
+ # cycle with a real rise and fall through it: the chest comes up, the
+ # shoulders follow, the head lifts a little at the top and the whole thing
+ # settles. `bob` is DOWNWARD, so the top of the breath is negative.
+ # Frame 0 is the rest pose and must stay one - every menu portrait in the
+ # game is this frame.
+ dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=1.00, eye='open', sway=0),
+ dict(bob=-1, lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=1.02, eye='open', sway=1,  sh=1),
+ dict(bob=-2, lean=1,  feet=((-5,0), (5,0)),   hb=(-2,24), hf=(2,24),  wep=1.04, eye='open', sway=2,  sh=1, hdy=-1),
+ dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,25), hf=(1,25),  wep=1.02, eye='open', sway=1),
+ # 4 blink: frame 0 with the lids down, so it can be cut in at rest without
+ # anything moving but the eye
+ dict(bob=0,  lean=0,  feet=((-5,0), (5,0)),   hb=(-1,26), hf=(1,26),  wep=1.00, eye='closed', sway=0),
 
- # 2-9 walk: the full eight-frame cycle, twice through
+ # ---- 5-12 walk: the full eight-frame cycle, twice through ----------------
  # contact - down - passing - up, once for each leg. Feet carry a third
  # number, their PITCH: negative lifts the toe for the heel strike, positive
  # lifts the heel as the foot rolls off. And a fourth, the KNEE: how hard that
  # leg is folded this frame. The knee is the difference between a run and a
  # pair of legs sliding past each other.
- # The near leg leads first; on frame 6 the far leg takes over, which is why
+ # The near leg leads first; on frame 9 the far leg takes over, which is why
  # the two halves are not mirrors of each other but the same poses swapped.
  # contact A - near heel lands out front, far toe still pushing off
  dict(bob=1,  lean=2,  feet=((-11,1,3,1), (11,0,-2,0)),  hb=(8,23),  hf=(-8,28), wep=1.06, eye='open', sway=4, hd=1, sh=2),
@@ -633,37 +644,64 @@ POSES = [
  dict(bob=-2, lean=1,  feet=((0,0,0,1),   (-2,10,2,7)),  hb=(0,26),  hf=(0,26),  wep=0.98, eye='open', sway=2, sh=0),
  dict(bob=-1, lean=0, feet=((-7,0,2,0),  (8,5,-3,3)),   hb=(4,24),  hf=(-4,27), wep=1.01, eye='open', sway=1, hd=-1, hdy=-1, sh=-2),
 
- # 10-16 the attack, in seven. Five frames made a cut you could follow only
- # if you knew it was coming; seven give the wind somewhere to load and the
- # follow-through somewhere to land. `both` puts the trailing hand on the
- # hilt: a sword this size is not swung one-handed, and the second arm is
- # most of what makes a swing look like it costs something.
+ # ---- 13-19 the attack, in seven -----------------------------------------
+ # Five frames made a cut you could follow only if you knew it was coming;
+ # seven give the wind somewhere to load and the follow-through somewhere to
+ # land. `both` puts the trailing hand on the hilt: a sword this size is not
+ # swung one-handed, and the second arm is most of what makes a swing look
+ # like it costs something.
  # The legs do the work. A cut is a step: the weight goes back onto the rear
  # foot, the front foot comes off the floor, and then the whole body lands on
  # it - front knee folded hard, rear leg straight out behind, heel peeled up.
- # 10 coil: weight settling back, blade starting to come up
+ # 13 coil: weight settling back, blade starting to come up
  dict(bob=0,  lean=-3, feet=((-8,0,1,2), (5,0,-1,2)),   hb=(-4,24), hf=(-5,16), wep=-0.45, eye='fierce', sway=-3, hd=-1, both=1),
- # 11 wind: fully loaded over the back leg, front foot light
+ # 14 wind: fully loaded over the back leg, front foot light
  dict(bob=2,  lean=-7, feet=((-10,0,2,5), (7,3,-3,3)),  hb=(-6,22), hf=(-11,4), wep=-0.85, eye='fierce', sway=-8, hd=-3, both=1),
- # 12 launch: the front foot is in the air and the blade is already moving
+ # 15 launch: the front foot is in the air and the blade is already moving
  dict(bob=-1, lean=2,  feet=((-13,0,3,2), (10,5,-3,6)), hb=(-4,24), hf=(-2,2),  wep=-0.35, eye='fierce', sway=3, hd=3, both=1),
- # 13 strike: everything lands at once, onto the front foot
+ # 16 strike: everything lands at once, onto the front foot
  dict(bob=2,  lean=8,  feet=((-15,0,5,0), (13,0,-1,6)), hb=(-3,25), hf=(9,4),   wep=1.15, eye='fierce', sway=9, hd=6, both=1),
- # 14 through: the blade carries past, the lunge at its deepest
+ # 17 through: the blade carries past, the lunge at its deepest
  dict(bob=4,  lean=7,  feet=((-16,0,4,0), (14,0,0,9)),  hb=(-2,27), hf=(8,17),  wep=1.45, eye='fierce', sway=7, hd=4, both=1),
- # 15 recover: the weight comes back off the front foot
+ # 18 recover: the weight comes back off the front foot
  dict(bob=3,  lean=4,  feet=((-12,0,2,1), (10,1,-1,4)), hb=(-2,27), hf=(8,25),  wep=0.95, eye='fierce', sway=4, hd=2, both=1),
- # 16 settle: back to guard
+ # 19 settle: back to guard
  dict(bob=2,  lean=2,  feet=((-8,0), (8,0)),   hb=(-3,26), hf=(7,28),  wep=1.00, eye='fierce', sway=3, hd=1),
- # 17 dash: airborne, back leg trailing, front knee tucked
- dict(bob=3,  lean=9,  feet=((-13,7,4), (6,11,-3)), hb=(-8,28), hf=(6,18), wep=0.25, eye='fierce', sway=11, hd=5, hdy=-1),
- # 18 cast: both hands raised
- dict(bob=-2, lean=0,  feet=((-5,0), (5,0)),   hb=(-3,6),  hf=(3,6),   wep=-0.6, eye='closed', sway=-3, hd=0, hdy=-1),
- # 19 hurt: knocked back onto the heels
- dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)), hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9, hd=-3, hdy=1),
+
+ # ---- 20-22 dash ----------------------------------------------------------
+ # One airborne pose cannot read as travel: there is nothing for it to have
+ # come from and nowhere for it to land. Push off, fly, arrive.
+ # 20 push: coiled over the back leg, the front foot already unweighted
+ dict(bob=4,  lean=5,  feet=((-9,0,2,6), (8,2,-2,3)),  hb=(-6,26), hf=(2,22), wep=0.10, eye='fierce', sway=6,  hd=3),
+ # 21 flight: both feet off the floor, back leg trailing, front knee tucked
+ dict(bob=2,  lean=11, feet=((-14,8,4), (7,12,-3)),    hb=(-9,28), hf=(7,17), wep=0.30, eye='fierce', sway=13, hd=6, hdy=-1),
+ # 22 arrive: the front foot reaches, the body is still ahead of it
+ dict(bob=3,  lean=6,  feet=((-11,2,3,2), (11,0,-2,4)), hb=(-6,27), hf=(6,21), wep=0.55, eye='fierce', sway=7,  hd=3),
+
+ # ---- 23-26 cast ----------------------------------------------------------
+ # Channelling is a shape that BUILDS. One held pose says the power was
+ # always there; these four gather it, lift it and let it go.
+ # 23 gather: hands drawn in to the chest, head down over them
+ dict(bob=1,  lean=-2, feet=((-6,0), (5,0)),   hb=(-2,18), hf=(2,18),  wep=-0.20, eye='closed', sway=-4, hd=-1, hdy=1),
+ # 24 raise: travelling up, weight coming off the heels
+ dict(bob=-1, lean=-1, feet=((-5,0), (5,0)),   hb=(-3,11), hf=(3,11),  wep=-0.45, eye='closed', sway=-4),
+ # 25 peak: both hands high, the body stretched under them
+ dict(bob=-2, lean=1,  feet=((-5,0), (6,0)),   hb=(0,7),   hf=(6,6),   wep=-0.42, eye='closed', sway=-3, hdy=-1),
+ # 26 release: it goes forward, and so does she
+ dict(bob=0,  lean=5,  feet=((-7,0,1), (7,0,-1)), hb=(0,11),  hf=(10,13), wep=0.05, eye='fierce', sway=5, hd=3),
+
+ # ---- 27-29 hurt ----------------------------------------------------------
+ # A single frame of recoil reads as a pose change, not as a hit. The snap
+ # has to be sharper than the rest position it returns through.
+ # 27 impact: the head goes first and hardest
+ dict(bob=0,  lean=-9, feet=((-6,0,-3), (9,3,-2)),  hb=(-8,14), hf=(8,14), wep=0.10, eye='hurt', sway=-12, hd=-5, hdy=2, sh=-2),
+ # 28 reel: back on the heels, the furthest off balance it gets
+ dict(bob=2,  lean=-6, feet=((-7,0,-2), (8,2,-2)),  hb=(-7,16), hf=(7,16), wep=0.20, eye='hurt', sway=-9,  hd=-3, hdy=1),
+ # 29 gather: coming back up under themselves
+ dict(bob=3,  lean=-2, feet=((-7,0), (7,0)),        hb=(-4,21), hf=(5,21), wep=0.60, eye='hurt', sway=-4,  hd=-1),
 ]
 
-ATK_FRAMES = [10, 11, 12, 13, 14, 15, 16]   # the swing, in order
+ATK_FRAMES = [13, 14, 15, 16, 17, 18, 19]   # the swing, in order
 
 # ---------------------------------------------------------------- attacks ---
 # One swing for the whole roster made a knife-fighter chop like a woodsman.
@@ -2811,12 +2849,51 @@ MOBS = {
 MOB_ORDER = ['slime', 'bat', 'imp', 'brute', 'boss', 'sovereign',
              'dogw', 'dogb', 'wheel', 'unmaker', 'echo', 'knight', 'antking']
 
-HOUND_A = [(0,0), (0,-1), (3,-2), (6,-4), (3,-2), (0,0), (-2,1), (8,-5), (2,-1), (0,2)]
+# A mob row is laid out by MEANING, not by column number. Every mob drawing
+# function used to test `f == 9` for hurt and `f in (6,7,8)` for its specials,
+# which made the layout impossible to widen without editing ten functions by
+# hand. They ask this instead.
+MOB_FRAMES = 18
+MOBF = {'idle': [0, 1, 2, 3],   'move': [4, 5, 6, 7, 8, 9],
+        'wind': [10, 11],       'dash': [12, 13],
+        'ring': [14, 15],       'hurt': [16, 17]}
+_MSTATE = {f: (k, i) for k, v in MOBF.items() for i, f in enumerate(v)}
 
-SLIME_A = [(0,0), (2,0), (5,-2), (-3,-11), (-5,-17), (3,-4), (7,2), (-7,-6), (0,0), (9,3)]
-BAT_A   = [(2,0), (7,2), (0,0), (9,4), (14,6), (7,2), (-3,-3), (12,7), (4,0), (5,-5)]
-IMP_A   = [(0,0), (2,0), (0,2), (2,4), (0,2), (-2,0), (-4,0), (4,0), (0,0), (6,0)]
-BRUTE_A = [(0,0), (2,0), (0,-2), (4,0), (0,-2), (4,0), (-4,0), (6,0), (0,-4), (4,0)]
+def mis(f, *states):
+    """is this frame one of these states?"""
+    return _MSTATE.get(f, ('idle', 0))[0] in states
+
+def mph(f):
+    """which phase of the walk cycle this is, or -1 if it is not one"""
+    k, i = _MSTATE.get(f, ('idle', 0))
+    return i if k == 'move' else -1
+
+def expand_A(A):
+    """A ten-entry motion table, in the eighteen the wider layout wants.
+
+    The old columns meant 0-1 idle, 2-5 move, 6 wind, 7 dash, 8 ring, 9 hurt.
+    Idle and move are cycles, so they are resampled around rather than
+    stretched. The states that were one frame get a pose to arrive from or
+    settle into, built out of the neighbour that reads closest to rest -
+    which is the whole point: a single frame has nowhere to have come from."""
+    lerp = lambda a, b, t: tuple(x + (y-x)*t for x, y in zip(a, b))
+    out = [lerp(A[0], A[1], (1 - math.cos(i/4.0*2*math.pi))/2) for i in range(4)]
+    for i in range(6):                        # the four-pose walk, in six
+        t = i/6.0*4
+        j = int(t) % 4
+        out.append(lerp(A[2+j], A[2+(j+1) % 4], t - int(t)))
+    out += [lerp(A[1], A[6], .55), A[6]]      # wind: lead-in, then the tell
+    out += [A[7], lerp(A[7], A[1], .40)]      # dash: the lunge, then the land
+    out += [A[8], lerp(A[8], A[6], .45)]      # ring: opening, then wide
+    out += [A[9], lerp(A[9], A[0], .50)]      # hurt: the snap, then the settle
+    return out
+
+HOUND_A = expand_A([(0,0), (0,-1), (3,-2), (6,-4), (3,-2), (0,0), (-2,1), (8,-5), (2,-1), (0,2)])
+
+SLIME_A = expand_A([(0,0), (2,0), (5,-2), (-3,-11), (-5,-17), (3,-4), (7,2), (-7,-6), (0,0), (9,3)])
+BAT_A   = expand_A([(2,0), (7,2), (0,0), (9,4), (14,6), (7,2), (-3,-3), (12,7), (4,0), (5,-5)])
+IMP_A   = expand_A([(0,0), (2,0), (0,2), (2,4), (0,2), (-2,0), (-4,0), (4,0), (0,0), (6,0)])
+BRUTE_A = expand_A([(0,0), (2,0), (0,-2), (4,0), (0,-2), (4,0), (-4,0), (6,0), (0,-4), (4,0)])
 
 def draw_slime(c, m, f):
     sq, hop = SLIME_A[f]
@@ -2827,17 +2904,17 @@ def draw_slime(c, m, f):
     c.ellipse(CX - w*0.34, cy - h*0.52, 4.4, 2.8, m['glow'])
     c.ellipse(CX, cy + h*0.52, w*0.86, h*0.34, m['body3'])
     ex = 8
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-4, 5):
             c.set(CX-ex+i, cy-2+i, m['eye']); c.set(CX-ex+i, cy-2-i, m['eye'])
             c.set(CX+ex+i, cy-2+i, m['eye']); c.set(CX+ex+i, cy-2-i, m['eye'])
     else:
-        squint = 2 if f in (6, 7) else 0
+        squint = 2 if mis(f, 'wind', 'dash') else 0
         for dx in (-ex, ex):
             c.rect(CX+dx-2, cy-4+squint, 5, 7-squint*3, m['eye'])
             if not squint: c.rect(CX+dx, cy-3, 2, 2, '#ffffff')
         c.rect(CX-4, cy+4, 8, 2, m['eye'])
-    if f in (3, 4):
+    if mph(f) in (2, 3):
         c.ellipse(CX-11, FEET-3, 4, 2.4, m['body3'])
         c.ellipse(CX+11, FEET-2, 4.4, 2.2, m['body3'])
 
@@ -2866,7 +2943,7 @@ def draw_bat(c, m, f):
     c.ellipse(CX, cy+6, 5.0, 3.6, m['body3'])
     c.taper(CX-5, cy-8, CX-10, cy-19, m['body'], 5, 2)
     c.taper(CX+5, cy-8, CX+10, cy-19, m['body'], 5, 2)
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-2, 3):
             c.set(CX-5+i, cy-2+i, m['eye']); c.set(CX-5+i, cy-2-i, m['eye'])
             c.set(CX+5+i, cy-2+i, m['eye']); c.set(CX+5+i, cy-2-i, m['eye'])
@@ -2874,7 +2951,7 @@ def draw_bat(c, m, f):
         for dx in (-7, 2):
             c.rect(CX+dx, cy-4, 5, 5, m['eye'])
             c.rect(CX+dx+3, cy-4, 2, 2, m['glow'])
-    if f in (6, 7):
+    if mis(f, 'wind', 'dash'):
         c.rect(CX-3, cy+3, 2, 5, '#ffffff'); c.rect(CX+2, cy+3, 2, 5, '#ffffff')
     else:
         c.rect(CX-4, cy+4, 8, 2, m['ink'])
@@ -2887,7 +2964,7 @@ def draw_imp(c, m, f):
     for sgn in (-1, 1):
         c.taper(CX+sgn*10, hy-7, CX+sgn*16, hy-20, m['body3'], 7, 3)
     c.rect(CX-16, hy+1, 5, 7, m['body3']); c.rect(CX+11, hy+1, 5, 7, m['body3'])
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-2, 3):
             c.set(CX-7+i, hy+i, m['eye']); c.set(CX-7+i, hy-i, m['eye'])
             c.set(CX+5+i, hy+i, m['eye']); c.set(CX+5+i, hy-i, m['eye'])
@@ -2902,9 +2979,9 @@ def draw_imp(c, m, f):
     c.rect(CX-13, hy+38, 26, 2, m['ink'])
     c.taper(CX-11, hy+17, CX-16-lean, hy+29, m['body'], 6, 5)
     c.taper(CX+11, hy+17, CX+16+lean, hy+29, m['body'], 6, 5)
-    if f in (6, 7, 8):
+    if mis(f, 'wind', 'dash', 'ring'):
         ox, oy = CX + 20 + lean*2, hy + 28
-        r = 4.5 if f == 6 else 7.0
+        r = 4.5 if mis(f, 'wind') else 7.0
         c.ellipse(ox, oy, r, r, m['eye'])
         c.ellipse(ox, oy, r*0.5, r*0.5, m['glow'])
 
@@ -2924,7 +3001,7 @@ def draw_brute(c, m, f, boss=False, crown=False):
         c.taper(cxx+sgn*12, hy-9, cxx+sgn*(21 if boss else 17), hy-(27 if boss else 21),
                 m['body3'], 8, 3)
         if boss: c.taper(cxx+sgn*16, hy-18, cxx+sgn*10, hy-29, m['body3'], 5, 3)
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-3, 4):
             c.set(cxx-8+i, hy+i, m['eye']); c.set(cxx-8+i, hy-i, m['eye'])
             c.set(cxx+7+i, hy+i, m['eye']); c.set(cxx+7+i, hy-i, m['eye'])
@@ -2932,7 +3009,7 @@ def draw_brute(c, m, f, boss=False, crown=False):
         for dx in (-11, 5):
             c.rect(cxx+dx, hy-2, 7, 5, m['eye'])
             c.rect(cxx+dx, hy-2, 7, 2, m['glow'])
-    if f in (6, 7, 8):
+    if mis(f, 'wind', 'dash', 'ring'):
         c.rect(cxx-7, hy+6, 14, 8, m['ink'])
         for i in range(0, 14, 3): c.rect(cxx-7+i, hy+6, 2, 2, '#ffffff')
         for i in range(0, 14, 3): c.rect(cxx-7+i, hy+12, 2, 2, '#ffffff')
@@ -2941,9 +3018,9 @@ def draw_brute(c, m, f, boss=False, crown=False):
     c.rect(cxx-14, hy+16, 28, 26, m['cloth'])
     c.rect(cxx-11, hy+18, 22, 11, m['body2'])
     c.rect(cxx-14, hy+37, 28, 6, m['cloth2'])
-    ax = 22 if f in (6, 8) else 16
-    c.taper(cxx-14, hy+19, cxx-ax-lean, hy+(8 if f in (6,8) else 38), m['body'], 9, 7)
-    c.taper(cxx+14, hy+19, cxx+ax+lean, hy+(8 if f in (6,8) else 38), m['body'], 9, 7)
+    ax = 22 if mis(f, 'wind', 'ring') else 16
+    c.taper(cxx-14, hy+19, cxx-ax-lean, hy+(8 if mis(f, 'wind', 'ring') else 38), m['body'], 9, 7)
+    c.taper(cxx+14, hy+19, cxx+ax+lean, hy+(8 if mis(f, 'wind', 'ring') else 38), m['body'], 9, 7)
     c.rect(cxx-14, hy+42, 11, FEET-(hy+42), m['cloth'])
     c.rect(cxx+3, hy+42, 11, FEET-(hy+42), m['cloth'])
     c.rect(cxx-16, FEET-5, 14, 5, m['ink']); c.rect(cxx+2, FEET-5, 14, 5, m['ink'])
@@ -2954,7 +3031,7 @@ def draw_brute(c, m, f, boss=False, crown=False):
         c.rect(cxx-15, hy-14, 30, 1, '#ffffff')
         for sgn in (-1, 1):                               # shoulder plates
             c.taper(cxx+sgn*15, hy+16, cxx+sgn*23, hy+22, m['cloth2'], 9, 5)
-    if f == 7:
+    if mis(f, 'dash'):
         for dx in (-24, -18, 18, 24): c.ellipse(cxx+dx, FEET-3, 4.5, 2.5, m['body3'])
 
 def draw_hound(c, m, f):
@@ -2963,7 +3040,7 @@ def draw_hound(c, m, f):
     reach, bob = HOUND_A[f]
     cy = FEET - 22 + bob
     bd, bd2, bd3 = m['body'], m['body2'], m['body3']
-    lunge = f in (7, 8)
+    lunge = mis(f, 'dash', 'ring')
 
     c.taper(CX-14, cy+2, CX-24-reach*0.4, cy-6-reach*0.5, bd3, 5, 2)   # tail, streaming
     c.taper(CX-16, cy, CX-22-reach*0.3, cy-3, bd, 4, 2)
@@ -2999,7 +3076,7 @@ def draw_hound(c, m, f):
         c.set(hxx + 11, hyy + 2, m['ink'])                              # nose
         c.taper(hxx - 3, hyy - 4, hxx - 6, hyy - 12, bd, 5, 2)          # ears, swept back
         c.taper(hxx - 1, hyy - 5, hxx - 3, hyy - 12, bd2, 4, 2)
-        if f == 9:
+        if mis(f, 'hurt'):
             for i in range(-2, 3):
                 c.set(hxx + 1 + i, hyy + i, m['ink']); c.set(hxx + 1 + i, hyy - i, m['ink'])
         else:
@@ -3010,7 +3087,7 @@ def draw_hound(c, m, f):
             for k in range(3):
                 c.set(hxx + 6 + k*2, hyy + 4, '#ffffff')
                 c.set(hxx + 6 + k*2, hyy + 7, '#ffffff')
-        if f in (6, 8):                                                 # it flares
+        if mis(f, 'wind', 'ring'):                                                 # it flares
             for k in range(7):
                 a = k/7*math.pi*2
                 c.set(hxx + math.cos(a)*11, hyy + math.sin(a)*10, m['glow'])
@@ -3042,7 +3119,7 @@ def draw_wheel(c, m, f):
     c.ellipse(cxx+2, hy+4, 12.0, 9.6, bd)
     c.ellipse(cxx+3, hy+2, 9.0, 6.4, bd2)
     c.taper(cxx+8, hy+6, cxx+18, hy+9, bd, 8, 4)                        # jaw thrust out
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-3, 4):
             c.set(cxx+6+i, hy+3+i, m['ink']); c.set(cxx+6+i, hy+3-i, m['ink'])
     else:
@@ -3051,15 +3128,15 @@ def draw_wheel(c, m, f):
     for k in range(4):                                                  # teeth
         c.set(cxx+11+k*2, hy+10, '#ffffff'); c.set(cxx+11+k*2, hy+13, '#ffffff')
     # --- arms
-    ax = 24 if f in (6, 8) else 17
-    c.taper(cxx-13, hy+17, cxx-ax-lean, hy+(6 if f in (6,8) else 36), bd, 9, 6)
-    c.taper(cxx+13, hy+17, cxx+ax+lean, hy+(6 if f in (6,8) else 36), bd, 9, 6)
-    c.rect(cxx+ax+lean-4, hy+(4 if f in (6,8) else 34), 8, 5, bd3)      # claws
+    ax = 24 if mis(f, 'wind', 'ring') else 17
+    c.taper(cxx-13, hy+17, cxx-ax-lean, hy+(6 if mis(f, 'wind', 'ring') else 36), bd, 9, 6)
+    c.taper(cxx+13, hy+17, cxx+ax+lean, hy+(6 if mis(f, 'wind', 'ring') else 36), bd, 9, 6)
+    c.rect(cxx+ax+lean-4, hy+(4 if mis(f, 'wind', 'ring') else 34), 8, 5, bd3)      # claws
     # --- legs
     c.rect(cxx-13, hy+40, 10, FEET-(hy+40), bd)
     c.rect(cxx+3, hy+40, 10, FEET-(hy+40), bd)
     c.rect(cxx-15, FEET-5, 13, 5, bd3); c.rect(cxx+2, FEET-5, 13, 5, bd3)
-    if f in (6, 7, 8):
+    if mis(f, 'wind', 'dash', 'ring'):
         for k in range(8):
             a = k/8*math.pi*2
             c.set(cxx + math.cos(a)*26, hy+20 + math.sin(a)*22, m['glow'])
@@ -3085,7 +3162,7 @@ def draw_unmaker(c, m, f, small=False):
     for sgn in (-1, 1):
         for k, (ln, drop) in enumerate(((14, 30), (9, 14))):
             ax = cxx + sgn*(7 + ln)*sc
-            ay = hy + drop*sc + (6 if f in (6, 8) else 0)
+            ay = hy + drop*sc + (6 if mis(f, 'wind', 'ring') else 0)
             c.taper(cxx + sgn*8*sc, hy + 12*sc, ax, ay, bd, 7*sc, 4*sc)
             for j in range(3):                                       # long fingers
                 c.taper(ax, ay, ax + sgn*(5+j*2)*sc, ay + (4 - j*3)*sc, bd3, 3*sc, 1)
@@ -3093,7 +3170,7 @@ def draw_unmaker(c, m, f, small=False):
     c.ellipse(cxx, hy, 11.5*sc, 10.0*sc, bd)
     c.ellipse(cxx, hy - 2*sc, 10.0*sc, 7.4*sc, bd2)
     c.taper(cxx, hy + 8*sc, cxx, hy + 16*sc, bd, 14*sc, 12*sc)
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-3, 4):
             c.set(cxx+i, hy+i, m['ink']); c.set(cxx+i, hy-i, m['ink'])
     else:
@@ -3102,7 +3179,7 @@ def draw_unmaker(c, m, f, small=False):
     for k, (sx, h2) in enumerate(((-9, 6), (-5, 10), (0, 13), (5, 10), (9, 6))):
         c.taper(cxx + sx*sc, hy - 9*sc, cxx + sx*sc, (hy - 9 - h2)*sc + hy*0,
                 m['cloth2'] if k % 2 else m['cloth'], 4*sc, 1)
-    if f in (6, 7, 8):
+    if mis(f, 'wind', 'dash', 'ring'):
         for k in range(10):
             a = k/10*math.pi*2
             c.set(cxx + math.cos(a)*30*sc, hy + 16*sc + math.sin(a)*24*sc, m['glow'])
@@ -3117,9 +3194,9 @@ def draw_knight(c, m, f):
         w = 10 + k*0.5
         c.rect(cxx-w-2, hy+14+k, w*1.4, 1, m['cloth'])
         c.rect(cxx-w-2, hy+14+k, 2, 1, m['cloth2'])
-    ax = 20 if f in (6, 8) else 14                         # arms first, then the plate
-    c.taper(cxx-11, hy+16, cxx-ax-lean, hy+(6 if f in (6,8) else 32), bd3, 8, 6)
-    c.taper(cxx+11, hy+16, cxx+ax+lean, hy+(6 if f in (6,8) else 32), bd, 8, 6)
+    ax = 20 if mis(f, 'wind', 'ring') else 14                         # arms first, then the plate
+    c.taper(cxx-11, hy+16, cxx-ax-lean, hy+(6 if mis(f, 'wind', 'ring') else 32), bd3, 8, 6)
+    c.taper(cxx+11, hy+16, cxx+ax+lean, hy+(6 if mis(f, 'wind', 'ring') else 32), bd, 8, 6)
     c.rect(cxx-11, hy+13, 22, 24, bd)                      # cuirass
     c.rect(cxx-9, hy+15, 18, 9, bd2)
     c.rect(cxx-11, hy+33, 22, 4, bd3)
@@ -3131,13 +3208,13 @@ def draw_knight(c, m, f):
     c.rect(cxx+5, hy, 3, 1, m['glow'])
     for k, (sx, h2) in enumerate(((-3, 9), (0, 13), (3, 10))):   # plume
         c.taper(cxx+sx, hy-8, cxx+sx-3, hy-8-h2, m['cloth2'] if k == 1 else m['cloth'], 4, 2)
-    sx2, sy2 = cxx+ax+lean, hy+(4 if f in (6,8) else 30)   # the sword
+    sx2, sy2 = cxx+ax+lean, hy+(4 if mis(f, 'wind', 'ring') else 30)   # the sword
     c.taper(sx2, sy2, sx2+4, sy2-24, m['body2'], 5, 2)
     c.line(sx2+1, sy2-4, sx2+4, sy2-22, m['glow'], 1)
     c.rect(cxx-11, hy+37, 9, FEET-(hy+37), bd)
     c.rect(cxx+2, hy+37, 9, FEET-(hy+37), bd)
     c.rect(cxx-13, FEET-5, 12, 5, bd3); c.rect(cxx+2, FEET-5, 12, 5, bd3)
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-3, 4): c.set(cxx+3+i, hy+1+i, m['ink'])
 
 def draw_antking(c, m, f):
@@ -3156,7 +3233,7 @@ def draw_antking(c, m, f):
     c.ellipse(CX-10, cy+9, 6.6, 4.4, bd2)
     c.ellipse(CX+3, cy+2, 7.6, 6.6, bd)                    # thorax
     c.ellipse(CX+4, cy, 5.2, 4.0, bd2)
-    hxx = CX + 11 + (3 if f in (7, 8) else 0)
+    hxx = CX + 11 + (3 if mis(f, 'dash', 'ring') else 0)
     c.ellipse(hxx, cy-5, 6.0, 5.0, bd)                     # head
     c.rect(hxx+1, cy-7, 4, 3, m['eye'])
     c.rect(hxx+3, cy-7, 2, 1, m['glow'])
@@ -3165,11 +3242,11 @@ def draw_antking(c, m, f):
     for sgn in (-1, 1):                                    # antennae
         c.taper(hxx, cy-9, hxx+5+reach*0.3, cy-9+sgn*9-6, bd3, 3, 1)
     c.taper(CX-17, cy+9, CX-25-reach*0.35, cy+2, bd3, 5, 2) # tail
-    if f in (6, 8):
+    if mis(f, 'wind', 'ring'):
         for k in range(8):
             a = k/8*math.pi*2
             c.set(hxx + math.cos(a)*13, cy-5 + math.sin(a)*12, m['glow'])
-    if f == 9:
+    if mis(f, 'hurt'):
         for i in range(-2, 3): c.set(hxx+2+i, cy-5+i, m['ink'])
 
 def draw_mob(key, f):
@@ -3190,7 +3267,6 @@ def draw_mob(key, f):
     return c
 
 # ------------------------------------------------------------------- atlas ---
-MOB_FRAMES = 10
 
 def build():
     rows = ORDER + MOB_ORDER
@@ -3221,6 +3297,22 @@ def zoom(px, cols, rows_idx, s, path):
     write_png(path, big, cw, ch)
     print(path.split('/')[-1], '%dx%d' % (cw, ch))
 
+def frames_agree(src):
+    """Does the game index as many frames as this file now draws?
+
+    The atlas and the AF table in index.html are one layout described in two
+    places, and the generator is what keeps them honest. If the pose table
+    grows and AF has not caught up yet, patching index.html would hand the
+    game frame numbers it does not know about - so it refuses, loudly, rather
+    than shipping an atlas the renderer cannot address."""
+    m = re.search(r'const AF = \{(.*?)\};', src, re.S)
+    if not m: return False, 'index.html has no AF table'
+    top = max(int(n) for n in re.findall(r'\d+', m.group(1)))
+    if top != FRAMES - 1:
+        return False, ('index.html indexes %d frames, this generator draws %d'
+                       % (top + 1, FRAMES))
+    return True, ''
+
 def main():
     px, aw, ah, rows = build()
     os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)
@@ -3238,7 +3330,12 @@ def main():
     uri = 'data:image/png;base64,' + base64.b64encode(open(atlas, 'rb').read()).decode()
     idx = os.path.join(ROOT, 'index.html')
     src = open(idx).read()
-    import re
+    ok, why = frames_agree(src)
+    if not ok:
+        print('NOT patching index.html: %s.' % why)
+        print('The atlas on disk is the new layout; the game is still on the old'
+              ' one. Update AF / heroFrame / mobFrame, then re-run.')
+        return
     new, n = re.subn(r'const ATLAS_SRC = "[^"]*";', lambda _: 'const ATLAS_SRC = "%s";' % uri, src)
     # and the weapon reaches, so a swing is drawn the length of the weapon
     tbl = ','.join('%s:%d' % (k, wep_reach(k)) for k in ORDER)
