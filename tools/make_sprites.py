@@ -701,7 +701,45 @@ POSES = [
  dict(bob=3,  lean=-2, feet=((-7,0), (7,0)),        hb=(-4,21), hf=(5,21), wep=0.60, eye='hurt', sway=-4,  hd=-1),
 ]
 
-ATK_FRAMES = [13, 14, 15, 16, 17, 18, 19]   # the swing, in order
+# The layout, named once. index.html's AF table is the same list on the other
+# side of the atlas, and main() refuses to patch it if the two disagree.
+IDLE_FRAMES = [0, 1, 2, 3]
+BLINK_FRAME = 4
+WALK_FRAMES = [5, 6, 7, 8, 9, 10, 11, 12]
+ATK_FRAMES  = [13, 14, 15, 16, 17, 18, 19]   # the swing, in order
+DASH_FRAMES = [20, 21, 22]
+CAST_FRAMES = [23, 24, 25, 26]
+HURT_FRAMES = [27, 28, 29]
+
+# ------------------------------------------------------------------- carry --
+# Where a blade sits when nobody is swinging it. Held out in front is a guard
+# stance, and a character who never leaves guard reads as permanently mid
+# fight - so at rest the sword trails BEHIND the hand with the tip low, the
+# way anyone actually carries one. Degrees, with 90 straight down and 180
+# straight back.
+#
+# Only the classes that are blades get one. A spear is carried upright and a
+# bow hangs off the hand; neither wants to be pointed backwards, so they keep
+# the angle they had.
+REST_DEG = {'sword': 148, 'dagger': 156, 'heavy': 138}
+
+# and how far off that angle each frame sits, so the blade still moves with
+# the body instead of being welded on. Keyed by frame.
+REST_OFF = {0:0, 1:2, 2:4, 3:2, 4:0,                      # breathing
+            5:5, 6:2, 7:-3, 8:-1, 9:5, 10:2, 11:-3, 12:-1,  # the carry swing
+            20:14, 21:22, 22:10,                          # trails further in flight
+            27:-10, 28:-6, 29:-2}                         # thrown forward by the hit
+
+def carry(p, frame, pose):
+    """the pose, with a blade lowered to where it is actually carried.
+
+    The cast frames are left alone: the weapon is up because it is being
+    used, which is the one time in front of the body is right."""
+    deg = REST_DEG.get(wep_class(p))
+    if deg is None or frame not in REST_OFF: return pose
+    out = dict(pose)
+    out['wdeg'] = deg + REST_OFF[frame]
+    return out
 
 # ---------------------------------------------------------------- attacks ---
 # One swing for the whole roster made a knife-fighter chop like a woodsman.
@@ -2795,7 +2833,7 @@ def draw_cape(c, p, pose):
 
 def draw_char(key, frame):
     p = CHARS[key]
-    pose = atk_pose(p, frame) if frame in ATK_FRAMES else POSES[frame]
+    pose = atk_pose(p, frame) if frame in ATK_FRAMES else carry(p, frame, POSES[frame])
     c = Cv(W, H)
     cx, cy = head_pos(pose)
     # A second hand on the hilt is no use behind the body, where the torso

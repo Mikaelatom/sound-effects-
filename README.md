@@ -333,6 +333,57 @@ at a hero nobody was playing, parked where they had been standing, still
 routing damage into a live squad member. They piled up one per swap; they are
 now cleared as they go stale.
 
+### Thirty frames, and none of them is a held pose
+
+Three of the six animation states used to be **one frame each**. A dash was a
+single airborne pose — nothing for it to have come from and nowhere to land.
+A cast was one pose, which says the power was always there rather than that
+it is being gathered. A hurt was one frame, which reads as a pose change, not
+as a hit. And idle was two frames a pixel apart, which reads as a photograph.
+
+| | was | is |
+|---|---|---|
+| Idle | 2 | **4** — a breath — plus a blink |
+| Walk | 8 | 8 — checked and left alone |
+| Attack | 7 | 7 — untouched |
+| Dash | **1** | **3** — push, flight, arrive |
+| Cast | **1** | **4** — gather, raise, peak, release |
+| Hurt | **1** | **3** — impact, reel, gather |
+
+The idle is a real rise and fall: the chest comes up, the shoulders follow,
+the head lifts at the top, the whole thing settles. It costs nothing to make
+that carry, because all fifty-six hair silhouettes and the cape already read
+the pose's `sway` — so the hair and the cloak move with the breath without a
+line of new machinery. Every fourth time the cycle passes through rest the
+character **blinks**; the eyes were always capable of closing, both idle
+frames had simply been eyes-open since the beginning.
+
+**A sword at rest trails behind them.** Held out in front is a guard stance,
+and a character who never leaves guard reads as permanently mid-fight. Blades
+now sit at a carry angle — back and low, swinging gently with the walk,
+trailing further out behind a dash, thrown forward by a hit. Only the classes
+that *are* blades: a spear is carried upright and a bow hangs off the hand,
+and neither wants pointing backwards.
+
+None of this touched the two things that had to stay still. Frame 0 is what
+every roster and gacha card draws, and the seven swing frames were finished
+in an earlier pass; both are **byte-identical for all 56 characters**, checked
+per character rather than by eye, across a renumber that moved the swing from
+10–16 to 13–19.
+
+Mobs could not be widened at all, because all ten drawing functions tested
+literal columns — `f == 9` meant hurt, `f in (6,7,8)` meant one of the
+specials. They ask a **semantic map** now, and each motion table is resampled
+from ten entries to eighteen by slot: idle and move as cycles, the one-frame
+states given a pose to arrive from and settle into. All thirteen mob rows grew
+inside columns the atlas had already allocated, so **mobs cost no space at
+all**.
+
+The atlas and the game's frame table are one layout written in two files, so
+the generator now refuses to patch `index.html` when the two disagree on how
+many frames exist — a half-migrated tree cannot quietly ship an atlas the
+renderer has no way to address.
+
 ### How a hit lands
 
 The roster splits on one number it already carried: **reach under 50 is melee,
@@ -375,7 +426,7 @@ last tenth of a second. It cannot be the wrong size for the weapon: it *is*
 the weapon.
 
 The swing itself was rebuilt to be worth watching. **Seven frames** instead of
-five, held about a third of a second, so you can follow it: coil, wind,
+five (13–19 in the atlas), held about a third of a second, so you can follow it: coil, wind,
 launch, strike, through, recover, settle. Both hands go to the hilt on
 anything heavier than a knife — a nodachi is not swung one-handed — and the
 legs carry it: the weight goes back onto the rear foot, the front foot leaves
