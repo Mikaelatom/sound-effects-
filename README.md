@@ -177,6 +177,39 @@ is installed as *the* hero while it is being stepped — that is how they both g
 their own stats, perks and passives without threading a parameter through two
 thousand lines.
 
+## Bosses
+
+**A boss's body used to be its whole answer to being approached.** Anything
+inside 35 units took contact damage on a loop, gated only by i-frames — which
+meant half the roster could not fight one at all, because the only place a
+melee character can hit from is that exact spot. Measured: standing in melee
+range of a floor boss cost **78% of a character's health in five seconds**.
+
+Now every non-Rival boss runs **one template**: it picks from a **close** list
+when somebody is inside its reach and a **far** list when nobody is, and every
+move **winds up where you can see it** before it lands.
+
+| | |
+|---|---|
+| **Close** | **Swipe** — an arm through a wedge in front of it. **Slam** — a ring off the floor you can be standing outside of. |
+| **Far** | **Volley** — fourteen shots outward. **Charge** — it crosses the arena at you. **Summon** — three more bodies. |
+
+The body only hits you while it is **charging**, which it tells you about
+first. Everything else is a move with a tell, so standing next to a boss is
+something you survive by reading rather than by not being there: against the
+same boss for forty seconds, ignoring the tells costs **324 health** and
+stepping out of them costs **32**.
+
+**The template is shared; what you see is not.** Three floors, three different
+bosses — the Warden at the bottom, the **Knight** on the Glass Tiers, the **Ant
+King** in the Crown — each with its own sprite, its own colour, its own tell
+shape (a ring for a slam, a wedge for an arm), its own shots and its own
+favoured moves. The raid bosses kept their own fight and gained a **stamp** of
+their own, so walking up to the Sovereign is still answered — it just tells you
+first. Rival duels are a separate system and are untouched.
+
+---
+
 ## Weapons
 
 Weapons are **earned, never bought**, and there is no weapon banner — you
