@@ -2160,6 +2160,9 @@ const Sfx = (()=>{
         const g=a.createGain(); g.gain.value=.42; s.connect(g); g.connect(master); s.start(); }
       else tone(220+ri(120),.06,'square',.1,-120); },
     swing(){ tone(760,.05,'triangle',.06,-380); },
+    /* a boss winding up. Low, rising, and always the same, because it is the
+       thing you are meant to learn rather than read off the screen. */
+    tell(){ tone(120,.34,'sawtooth',.09,190); },
     /* the sound of a basic attack CONNECTING. Heavy is a sword finding a
        body: a low thump with a bright crack over it. Light is an arrow
        arriving: the same shape, thinner and quieter. */
@@ -3580,19 +3583,53 @@ const MOBS = {
   sovereign:{hp:1, spd:16, dmg:20, r:18, ai:'sovereign', scale:3},
   unmaker:{hp:1, spd:14, dmg:22, r:19, ai:'sovereign', row:'unmaker', scale:3},
   echo:{hp:1, spd:40, dmg:10, r:9, ai:'chase', row:'echo', scale:1.5},
-  knight:{hp:1, spd:30, dmg:16, r:9, ai:'chase', row:'knight', scale:1.35},
-  antking:{hp:1, spd:64, dmg:12, r:7, ai:'chase', row:'antking', scale:1.1},
+  knight:{hp:360, spd:26, dmg:16, r:11, ai:'boss', row:'knight', scale:1.9},
+  antking:{hp:330, spd:34, dmg:14, r:10, ai:'boss', row:'antking', scale:1.9},
   slime:{hp:20, spd:26, dmg:8,  r:5,  ai:'chase'},
   bat:  {hp:13, spd:56, dmg:6,  r:5,  ai:'erratic'},
   imp:  {hp:18, spd:30, dmg:7,  r:5,  ai:'kite'},
   brute:{hp:52, spd:22, dmg:14, r:8,  ai:'charge'},
   boss: {hp:300,spd:20, dmg:15, r:14, ai:'boss', scale:2}
 };
+/* ---- how a boss fights -------------------------------------------------
+   The old one had no answer to anyone standing next to it, so its ANSWER was
+   its body: a 35-unit contact aura that hit through i-frames and staggered on
+   every touch. Melee characters - half the roster - could not fight a boss at
+   all, because the only place they can hit from is inside it.
+
+   Every non-Rival boss now runs one template. It picks from a CLOSE list when
+   somebody is inside its reach and a FAR list when nobody is, and every move
+   winds up where you can see it before it lands, so being close is a thing
+   you can survive by reading rather than by not being there. The body itself
+   is not a weapon any more - only a telegraphed charge is.
+
+   The template is shared; what you SEE is not. Each boss brings its own
+   colour, its own tell, its own shots and its own favoured moves.        */
+const BOSS_NEAR = 70;          // inside this, it fights you at range zero
+const BOSS_MOVE = {
+  swipe:  {near:true,  wind:.50, act:.20, cd:1.5},
+  slam:   {near:true,  wind:.80, act:.34, cd:2.1},
+  volley: {near:false, wind:.55, act:.10, cd:1.9},
+  charge: {near:false, wind:.65, act:.55, cd:2.3},
+  summon: {near:false, wind:.70, act:.10, cd:3.0},
+};
+const BOSSK = {
+  boss:    {moves:['swipe','slam','volley','charge','summon'],
+            col:'#b07cff', shot:'orb',   tell:'ring',  hit:'nova'},
+  knight:  {moves:['swipe','swipe','slam','charge','volley'],
+            col:'#ff5d5d', shot:'shard', tell:'arc',   hit:'slash'},
+  antking: {moves:['swipe','slam','volley','summon','charge'],
+            col:'#8f5fff', shot:'shard', tell:'ring',  hit:'shock'},
+};
+const bossKit = m => BOSSK[m.type] || BOSSK.boss;
+/* the floor decides which of them is waiting at the end of it */
+const FLOOR_BOSS = ['boss', 'knight', 'antking'];
+
 function waveTable(kind, depth){
   const d=depth;
   if(kind==='raid' || kind==='pvp') return [[]];
   if(kind==='duel') return [['rival']];
-  if(kind==='boss') return [['boss']];
+  if(kind==='boss') return [[FLOOR_BOSS[floorOf(depth)] || 'boss']];
   const t=[];
   const n=kind==='elite'?3:3;
   for(let w=0;w<n;w++){
@@ -3777,7 +3814,7 @@ function spawnMob(type){
   else if(edge===1){x=rnd(AR.x1,AR.x0); y=AR.y1-6;}
   else if(edge===2){x=AR.x0+8; y=rnd(AR.y1,AR.y0);}
   else {x=AR.x1-8; y=rnd(AR.y1,AR.y0);}
-  const boss=type==='boss';
+  const boss = t.ai === 'boss';
   B.mobs.push({ type, x, y, vx:0, vy:0, r:t.r*(t.scale||1),
     hp:t.hp*hpS*(boss?1+B.depth*.12:1), maxhp:t.hp*hpS*(boss?1+B.depth*.12:1),
     dmg:t.dmg*dmgS, spd:t.spd, ai:t.ai, scale:t.scale||1, face:1, flash:0,
@@ -3939,12 +3976,12 @@ function killMob(m){
       B.floats.push({x:q.x,y:q.y-q.r-10,vy:-14,life:1,txt:'SPREADS',color:'#b07cff',size:7});
     }});
   }
-  B.shake=Math.max(B.shake,m.type==='boss'?9:2.5);
+  B.shake=Math.max(B.shake,m.ai==='boss'?9:2.5);
   Sfx.die();
-  const n=m.type==='boss'?26:8;
+  const n=m.ai==='boss'?26:8;
   for(let i=0;i<n;i++) B.fx.push({x:m.x,y:m.y-m.r,vx:rnd(90,-90),vy:rnd(20,-90),life:rnd(.7,.3),
-    c:m.type==='boss'?'#b07cff':'#ff8b4d',s:m.type==='boss'?2:1});
-  R.shards += m.type==='boss'?180:m.type==='brute'?22:10;
+    c:m.ai==='boss'?bossKit(m).col:'#ff8b4d',s:m.ai==='boss'?2:1});
+  R.shards += m.ai==='boss'?180:m.type==='brute'?22:10;
 }
 function healHero(v, self){
   const h=B.hero, m=h.mem;
@@ -7708,34 +7745,101 @@ function update(dt){
     else if(m.ai==='sovereign'){
       if(d > 70){ m.x += dx/d*sp*dt; m.y += dy/d*sp*dt; }
       m.state = (B.raid && B.raid.mode !== 'idle') ? 'wind' : 'idle';
+      /* Its body stopped being a wall of damage along with everyone else's,
+         so standing on it needs an answer: a stamp, wound up where you can
+         see it, that only reaches the ground around its feet. */
+      m.stomp = (m.stomp || 0) - dt;
+      if(m.stomp <= 0 && (m.tellT || 0) <= 0 && d < m.r + 46){
+        m.stomp = 3.2; m.tellT = .7; m.tellR = m.r + 52;
+        m.tellA = Math.atan2(dy, dx); m.tellKind = 'ring';
+        Sfx.tell();
+      }
+      if(m.tellT > 0){
+        m.tellT -= dt;
+        if(m.tellT <= 0){                       // the foot lands
+          B.fields.push({x:m.x, y:m.y-2, r:8, maxr:m.tellR, life:.3, max:.3,
+            dmg:m.dmg*1.1, set:new Set(), color:'#ff5d5d', type:'nova', foe:m});
+          spawnHit(m.x, m.y-4, '#ff5d5d', 'shock');
+          B.shake = Math.max(B.shake, 8);
+        }
+      }
     }
     else if(m.ai==='boss'){
-      m.stateT-=dt;
-      if(m.state==='idle'){
-        if(d>60){ m.x+=dx/d*sp*dt; m.y+=dy/d*sp*dt; }
-        m.cd-=dt;
-        if(m.cd<=0){ m.cd=2.6; m.state=pick(['ring','charge','summon']); m.stateT=.7;
-          if(m.state==='charge') m.stateT=.8; }
-      } else if(m.state==='ring'){
-        if(m.stateT<=0){ m.state='idle';
-          const n=14, base=Math.atan2(dy,dx);
-          for(let i=0;i<n;i++){ const a=base+i/n*Math.PI*2;
-            spawnShot({x:m.x,y:m.y-10,vx:Math.cos(a)*95,vy:Math.sin(a)*95,r:3.6,
-              dmg:m.dmg*.7,team:'mob',life:3,color:'#b07cff',art:'orb'}); }
-          B.shake=5; }
-      } else if(m.state==='charge'){
-        if(m.stateT<=0){ m.state='rush'; m.stateT=.55; m.dvx=dx/d*270; m.dvy=dy/d*270; }
-      } else if(m.state==='rush'){
-        m.x+=m.dvx*dt; m.y+=m.dvy*dt; if(m.stateT<=0){ m.state='idle'; }
-      } else if(m.state==='summon'){
-        if(m.stateT<=0){ m.state='idle'; for(let i=0;i<3;i++) spawnMob(pick(['bat','slime','imp'])); }
+      /* wind up -> land it -> breathe. Which move depends on whether anybody
+         is standing close enough to be hit by a hand, and the wind-up is long
+         enough to read and step out of. */
+      const K = bossKit(m);
+      m.stateT -= dt;
+      if(m.state === 'idle'){
+        if(d > 54){ m.x += dx/d*sp*dt; m.y += dy/d*sp*dt; }
+        m.cd -= dt;
+        if(m.cd <= 0){
+          const near = d <= BOSS_NEAR;
+          const pool = K.moves.filter(k => BOSS_MOVE[k].near === near);
+          m.move = pick(pool.length ? pool : K.moves);
+          m.state = 'wind'; m.stateT = BOSS_MOVE[m.move].wind;
+          m.tellA = Math.atan2(dy, dx);        // where it is aiming, fixed now
+          Sfx.tell();
+        }
+      } else if(m.state === 'wind'){
+        // it is committed: the aim was taken when the wind-up started
+        if(m.stateT <= 0){
+          const mv = BOSS_MOVE[m.move];
+          m.state = m.move === 'charge' ? 'rush' : 'act';
+          m.stateT = mv.act; m.cd = mv.cd;
+          if(m.move === 'charge'){ m.dvx = Math.cos(m.tellA)*250; m.dvy = Math.sin(m.tellA)*250; }
+          else if(m.move === 'volley'){
+            const n = 14;
+            for(let i = 0; i < n; i++){ const a2 = m.tellA + i/n*Math.PI*2;
+              spawnShot({x:m.x, y:m.y-10, vx:Math.cos(a2)*95, vy:Math.sin(a2)*95, r:3.6,
+                dmg:m.dmg*.7, team:'mob', life:3, color:K.col, art:K.shot}); }
+            B.shake = Math.max(B.shake, 5);
+          }
+          else if(m.move === 'summon'){ for(let i=0;i<3;i++) spawnMob(pick(['bat','slime','imp'])); }
+          else if(m.move === 'swipe'){
+            /* an arm, not an aura: a wide arc in front of it, once */
+            const reach = m.r + 30;
+            players().forEach(pl => {
+              if(!pl || pl.mem.ko) return;
+              const ddx = pl.x-m.x, ddy = (pl.y-4)-(m.y-4);
+              if(Math.hypot(ddx, ddy) > reach + pl.r) return;
+              let da = Math.atan2(ddy, ddx) - m.tellA;
+              while(da >  Math.PI) da -= Math.PI*2;
+              while(da < -Math.PI) da += Math.PI*2;
+              if(Math.abs(da) > 1.0) return;
+              hurtHero(m.dmg*1.7, pl);
+            });
+            spawnHit(m.x + Math.cos(m.tellA)*m.r, m.y - 6 + Math.sin(m.tellA)*m.r*.6,
+                     K.col, K.hit);
+            B.shake = Math.max(B.shake, 6);
+          }
+          else if(m.move === 'slam'){
+            /* the floor answers instead: a ring you can be outside of */
+            B.fields.push({x:m.x, y:m.y-2, r:8, maxr:m.r + 74, life:.34, max:.34,
+              dmg:m.dmg*1.9, set:new Set(), color:K.col, type:'nova', foe:m});
+            spawnHit(m.x, m.y-4, K.col, 'shock');
+            B.shake = Math.max(B.shake, 9); B.hitstop = Math.max(B.hitstop, .05);
+          }
+        }
+      } else if(m.state === 'act'){
+        if(m.stateT <= 0) m.state = 'idle';
+      } else if(m.state === 'rush'){
+        m.x += m.dvx*dt; m.y += m.dvy*dt;
+        if(m.stateT <= 0) m.state = 'idle';
       }
     }
     m.x=clamp(m.x,AR.x0+4,AR.x1-4);
     m.y=clamp(m.y, m.type==='sovereign' ? AR.y0+104 : AR.y0+8, AR.y1-2);
     m.moving = Math.abs(m.x-_px) + Math.abs(m.y-_py) > 0.12;
-    /* contact */
-    if(m.ai!=='kite'){
+    /* Contact. A normal enemy's body IS its attack - walking into you is the
+       whole move. A boss's is not: standing next to something the size of a
+       room was a continuous drain that no melee character could ever get out
+       of, because the only place they can hit from is that exact spot. A boss
+       only hits you with its body while it is charging, which it tells you
+       about first. */
+    const bodyHurts = m.ai !== 'kite'
+      && (!(m.ai === 'boss' || m.ai === 'sovereign') || m.state === 'rush');
+    if(bodyHurts){
       for(const pl of players()){
         if(!pl || pl.mem.ko || dist(m,pl) >= m.r+pl.r+1) continue;
         hurtHero(m.dmg*(m.state==='dash'||m.state==='rush'?1.4:1), pl);
@@ -8463,6 +8567,43 @@ function render(){
       ctx.globalAlpha = 1;
       if(h.blade && h.blade.length) drawSwing(ctx, h);
     }
+  }
+  /* ---- boss tells ------------------------------------------------------
+     The wind-up has to be on the screen, or "read it and step out" is a
+     thing only the code knows about. A ring means the floor is about to go;
+     an arc means an arm is coming through that wedge. Each boss draws its
+     own, in its own colour. */
+  for(const m of B.mobs){
+    if(m.dead) continue;
+    const winding = (m.ai === 'boss' && m.state === 'wind') || (m.tellT || 0) > 0;
+    if(!winding) continue;
+    const K = bossKit(m);
+    const kind = m.ai === 'boss'
+      ? (m.move === 'slam' ? 'ring' : m.move === 'swipe' ? 'arc' : K.tell)
+      : 'ring';
+    const full = m.ai === 'boss' ? BOSS_MOVE[m.move].wind : .7;
+    const t = clamp(1 - (m.ai === 'boss' ? m.stateT : m.tellT)/full, 0, 1);
+    const col = m.ai === 'boss' ? K.col : '#ff5d5d';
+    const cx2 = m.x*PX, cy2 = (m.y-2)*PX;
+    ctx.save();
+    ctx.translate(cx2, cy2); ctx.scale(1, 0.62);
+    ctx.globalAlpha = .25 + t*.45;
+    ctx.strokeStyle = col; ctx.lineWidth = 3 + t*3;
+    if(kind === 'arc'){
+      const R2 = (m.r + 30)*PX;
+      ctx.beginPath(); ctx.arc(0, 0, R2*(.55 + t*.45), m.tellA - 1.0, m.tellA + 1.0);
+      ctx.stroke();
+      ctx.globalAlpha = .16 + t*.3;
+      ctx.beginPath(); ctx.moveTo(0, 0);
+      ctx.arc(0, 0, R2*(.55 + t*.45), m.tellA - 1.0, m.tellA + 1.0);
+      ctx.closePath(); ctx.fill();
+    } else {
+      const R2 = ((m.ai === 'boss' ? m.r + 74 : m.tellR))*PX;
+      ctx.beginPath(); ctx.arc(0, 0, R2*(.35 + t*.65), 0, 7); ctx.stroke();
+      ctx.globalAlpha = .10 + t*.16;
+      ctx.beginPath(); ctx.arc(0, 0, R2*(.35 + t*.65), 0, 7); ctx.fill();
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
   }
   drawHits(ctx);
   /* particles */
