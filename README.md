@@ -177,6 +177,41 @@ is installed as *the* hero while it is being stepped — that is how they both g
 their own stats, perks and passives without threading a parameter through two
 thousand lines.
 
+## Weapons
+
+Weapons are **earned, never bought**, and there is no weapon banner — you
+carry materials out of the Spire and forge the one you actually wanted
+instead of opening a box and hoping.
+
+**Four materials, and depth is the whole point.** The Undercroft pays in
+**Worn Scrap**, the Glass Tiers in **Glass Shards**, the Crown in **Crown
+Filigree** — a floor only ever drops its own — and a **Sealed Core** comes off
+a boss and nothing else. Rooms pay 1–2, elites 3, a boss 4 plus a core for
+each floor deep it is. Materials **bank as they are found**, so a run that
+ends badly still paid for itself, and the summary says what you carried out.
+
+**Twelve weapons, none of them locked to anybody.** Every weapon fits every
+character, and equipping one does not take it off anyone else — they are
+account-wide unlocks, not items, so there is nothing to hoard and nothing to
+lose in a run. Tier 1 is a flat stat; tier 2 and 3 buy an effect with it —
+hits that arc to a second enemy, damage that comes back as health, a burn on
+everything you touch, 30% more against anything under 40% health. The biggest
+(+22% attack) costs you 10% of your health, because a weapon that is only
+upside is a stat increase with a name on it.
+
+**The pacing, measured rather than guessed.** One full clear of the Spire
+banks about 15 scrap, 16 glass, 18 filigree and 6 cores. Against that, a tier
+1 weapon is **about two clears (~11 minutes)**, a tier 2 **four or five
+(~22)**, and a tier 3 **eight or nine (~40–45)** — so the specific weapon you
+want sits inside an hour of play, with cores off deep bosses as the gate
+rather than a flat farm of floor one.
+
+Crafting lives in **Inventory**, next to the Echo bank and shaped the same way
+— bank what drops, spend when you are ready. The slot is on the character page
+under Tuning, and the stat line there shows what they actually fight with.
+
+---
+
 ## The roguelike
 
 Build a squad of up to 3 and climb the Spire — **3 floors, 24 rooms, 3 bosses**
