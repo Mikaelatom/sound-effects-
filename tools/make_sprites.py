@@ -22,7 +22,7 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 import zlib, struct, base64, os, re, sys, math
 
 W, H = 96, 96
-FRAMES = 30
+FRAMES = 44
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 48.0       # centre column
 FEET  = 92         # baseline every actor stands on
@@ -709,10 +709,17 @@ POSES = [
 IDLE_FRAMES = [0, 1, 2, 3]
 BLINK_FRAME = 4
 WALK_FRAMES = [5, 6, 7, 8, 9, 10, 11, 12]
-ATK_FRAMES  = [13, 14, 15, 16, 17, 18, 19]   # the swing, in order
-DASH_FRAMES = [20, 21, 22]
-CAST_FRAMES = [23, 24, 25, 26]
-HURT_FRAMES = [27, 28, 29]
+# three swings, one per press of the string, seven frames each
+ATK_STEP_FRAMES = [[13, 14, 15, 16, 17, 18, 19],
+                   [20, 21, 22, 23, 24, 25, 26],
+                   [27, 28, 29, 30, 31, 32, 33]]
+ATK_FRAMES  = [f for step in ATK_STEP_FRAMES for f in step]
+DASH_FRAMES = [34, 35, 36]
+CAST_FRAMES = [37, 38, 39, 40]
+HURT_FRAMES = [41, 42, 43]
+# frame -> (which swing, which frame of it)
+_ATKAT = {f: (si, i) for si, step in enumerate(ATK_STEP_FRAMES)
+                     for i, f in enumerate(step)}
 
 # ------------------------------------------------------------------- carry --
 # Where a blade sits when nobody is swinging it. Held out in front is a guard
@@ -730,8 +737,8 @@ REST_DEG = {'sword': 148, 'dagger': 156, 'heavy': 138}
 # the body instead of being welded on. Keyed by frame.
 REST_OFF = {0:0, 1:2, 2:4, 3:2, 4:0,                      # breathing
             5:5, 6:2, 7:-3, 8:-1, 9:5, 10:2, 11:-3, 12:-1,  # the carry swing
-            20:14, 21:22, 22:10,                          # trails further in flight
-            27:-10, 28:-6, 29:-2}                         # thrown forward by the hit
+            34:14, 35:22, 36:10,                          # trails further in flight
+            41:-10, 42:-6, 43:-2}                         # thrown forward by the hit
 
 def carry(p, frame, pose):
     """the pose, with a blade lowered to where it is actually carried.
@@ -815,6 +822,103 @@ ATK_SETS = {
  ],
 }
 
+# --------------------------------------------------------- the combo string --
+# Pressing attack three times used to play the SAME seven frames three times,
+# which is why a string read as one move repeated rather than as a combo. Each
+# press gets its own swing now. They differ in the BODY first and the blade
+# second: a cut is a step, and three cuts that step the same way look the same
+# however you angle the steel.
+#
+#   1  the cut      - what is above: weight back, step through, chop down
+#   2  the drive    - a low lunge that covers ground, blade flat and fast
+#   3  the rise     - crouch, then come up underneath it; the arc runs the
+#                     other way round, which is what makes a string read
+SWING2 = [
+ # 0 ready: already low, blade held back across the body
+ dict(bob=3,  lean=-2, feet=((-10,0,1,3),(7,0,-1,3)),  hb=(-6,20), hf=(-12,16), eye='fierce', sway=-3, hd=-1, sh=2,  both=1),
+ # 1 coil: deeper, weight fully back, front foot light
+ dict(bob=5,  lean=-6, feet=((-13,0,2,7),(9,3,-3,5)),  hb=(-8,18), hf=(-17,13), eye='fierce', sway=-8, hd=-3, sh=3,  both=1),
+ # 2 drive: the front foot leaves, the whole body launches along the floor
+ dict(bob=2,  lean=6,  feet=((-16,0,4,4),(14,7,-3,7)), hb=(-4,17), hf=(-4,10),  eye='fierce', sway=6,  hd=4, sh=1,  both=1),
+ # 3 cut: lands wide and low, the blade coming down across the front
+ # The travel is in the LEGS, not the arms. Reaching the hands out as far as
+ # the feet go puts the hilt so far forward that a full-length blade runs off
+ # the frame and gets cut short - the lunge has to read from the stance.
+ dict(bob=6,  lean=12, feet=((-22,0,6,1),(19,0,-2,7)), hb=(-4,19), hf=(1,11),   eye='fierce', sway=13, hd=7, sh=-2, both=1),
+ # 4 through: the widest and lowest of the three swings
+ dict(bob=8,  lean=11, feet=((-25,0,5,0),(22,0,-1,10)),hb=(-2,22), hf=(4,16),   eye='fierce', sway=11, hd=5, sh=-3, both=1),
+ # 5 recover: weight comes back off the front foot
+ dict(bob=5,  lean=6,  feet=((-17,0,3,2),(14,1,-1,6)), hb=(-2,25), hf=(6,22),   eye='fierce', sway=6,  hd=3, both=1),
+ # 6 settle
+ dict(bob=3,  lean=2,  feet=((-10,0),(10,0)),          hb=(-3,26), hf=(9,26),   eye='fierce', sway=3,  hd=1),
+]
+SWING3 = [
+ # 0 sink: dropping into it, blade low and forward
+ dict(bob=5,  lean=2,  feet=((-11,0,1,5),(9,0,-1,5)),  hb=(-2,24), hf=(6,26),   eye='fierce', sway=2,  hd=1,  sh=-1, both=1),
+ # 1 load: the lowest frame in the game, everything coiled under them
+ dict(bob=9,  lean=-1, feet=((-14,0,2,9),(11,0,-1,9)), hb=(0,26),  hf=(9,28),   eye='fierce', sway=-2, hd=-1, sh=-2, both=1),
+ # 2 rise: legs drive, body starts coming up and forward
+ dict(bob=1,  lean=7,  feet=((-16,0,4,3),(13,3,-2,5)), hb=(-1,20), hf=(8,20),   eye='fierce', sway=8,  hd=4,  sh=1,  both=1),
+ # 3 up: fully extended, taller than they ever stand, blade climbing
+ dict(bob=-5, lean=9,  feet=((-15,2,4,1),(12,6,-2,3)), hb=(-3,12), hf=(5,8),    eye='fierce', sway=11, hd=6,  sh=3,  both=1),
+ # 4 apex: off the floor, arms up behind the arc
+ dict(bob=-7, lean=5,  feet=((-13,6,3,2),(10,9,-2,4)), hb=(-5,8),  hf=(0,4),    eye='fierce', sway=7,  hd=4,  sh=4,  both=1),
+ # 5 fall: coming back down through it
+ dict(bob=0,  lean=2,  feet=((-12,1,2,3),(10,2,-1,4)), hb=(-5,16), hf=(-2,12),  eye='fierce', sway=2,  hd=1,  sh=1,  both=1),
+ # 6 land
+ dict(bob=4,  lean=1,  feet=((-10,0),(10,0)),          hb=(-4,24), hf=(2,24),   eye='fierce', sway=0,  hd=0),
+]
+# Where the blade points through each of those, per class. The body shape is
+# shared; the steel is not - a knife and a greataxe travelling the same path
+# is how one animation for the whole roster looked wrong in the first place.
+# The drive comes down ACROSS the front rather than straight out along it:
+# level from a hand that far forward does not fit the frame at full length,
+# and a blade the frame ate is the one thing a big trail makes obvious.
+WDEG2 = {
+ 'sword':   [200, 186, 254, 330,  26,  52,  48],
+ 'dagger':  [210, 196, 264, 336,  32,  50,  44],
+ 'heavy':   [190, 176, 240, 322,  20,  54,  50],
+ 'polearm': [340, 332, 348,   4,  16, 348, 334],
+ 'fist':    [0]*7,
+ 'ranged':  [0]*7,
+}
+# The finisher is a BACKHAND: it starts high in front and sweeps up, over and
+# back, finishing low behind them. Both of the first two cuts travel front-
+# ways, so a third that went the same way was a third of the same move - this
+# one runs against them, which is what makes a string read as a string.
+#
+# It also has to stay off the floor. Frames pointing straight down get their
+# blade cut short by the frame edge, which is why the first attempt at this
+# swing had a stub of a sword on its lowest frames and a trail that went
+# nowhere: nothing below about 160 degrees fits at full length from a hand
+# that low.
+WDEG3 = {
+ 'sword':   [330, 310, 280, 245, 210, 180, 158],
+ 'dagger':  [336, 316, 286, 250, 214, 184, 162],
+ 'heavy':   [324, 304, 274, 240, 206, 176, 154],
+ 'polearm': [340, 330, 310, 280, 250, 220, 200],
+ 'fist':    [0]*7,
+ 'ranged':  [0]*7,
+}
+def _step(body, degs):
+    return [dict(b, wdeg=d) for b, d in zip(body, degs)]
+# class -> the three swings, in the order they are pressed
+ATK_STEPS = {cls: [poses,
+                   poses if cls == 'ranged' else _step(SWING2, WDEG2[cls]),
+                   poses if cls == 'ranged' else _step(SWING3, WDEG3[cls])]
+             for cls, poses in ATK_SETS.items()}
+
+# POSES was written when there was one swing, so it describes frames 13-19 and
+# then goes straight to the dash. The layout has three swings now; the two
+# extra blocks are spliced in to keep POSES and the frame numbering the same
+# length. Nothing reads them - every attack frame goes through atk_pose() -
+# but the table has to cover every frame it is indexed by.
+POSES = (POSES[:20]
+         + _step(SWING2, WDEG2['sword'])
+         + _step(SWING3, WDEG3['sword'])
+         + POSES[20:])
+assert len(POSES) == FRAMES, (len(POSES), FRAMES)
+
 # which swing a weapon belongs to
 WEP_CLASS = {
  'katana':'sword', 'tachi':'sword', 'odachi':'sword', 'nodachi':'sword',
@@ -834,8 +938,9 @@ def wep_class(p):
     return WEP_CLASS.get(p['wep'], 'ranged')
 
 def atk_pose(p, frame):
-    """the pose for one frame of THIS character's swing"""
-    return ATK_SETS[wep_class(p)][ATK_FRAMES.index(frame)]
+    """the pose for one frame of one of THIS character's three swings"""
+    step, i = _ATKAT[frame]
+    return ATK_STEPS[wep_class(p)][step][i]
 
 def head_pos(pose):
     """Where the head sits. It carries the same forward TURN the torso does -
@@ -3388,13 +3493,16 @@ def main():
     # where the hand is and which way the weapon points, frame by frame through
     # the swing, straight out of the poses these sprites were drawn from
     grip = []
-    for cls, poses in ATK_SETS.items():
-        rows = []
-        for pose in poses:
-            hxp, hyp = hand(pose, False)
-            ux, uy = wep_axis(pose)
-            rows.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
-        grip.append('%s:[%s]' % (cls, ','.join(rows)))
+    for cls, steps in ATK_STEPS.items():
+        sets = []
+        for poses in steps:
+            rows = []
+            for pose in poses:
+                hxp, hyp = hand(pose, False)
+                ux, uy = wep_axis(pose)
+                rows.append('[%.1f,%.1f,%.3f,%.3f]' % (hxp, hyp, ux, uy))
+            sets.append('[%s]' % ','.join(rows))
+        grip.append('%s:[%s]' % (cls, ','.join(sets)))
     tbl3 = ','.join('%s:%d' % (k, CX + WEP_CLAMP.get(CHARS[k]['wep'], 99)) for k in ORDER)
     new, n5 = re.subn(r'const WEP_GRIPX = \{[^}]*\};',
                       lambda _: 'const WEP_GRIPX = {%s};' % tbl3, new)

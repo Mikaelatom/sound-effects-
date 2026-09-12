@@ -454,6 +454,39 @@ character is put on one by what they are holding:
 | **Fist** (7) | jab, then the hips turn over and the rear hand follows |
 | **Ranged** (19) | no swing at all — raise, fire, ride the recoil |
 
+**Three presses, three different cuts.** A string used to replay the same
+seven frames three times, which is why a combo read as one move repeated
+rather than as a combo. Each press has its own swing now, and they differ in
+the **body** first and the blade second — a cut is a step, and three cuts that
+step the same way look the same however you angle the steel:
+
+| | |
+|---|---|
+| **1 · the cut** | weight back, step through, chop down |
+| **2 · the drive** | a low lunge that covers ground, the blade coming down across the front |
+| **3 · the rise** | a backhand — it starts high in front and sweeps up, over and back |
+
+The third runs *against* the first two on purpose. Both of those travel
+frontways; a third that went the same way was a third of the same move.
+
+**And the arc is the move.** The trail was a third of the blade wide, which at
+this sprite size is a bright sliver you have to be looking for. It is nearly
+as wide as the blade is long now, held a third of a second so most of the arc
+is on screen at once — but only ever as wide as the arc is **long**. A swoosh's
+thickness belongs to how far the blade actually travelled: the finisher's
+first version put a band 52 pixels across a path 62 long and stopped being a
+crescent at all. Every arc that reads well sits near a quarter of its own
+length, so that is the ceiling.
+
+Two things had to be fixed underneath it before a big arc was survivable. The
+generator shortens a blade rather than let it run off the 96px frame, and the
+trail was using the full length regardless — so on exactly the frames where a
+blade got cut, the arc peeled away from the sword drawing it. The trail runs
+the same clamp now. And the drive's first version reached the hands as far
+forward as the feet went, which put the hilt so far out that the frame ate
+half the sword on the three frames you most want to see it; the travel lives
+in the stance instead.
+
 **Nothing is thrown, and nothing is spawned.** The swing is the character's
 own animation, and the only effect is the **trail off the sword they are
 already holding**. The generator that draws the sprites also writes out where
