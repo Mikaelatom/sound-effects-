@@ -117,11 +117,27 @@ lanternstaff — now gets **one light line down its top edge**, floored to a gre
 so a black haft gets a visible edge rather than a black one.
 
 ### Rates
-- 5★: 3% base, soft pity climbs from pull 25, **guaranteed at 35**
-- 4★: 9% base, **guaranteed within 10**
-- Every pull that is neither pays out **Echoes**. Bank 10 and spend them in
-  Collection to raise *anyone's* **Resonance**, so no pull is ever wasted.
-- Duplicate characters raise Resonance directly; at R6 they refund shards.
+- 5★: 1% base, soft pity climbs from pull 75, **guaranteed at 100**
+- 4★: 2.5% base, **guaranteed at 40**
+- A pull that lands nobody pays **30 Echoes** — 10 for the 4★ pity it missed
+  and 20 for the 5★. Ten Echoes raise *anyone's* **Resonance** by a rank.
+- A **duplicate is +1 Resonance** on that character directly, not Echoes. Only
+  once they are capped at R6 does a dupe pay out instead, 20 for a 5★ and 10
+  for a 4★. It pays in Echoes rather than shards on purpose: shards buy more
+  pulls, which would hand the deepest collection the fastest route to a deeper
+  one, and Echoes can only ever raise somebody you already have.
+
+**Pity moved because a pull you can count on is not an event.** The old
+numbers handed over a 5★ every eighteen pulls, and a single sitting under an
+hour cleared the roster. Raising only the ceiling would have changed nothing —
+at a 3% base almost nobody ever reached it — so the whole curve moved with it.
+A 5★ is now about **56 pulls**, a 4★ about 30: roughly a third as often, the
+same factor the guarantee moved by. Both guarantees bind exactly, verified
+over 200,000 simulated pulls — the worst run any of them produced was 100 and
+40 on the nose, never one over.
+
+At roughly 2,200 shards a full clear, a 5★ is about **two and a half clears**
+rather than most of one.
 
 **Resonance is a real power curve, not a rounding error.** Each rank is +13%
 attack and +9% HP, and **R6 pays a bonus on top** — a 30% attack spike and a

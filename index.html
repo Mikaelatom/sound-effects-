@@ -580,8 +580,9 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         <div class="rule">
           <b>Twin Fate rule</b> — every 5★ pull gives you your <span class="hl">chosen character, guaranteed</span>.
           Then a coin flips: <span class="hl">heads</span> and a second 5★ joins them. Tails and you just keep the one
-          you wanted. You cannot lose a 50/50 here. Anything that isn't a 5★ pays out
-          <span class="hl">Echoes</span> — bank 10 to raise anyone's Resonance, so no pull is ever wasted.
+          you wanted. You cannot lose a 50/50 here. A pull that lands nothing pays
+          <span class="hl">30 Echoes</span> — ten of those raise anyone's Resonance — and pulling
+          somebody you already own is <span class="hl">+1 Resonance</span> on them outright. No pull is ever wasted.
         </div>
         <div id="home-recent" class="tiny muted"></div>
       </div>
@@ -682,9 +683,9 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
         <button class="btn primary" id="pull1">Summon ×1 &nbsp;<span style="opacity:.75">◈ 100</span></button>
         <button class="btn gold" id="pull10">Summon ×10 &nbsp;<span style="opacity:.75">◈ 900</span></button>
         <div class="tiny muted" style="line-height:1.75">
-          5★ rate 3%, soft pity from 25, guaranteed at 35.<br>
-          4★ rate 9%, guaranteed within 10.<br>
-          Anything else pays out Echoes.<br>
+          5★ rate 1%, soft pity from 75, guaranteed at 100.<br>
+          4★ rate 2.5%, guaranteed at 40.<br>
+          A miss pays 30 Echoes. A duplicate is +1 Resonance.<br>
           Every 5★ is the one you picked. Always.
         </div>
         <div class="spacer"></div>
@@ -2286,9 +2287,13 @@ function grant(id){
   if(!S.owned[id]){ S.owned[id] = {res:0, count:1}; return {id, isNew:true, res:0}; }
   const o = S.owned[id]; o.count++;
   if(o.res < 6){ o.res++; return {id, isNew:false, res:o.res}; }
-  const back = CHAR[id].rarity === 5 ? 400 : 120;   // already maxed, take the shards
-  S.shards += back;
-  return {id, isNew:false, res:6, refund:back};
+  /* Already at the cap. A dupe is never wasted, but it pays in Echoes rather
+     than shards: shards buy more pulls, which would hand the deepest
+     collection the fastest route to a deeper one. Echoes only ever raise
+     somebody you already have. */
+  const back = CHAR[id].rarity === 5 ? ECHO_MISS5 : ECHO_MISS4;
+  S.echoes += back;
+  return {id, isNew:false, res:6, echoBack:back};
 }
 /* bank Echoes into Resonance for whoever you want */
 function spendEchoes(id){
@@ -2301,11 +2306,25 @@ function spendEchoes(id){
 
 /* ================================ GACHA ================================= */
 const COST = 100, COST10 = 900;
-/* 4 characters, so the 5-star tap has to come around often enough to matter */
+/* The economy, as final numbers rather than defaults to tune later.
+
+   It used to hand a 5-star over every eighteen pulls, which meant a single
+   sitting under an hour long cleared the roster - and a pull you can count on
+   getting is not an event. Pity went to a hundred, and the whole curve moved
+   with it: raising only the ceiling would have changed nothing, because at a
+   3% base almost nobody ever reached it. A 5-star is now about every 55
+   pulls, a 4-star about every 21 - roughly a third as often, which is the
+   same factor the guarantee moved by. */
+const PITY5 = 100, PITY4 = 40;          // the hard guarantees, in rolls
+const RATE5 = .010, SOFT5 = 75;         // base chance, and where the ramp starts
+const RATE4 = .025;
+/* What a roll pays out when it lands nothing. Both pities were counting, and
+   a miss misses both, so it settles with both of them. */
+const ECHO_MISS4 = 10, ECHO_MISS5 = 20;
 function rate5(p){
-  if(p >= 34) return 1;
-  if(p < 24) return .03;
-  return clamp(.03 + (p-23)*.09, 0, 1);
+  if(p >= PITY5) return 1;
+  if(p < SOFT5)  return RATE5;
+  return clamp(RATE5 + (p - (SOFT5 - 1))*.016, 0, 1);
 }
 /* one pull -> { cards:[...], flip:{rarity,won,main,bonus}|null }
    The Twin Fate rule applies at BOTH rarities: the featured character is
@@ -2330,11 +2349,11 @@ function onePull(){
     S.pity5 = 0; S.pity4 = 0;
     return twin(S.banner.five, FIVES, 5);
   }
-  if(S.pity4 >= 10 || Math.random() < .09){
+  if(S.pity4 >= PITY4 || Math.random() < RATE4){
     S.pity4 = 0;
     return twin(S.banner.four, FOURS, 4);
   }
-  const n = Math.random() < .2 ? 3 : 1;               // consolation is never nothing
+  const n = ECHO_MISS4 + ECHO_MISS5;                  // a miss is never nothing
   S.echoes += n;
   return {cards:[{echo:n}], flip:null};
 }
@@ -2547,9 +2566,10 @@ function renderInv(){
     wg.appendChild(d);
   });
   const per = ECHOES_PER_RES;
-  $('#inv-echo-box').innerHTML = `You hold <b class="hl">${S.echoes||0}</b> Echoes. Every pull that
-    isn't a 5★ pays these out. Spend <b>${per}</b> of them on any character in
-    <b>Characters</b> to push their Resonance up one rank — so no pull is ever wasted.
+  $('#inv-echo-box').innerHTML = `You hold <b class="hl">${S.echoes||0}</b> Echoes. A pull that lands
+    nobody pays <b>${ECHO_MISS4 + ECHO_MISS5}</b> of them. Spend <b>${per}</b> on any character in
+    <b>Characters</b> to push their Resonance up one rank. A duplicate raises that
+    character by one rank on its own, and only turns into Echoes once they are at R6.
     <div class="bar" style="max-width:280px"><i style="width:${Math.min(100,(S.echoes||0)%per/per*100)}%"></i></div>`;
 }
 function renderProfile(){
@@ -2594,13 +2614,15 @@ function renderBanner(){
       onClick:() => { S.banner.four = id; save(); renderBanner(); }}));
   });
   $('#echo-box').innerHTML = `You hold <b class="hl">${S.echoes}</b> Echoes.
-    Every pull that isn't a 5★ pays these out. Spend <b>${ECHOES_PER_RES}</b> of them in
-    <b>Collection</b> to push any character up one Resonance — so no pull is ever wasted.`;
+    A pull that lands nobody pays <b>${ECHO_MISS4 + ECHO_MISS5}</b> of them &mdash; ${ECHO_MISS4} for the 4★
+    pity it missed and ${ECHO_MISS5} for the 5★. Spend <b>${ECHOES_PER_RES}</b> in <b>Characters</b> to
+    push someone up one Resonance. Pulling a duplicate is <b>+1 Resonance</b> on them
+    directly, and only pays Echoes once they are capped at R6.`;
   const p = S.pity5, r = Math.round(rate5(p)*1000)/10;
-  $('#pity-box').innerHTML = `<div>5★ pity <b style="color:var(--gold)">${p}</b>/35 &nbsp; <span class="muted">rate ${r}%</span></div>
-    <div class="bar"><i style="width:${Math.min(100, p/35*100)}%"></i></div>
-    <div style="margin-top:8px">4★ pity <b style="color:var(--r4)">${S.pity4}</b>/10</div>
-    <div class="bar"><i style="width:${Math.min(100, S.pity4/10*100)}%"></i></div>
+  $('#pity-box').innerHTML = `<div>5★ pity <b style="color:var(--gold)">${p}</b>/${PITY5} &nbsp; <span class="muted">rate ${r}%</span></div>
+    <div class="bar"><i style="width:${Math.min(100, p/PITY5*100)}%"></i></div>
+    <div style="margin-top:8px">4★ pity <b style="color:var(--r4)">${S.pity4}</b>/${PITY4}</div>
+    <div class="bar"><i style="width:${Math.min(100, S.pity4/PITY4*100)}%"></i></div>
     <div style="margin-top:8px">Echoes <b style="color:var(--purple)">${S.echoes}</b></div>
     <div class="bar"><i style="width:${Math.min(100, S.echoes%ECHOES_PER_RES/ECHOES_PER_RES*100)}%"></i></div>`;
   $('#pull1').disabled  = S.shards < COST;
@@ -2665,7 +2687,9 @@ function showPull(result){
       st.style.color = card.rarity === 5 ? 'var(--r5)' : 'var(--r4)';
       const sub = document.createElement('div'); sub.className = 'tiny';
       sub.style.color = card.isNew ? 'var(--cyan)' : 'var(--dim)';
-      sub.textContent = card.isNew ? 'NEW' : (card.refund ? '+'+card.refund+'◈' : 'Resonance R'+card.res);
+      sub.textContent = card.isNew ? 'NEW'
+        : card.echoBack ? '+'+card.echoBack+' \u25c7'    // capped: paid out in Echoes
+        : 'Resonance R'+card.res;
       d.append(nm, st, sub);
       if(card.bonus){
         const b = document.createElement('div'); b.className = 'tiny';
