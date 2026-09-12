@@ -21,14 +21,21 @@ than chibi: head 18px, shoulders at 28, waist at 40, legs from 50 to 92.
 """
 import zlib, struct, base64, os, re, sys, math
 
-W, H = 96, 96
+# TOP is headroom. The figure used to be drawn hard against y=0 - Homura's
+# hair was flattened into the top row on all 44 of her frames - which meant a
+# pose could sink and never rise. Every attack came out flat for that reason
+# alone, whatever the numbers said: there was nowhere to go. The frame is
+# taller now and the whole figure sits TOP pixels down it, so a crouch and a
+# full extension are both drawable.
+TOP = 26
+W, H = 96, 96 + TOP
 FRAMES = 44
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CX    = 48.0       # centre column
-FEET  = 92         # baseline every actor stands on
-HEADY = 16         # head centre
-SHOULDER = 29      # top of the torso
-HIP   = 50         # where the legs start
+FEET  = 92 + TOP         # baseline every actor stands on
+HEADY = 16 + TOP         # head centre
+SHOULDER = 29 + TOP      # top of the torso
+HIP   = 50 + TOP         # where the legs start
 TURN  = 2.5        # how far the figure leads with its front (+x)
 PROFILE = 0.62     # a body seen from the side is far narrower than head-on
 
@@ -833,44 +840,49 @@ ATK_SETS = {
 #   2  the drive    - a low lunge that covers ground, blade flat and fast
 #   3  the rise     - crouch, then come up underneath it; the arc runs the
 #                     other way round, which is what makes a string read
+SWING1 = [
+ # the cut - coil back, explode up and through, land on it
+ dict(bob=8,  lean=-5, feet=((-11,0,1,4),(7,0,-1,4)),   hb=(-8,18), hf=(-13,12), eye='fierce', sway=-5,  hd=-2, sh=2,  both=1),
+ dict(bob=15, lean=-11,feet=((-15,0,2,9),(10,5,-3,6)),  hb=(-10,15),hf=(-19,7),  eye='fierce', sway=-11, hd=-5, sh=4,  both=1),
+ dict(bob=-9, lean=4,  feet=((-18,3,3,3),(14,9,-3,6)),  hb=(-6,13), hf=(-8,1),   eye='fierce', sway=5,   hd=4,  sh=-1, both=1),
+ dict(bob=-4, lean=12, feet=((-22,1,5,1),(19,2,-2,5)),  hb=(-2,15), hf=(7,0),    eye='fierce', sway=13,  hd=8,  sh=-3, both=1),
+ dict(bob=12, lean=11, feet=((-27,0,5,0),(24,0,-1,11)), hb=(0,20),  hf=(14,7),   eye='fierce', sway=11,  hd=6,  sh=-4, both=1),
+ dict(bob=8,  lean=6,  feet=((-18,0,2,2),(15,1,-1,6)),  hb=(-2,24), hf=(12,17),  eye='fierce', sway=6,   hd=3,  both=1),
+ dict(bob=3,  lean=2,  feet=((-10,0),(10,0)),           hb=(-3,26), hf=(8,26),   eye='fierce', sway=3,   hd=1),
+]
 SWING2 = [
- # 0 ready: already low, blade held back across the body
- dict(bob=3,  lean=-2, feet=((-10,0,1,3),(7,0,-1,3)),  hb=(-6,20), hf=(-12,16), eye='fierce', sway=-3, hd=-1, sh=2,  both=1),
- # 1 coil: deeper, weight fully back, front foot light
- dict(bob=5,  lean=-6, feet=((-13,0,2,7),(9,3,-3,5)),  hb=(-8,18), hf=(-17,13), eye='fierce', sway=-8, hd=-3, sh=3,  both=1),
- # 2 drive: the front foot leaves, the whole body launches along the floor
- dict(bob=2,  lean=6,  feet=((-16,0,4,4),(14,7,-3,7)), hb=(-4,17), hf=(-4,10),  eye='fierce', sway=6,  hd=4, sh=1,  both=1),
- # 3 cut: lands wide and low, the blade coming down across the front
- # The travel is in the LEGS, not the arms. Reaching the hands out as far as
- # the feet go puts the hilt so far forward that a full-length blade runs off
- # the frame and gets cut short - the lunge has to read from the stance.
- dict(bob=6,  lean=12, feet=((-22,0,6,1),(19,0,-2,7)), hb=(-4,19), hf=(1,11),   eye='fierce', sway=13, hd=7, sh=-2, both=1),
- # 4 through: the widest and lowest of the three swings
- dict(bob=8,  lean=11, feet=((-25,0,5,0),(22,0,-1,10)),hb=(-2,22), hf=(4,16),   eye='fierce', sway=11, hd=5, sh=-3, both=1),
- # 5 recover: weight comes back off the front foot
- dict(bob=5,  lean=6,  feet=((-17,0,3,2),(14,1,-1,6)), hb=(-2,25), hf=(6,22),   eye='fierce', sway=6,  hd=3, both=1),
- # 6 settle
- dict(bob=3,  lean=2,  feet=((-10,0),(10,0)),          hb=(-3,26), hf=(9,26),   eye='fierce', sway=3,  hd=1),
+ # the drive - a low lunge that covers ground. Lowest and widest of the three.
+ dict(bob=7,  lean=-2, feet=((-12,0,1,4),(8,0,-1,4)),   hb=(-6,20), hf=(-12,16), eye='fierce', sway=-3, hd=-1, sh=2,  both=1),
+ dict(bob=14, lean=-8, feet=((-16,0,2,9),(11,4,-3,6)),  hb=(-8,18), hf=(-18,13), eye='fierce', sway=-9, hd=-4, sh=4,  both=1),
+ dict(bob=-4, lean=8,  feet=((-19,4,4,4),(17,10,-3,7)), hb=(-4,15), hf=(-4,8),   eye='fierce', sway=8,  hd=5,  sh=1,  both=1),
+ dict(bob=16, lean=14, feet=((-30,0,6,1),(26,0,-2,10)), hb=(-4,19), hf=(1,11),   eye='fierce', sway=15, hd=8,  sh=-3, both=1),
+ dict(bob=19, lean=12, feet=((-33,0,5,0),(29,0,-1,13)), hb=(-2,22), hf=(4,16),   eye='fierce', sway=12, hd=6,  sh=-4, both=1),
+ dict(bob=11, lean=7,  feet=((-21,0,3,3),(17,1,-1,7)),  hb=(-2,25), hf=(6,22),   eye='fierce', sway=7,  hd=3,  both=1),
+ dict(bob=4,  lean=2,  feet=((-11,0),(11,0)),           hb=(-3,26), hf=(9,26),   eye='fierce', sway=3,  hd=1),
 ]
 SWING3 = [
- # 0 sink: dropping into it, blade low and forward
- dict(bob=5,  lean=2,  feet=((-11,0,1,5),(9,0,-1,5)),  hb=(-2,24), hf=(6,26),   eye='fierce', sway=2,  hd=1,  sh=-1, both=1),
- # 1 load: the lowest frame in the game, everything coiled under them
- dict(bob=9,  lean=-1, feet=((-14,0,2,9),(11,0,-1,9)), hb=(0,26),  hf=(9,28),   eye='fierce', sway=-2, hd=-1, sh=-2, both=1),
- # 2 rise: legs drive, body starts coming up and forward
- dict(bob=1,  lean=7,  feet=((-16,0,4,3),(13,3,-2,5)), hb=(-1,20), hf=(8,20),   eye='fierce', sway=8,  hd=4,  sh=1,  both=1),
- # 3 up: fully extended, taller than they ever stand, blade climbing
- dict(bob=-5, lean=9,  feet=((-15,2,4,1),(12,6,-2,3)), hb=(-3,12), hf=(5,8),    eye='fierce', sway=11, hd=6,  sh=3,  both=1),
- # 4 apex: off the floor, arms up behind the arc
- dict(bob=-7, lean=5,  feet=((-13,6,3,2),(10,9,-2,4)), hb=(-5,8),  hf=(0,4),    eye='fierce', sway=7,  hd=4,  sh=4,  both=1),
- # 5 fall: coming back down through it
- dict(bob=0,  lean=2,  feet=((-12,1,2,3),(10,2,-1,4)), hb=(-5,16), hf=(-2,12),  eye='fierce', sway=2,  hd=1,  sh=1,  both=1),
- # 6 land
- dict(bob=4,  lean=1,  feet=((-10,0),(10,0)),          hb=(-4,24), hf=(2,24),   eye='fierce', sway=0,  hd=0),
+ # the rise - sink to the deepest frame in the game, then come all the way up
+ # off the floor. The vertical travel IS the move, and it is only drawable at
+ # all because the frame finally has headroom above the character's head.
+ dict(bob=11, lean=3,  feet=((-13,0,1,6),(10,0,-1,6)),  hb=(-2,24), hf=(6,26),   eye='fierce', sway=2,  hd=1,  sh=-1, both=1),
+ dict(bob=21, lean=-1, feet=((-17,0,2,12),(13,0,-1,12)),hb=(0,26),  hf=(9,28),   eye='fierce', sway=-2, hd=-1, sh=-2, both=1),
+ dict(bob=3,  lean=9,  feet=((-18,2,4,5),(15,5,-2,6)),  hb=(-1,20), hf=(8,20),   eye='fierce', sway=9,  hd=5,  sh=1,  both=1),
+ dict(bob=-11,lean=11, feet=((-16,9,4,2),(13,13,-2,4)), hb=(-3,12), hf=(5,8),    eye='fierce', sway=13, hd=7,  sh=3,  both=1),
+ dict(bob=-14,lean=6,  feet=((-14,14,3,3),(11,17,-2,5)),hb=(-5,8),  hf=(0,4),    eye='fierce', sway=8,  hd=5,  sh=4,  both=1),
+ dict(bob=1,  lean=3,  feet=((-13,3,2,4),(11,4,-1,5)),  hb=(-5,16), hf=(-2,12),  eye='fierce', sway=3,  hd=1,  sh=1,  both=1),
+ dict(bob=7,  lean=1,  feet=((-11,0),(11,0)),           hb=(-4,24), hf=(2,24),   eye='fierce', sway=0,  hd=0),
 ]
-# Where the blade points through each of those, per class. The body shape is
-# shared; the steel is not - a knife and a greataxe travelling the same path
-# is how one animation for the whole roster looked wrong in the first place.
+# Where the blade points through each, per class. The body shape is shared;
+# the steel is not - one animation for the whole roster is what had a knife
+# fighter chopping like a woodsman in the first place.
+WDEG1 = {  # the cut: back, over the top, down through the front
+ 'sword':   [196, 212, 258, 326,   6,  40,  45],
+ 'dagger':  [200, 232,  18, 312, 350,  28,  40],
+ 'heavy':   [188, 206, 250, 320, 355,  35,  42],
+ 'polearm': [332, 310, 342, 356,   2, 344, 332],
+ 'fist':    [0]*7,
+ 'ranged':  [0]*7,
+}
 # The drive comes down ACROSS the front rather than straight out along it:
 # level from a hand that far forward does not fit the frame at full length,
 # and a blade the frame ate is the one thing a big trail makes obvious.
@@ -882,16 +894,10 @@ WDEG2 = {
  'fist':    [0]*7,
  'ranged':  [0]*7,
 }
-# The finisher is a BACKHAND: it starts high in front and sweeps up, over and
-# back, finishing low behind them. Both of the first two cuts travel front-
-# ways, so a third that went the same way was a third of the same move - this
-# one runs against them, which is what makes a string read as a string.
-#
-# It also has to stay off the floor. Frames pointing straight down get their
-# blade cut short by the frame edge, which is why the first attempt at this
-# swing had a stub of a sword on its lowest frames and a trail that went
-# nowhere: nothing below about 160 degrees fits at full length from a hand
-# that low.
+# The finisher is a BACKHAND: high in front, sweeping up, over and back. Both
+# of the first two travel frontways, and a third that went the same way was a
+# third of the same move. It also has to stay off the floor - nothing below
+# about 160 degrees fits at full length from a hand that low.
 WDEG3 = {
  'sword':   [330, 310, 280, 245, 210, 180, 158],
  'dagger':  [336, 316, 286, 250, 214, 184, 162],
@@ -900,12 +906,34 @@ WDEG3 = {
  'fist':    [0]*7,
  'ranged':  [0]*7,
 }
-def _step(body, degs):
-    return [dict(b, wdeg=d) for b, d in zip(body, degs)]
-# class -> the three swings, in the order they are pressed
-ATK_STEPS = {cls: [poses,
-                   poses if cls == 'ranged' else _step(SWING2, WDEG2[cls]),
-                   poses if cls == 'ranged' else _step(SWING3, WDEG3[cls])]
+# How much of that a class actually does. A knife-fighter does not launch off
+# the floor the way a greatsword does, and an archer barely moves at all.
+AMP = {'sword':1.00, 'dagger':0.78, 'heavy':1.14, 'polearm':0.92,
+       'fist':0.84,  'ranged':0.30}
+
+def _amp(pose, k):
+    """the same pose, done k as hard. Scales what MOVES and leaves the rest."""
+    if k == 1.0: return dict(pose)
+    out = dict(pose)
+    for key in ('bob', 'lean', 'sway', 'hd', 'hdy', 'sh'):
+        if key in out: out[key] = int(round(out[key]*k))
+    out['feet'] = tuple(
+        tuple(int(round(v*k)) if j < 2 else v for j, v in enumerate(foot))
+        for foot in pose['feet'])
+    for key in ('hb', 'hf'):
+        x, y = out[key]
+        out[key] = (int(round(x*k)), int(round(26 + (y-26)*k)))
+    return out
+
+def _step(cls, body, degs):
+    k = AMP[cls]
+    return [dict(_amp(b, k), wdeg=d) for b, d in zip(body, degs)]
+# class -> the three swings, in the order they are pressed. An archer keeps the
+# raise-and-fire it always had; nobody else swings a bow.
+ATK_STEPS = {cls: ([poses, poses, poses] if cls == 'ranged' else
+                   [_step(cls, SWING1, WDEG1[cls]),
+                    _step(cls, SWING2, WDEG2[cls]),
+                    _step(cls, SWING3, WDEG3[cls])])
              for cls, poses in ATK_SETS.items()}
 
 # POSES was written when there was one swing, so it describes frames 13-19 and
@@ -913,9 +941,10 @@ ATK_STEPS = {cls: [poses,
 # extra blocks are spliced in to keep POSES and the frame numbering the same
 # length. Nothing reads them - every attack frame goes through atk_pose() -
 # but the table has to cover every frame it is indexed by.
-POSES = (POSES[:20]
-         + _step(SWING2, WDEG2['sword'])
-         + _step(SWING3, WDEG3['sword'])
+POSES = (POSES[:13]
+         + _step('sword', SWING1, WDEG1['sword'])
+         + _step('sword', SWING2, WDEG2['sword'])
+         + _step('sword', SWING3, WDEG3['sword'])
          + POSES[20:])
 assert len(POSES) == FRAMES, (len(POSES), FRAMES)
 
@@ -1092,11 +1121,12 @@ def draw_torso(c, p, pose):
     c.rect(f0-5, y0, 5, 3, cl2)                           # collar opens forward
     c.rect(f0-5, y0+2, 4, 1, tr)
     x = CX + pose['lean']*0.5 + TURN*0.8
-    c.rect(x-2, 25+dy, 5, 5, p['skin'])                   # neck
-    c.rect(x-2, 25+dy, 5, 2, p['skin3'])
+    # absolute rows, so they carry the headroom offset like every other anchor
+    c.rect(x-2, TOP+25+dy, 5, 5, p['skin'])               # neck
+    c.rect(x-2, TOP+25+dy, 5, 2, p['skin3'])
     ys, fs, bs = edges[17]
-    c.rect(bs, 46+dy, (fs-bs), 4, p['accent'])            # sash follows the body
-    c.rect(bs, 46+dy, (fs-bs), 1, cl2)
+    c.rect(bs, TOP+46+dy, (fs-bs), 4, p['accent'])        # sash follows the body
+    c.rect(bs, TOP+46+dy, (fs-bs), 1, cl2)
     xh = CX + pose['lean']*0.25 + TURN*0.5
     # What hangs off the hips is its own choice, nothing to do with the hair.
     # Keying the skirt off the hairstyle is how three characters ended up in the
@@ -2266,7 +2296,7 @@ def fitL(L, hxp, hyp, ux, uy, pad=3):
     looks broken in a way a slightly shorter one never does. Every pose keeps
     the full length it can and no pose loses more than it has to."""
     for lim, d, v in ((W-1-pad, ux, hxp), (pad, -ux, -hxp),
-                      (H-1-pad, uy, hyp), (2, -uy, -hyp)):
+                      (H-1-pad, uy, hyp), (pad, -uy, -hyp)):
         if d > 0.01:
             L = min(L, (lim - v) / d)
     return int(max(6, L))   # whole pixels: some blades are drawn by stepping along them
@@ -3066,7 +3096,7 @@ def draw_slime(c, m, f):
 
 def draw_bat(c, m, f):
     flap, bob = BAT_A[f]
-    cy = 46 - bob
+    cy = TOP + 46 - bob
     SPAN = 17
     tipy = cy - 4 - flap
     for sgn in (-1, 1):
@@ -3104,7 +3134,7 @@ def draw_bat(c, m, f):
 
 def draw_imp(c, m, f):
     lean, bob = IMP_A[f]
-    hy = 26 + bob
+    hy = TOP + 26 + bob
     c.ellipse(CX+lean*0.4, hy, 13.0, 11.6, m['body'])
     c.ellipse(CX+lean*0.4, hy-4, 10.2, 7.6, m['body2'])
     for sgn in (-1, 1):
@@ -3133,7 +3163,7 @@ def draw_imp(c, m, f):
 
 def draw_brute(c, m, f, boss=False, crown=False):
     lean, bob = BRUTE_A[f]
-    hy = 22 + bob
+    hy = TOP + 22 + bob
     cxx = CX + lean*0.5
     if crown:                                             # cape behind everything
         for k in range(26):
@@ -3242,7 +3272,7 @@ def draw_wheel(c, m, f):
     """The wheel-crowned one. Bigger than anything else on the field, and it
     does not care whose side you are on."""
     lean, bob = BRUTE_A[f]
-    hy  = 20 + bob
+    hy  = TOP + 20 + bob
     cxx = CX + lean*0.5
     bd, bd2, bd3 = m['body'], m['body2'], m['body3']
     # --- the wheel behind the head, turning
@@ -3292,7 +3322,7 @@ def draw_unmaker(c, m, f, small=False):
     voids where a face should be - the Sovereign is a king, this is a hole."""
     lean, bob = BRUTE_A[f]
     sc  = 0.6 if small else 1.0
-    hy  = (26 if small else 14) + bob
+    hy  = TOP + (26 if small else 14) + bob
     cxx = CX + lean*0.5
     bd, bd2, bd3 = m['body'], m['body2'], m['body3']
     # --- the shroud, widening all the way to the floor

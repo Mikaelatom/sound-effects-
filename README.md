@@ -454,6 +454,39 @@ character is put on one by what they are holding:
 | **Fist** (7) | jab, then the hips turn over and the rear hand follows |
 | **Ranged** (19) | no swing at all — raise, fire, ride the recoil |
 
+**The frame had no room to move in.** Every figure was drawn hard against the
+top of it — Homura's hair was flattened into row 0 on all forty-four of her
+frames — which meant a pose could sink and never rise. That one fact is why
+every attack read as flat no matter what the pose numbers said: there was
+nowhere to go. Across a whole swing the head used to travel **five pixels**.
+
+The frame carries 26px of headroom now and the figure sits that far down it,
+so a crouch and a full extension are both drawable. The three swings were
+rewritten against that:
+
+| | head travels | stance widens |
+|---|---|---|
+| **1 · the cut** | 5px → **24px** | 19px → **32px** |
+| **2 · the drive** | 6px → **23px** | 30px → **42px** |
+| **3 · the rise** | 16px → **35px** | 9px → 16px |
+
+The rise sinks to the deepest frame in the game and then comes all the way up
+off the floor; it is the one that needed the headroom most. Each class does a
+share of it — a knife-fighter does not launch the way a greatsword does, and
+an archer barely moves.
+
+Two things fell out of the taller frame. The neck and sash were pinned to
+absolute rows and stayed behind when everything else moved down, which left a
+patch of skin floating above every character's head. And a swing used to leave
+**afterimages** the way a dash does — invisible while its poses barely
+differed, but with poses that now differ a lot, a ghost of the launch hanging
+behind the landing reads as a second character standing there. Only a dash
+smears now; the animation carries the motion without one.
+
+**The trail is much smaller than it was.** It had grown into the thing you
+watched instead of the character, which is backwards: the cut is the body, and
+the streak is only there to say where the edge went.
+
 **Three presses, three different cuts.** A string used to replay the same
 seven frames three times, which is why a combo read as one move repeated
 rather than as a combo. Each press has its own swing now, and they differ in
