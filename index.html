@@ -8416,56 +8416,70 @@ function drawHits(ctx){
    at a point. It is emitted by the sword and dies with the swing - nothing
    here flies, and nothing here is a different size from the weapon that
    made it.                                                              */
+/* The trail used to be the one thing on screen that was not pixel art. A
+   canvas path fill anti-aliases its own edges no matter what
+   imageSmoothingEnabled says - that flag governs image SCALING, not path
+   rasterising - so a cut came out with a soft feathered diagonal against a
+   character built entirely from hard ones.
+   It is drawn at LOGIC resolution now: one pixel per game unit, on its own
+   small canvas, blitted up by PX with smoothing off. Every edge then lands on
+   exactly the grid the sprites live on, and the blit goes down additively so
+   the cut still brightens what is under it. */
+const swCv = document.createElement('canvas');
+swCv.width = GW/PX; swCv.height = GH/PX;
+const swCtx = swCv.getContext('2d');
+
 function drawSwing(ctx, h){
   const T = h.blade;
   if(!T || T.length < 3) return;
   const N = T.length, L = (WEP_L[h.mem.id] || 24);
   const col = ELC[CHAR[h.mem.id].element];
   const fade = clamp(T[N-1].life/TRAIL_LIFE, 0, 1);
-  /* A cut wants to read from across the room. This was a third of the blade
-     wide, which at this sprite size is a bright sliver you have to be looking
-     for - the arc is the whole point of the move, so it is drawn nearly as
-     wide as the blade is long, and the finisher wider still. */
-  /* ...but only as wide as the arc is long. A swoosh's thickness belongs to
-     how far the blade actually travelled: a band 52 pixels across a path 62
-     long stops being a crescent and becomes a blob, which is exactly what the
-     finisher did. Every arc that reads well sits near a quarter of its own
-     length, so that is the ceiling. */
+  /* As wide as the blade is long, but never wider than a quarter of the arc
+     it actually travelled - a band 52 across a path 62 long stops being a
+     crescent and becomes a blob. */
   let path = 0;
   for(let i = 1; i < N; i++) path += Math.hypot(T[i].x - T[i-1].x, T[i].y - T[i-1].y);
   const wide = Math.min(L * 0.34 * (T[N-1].step === 3 ? 1.25 : T[N-1].step === 2 ? 1.10 : 1),
-                        path * 0.15);
-  const q = v => Math.round(v/PX)*PX;
-  // the tangent of the path at each sample, so the band can be laid across it
+                        path * 0.15) / PX;                  // logic units from here on
+  const P = T.map(t => ({ x: t.x/PX, y: t.y/PX }));
   const nrm = [];
   for(let i = 0; i < N; i++){
-    const a2 = T[Math.max(0, i-1)], b2 = T[Math.min(N-1, i+1)];
+    const a2 = P[Math.max(0, i-1)], b2 = P[Math.min(N-1, i+1)];
     let dx = b2.x - a2.x, dy = b2.y - a2.y;
     const m = Math.hypot(dx, dy) || 1;
     nrm.push({ x: -dy/m, y: dx/m });
   }
+  const q = Math.round;                                     // whole logic pixels
   const band = (from, w, alpha, color) => {
     if(N - from < 2) return;
-    ctx.globalAlpha = alpha*fade; ctx.fillStyle = color;
-    ctx.beginPath();
+    swCtx.globalAlpha = alpha*fade; swCtx.fillStyle = color;
+    swCtx.beginPath();
     const span = N-1 - from;
     const half = i => w * Math.sin(Math.PI * Math.pow((i-from)/span, .85)) / 2;
     for(let i = from; i < N; i++){ const k = half(i);
-      (i === from ? ctx.moveTo : ctx.lineTo)
-        .call(ctx, q(T[i].x + nrm[i].x*k), q(T[i].y + nrm[i].y*k)); }
+      (i === from ? swCtx.moveTo : swCtx.lineTo)
+        .call(swCtx, q(P[i].x + nrm[i].x*k), q(P[i].y + nrm[i].y*k)); }
     for(let i = N-1; i >= from; i--){ const k = half(i);
-      ctx.lineTo(q(T[i].x - nrm[i].x*k), q(T[i].y - nrm[i].y*k)); }
-    ctx.closePath(); ctx.fill();
+      swCtx.lineTo(q(P[i].x - nrm[i].x*k), q(P[i].y - nrm[i].y*k)); }
+    swCtx.closePath(); swCtx.fill();
   };
-  /* the colour goes on additively, the way light does: the cut brightens
-     what is under it instead of greying it out */
-  ctx.globalCompositeOperation = 'lighter';
+  swCtx.setTransform(1,0,0,1,0,0);
+  swCtx.clearRect(0, 0, swCv.width, swCv.height);
+  swCtx.globalCompositeOperation = 'source-over';
   band(0, wide*1.25, .16, col);                       // the glow around it
   band(0, wide*.85, .30, col);                        // the wash of the cut
-  ctx.globalCompositeOperation = 'source-over';
   band(Math.floor(N*.40), wide*.26, .80, '#ffffff');  // the edge itself
-  ctx.globalAlpha = 1;
+  swCtx.globalAlpha = 1;
+  /* up onto the grid, hard-edged, and additively so it reads as light */
+  const sm = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = false;
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.drawImage(swCv, 0, 0, swCv.width, swCv.height, 0, 0, GW, GH);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.imageSmoothingEnabled = sm;
 }
+
 function drawShot(ctx, s){
   const x = s.x*PX, y = s.y*PX, r = s.r*PX;
   const fade = clamp(s.life/s.life0, 0, 1);
