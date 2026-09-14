@@ -349,81 +349,43 @@ at a hero nobody was playing, parked where they had been standing, still
 routing damage into a live squad member. They piled up one per swap; they are
 now cleared as they go stale.
 
-### Thirty frames, and none of them is a held pose
+### Twenty-three frames
 
-Three of the six animation states used to be **one frame each**. A dash was a
-single airborne pose — nothing for it to have come from and nowhere to land.
-A cast was one pose, which says the power was always there rather than that
-it is being gathered. A hurt was one frame, which reads as a pose change, not
-as a hit. And idle was two frames a pixel apart, which reads as a photograph.
+Each row of the atlas is: **4 idle** and a blink, **8 walk**, **7 attack**,
+then one frame each for **dash**, **cast** and **hurt**. Mobs keep their own
+ten: 2 idle, 4 move, and one each for the telegraph, the attack, the special
+and the hurt.
 
-| | was | is |
-|---|---|---|
-| Idle | 2 | **4** — a breath — plus a blink |
-| Walk | 8 | 8 — checked and left alone |
-| Attack | 7 | 7 — untouched |
-| Dash | **1** | **3** — push, flight, arrive |
-| Cast | **1** | **4** — gather, raise, peak, release |
-| Hurt | **1** | **3** — impact, reel, gather |
+An attempt at expanding dash, cast and hurt into real sequences — and at
+splitting the attack into three different swings for the three presses of a
+string — was **rolled back**. It is being redone with a different approach.
+What survived it:
 
-The idle is a real rise and fall: the chest comes up, the shoulders follow,
-the head lifts at the top, the whole thing settles. It costs nothing to make
-that carry, because all fifty-six hair silhouettes and the cape already read
-the pose's `sway` — so the hair and the cloak move with the breath without a
-line of new machinery. Every fourth time the cycle passes through rest the
-character **blinks**; the eyes were always capable of closing, both idle
-frames had simply been eyes-open since the beginning.
+- **The idle breath and the blink.** Two frames a pixel apart read as a
+  photograph. Four frames give the chest a rise and a fall, and because all
+  fifty-six hair silhouettes and the cape already read the pose's `sway`, the
+  hair moves with it for free. Every third time the cycle passes through rest
+  the character blinks — the blink is frame 0 with the lids down, so nothing
+  but the eye moves. Frame 0 itself is untouched: it is what every roster and
+  gacha card draws.
+- **Headroom.** The figure used to be drawn hard against row 0 — Homura's hair
+  was flattened into the top row of every frame she had. The frame is 96×122
+  now and the figure sits 26px down it, so nothing is clipped. Portraits crop
+  the headroom back off, so cards look exactly as they did.
+- **A sword at rest trails behind them.** Held out in front is a guard stance,
+  and a character who never leaves guard reads as permanently mid-fight, so
+  blades sit at a carry angle: back and low, swinging gently with the walk,
+  trailing further out behind a dash, thrown forward by a hit. Only the
+  classes that *are* blades — a spear is carried upright and a bow hangs off
+  the hand.
 
-**None of the sequences is cut into equal slices.** Dividing a sequence evenly
-is what makes four good frames read as a flipbook, and it is the failure the
-swing had its own curve built to avoid. The three new states get the same
-treatment, as weights rather than milliseconds — the mechanic owns the
-duration, and the weights only decide how it is divided:
+Everything is hard-edged pixel art, and that is checked rather than assumed:
+the generator has no blending primitive at all — `Cv.set` floors its
+coordinates and assigns a flat colour — and an audit of every frame against
+each character's declared palette finds **no off-palette pixels** and about
+twenty distinct colours per character across the whole row.
 
-| | frames hold | the longest is |
-|---|---|---|
-| Dash | 32% / 21% / 47% | the settle; the mid-dash is a blur you are not meant to read |
-| Cast | 30% / 35% / 10% / 25% | the **build** — in a PvP game the tell is the point |
-| Hurt | 18% / 47% / 35% | the stagger; the impact snaps past in a frame |
-
-Over a 450ms cast that is 133/150/50/117ms and over a 280ms hurt it is
-50/133/83ms, measured in a real fight. Because they are proportions, a short
-dash and a long one keep the same shape instead of one of them turning into a
-slideshow. Idle is the exception: half a second a frame, evenly, because a
-breath has no accents — with a blink every six seconds.
-
-Each sequence also **overshoots** on the way back. The hurt recovery swings a
-little forward of neutral before it settles, so the hair whips back after
-being thrown forward; without that the recoil eases to a stop, which reads as
-slowing down rather than recovering.
-
-**A sword at rest trails behind them.** Held out in front is a guard stance,
-and a character who never leaves guard reads as permanently mid-fight. Blades
-now sit at a carry angle — back and low, swinging gently with the walk,
-trailing further out behind a dash, thrown forward by a hit. Only the classes
-that *are* blades: a spear is carried upright and a bow hangs off the hand,
-and neither wants pointing backwards.
-
-None of this touched the two things that had to stay still. Frame 0 is what
-every roster and gacha card draws, and the seven swing frames were finished
-in an earlier pass; both are **byte-identical for all 56 characters**, checked
-per character rather than by eye, across a renumber that moved the swing from
-10–16 to 13–19.
-
-Mobs could not be widened at all, because all ten drawing functions tested
-literal columns — `f == 9` meant hurt, `f in (6,7,8)` meant one of the
-specials. They ask a **semantic map** now, and each motion table is resampled
-from ten entries to eighteen by slot: idle and move as cycles, the one-frame
-states given a pose to arrive from and settle into. All thirteen mob rows grew
-inside columns the atlas had already allocated, so **mobs cost no space at
-all**.
-
-The atlas and the game's frame table are one layout written in two files, so
-the generator now refuses to patch `index.html` when the two disagree on how
-many frames exist — a half-migrated tree cannot quietly ship an atlas the
-renderer has no way to address.
-
-### How a hit lands
+### How a hit lands### How a hit lands
 
 The roster splits on one number it already carried: **reach under 50 is melee,
 everything else is ranged**, and the data draws the line for you — the widest
@@ -520,15 +482,10 @@ forward as the feet went, which put the hilt so far out that the frame ate
 half the sword on the three frames you most want to see it; the travel lives
 in the stance instead.
 
-**Nothing is thrown, and nothing is spawned.** The swing is the character's
-own animation, and the only effect is the **trail off the sword they are
-already holding**. The generator that draws the sprites also writes out where
-the hand is and which way the weapon points on every frame of the swing, plus
-how long that character's weapon is, so the game reads the tip of the blade
-straight off the picture — interpolated between poses, because the drawing
-steps and the steel does not. What you see is the path of that tip over the
-last tenth of a second. It cannot be the wrong size for the weapon: it *is*
-the weapon.
+**Nothing is thrown, and nothing is spawned — and nothing trails.** The swing
+is the character's own animation and nothing else. There was a glowing arc
+following the blade for a while; it grew into the thing you watched instead of
+the character, which is backwards, and it is gone.
 
 The swing itself was rebuilt to be worth watching. **Seven frames** instead of
 five (13–19 in the atlas), held about a third of a second, so you can follow it: coil, wind,
