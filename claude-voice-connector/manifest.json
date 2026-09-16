@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "claude-voice",
+  "display_name": "Claude Voice",
+  "version": "1.0.0",
+  "description": "Gives Claude a voice. Claude speaks its replies aloud through your computer's own speech voice.",
+  "long_description": "Adds a speak tool that Claude can call to read text out loud on this computer. Ask Claude to read something aloud, or tell it to speak every reply and it will narrate the whole conversation. Also lists the voices installed on your machine and can stop speech mid-sentence. Works offline, sends nothing anywhere.",
+  "author": { "name": "Mikael Myburgh" },
+  "license": "MIT",
+  "keywords": ["voice", "speech", "text-to-speech", "accessibility", "audio"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"]
+    }
+  },
+  "tools": [
+    { "name": "speak", "description": "Read text out loud on this computer" },
+    { "name": "stop_speaking", "description": "Stop speech that is currently playing" },
+    { "name": "list_voices", "description": "List the speech voices installed on this computer" }
+  ],
+  "compatibility": {
+    "platforms": ["win32", "darwin", "linux"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}
