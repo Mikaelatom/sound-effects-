@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Voice",
+  "version": "1.0.0",
+  "description": "Reads Claude's replies out loud, automatically, as they arrive.",
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
