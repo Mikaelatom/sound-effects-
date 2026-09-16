@@ -1,0 +1,515 @@
+<title>Claude Voice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#eef2f1; --surface:#ffffff; --surface-2:#f7faf9;
+    --ink:#0f1a19; --ink-2:#4a5c59; --ink-3:#7b8d8a;
+    --line:#d5dedc; --line-2:#c2cecb;
+    --accent:#0d6e66; --accent-ink:#ffffff; --accent-soft:#d8ebe8;
+    --live:#b45f06; --live-soft:#fbead6;
+    --good:#15803d;
+    --shadow:0 1px 2px rgba(15,26,25,.06), 0 8px 24px rgba(15,26,25,.06);
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0b1313; --surface:#111c1b; --surface-2:#162322;
+      --ink:#e8efee; --ink-2:#a3b5b2; --ink-3:#748784;
+      --line:#233433; --line-2:#2f4442;
+      --accent:#4fd1c2; --accent-ink:#06201e; --accent-soft:#11302d;
+      --live:#f0a860; --live-soft:#2c1f10;
+      --good:#4ade80;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0b1313; --surface:#111c1b; --surface-2:#162322;
+    --ink:#e8efee; --ink-2:#a3b5b2; --ink-3:#748784;
+    --line:#233433; --line-2:#2f4442;
+    --accent:#4fd1c2; --accent-ink:#06201e; --accent-soft:#11302d;
+    --live:#f0a860; --live-soft:#2c1f10;
+    --good:#4ade80;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:Archivo, ui-sans-serif, system-ui, sans-serif;
+    font-size:15px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:760px; margin:0 auto; padding-inline:16px;
+    padding-block:28px 40px;
+    display:flex; flex-direction:column; gap:20px;
+  }
+
+  /* ---------- header ---------- */
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  h1{
+    font-size:clamp(28px,6vw,38px); font-weight:800; letter-spacing:-.028em;
+    margin:0; text-wrap:balance;
+  }
+  .tagline{margin:4px 0 0; color:var(--ink-2); font-size:14.5px; max-width:46ch}
+
+  .status{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-size:11.5px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
+    padding:7px 12px; border-radius:100px;
+    border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+    white-space:nowrap;
+  }
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
+  .status[data-state="listening"]{border-color:var(--accent); color:var(--accent); background:var(--accent-soft)}
+  .status[data-state="listening"] .dot{background:var(--accent); animation:pulse 2s ease-in-out infinite}
+  .status[data-state="speaking"]{border-color:var(--live); color:var(--live); background:var(--live-soft)}
+  .status[data-state="speaking"] .dot{background:var(--live); animation:pulse .9s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion: reduce){ .dot{animation:none !important} }
+
+  /* ---------- panels ---------- */
+  .panel{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); padding:20px;
+  }
+  .panel.lift{box-shadow:var(--shadow)}
+  .label{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-size:11px; font-weight:500; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--ink-3); margin:0 0 10px;
+  }
+
+  /* ---------- connect ---------- */
+  .connect{display:flex; flex-direction:column; gap:14px; align-items:flex-start}
+  button{font:inherit; cursor:pointer}
+  .btn{
+    border-radius:8px; border:1px solid transparent; padding:12px 20px;
+    font-weight:600; font-size:15px; letter-spacing:-.01em;
+    background:var(--accent); color:var(--accent-ink);
+    transition:filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  .btn.ghost{background:transparent; color:var(--ink); border-color:var(--line-2)}
+  .btn.ghost:hover{background:var(--surface-2); filter:none}
+  .btn.small{padding:8px 14px; font-size:13.5px}
+  .btn[disabled]{opacity:.45; cursor:not-allowed; filter:none}
+
+  .hint{color:var(--ink-2); font-size:13.5px; margin:0; max-width:60ch}
+  code.path{
+    font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12.5px;
+    background:var(--surface-2); border:1px solid var(--line);
+    padding:2px 6px; border-radius:5px; color:var(--ink); white-space:nowrap;
+  }
+  .pathrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
+  /* ---------- now speaking ---------- */
+  .now{
+    border-left:3px solid var(--line); padding-left:14px; min-height:52px;
+    display:flex; align-items:center;
+  }
+  .now[data-active="1"]{border-left-color:var(--live)}
+  .now p{margin:0; font-size:17px; line-height:1.45; color:var(--ink)}
+  .now p.idle{color:var(--ink-3); font-size:15px}
+
+  /* ---------- log ---------- */
+  .log{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0}
+  .log li{
+    display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:baseline;
+    padding:9px 0; border-top:1px solid var(--line);
+    font-size:14px; color:var(--ink-2);
+  }
+  .log li:first-child{border-top:none}
+  .log time{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums;
+  }
+  .log li.sample{opacity:.62}
+  .log li.sample time::after{content:" ex"; color:var(--ink-3)}
+
+  /* ---------- controls ---------- */
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px}
+  .field{display:flex; flex-direction:column; gap:6px}
+  select, input[type=range], textarea{
+    font:inherit; color:var(--ink); background:var(--surface-2);
+    border:1px solid var(--line-2); border-radius:7px; padding:9px 10px; width:100%;
+  }
+  select:focus-visible, textarea:focus-visible, input:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+  input[type=range]{padding:0; height:28px; accent-color:var(--accent); background:transparent; border:none}
+  textarea{min-height:76px; resize:vertical; line-height:1.5}
+  .rowbtns{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .rate-val{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12px; color:var(--ink-3)}
+
+  .note{
+    font-size:13px; color:var(--ink-2); margin:0;
+    display:flex; gap:9px; align-items:flex-start;
+  }
+  .note b{color:var(--ink); font-weight:600}
+  .warn{
+    background:var(--live-soft); border:1px solid var(--live);
+    border-radius:8px; padding:13px 15px; color:var(--ink); font-size:13.5px;
+  }
+  .warn p{margin:0}
+  footer{color:var(--ink-3); font-size:12.5px; text-align:center; margin-top:4px}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Claude Voice</h1>
+      <p class="tagline">Reads Claude Cowork's replies out loud, the moment they arrive.</p>
+    </div>
+    <div class="status" id="status" data-state="off"><span class="dot"></span><span id="status-text">Not connected</span></div>
+  </header>
+
+  <div class="panel lift connect" id="connect-panel">
+    <p class="label" style="margin:0">Step 1 &mdash; point me at your conversations</p>
+    <button class="btn" id="connect">Connect to Claude Cowork</button>
+    <p class="hint" id="connect-hint">
+      Your browser will ask which folder to open. Pick this one &mdash; paste the path straight into the
+      file-name box:
+    </p>
+    <div class="pathrow">
+      <code class="path" id="path-win">%USERPROFILE%\.claude\projects</code>
+      <button class="btn ghost small" id="copy-path">Copy</button>
+    </div>
+    <p class="hint">Claude keeps your conversations there. Nothing is uploaded &mdash; the reading happens on this computer.</p>
+  </div>
+
+  <div class="panel lift" id="live-panel" hidden>
+    <p class="label">Now reading</p>
+    <div class="now" id="now" data-active="0">
+      <p class="idle" id="now-text">Waiting for Claude to say something&hellip;</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="label">Read out so far</p>
+    <ul class="log" id="log">
+      <li class="sample"><time>—</time><span>Examples, so you can see how it looks. Yours replace these.</span></li>
+      <li class="sample"><time>14:02</time><span>I fixed main.py and pushed the change.</span></li>
+      <li class="sample"><time>14:01</time><span>Found it — the config was pointing at the old folder.</span></li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <p class="label">Voice</p>
+    <div class="controls">
+      <div class="field">
+        <label for="voice-select" style="font-size:13.5px;color:var(--ink-2)">Which voice</label>
+        <select id="voice-select"><option>Loading voices…</option></select>
+      </div>
+      <div class="field">
+        <label for="rate" style="font-size:13.5px;color:var(--ink-2)">Speed <span class="rate-val" id="rate-val">1.0×</span></label>
+        <input type="range" id="rate" min="0.6" max="1.8" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="rowbtns" style="margin-top:16px">
+      <button class="btn ghost small" id="mute">Mute</button>
+      <button class="btn ghost small" id="shush">Stop talking</button>
+      <button class="btn ghost small" id="try-voice">Test the voice</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="label">Or just read me this</p>
+    <textarea id="manual" placeholder="Paste anything here and I'll read it out."></textarea>
+    <div class="rowbtns" style="margin-top:12px">
+      <button class="btn small" id="read-manual">Read it</button>
+    </div>
+  </div>
+
+  <div class="warn" id="unsupported" hidden>
+    <p><b>This browser can't open folders.</b> Use Chrome or Edge to have replies read automatically.
+    The paste box above works in any browser.</p>
+  </div>
+
+  <p class="note"><b>Note</b><span>This reads Claude Cowork running on this computer. A conversation in a browser tab
+  doesn't leave a file here, so there'd be nothing to read.</span></p>
+
+  <footer>Runs entirely in your browser. Nothing leaves this computer.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var POLL_MS = 1200;
+  var MAX_CHARS = 600;
+  var MAX_DEPTH = 5;
+
+  var els = {
+    status: document.getElementById('status'),
+    statusText: document.getElementById('status-text'),
+    connect: document.getElementById('connect'),
+    connectPanel: document.getElementById('connect-panel'),
+    connectHint: document.getElementById('connect-hint'),
+    livePanel: document.getElementById('live-panel'),
+    now: document.getElementById('now'),
+    nowText: document.getElementById('now-text'),
+    log: document.getElementById('log'),
+    voiceSelect: document.getElementById('voice-select'),
+    rate: document.getElementById('rate'),
+    rateVal: document.getElementById('rate-val'),
+    mute: document.getElementById('mute'),
+    shush: document.getElementById('shush'),
+    tryVoice: document.getElementById('try-voice'),
+    manual: document.getElementById('manual'),
+    readManual: document.getElementById('read-manual'),
+    copyPath: document.getElementById('copy-path'),
+    pathWin: document.getElementById('path-win'),
+    unsupported: document.getElementById('unsupported')
+  };
+
+  var state = {
+    dir: null,
+    offsets: new Map(),
+    muted: false,
+    speaking: false,
+    timer: null,
+    sampleCleared: false
+  };
+
+  // ---------------------------------------------------------------- speaking
+
+  var synth = window.speechSynthesis;
+  var voices = [];
+
+  function loadVoices() {
+    if (!synth) return;
+    voices = synth.getVoices() || [];
+    if (!voices.length) return;
+    var preferred = voices.findIndex(function (v) { return v.default && /^en/i.test(v.lang); });
+    if (preferred < 0) preferred = voices.findIndex(function (v) { return /^en/i.test(v.lang); });
+    if (preferred < 0) preferred = 0;
+    var keep = els.voiceSelect.value;
+    els.voiceSelect.innerHTML = '';
+    voices.forEach(function (v, i) {
+      var o = document.createElement('option');
+      o.value = String(i);
+      o.textContent = v.name + ' (' + v.lang + ')';
+      els.voiceSelect.appendChild(o);
+    });
+    els.voiceSelect.value = (keep && voices[keep]) ? keep : String(preferred);
+  }
+
+  function say(text) {
+    if (!synth || state.muted || !text) return;
+    var u = new SpeechSynthesisUtterance(text);
+    var chosen = voices[Number(els.voiceSelect.value)];
+    if (chosen) { u.voice = chosen; u.lang = chosen.lang; }
+    u.rate = Number(els.rate.value) || 1;
+    u.onstart = function () {
+      state.speaking = true;
+      setStatus('speaking', 'Reading aloud');
+      els.now.dataset.active = '1';
+      els.nowText.className = '';
+      els.nowText.textContent = text;
+    };
+    u.onend = u.onerror = function () {
+      state.speaking = false;
+      els.now.dataset.active = '0';
+      if (state.dir) setStatus('listening', 'Listening');
+      else setStatus('off', 'Not connected');
+    };
+    synth.speak(u);
+  }
+
+  function setStatus(kind, text) {
+    els.status.dataset.state = kind;
+    els.statusText.textContent = text;
+  }
+
+  function logLine(text) {
+    if (!state.sampleCleared) {
+      Array.prototype.slice.call(els.log.querySelectorAll('.sample')).forEach(function (n) { n.remove(); });
+      state.sampleCleared = true;
+    }
+    var li = document.createElement('li');
+    var t = document.createElement('time');
+    var d = new Date();
+    t.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    var s = document.createElement('span');
+    s.textContent = text;
+    li.appendChild(t); li.appendChild(s);
+    els.log.insertBefore(li, els.log.firstChild);
+    while (els.log.children.length > 40) els.log.removeChild(els.log.lastChild);
+  }
+
+  // ------------------------------------------------------- markdown -> speech
+
+  function forSpeech(text) {
+    if (!text) return '';
+    var t = String(text);
+    t = t.replace(/```[\s\S]*?```/g, ' code block. ');
+    t = t.replace(/`([^`\n]+)`/g, '$1');
+    t = t.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1');
+    t = t.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+    t = t.replace(/https?:\/\/\S+/g, ' link ');
+    t = t.replace(/^[ \t]*#{1,6}[ \t]*/gm, '');
+    t = t.replace(/^[ \t]*([-*+]|\d+[.)])[ \t]+/gm, '');
+    t = t.replace(/^[ \t]*\|.*\|[ \t]*$/gm, '');
+    t = t.replace(/(\*{1,3}|_{2,3}|~~)(\S[\s\S]*?\S|\S)\1/g, '$2');
+    t = t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/gu, ' ');
+    t = t.replace(/\s+/g, ' ').trim();
+    if (t.length > MAX_CHARS) {
+      var cut = t.slice(0, MAX_CHARS);
+      var stop = cut.lastIndexOf('. ');
+      t = (stop > 200 ? cut.slice(0, stop + 1) : cut) + '...';
+    }
+    return t;
+  }
+
+  function replyFromLine(line) {
+    var entry;
+    try { entry = JSON.parse(line); } catch (e) { return ''; }
+    if (!entry || entry.type !== 'assistant' || entry.isSidechain) return '';
+    var content = entry.message && entry.message.content;
+    if (!content) return '';
+    var blocks;
+    if (typeof content === 'string') blocks = [content];
+    else if (Array.isArray(content)) {
+      blocks = content.filter(function (b) { return b && b.type === 'text'; })
+                      .map(function (b) { return b.text || ''; });
+    } else return '';
+    return forSpeech(blocks.filter(Boolean).join('\n'));
+  }
+
+  // ------------------------------------------------------------ reading files
+
+  async function collectFiles(dir, depth, out, path) {
+    if (depth > MAX_DEPTH) return out;
+    for await (var entry of dir.values()) {
+      if (entry.kind === 'directory') await collectFiles(entry, depth + 1, out, path + entry.name + '/');
+      else if (entry.name.endsWith('.jsonl')) out.push({ handle: entry, path: path + entry.name });
+    }
+    return out;
+  }
+
+  async function tick() {
+    if (!state.dir) return;
+    var handles;
+    try { handles = await collectFiles(state.dir, 0, [], ''); } catch (e) { return; }
+
+    for (var i = 0; i < handles.length; i++) {
+      var file;
+      try { file = await handles[i].handle.getFile(); } catch (e) { continue; }
+      var key = handles[i].path;
+      var offset = state.offsets.has(key) ? state.offsets.get(key) : 0;
+      if (file.size < offset) offset = 0;              // file was replaced
+      if (file.size <= offset) continue;
+
+      var text;
+      try { text = await file.slice(offset).text(); } catch (e) { continue; }
+
+      var end = text.lastIndexOf('\n');
+      if (end < 0) continue;                            // still being written
+      var complete = text.slice(0, end + 1);
+      state.offsets.set(key, offset + new TextEncoder().encode(complete).length);
+
+      var lines = complete.split('\n');
+      for (var j = 0; j < lines.length; j++) {
+        if (!lines[j].trim()) continue;
+        var reply = replyFromLine(lines[j]);
+        if (reply.length > 1) { logLine(reply); say(reply); }
+      }
+    }
+  }
+
+  async function connect() {
+    if (!window.showDirectoryPicker) { els.unsupported.hidden = false; return; }
+    var dir;
+    try {
+      dir = await window.showDirectoryPicker({ id: 'claude-projects', mode: 'read' });
+    } catch (e) { return; }                             // user cancelled
+
+    state.dir = dir;
+    state.offsets.clear();
+
+    // Start from now, so your whole history isn't read back to you.
+    var handles = await collectFiles(dir, 0, [], '');
+    for (var i = 0; i < handles.length; i++) {
+      try {
+        var f = await handles[i].handle.getFile();
+        state.offsets.set(handles[i].path, f.size);
+      } catch (e) { /* skip unreadable */ }
+    }
+
+    els.connectPanel.hidden = true;
+    els.livePanel.hidden = false;
+    setStatus('listening', 'Listening');
+
+    if (!handles.length) {
+      els.nowText.textContent = 'Connected, but no conversations in that folder yet. Open Claude Cowork and say something.';
+    } else {
+      els.nowText.textContent = 'Listening to ' + handles.length +
+        (handles.length === 1 ? ' conversation.' : ' conversations.') + ' Anything Claude says next, I read out.';
+      say('Connected. I will read Claude out loud.');
+    }
+
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(function () { tick(); }, POLL_MS);
+  }
+
+  // ------------------------------------------------------------------ wiring
+
+  els.connect.addEventListener('click', connect);
+
+  els.mute.addEventListener('click', function () {
+    state.muted = !state.muted;
+    els.mute.textContent = state.muted ? 'Unmute' : 'Mute';
+    if (state.muted && synth) synth.cancel();
+  });
+
+  els.shush.addEventListener('click', function () { if (synth) synth.cancel(); });
+
+  els.tryVoice.addEventListener('click', function () {
+    say('This is how I will read Claude to you.');
+  });
+
+  els.readManual.addEventListener('click', function () {
+    var t = forSpeech(els.manual.value);
+    if (t) { logLine(t); say(t); }
+  });
+
+  els.rate.addEventListener('input', function () {
+    els.rateVal.textContent = Number(els.rate.value).toFixed(1) + '×';
+  });
+
+  els.copyPath.addEventListener('click', function () {
+    var text = els.pathWin.textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function () {
+        els.copyPath.textContent = 'Copied';
+        setTimeout(function () { els.copyPath.textContent = 'Copy'; }, 1600);
+      }, function () {});
+    }
+  });
+
+  if (synth) {
+    loadVoices();
+    if (typeof synth.onvoiceschanged !== 'undefined') synth.onvoiceschanged = loadVoices;
+    setTimeout(loadVoices, 400);
+  } else {
+    els.voiceSelect.innerHTML = '<option>No voices in this browser</option>';
+  }
+
+  if (!window.showDirectoryPicker) {
+    els.unsupported.hidden = false;
+    els.connect.disabled = true;
+    els.connectHint.textContent = 'Automatic reading needs Chrome or Edge. The paste box below works here.';
+  }
+
+  var ua = navigator.userAgent || '';
+  var plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+  if (!/Win/i.test(plat) && !/Windows/i.test(ua)) {
+    els.pathWin.textContent = '~/.claude/projects';
+  }
+})();
+</script>
