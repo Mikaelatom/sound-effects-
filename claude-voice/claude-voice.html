@@ -31,50 +31,38 @@
   }
 
   *{box-sizing:border-box}
+  [hidden]{display:none !important}
   html,body{height:100%}
   body{
     margin:0; background:var(--ground); color:var(--ink);
-    font-family:Archivo, ui-sans-serif, system-ui, sans-serif; font-size:15px; line-height:1.5;
-    -webkit-font-smoothing:antialiased;
+    font-family:Archivo, ui-sans-serif, system-ui, sans-serif; font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
   }
   .wrap{
-    max-width:600px; margin:0 auto; padding-inline:16px; padding-block:34px 44px;
-    display:flex; flex-direction:column; gap:22px;
+    max-width:560px; margin:0 auto; padding-inline:16px; padding-block:26px 44px;
+    display:flex; flex-direction:column; gap:20px;
   }
 
-  h1{font-size:clamp(26px,5.5vw,34px); font-weight:800; letter-spacing:-.028em; margin:0; text-wrap:balance}
-  .tagline{margin:6px 0 0; color:var(--ink-2); font-size:15px}
+  h1{font-size:clamp(25px,6.5vw,32px); font-weight:800; letter-spacing:-.028em; margin:0; text-wrap:balance}
+  .tagline{margin:5px 0 0; color:var(--ink-2); font-size:15px}
 
-  /* ---- the one button ---- */
+  /* the one big tap target */
   .big{
-    width:100%; border:none; border-radius:16px; cursor:pointer;
+    width:100%; border:none; border-radius:18px; cursor:pointer;
     background:var(--accent); color:var(--accent-ink);
-    font-family:inherit; font-weight:800; font-size:clamp(20px,4.6vw,25px); letter-spacing:-.02em;
-    padding:38px 24px; box-shadow:var(--shadow);
-    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:inherit; font-weight:800; font-size:clamp(21px,5.4vw,26px); letter-spacing:-.02em;
+    padding:clamp(34px,9vw,44px) 20px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center; gap:9px;
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     transition:transform .12s ease, background .12s ease;
   }
   .big:hover{background:var(--accent-deep)}
-  .big:active{transform:scale(.988)}
+  .big:active{transform:scale(.985)}
   .big:focus-visible{outline:3px solid var(--accent); outline-offset:4px}
-  .big small{font-weight:500; font-size:14.5px; opacity:.88; letter-spacing:0}
+  .big small{font-weight:500; font-size:15px; opacity:.9; letter-spacing:0}
   .big[data-speaking="1"]{background:var(--live)}
 
-  .steps{
-    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px;
-    display:flex; flex-direction:column; gap:11px;
-  }
-  .steps ol{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:7px; color:var(--ink-2); font-size:14.5px}
-  .steps li b{color:var(--ink); font-weight:600}
-  .label{
-    font-family:"IBM Plex Mono", ui-monospace, monospace;
-    font-size:11px; font-weight:500; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin:0;
-  }
-
-  .say{
-    min-height:44px; display:flex; align-items:center; gap:10px;
-    color:var(--ink-2); font-size:14.5px;
-  }
+  .say{min-height:46px; display:flex; align-items:center; gap:10px; color:var(--ink-2); font-size:15px}
   .say[data-on="1"]{color:var(--ink)}
   .wave{display:inline-flex; gap:3px; align-items:flex-end; height:18px; flex:none}
   .wave i{width:3px; height:5px; background:var(--live); border-radius:2px; display:block}
@@ -85,36 +73,47 @@
   @keyframes bounce{0%,100%{height:5px}50%{height:17px}}
   @media (prefers-reduced-motion: reduce){ .wave i{animation:none !important} }
 
-  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:17px 18px}
+  .label{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-size:11px; font-weight:500; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin:0 0 11px;
+  }
+  .card ol{margin:0; padding-left:21px; display:flex; flex-direction:column; gap:8px; color:var(--ink-2); font-size:15px}
+  .card ol b{color:var(--ink); font-weight:600}
+
+  .swap{
+    background:none; border:none; padding:0; margin-top:12px; cursor:pointer;
+    font:inherit; font-size:14px; color:var(--accent); text-decoration:underline; text-underline-offset:3px;
+  }
+
+  .row{display:flex; gap:10px; flex-wrap:wrap}
   .btn{
-    font:inherit; font-weight:600; font-size:14px; cursor:pointer;
+    flex:1 1 auto; min-height:48px; font:inherit; font-weight:600; font-size:15px; cursor:pointer;
     background:var(--surface); color:var(--ink); border:1px solid var(--line-2);
-    border-radius:8px; padding:9px 15px;
+    border-radius:10px; padding:11px 15px; -webkit-tap-highlight-color:transparent;
   }
   .btn:hover{background:var(--surface-2)}
   .btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
   textarea{
-    font:inherit; width:100%; min-height:88px; resize:vertical; line-height:1.5;
+    font:inherit; font-size:16px; width:100%; min-height:96px; resize:vertical; line-height:1.5;
     color:var(--ink); background:var(--surface); border:1px solid var(--line-2);
-    border-radius:10px; padding:12px 13px;
+    border-radius:11px; padding:13px;
   }
   textarea:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
 
-  .opts{display:flex; gap:18px; flex-wrap:wrap; align-items:center; color:var(--ink-2); font-size:14px}
-  .opts label{display:flex; align-items:center; gap:7px; cursor:pointer}
+  .opts{display:flex; gap:16px; flex-wrap:wrap; align-items:center; color:var(--ink-2); font-size:15px}
+  .opts label{display:flex; align-items:center; gap:8px; min-height:44px}
   select{
-    font:inherit; font-size:14px; color:var(--ink); background:var(--surface);
-    border:1px solid var(--line-2); border-radius:7px; padding:7px 9px; max-width:220px;
+    font:inherit; font-size:15px; color:var(--ink); background:var(--surface);
+    border:1px solid var(--line-2); border-radius:9px; padding:10px; max-width:100%; min-height:44px;
   }
-  input[type=range]{accent-color:var(--accent); width:120px}
-  input[type=checkbox]{accent-color:var(--accent); width:17px; height:17px}
+  input[type=range]{accent-color:var(--accent); width:130px; height:34px}
   .mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12px; color:var(--ink-3)}
 
-  .tip{
-    background:var(--live-soft); border:1px solid var(--live); border-radius:10px;
-    padding:13px 15px; font-size:14px; color:var(--ink); margin:0;
-  }
+  .tip{background:var(--live-soft); border:1px solid var(--live); border-radius:11px; padding:14px 15px; font-size:15px; color:var(--ink); margin:0}
+  .aside{margin:0; font-size:14.5px; color:var(--ink-2)}
+  .aside b{color:var(--ink); font-weight:600}
   footer{color:var(--ink-3); font-size:12.5px; text-align:center}
 </style>
 
@@ -122,7 +121,7 @@
 
   <div>
     <h1>Claude Voice</h1>
-    <p class="tagline">Copy anything Claude says, press the button, hear it.</p>
+    <p class="tagline">Copy what Claude says, tap once, hear it.</p>
   </div>
 
   <button class="big" id="go" data-speaking="0">
@@ -137,36 +136,51 @@
     <span id="say-text">Nothing playing yet.</span>
   </div>
 
-  <div class="steps">
-    <p class="label">How to use it</p>
-    <ol>
-      <li>In Claude Cowork, select a reply and press <b>Ctrl&nbsp;+&nbsp;C</b>.</li>
+  <div class="card">
+    <p class="label" id="steps-label">On your phone</p>
+
+    <ol id="steps-phone">
+      <li>In the Claude app, press and hold a reply and tap <b>Copy</b>.</li>
+      <li>Come back here and tap the big button.</li>
+      <li>If a little <b>Paste</b> bubble appears, tap it. That's your phone asking permission.</li>
+      <li>Keep this page open while it reads &mdash; phones stop audio when you leave.</li>
+    </ol>
+
+    <ol id="steps-desktop" hidden>
+      <li>In Claude, select a reply and press <b>Ctrl&nbsp;+&nbsp;C</b>.</li>
       <li>Click back to this tab. It starts reading on its own.</li>
       <li>Or press the big button any time to read what you copied.</li>
     </ol>
+
+    <button class="swap" id="swap">I'm on a computer instead</button>
   </div>
 
   <div class="row">
     <button class="btn" id="stop">Stop</button>
-    <button class="btn" id="again">Read it again</button>
+    <button class="btn" id="again">Read again</button>
     <button class="btn" id="test">Test the voice</button>
   </div>
 
   <div>
-    <p class="label" style="margin-bottom:8px">Or type / paste here</p>
-    <textarea id="box" placeholder="Anything in here gets read when you press the button."></textarea>
+    <p class="label" style="margin-bottom:9px">Or paste it here</p>
+    <textarea id="box" placeholder="Paste anything here, then tap the big button."></textarea>
   </div>
 
   <div class="opts">
-    <label for="auto"><input type="checkbox" id="auto" checked> Read automatically when I come back to this tab</label>
+    <label for="voice">Voice <select id="voice"><option>Loading&hellip;</option></select></label>
   </div>
-
   <div class="opts">
-    <label for="voice">Voice <select id="voice"><option>Loading…</option></select></label>
-    <label for="rate">Speed <input type="range" id="rate" min="0.6" max="1.8" step="0.1" value="1"> <span class="mono" id="rate-val">1.0×</span></label>
+    <label for="rate">Speed <input type="range" id="rate" min="0.6" max="1.8" step="0.1" value="1"> <span class="mono" id="rate-val">1.0&times;</span></label>
   </div>
 
-  <footer>Runs in your browser using the voice built into your computer. Nothing is uploaded.</footer>
+  <div class="card" id="hands-free">
+    <p class="label">Want it fully hands-free on your phone?</p>
+    <p class="aside" id="hands-free-text"></p>
+  </div>
+
+  <p class="aside" id="home-screen"></p>
+
+  <footer>Runs on your phone or computer using its own built-in voice. Nothing is uploaded.</footer>
 </div>
 
 <script>
@@ -178,21 +192,53 @@
     say: document.getElementById('say'), sayText: document.getElementById('say-text'),
     stop: document.getElementById('stop'), again: document.getElementById('again'),
     test: document.getElementById('test'), box: document.getElementById('box'),
-    auto: document.getElementById('auto'), voice: document.getElementById('voice'),
-    rate: document.getElementById('rate'), rateVal: document.getElementById('rate-val'),
-    tip: document.getElementById('tip')
+    voice: document.getElementById('voice'), rate: document.getElementById('rate'),
+    rateVal: document.getElementById('rate-val'), tip: document.getElementById('tip'),
+    stepsPhone: document.getElementById('steps-phone'), stepsDesktop: document.getElementById('steps-desktop'),
+    stepsLabel: document.getElementById('steps-label'), swap: document.getElementById('swap'),
+    handsFree: document.getElementById('hands-free-text'), homeScreen: document.getElementById('home-screen')
   };
 
   var synth = window.speechSynthesis;
   var voices = [];
-  var last = '';          // last thing spoken, for "read it again"
-  var lastClip = '';      // last clipboard text seen, so we don't repeat it
+  var last = '';
+  var lastClip = '';
+  var wakeLock = null;
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/.test(ua);
+  var isPhone = isIOS || isAndroid || /Mobi/.test(ua);
 
   if (!synth) {
     els.tip.hidden = false;
-    els.tip.textContent = 'This browser has no built-in speech. Try Chrome or Edge.';
+    els.tip.textContent = 'This browser has no built-in speech. Try Chrome or Safari.';
     els.go.disabled = true;
   }
+
+  // ------------------------------------------------- what to tell this device
+
+  function showSteps(phone) {
+    els.stepsPhone.hidden = !phone;
+    els.stepsDesktop.hidden = phone;
+    els.stepsLabel.textContent = phone ? 'On your phone' : 'On your computer';
+    els.swap.textContent = phone ? "I'm on a computer instead" : "I'm on a phone instead";
+    els.goSub.textContent = phone ? 'Reads whatever you last copied' : 'Reads whatever you last copied';
+  }
+  showSteps(isPhone);
+  els.swap.addEventListener('click', function () { showSteps(els.stepsPhone.hidden); });
+
+  els.handsFree.innerHTML = isIOS
+    ? 'Your iPhone can read <b>any</b> app aloud with no copying at all. Turn on <b>Settings › Accessibility › Spoken Content › Speak Screen</b>, then swipe down with two fingers from the top of the screen while you’re in the Claude app.'
+    : isAndroid
+      ? 'Android can read a chosen part of any screen aloud. Turn on <b>Settings › Accessibility › Select to Speak</b>, then tap its button and drag over Claude’s reply.'
+      : 'On a phone, both iPhone and Android can read any app aloud on their own — iPhone: <b>Settings › Accessibility › Spoken Content › Speak Screen</b>. Android: <b>Settings › Accessibility › Select to Speak</b>.';
+
+  els.homeScreen.innerHTML = isIOS
+    ? '<b>Tip</b> — tap Share then <b>Add to Home Screen</b> to keep this one tap away, like an app.'
+    : isPhone
+      ? '<b>Tip</b> — open the browser menu and tap <b>Add to Home screen</b> to keep this one tap away, like an app.'
+      : '';
 
   // ---------------------------------------------------------------- voices
 
@@ -207,8 +253,7 @@
     els.voice.innerHTML = '';
     voices.forEach(function (v, i) {
       var o = document.createElement('option');
-      o.value = String(i);
-      o.textContent = v.name;
+      o.value = String(i); o.textContent = v.name;
       els.voice.appendChild(o);
     });
     els.voice.value = voices[keep] ? keep : String(pick);
@@ -234,26 +279,34 @@
 
   // --------------------------------------------------------------- speaking
 
+  async function keepAwake(on) {
+    try {
+      if (on && navigator.wakeLock && !wakeLock) wakeLock = await navigator.wakeLock.request('screen');
+      else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+    } catch (e) { /* not supported, or denied - speech still works */ }
+  }
+
   function speak(text) {
     if (!synth || !text) return;
     synth.cancel();
     last = text;
 
-    // Long text: break into sentences so it doesn't get cut off mid-way.
-    var chunks = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
-    var merged = [];
-    chunks.forEach(function (c) {
-      if (merged.length && (merged[merged.length - 1] + c).length < 200) merged[merged.length - 1] += c;
-      else merged.push(c);
+    var parts = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
+    var chunks = [];
+    parts.forEach(function (p) {
+      if (chunks.length && (chunks[chunks.length - 1] + p).length < 200) chunks[chunks.length - 1] += p;
+      else chunks.push(p);
     });
 
-    merged.forEach(function (chunk, i) {
+    chunks.forEach(function (chunk, i) {
       var u = new SpeechSynthesisUtterance(chunk.trim());
       var chosen = voices[Number(els.voice.value)];
       if (chosen) { u.voice = chosen; u.lang = chosen.lang; }
       u.rate = Number(els.rate.value) || 1;
-      if (i === 0) u.onstart = function () { showSpeaking(text); };
-      if (i === merged.length - 1) { u.onend = showIdle; u.onerror = showIdle; }
+      if (i === 0) u.onstart = function () { showSpeaking(text); keepAwake(true); };
+      if (i === chunks.length - 1) {
+        u.onend = u.onerror = function () { showIdle(); keepAwake(false); };
+      }
       synth.speak(u);
     });
   }
@@ -261,7 +314,7 @@
   function showSpeaking(text) {
     els.say.dataset.on = '1';
     els.go.dataset.speaking = '1';
-    els.sayText.textContent = text.length > 120 ? text.slice(0, 120) + '…' : text;
+    els.sayText.textContent = text.length > 110 ? text.slice(0, 110) + '…' : text;
   }
 
   function showIdle() {
@@ -270,36 +323,35 @@
     els.sayText.textContent = 'Finished.';
   }
 
-  function note(message) {
-    els.tip.hidden = false;
-    els.tip.textContent = message;
-  }
-
   // -------------------------------------------------------------- the button
 
-  async function readClipboard() {
-    if (!navigator.clipboard || !navigator.clipboard.readText) return null;
-    try { return await navigator.clipboard.readText(); } catch (e) { return null; }
+  /* On a phone the browser shows a Paste prompt and readText() simply waits -
+     forever, if it's ignored. Never let that hang the button. */
+  function readClipboard() {
+    if (!navigator.clipboard || !navigator.clipboard.readText) return Promise.resolve(null);
+    var timeout = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 8000); });
+    var read = navigator.clipboard.readText().catch(function () { return null; });
+    return Promise.race([read, timeout]);
   }
 
   async function go() {
     var typed = forSpeech(els.box.value);
-    var clip = forSpeech(await readClipboard());
-
-    if (clip) {
-      lastClip = clip;
-      els.tip.hidden = true;
-      speak(clip);
-      return;
-    }
     if (typed) { els.tip.hidden = true; speak(typed); return; }
 
-    note('I couldn’t read your clipboard. Click "Allow" if your browser asks — or paste the text into the box below and press the button again.');
+    els.sayText.textContent = 'Checking what you copied\u2026';
+    var clip = forSpeech(await readClipboard());
+    if (clip) { lastClip = clip; els.tip.hidden = true; speak(clip); return; }
+
+    els.sayText.textContent = 'Nothing to read yet.';
+    els.tip.hidden = false;
+    els.tip.textContent = isIOS
+      ? 'Tap the button again and choose Paste when the little bubble appears — or paste into the box below and tap again.'
+      : 'I couldn’t reach your clipboard. Allow it if your browser asks, or paste into the box below and tap again.';
     els.box.focus();
   }
 
   els.go.addEventListener('click', go);
-  els.stop.addEventListener('click', function () { if (synth) synth.cancel(); showIdle(); });
+  els.stop.addEventListener('click', function () { if (synth) synth.cancel(); showIdle(); keepAwake(false); });
   els.again.addEventListener('click', function () { if (last) speak(last); });
   els.test.addEventListener('click', function () { speak('This is how I will read Claude to you.'); });
 
@@ -307,11 +359,16 @@
     els.rateVal.textContent = Number(els.rate.value).toFixed(1) + '×';
   });
 
-  // Come back to this tab after copying, and it just reads.
+  // On a computer, coming back to this tab reads what you copied.
+  // Phones require a tap, so this stays desktop-only on purpose.
   window.addEventListener('focus', async function () {
-    if (!els.auto.checked || !synth) return;
+    if (isPhone || !synth) return;
     var clip = forSpeech(await readClipboard());
     if (clip && clip !== lastClip) { lastClip = clip; speak(clip); }
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) keepAwake(false);
   });
 
   if (synth) {
