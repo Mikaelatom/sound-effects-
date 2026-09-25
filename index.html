@@ -1094,10 +1094,94 @@ const tintCv = document.createElement('canvas');
 tintCv.width = FW; tintCv.height = FH;
 const tintCtx = tintCv.getContext('2d');
 
+/* ---- shapes on the pixel grid ---------------------------------------
+   The arena draws one game pixel as a PX-by-PX block. A canvas arc or
+   ellipse is smooth-edged at any size, so a drop shadow or a boss ring put
+   next to a sprite reads as a different art style sitting on top of the
+   game. These build the same shapes out of PX blocks: everything is worked
+   out in game pixels and emitted as whole blocks, so no edge lands between
+   two of them. Same shapes, same edges as the character standing on them. */
+function pxEllipse(ctx, cx, cy, rx, ry, col, alpha){
+  const CX = Math.round(cx/PX), CY = Math.round(cy/PX);
+  const RX = Math.max(1, Math.round(rx/PX)), RY = Math.max(1, Math.round(ry/PX));
+  ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.fillStyle = col;
+  for(let y = -RY; y <= RY; y++){
+    const t = 1 - (y*y)/(RY*RY); if(t <= 0) continue;
+    const w = Math.round(RX*Math.sqrt(t)); if(w < 1) continue;
+    ctx.fillRect((CX-w)*PX, (CY+y)*PX, (2*w+1)*PX, PX);
+  }
+  ctx.globalAlpha = 1;
+}
+/* A ring, or a wedge of one. `squash` flattens it into the floor plane the
+   way ctx.scale(1,.62) used to; `a0`/`a1` bound the sweep for a wedge tell;
+   `fill` paints the disc inside instead of the band around it. */
+function pxArc(ctx, cx, cy, r, thick, col, alpha, squash, a0, a1, fill){
+  const CX = Math.round(cx/PX), CY = Math.round(cy/PX);
+  const R = Math.max(1, Math.round(r/PX));
+  const T = Math.max(1, Math.round((thick || PX)/PX));
+  const q = squash || 1, inner = fill ? 0 : Math.max(0, R - T);
+  const wedge = a0 != null, half = wedge ? Math.abs(a1-a0)/2 : 0;
+  const mid = wedge ? (a0+a1)/2 : 0;
+  const RY = Math.max(1, Math.round(R*q));
+  ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.fillStyle = col;
+  for(let y = -RY; y <= RY; y++){
+    const yy = y/q;
+    const o2 = R*R - yy*yy; if(o2 < 0) continue;
+    const xo = Math.round(Math.sqrt(o2));
+    const i2 = inner*inner - yy*yy;
+    const xi = i2 > 0 ? Math.round(Math.sqrt(i2)) : -1;
+    if(!wedge){
+      if(xi < 0) ctx.fillRect((CX-xo)*PX, (CY+y)*PX, (2*xo+1)*PX, PX);
+      else {
+        ctx.fillRect((CX-xo)*PX,  (CY+y)*PX, (xo-xi)*PX, PX);
+        ctx.fillRect((CX+xi+1)*PX,(CY+y)*PX, (xo-xi)*PX, PX);
+      }
+    } else {
+      for(let x = -xo; x <= xo; x++){
+        if(xi >= 0 && Math.abs(x) <= xi) continue;
+        let d = Math.atan2(yy, x) - mid;
+        while(d >  Math.PI) d -= Math.PI*2;
+        while(d < -Math.PI) d += Math.PI*2;
+        if(Math.abs(d) <= half) ctx.fillRect((CX+x)*PX, (CY+y)*PX, PX, PX);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+/* An outline at any rotation - the orbit shells, which are tilted ellipses.
+   Sampled round the perimeter and snapped, one block per position. */
+function pxOval(ctx, cx, cy, rx, ry, rot, col, alpha){
+  const CX = cx/PX, CY = cy/PX, RX = rx/PX, RY = ry/PX;
+  const co = Math.cos(rot), si = Math.sin(rot);
+  const n = Math.max(32, Math.round((RX+RY)*3));
+  ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.fillStyle = col;
+  let px2 = null, py2 = null;
+  for(let i = 0; i <= n; i++){
+    const a = i/n*Math.PI*2, ex = Math.cos(a)*RX, ey = Math.sin(a)*RY;
+    const x = Math.round(CX + ex*co - ey*si), y = Math.round(CY + ex*si + ey*co);
+    if(x === px2 && y === py2) continue;
+    px2 = x; py2 = y;
+    ctx.fillRect(x*PX, y*PX, PX, PX);
+  }
+  ctx.globalAlpha = 1;
+}
+
+const badScale = new Set();
 function drawFrame(ctx, rowKey, frame, x, y, flip, scale, tint, tintColor){
   if(!atlasReady) return;
   const r = ROW[rowKey]; if(r === undefined) return;
-  const s = scale || 1;
+  /* A sprite drawn at a fraction of its size gets uneven pixels - some one
+     canvas pixel wide, some two - which is the fastest way to stop looking
+     like pixel art. Nothing slips through at 1.15 or 1.9 again. */
+  let s = scale || 1;
+  if(s !== Math.round(s)){
+    if(!badScale.has(rowKey)){
+      badScale.add(rowKey);
+      console.warn('drawFrame: "' + rowKey + '" drawn at scale ' + s
+        + ', rounded to ' + Math.max(1, Math.round(s)));
+    }
+    s = Math.max(1, Math.round(s));
+  }
   let src = atlas, sx = frame*FW, sy = r*FH;
   if(tint > 0){
     tintCtx.clearRect(0, 0, FW, FH);
@@ -1556,10 +1640,10 @@ const CHARS = [
   { id:'jinya', name:'Jinya Kurose', title:'The Shadow Monarch', rarity:5, element:'Shadow', role:'Monarch',
     hp:130, atk:18, aspd:1.6, range:38, spd:74, crit:.14,
     skill: {name:'Ashen Knight', type:'shadowsummon', cd:12, dmg:1.56, row:'knight',
-            spd:74, rate:.85, reach:18, scale:1.35, bulk:1.2,
+            spd:74, rate:.85, reach:18, scale:1, bulk:1.2,
             desc:'The first one he ever raised. Slow, heavy, and it does not leave \u2014 it stands for the rest of the fight.'},
     skill2:{name:'Hive Marshal', type:'shadowsummon', cd:12, dmg:1.17, row:'antking',
-            spd:150, rate:.42, reach:13, scale:1.1, bulk:.7,
+            spd:150, rate:.42, reach:13, scale:1, bulk:.7,
             desc:'The other one. Far too fast, hits far too often, and it also stays for the fight.'},
     burst: {name:'Arise', type:'arise', dmg:0.94,
             desc:'Everything he has killed this fight gets back up on his side. Up to ten of them, in whatever shape they died in, for the rest of the room.'},
@@ -3595,13 +3679,13 @@ const RIVALS = [
 ];
 const RIVAL = Object.fromEntries(RIVALS.map(r => [r.id, r]));
 const MOBS = {
-  rival:{hp:1, spd:70, dmg:16, r:7, ai:'rival', scale:1.15},
-  warden:{hp:1, spd:34, dmg:12, r:7, ai:'chase', row:'brute', scale:1.25},
+  rival:{hp:1, spd:70, dmg:16, r:7, ai:'rival', scale:1},
+  warden:{hp:1, spd:34, dmg:12, r:7, ai:'chase', row:'brute', scale:1},
   sovereign:{hp:1, spd:16, dmg:20, r:18, ai:'sovereign', scale:3},
   unmaker:{hp:1, spd:14, dmg:22, r:19, ai:'sovereign', row:'unmaker', scale:3},
-  echo:{hp:1, spd:40, dmg:10, r:9, ai:'chase', row:'echo', scale:1.5},
-  knight:{hp:360, spd:26, dmg:16, r:11, ai:'boss', row:'knight', scale:1.9},
-  antking:{hp:330, spd:34, dmg:14, r:10, ai:'boss', row:'antking', scale:1.9},
+  echo:{hp:1, spd:40, dmg:10, r:9, ai:'chase', row:'echo', scale:2},
+  knight:{hp:360, spd:26, dmg:16, r:11, ai:'boss', row:'knight', scale:2},
+  antking:{hp:330, spd:34, dmg:14, r:10, ai:'boss', row:'antking', scale:2},
   slime:{hp:20, spd:26, dmg:8,  r:5,  ai:'chase'},
   bat:  {hp:13, spd:56, dmg:6,  r:5,  ai:'erratic'},
   imp:  {hp:18, spd:30, dmg:7,  r:5,  ai:'kite'},
@@ -5625,7 +5709,7 @@ function castSkill_(sk, dmgMul){
     /* ---- SPLIT OFF: it takes a hit for him, then it goes off ---- */
     case 'mitosis':
       spawnPet({row:'slime', dmg:A*dmgMul*.5, life:sk.dur || 10, spd:96, rate:.6,
-        reach:14, scale:1.1, hp:h.st.maxhp*.45, color:'#5fd8e6',
+        reach:14, scale:1, hp:h.st.maxhp*.45, color:'#5fd8e6',
         pop:A*dmgMul, acid:true, own:h});
       B.floats.push({x:h.x, y:h.y-34, vy:-16, life:1.2, txt:'SPLIT',
         color:'#5fd8e6', size:9});
@@ -5818,7 +5902,7 @@ function updatePets(dt){
       asOwner(q.own, () =>
         hurtMob(m, q.dmg*gang, Math.random() < .18, {x:Math.cos(a)*.5, y:Math.sin(a)*.5}));
       spawnHit(m.x, m.y-m.r, q.color, 'cut');
-      B.shake = Math.max(B.shake, q.scale > 1.3 ? 6 : 2);
+      B.shake = Math.max(B.shake, q.scale >= 2 ? 6 : 2);
     }
     if(q.wild && dist(h, q) < 18 && q.cd2 <= 0){        // it bites whoever is closest
       q.cd2 = 1.4; hurtHero(q.dmg*.30);
@@ -5950,7 +6034,7 @@ function useBurst_(){
     case 'bodysplit':
       for(let i = 0; i < 3; i++)
         spawnPet({row:'slime', dmg:A*bu.dmg, life:14, spd:104, rate:.5, reach:14,
-          scale:1.1, hp:h.st.maxhp*.6, color:'#5fd8e6'});
+          scale:1, hp:h.st.maxhp*.6, color:'#5fd8e6'});
       healHero(h.st.maxhp*.25);
       break;
     /* ---- INFERNO: the whole floor catches ---- */
@@ -6054,7 +6138,7 @@ function useBurst_(){
     /* ---- THE WHEEL: it fights everything, and it is not on your side ---- */
     case 'wheel':
       spawnPet({row:'wheel', dmg:A*bu.dmg, life:999, spd:74, rate:.85, reach:26,
-        scale:1.7, hp:h.st.maxhp*2.2, color:'#ffd24d', wild:true});
+        scale:2, hp:h.st.maxhp*2.2, color:'#ffd24d', wild:true});
       B.shake = 20; B.hitstop = .16;
       B.floats.push({x:h.x, y:h.y-56, vy:-12, life:2.6, txt:'THE WHEEL TURNS',
         color:'#ffd24d', size:11});
@@ -8387,21 +8471,14 @@ function render(){
   }
   /* fields */
   for(const f of B.fields){
-    ctx.globalAlpha = clamp(f.life/f.max,0,1)*(f.type==='burn'?.30:.55);
-    ctx.strokeStyle = f.color; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(f.x*PX, f.y*PX, f.r*PX, 0, 7); ctx.stroke();
-    if(f.type==='burn'){ ctx.globalAlpha=.15; ctx.fillStyle=f.color; ctx.fill(); }
-    ctx.globalAlpha = 1;
+    const fa = clamp(f.life/f.max,0,1)*(f.type==='burn'?.30:.55);
+    if(f.type==='burn') pxArc(ctx, f.x*PX, f.y*PX, f.r*PX, 0, f.color, .15, 1, null, null, true);
+    pxArc(ctx, f.x*PX, f.y*PX, f.r*PX, 4, f.color, fa);
   }
   /* the orbit: three shells and the electrons riding them */
   if(B.hero && B.hero.orbit){
     const O = B.hero.orbit, hx2 = B.hero.x*PX, hy2 = (B.hero.y-8)*PX;
-    ctx.globalAlpha = .5; ctx.strokeStyle = '#b07cff'; ctx.lineWidth = 2;
-    for(let i=0;i<3;i++){
-      ctx.save(); ctx.translate(hx2, hy2); ctx.rotate(i*1.05);
-      ctx.beginPath(); ctx.ellipse(0, 0, 30*PX, 17*PX, 0, 0, 7); ctx.stroke();
-      ctx.restore();
-    }
+    for(let i=0;i<3;i++) pxOval(ctx, hx2, hy2, 30*PX, 17*PX, i*1.05, '#b07cff', .5);
     ctx.globalAlpha = 1;
     for(let i=0;i<O.n;i++){
       const a2 = O.a + i/O.n*Math.PI*2;
@@ -8423,22 +8500,16 @@ function render(){
   /* the lantern's circle of light */
   if(B.ward){
     const W = B.ward;
-    ctx.globalAlpha = .10 + Math.sin(B.t*3)*.03;
-    ctx.fillStyle = W.color;
-    ctx.beginPath(); ctx.ellipse(W.x*PX, W.y*PX, W.r*PX, W.r*PX*.62, 0, 0, 7); ctx.fill();
-    ctx.globalAlpha = .5; ctx.strokeStyle = W.color; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(W.x*PX, W.y*PX, W.r*PX, W.r*PX*.62, 0, 0, 7); ctx.stroke();
+    pxArc(ctx, W.x*PX, W.y*PX, W.r*PX, 0, W.color, .10 + Math.sin(B.t*3)*.03, .62, null, null, true);
+    pxArc(ctx, W.x*PX, W.y*PX, W.r*PX, 2, W.color, .5, .62);
     ctx.fillStyle = W.color; ctx.fillRect(W.x*PX-3, W.y*PX-16, 6, 12);
-    ctx.globalAlpha = 1;
   }
   /* the banner */
   if(B.banner){
     const bn = B.banner;
-    ctx.globalAlpha = .18 + Math.sin(B.t*4)*.06;
-    ctx.fillStyle = bn.color;
-    ctx.beginPath(); ctx.arc(bn.x*PX, bn.y*PX, bn.r*PX, 0, 7); ctx.fill();
-    ctx.globalAlpha = .7; ctx.strokeStyle = bn.color; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(bn.x*PX, bn.y*PX, bn.r*PX, 0, 7); ctx.stroke();
+    pxArc(ctx, bn.x*PX, bn.y*PX, bn.r*PX, 0, bn.color, .18 + Math.sin(B.t*4)*.06, 1, null, null, true);
+    pxArc(ctx, bn.x*PX, bn.y*PX, bn.r*PX, 3, bn.color, .7);
+    ctx.globalAlpha = .7; ctx.fillStyle = bn.color;
     ctx.fillRect(bn.x*PX-2, bn.y*PX-46, 4, 46);
     ctx.fillRect(bn.x*PX+2, bn.y*PX-46, 16, 12);
     ctx.globalAlpha = 1;
@@ -8447,11 +8518,9 @@ function render(){
   for(const st of B.strikes){
     if(st.t > 0){
       const k = clamp(1 - st.t/.6, 0, 1);
-      ctx.globalAlpha = .18 + k*.32;
-      ctx.strokeStyle = st.color; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(st.x*PX, st.y*PX, st.r*PX*(1-k*.25), 0, 7); ctx.stroke();
-      ctx.globalAlpha = .10 + k*.16; ctx.fillStyle = st.color; ctx.fill();
-      ctx.globalAlpha = 1;
+      const sr = st.r*PX*(1-k*.25);
+      pxArc(ctx, st.x*PX, st.y*PX, sr, 0, st.color, .10 + k*.16, 1, null, null, true);
+      pxArc(ctx, st.x*PX, st.y*PX, sr, 2, st.color, .18 + k*.32);
     }
   }
   /* walls */
@@ -8479,9 +8548,7 @@ function render(){
     const armed = mn.arm <= 0, blip = armed ? .55 + Math.sin(B.t*9)*.35 : .3;
     ctx.globalAlpha = blip; ctx.fillStyle = mn.color;
     ctx.fillRect(mn.x*PX-4, mn.y*PX-3, 8, 6);
-    ctx.globalAlpha = armed ? .25 : .10;
-    ctx.beginPath(); ctx.arc(mn.x*PX, mn.y*PX, 18*PX*.5, 0, 7); ctx.fill();
-    ctx.globalAlpha = 1;
+    pxArc(ctx, mn.x*PX, mn.y*PX, 18*PX*.5, 0, mn.color, armed ? .25 : .10, 1, null, null, true);
   }
   /* chain lightning, drawn as a jagged run between the two bodies */
   for(const a of B.arcs){
@@ -8534,8 +8601,7 @@ function render(){
   for(const e of ents){
     if(e.q){                                        // a shikigami
       const q = e.q, qx = q.x*PX, qy = q.y*PX;
-      ctx.globalAlpha = .3; ctx.fillStyle = '#000';
-      ctx.beginPath(); ctx.ellipse(qx, qy+1, 12*PX*q.scale*.5, 4*PX*q.scale*.5, 0, 0, 7); ctx.fill();
+      pxEllipse(ctx, qx, qy+1, 12*PX*q.scale*.5, 4*PX*q.scale*.5, '#000', .3);
       ctx.globalAlpha = q.life < 2 ? .35 + Math.sin(B.t*18)*.25 : 1;   // it fades as it goes
       if(q.shadow) ctx.filter = 'brightness(0.42) saturate(0.45) hue-rotate(250deg)';
       drawFrame(ctx, q.row, petFrame(q), qx, qy, q.face < 0, q.scale,
@@ -8551,15 +8617,10 @@ function render(){
     }
     if(e.m){
       const m = e.m, mx = m.x*PX, my = m.y*PX;
-      ctx.globalAlpha = .28; ctx.fillStyle = '#000';
-      ctx.beginPath(); ctx.ellipse(mx, my+1, m.r*PX, m.r*PX*.4, 0, 0, 7); ctx.fill();
-      ctx.globalAlpha = 1;
+      pxEllipse(ctx, mx, my+1, m.r*PX, m.r*PX*.4, '#000', .28);
       if(m.state === 'wind' || m.state === 'charge'){
-        ctx.globalAlpha = .5+Math.sin(B.t*30)*.3;
-        ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 2;
-        ctx.globalAlpha *= m.type==='sovereign' ? .5 : 1;
-        ctx.beginPath(); ctx.arc(mx, my-m.r*PX, (m.r+6)*PX, 0, 7); ctx.stroke();
-        ctx.globalAlpha = 1;
+        pxArc(ctx, mx, my-m.r*PX, (m.r+6)*PX, 2, '#ff5d5d',
+              (.5+Math.sin(B.t*30)*.3) * (m.type==='sovereign' ? .5 : 1));
       }
       if(m.frozen > 0) drawFrame(ctx, m.row, mobFrame(m), mx, my, m.face < 0, m.scale, .55, '#5fe6ff');
       else              drawFrame(ctx, m.row, mobFrame(m), mx, my, m.face < 0, m.scale, m.flash);
@@ -8579,18 +8640,12 @@ function render(){
       }
     } else {
       const h = e.h, hx = h.x*PX, hy = h.y*PX;
-      ctx.globalAlpha = .3; ctx.fillStyle = '#000';
-      ctx.beginPath(); ctx.ellipse(hx, hy+1, 15, 6, 0, 0, 7); ctx.fill();
-      ctx.globalAlpha = 1;
+      pxEllipse(ctx, hx, hy+1, 15, 6, '#000', .3);
       if(h.shield > 0){
-        ctx.globalAlpha = .5; ctx.strokeStyle = '#5fe6ff'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(hx, hy-42, 34, 0, 7); ctx.stroke(); ctx.globalAlpha = 1;
+        pxArc(ctx, hx, hy-42, 34, 3, '#5fe6ff', .5);
       }
       if(h.untouchable > 0){
-        ctx.globalAlpha = .35+Math.sin(B.t*14)*.15;
-        ctx.strokeStyle = '#ffcc4d'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(hx, hy-46, 46+Math.sin(B.t*9)*5, 0, 7); ctx.stroke();
-        ctx.globalAlpha = 1;
+        pxArc(ctx, hx, hy-46, 46+Math.sin(B.t*9)*5, 3, '#ffcc4d', .35+Math.sin(B.t*14)*.15);
       }
       if(h.ghosts && h.ghosts.length){          // the smear the body leaves behind it
         const gc = ELC[CHAR[h.mem.id].element];
@@ -8623,25 +8678,16 @@ function render(){
     const t = clamp(1 - (m.ai === 'boss' ? m.stateT : m.tellT)/full, 0, 1);
     const col = m.ai === 'boss' ? K.col : '#ff5d5d';
     const cx2 = m.x*PX, cy2 = (m.y-2)*PX;
-    ctx.save();
-    ctx.translate(cx2, cy2); ctx.scale(1, 0.62);
-    ctx.globalAlpha = .25 + t*.45;
-    ctx.strokeStyle = col; ctx.lineWidth = 3 + t*3;
+    const thick = 3 + t*3;
     if(kind === 'arc'){
-      const R2 = (m.r + 30)*PX;
-      ctx.beginPath(); ctx.arc(0, 0, R2*(.55 + t*.45), m.tellA - 1.0, m.tellA + 1.0);
-      ctx.stroke();
-      ctx.globalAlpha = .16 + t*.3;
-      ctx.beginPath(); ctx.moveTo(0, 0);
-      ctx.arc(0, 0, R2*(.55 + t*.45), m.tellA - 1.0, m.tellA + 1.0);
-      ctx.closePath(); ctx.fill();
+      const R2 = (m.r + 30)*PX*(.55 + t*.45);
+      pxArc(ctx, cx2, cy2, R2, 0, col, .16 + t*.3, .62, m.tellA-1.0, m.tellA+1.0, true);
+      pxArc(ctx, cx2, cy2, R2, thick, col, .25 + t*.45, .62, m.tellA-1.0, m.tellA+1.0);
     } else {
-      const R2 = ((m.ai === 'boss' ? m.r + 74 : m.tellR))*PX;
-      ctx.beginPath(); ctx.arc(0, 0, R2*(.35 + t*.65), 0, 7); ctx.stroke();
-      ctx.globalAlpha = .10 + t*.16;
-      ctx.beginPath(); ctx.arc(0, 0, R2*(.35 + t*.65), 0, 7); ctx.fill();
+      const R2 = ((m.ai === 'boss' ? m.r + 74 : m.tellR))*PX*(.35 + t*.65);
+      pxArc(ctx, cx2, cy2, R2, 0, col, .10 + t*.16, .62, null, null, true);
+      pxArc(ctx, cx2, cy2, R2, thick, col, .25 + t*.45, .62);
     }
-    ctx.restore(); ctx.globalAlpha = 1;
   }
   drawHits(ctx);
   /* particles */
@@ -8812,16 +8858,30 @@ function resize(){
   const pad = portrait ? 4 : 12;
   const availW = app.clientWidth - pad;
   const availH = (portrait ? Math.round(app.clientHeight*0.60) : app.clientHeight) - pad;
-  let s = Math.min(availW/GW, availH/GH);
-  if(!TOUCH) s = s >= 1 ? Math.floor(s) : s;   // crisp integer scale when it fits
-  const w = Math.round(GW*s), h = Math.round(GH*s);
+  /* The scale has to be whole in REAL screen pixels, not CSS ones. At 125%
+     or 150% display scaling one CSS pixel is 1.25 or 1.5 device pixels, so an
+     integer CSS scale still lands the canvas on a fraction of the screen -
+     some sprite pixels come out one screen pixel wide and some two, and the
+     whole picture shimmers as things move. Work in device pixels, floor
+     there, then hand back a CSS size that divides out exactly. */
+  const dpr = devicePixelRatio || 1;
+  let s = Math.min(availW*dpr/GW, availH*dpr/GH);
+  if(!TOUCH){
+    /* A sprite pixel is one CANVAS pixel - drawFrame blits the atlas 1:1, and
+       PX only maps game units to canvas positions - so this scale is exactly
+       how many screen pixels a sprite pixel covers. Whole numbers only. Under
+       1x there is no whole number left, and a half drops every other pixel
+       evenly, which reads far better than an arbitrary 0.83. */
+    s = s >= 1 ? Math.floor(s) : (s >= .5 ? .5 : s);
+  }
+  const w = GW*s/dpr, h = GH*s/dpr;
   cv.style.width = w+'px'; cv.style.height = h+'px';
   st.style.width = w+'px'; st.style.height = h+'px';
   /* The HUD is HTML sitting over a canvas that scales with the window, so
      without this it keeps its full size while the arena shrinks under it and
      ends up owning half the screen. Everything in the HUD is sized off this,
      with a floor so the text never goes to soup on a tiny window. */
-  st.style.setProperty('--hud', Math.max(.62, Math.min(1, s)).toFixed(3));
+  st.style.setProperty('--hud', Math.max(.62, Math.min(1, s/dpr)).toFixed(3));
   // held upright, the thumbs get everything under the arena - all of it, so
   // there is no dead strip between what you are looking at and what you are
   // holding
@@ -8843,6 +8903,15 @@ function resize(){
   }
 }
 addEventListener('resize',resize);
+/* Dragging the window to a monitor with different scaling changes
+   devicePixelRatio without firing resize, and the query only fires once - so
+   it re-arms itself against the new ratio each time. */
+(function watchDpr(){
+  const mq = matchMedia('(resolution: ' + (devicePixelRatio || 1) + 'dppx)');
+  const on = () => { resize(); watchDpr(); };
+  if(mq.addEventListener) mq.addEventListener('change', on, {once:true});
+  else if(mq.addListener) mq.addListener(on);
+})();
 addEventListener('orientationchange',()=>setTimeout(resize,120));
 
 /* ================================ TOUCH =================================
