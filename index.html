@@ -864,11 +864,11 @@ button.pill{cursor:pointer;font:inherit;color:inherit}
   <!-- ============ MAP ============ -->
   <div class="screen hidden" id="scr-map">
     <div class="topbar">
-      <button class="btn sm ghost" id="abandon">◀ Abandon Run</button>
+      <button class="btn sm ghost" id="abandon">↑ Leave with Loot</button>
       <h2 class="px">THE SPIRE</h2><div class="spacer"></div>
       <div class="pill" id="map-floor" style="color:var(--cyan)">THE UNDERCROFT</div>
       <div class="pill">Room <b id="map-depth">1-1</b></div>
-      <div class="pill">◈ <b id="map-shards">0</b></div>
+      <div class="pill" id="map-haul" style="color:var(--gold)">Carrying ◈ <b id="map-shards">0</b></div>
     </div>
     <div class="map-wrap">
       <div class="track" id="track"></div>
@@ -3025,6 +3025,12 @@ const freshMods = () => ({atkM:0,hpM:0,aspdM:0,spdM:0,crit:0,critD:0,lifesteal:0
   cdr:0,thorns:0,dashDmg:0,swapShield:0,burn:0,chill:0,chain:0,shardM:0,revives:0,rangeM:0,regen:0});
 
 const FLOORS = 3, ROOMS_PER_FLOOR = 8;
+/* How often the way out is open. A floor is eight rooms, and an extraction
+   point only at the very end meant the first chance to bank anything was
+   eight fights in - long enough that most runs never saw one. Every fourth
+   room gives the choice twice a floor. */
+const EXTRACT_EVERY = 4;
+const isExtractRoom = d => d > 0 && d % EXTRACT_EVERY === 0;
 const FLOOR_NAMES = ['THE UNDERCROFT', 'THE GLASS TIERS', 'THE CROWN'];
 function buildNodes(){
   const nodes = [];
@@ -3198,7 +3204,9 @@ function renderMap(){
   const d = Math.min(R.depth, R.nodes.length-1), fl = floorOf(d);
   $('#map-depth').textContent = (fl+1)+'-'+((d % ROOMS_PER_FLOOR)+1);
   $('#map-floor').textContent = FLOOR_NAMES[fl];
-  $('#map-shards').textContent=R.shards;
+  $('#map-shards').textContent=haulValue();
+  const hm = haulMats();
+  $('#map-haul').title = hm ? hm+' materials in the bag too' : 'Nothing but shards so far';
   const t=$('#track'); t.innerHTML='';
   const IC={battle:'⚔',elite:'☠',rest:'✚',treasure:'◈',boss:'👑',duel:'⚔'};
   R.nodes.forEach((n,i)=>{
@@ -3212,7 +3220,9 @@ function renderMap(){
     d.className='node'+(n.done?' done':'')+(i===R.depth?' now':'')
       +(n.type==='boss'?' boss':'')+(n.type==='duel'?' duel':'');
     d.innerHTML=`<div class="ic">${IC[n.type]}</div><div>${n.type.toUpperCase()}</div>`+
-      `<div class="muted">${n.floor+1}-${(i % ROOMS_PER_FLOOR)+1}</div>`;
+      `<div class="muted">${n.floor+1}-${(i % ROOMS_PER_FLOOR)+1}</div>`+
+      /* clearing this one opens the way out - worth seeing before you commit */
+      (isExtractRoom(i+1) ? `<div class="tiny" style="color:var(--cyan)">\u2191 EXIT</div>` : '');
     t.appendChild(d);
   });
   const cur=t.querySelector('.node.now');
@@ -3242,12 +3252,11 @@ function renderMap(){
   $('#enter').textContent = nx ? (nx.type==='rest'?'Rest':nx.type==='treasure'?'Open':'Enter Room') : 'Finish';
 }
 function advance(){
-  const wasFloor = floorOf(R.depth);
   R.nodes[R.depth].done=true; R.depth++;
   S.best=Math.max(S.best,R.depth); save();
   if(R.depth>=R.nodes.length) return endRun('cleared');
-  /* a floor just ended and there is another one below: the way out is here */
-  if(floorOf(R.depth) !== wasFloor) return offerExtract();
+  /* the way out is open here */
+  if(isExtractRoom(R.depth)) return offerExtract();
   renderMap(); show('map');
 }
 function enterNode(){
@@ -3322,6 +3331,29 @@ function offerExtract(){
    'abandoned' (quit at the map, same as walking out) or 'died'. Only the
    last one loses the haul, and it loses all of it - gear, characters and
    anything already in the account are never touched. */
+/* The map's own leave button. confirm() is blocked inside a sandboxed
+   iframe, which is where this game actually gets played, so the button did
+   nothing at all there - this is the game's own overlay and always works. */
+function confirmLeave(){
+  const shards = haulValue(), mats = haulMats();
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="px" style="font-size:14px;color:var(--cyan)">LEAVE THE SPIRE</div>
+    <div class="px" style="font-size:13px;color:var(--gold);margin-top:6px">
+      Carrying ${shards} \u25c8${mats ? ' \u00b7 ' + mats + ' materials' : ''}</div>
+    <div class="tiny muted">Walk out now and all of it is banked.</div>`;
+  const row = document.createElement('div'); row.className = 'choices';
+  const go = document.createElement('button'); go.className = 'choice';
+  go.innerHTML = `<div class="ic">\u2191</div><h4>Leave with it</h4>
+    <p>Bank ${shards} \u25c8${mats ? ' and ' + mats + ' materials' : ''} and end the run.</p>`;
+  go.onclick = () => { Sfx.ui(); ov.remove(); endRun('abandoned'); };
+  const stay = document.createElement('button'); stay.className = 'choice';
+  stay.innerHTML = `<div class="ic">\u2193</div><h4>Keep going</h4><p>Back to the map.</p>`;
+  stay.onclick = () => { Sfx.ui(); ov.remove(); };
+  row.appendChild(go); row.appendChild(stay);
+  ov.appendChild(row);
+  $('#app').appendChild(ov);
+}
+
 function endRun(how){
   if(how === true)  how = 'cleared';
   if(how === false) how = 'died';
@@ -4514,7 +4546,12 @@ function heroAttack_(step){
     const wc = WEP_CLASS[c.id] || 'ranged';
     B.slashes.push({
       kind: (wc === 'dagger' || wc === 'polearm') ? 'lance' : 'crescent',
-      x: h.x, y: h.y - 9, ang, face: h.face,
+      /* The mark belongs to the SWING, so it has to ride the character that
+         is swinging it. Copying x/y here pinned it to the floor where the
+         button was pressed, and a swing steps forward - so it was left
+         behind every time, sitting wherever the character used to be. It
+         holds the hero instead and reads the position back each frame. */
+      h, ang, face: h.face,
       reach: (WEP_R[c.id] || 45) * (longReach ? 1.35 : 1),
       /* how far the thrust actually lands, in canvas pixels - a lance that
          stops short of its own hitbox teaches the wrong spacing */
@@ -8469,7 +8506,7 @@ function update(dt){
   /* --- fx / floats --- */
   for(const p of B.fx){ p.x+=(p.vx||0)*dt; p.y+=(p.vy||0)*dt; if(p.vy!==undefined) p.vy+=140*dt; p.life-=dt; }
   for(const s2 of B.slashes){ if(s2.wait > 0) s2.wait -= dt; else s2.life -= dt; }
-  B.slashes = B.slashes.filter(s2 => s2.life > 0);
+  B.slashes = B.slashes.filter(s2 => s2.life > 0 && s2.h && !s2.h.dead);
   B.fx=B.fx.filter(p=>p.life>0);
   for(const hh of B.hits) hh.t += dt;
   B.hits = B.hits.filter(hh => hh.t < hh.life);
@@ -8848,16 +8885,23 @@ function render(){
     const t = 1 - s2.life/s2.max;                 // 0 the instant it lands
     const a = clamp(1 - t*t, 0, 1);               // bright, then gone
     const grow = 1 + t*0.22;                      // opens as it fades
-    const cx2 = s2.x*PX, cy2 = s2.y*PX;
+    /* follow the hero, and sit out in front of them the way the blade does
+       rather than on top of their own body */
+    const hh = s2.h, fc = hh ? (hh.face < 0 ? -1 : 1) : s2.face;
+    const hx2 = hh ? hh.x : 0, hy2 = hh ? hh.y : 0;
+    const cx2 = (hx2 + fc*4)*PX, cy2 = (hy2 - 9)*PX;
     /* reach is in SPRITE pixels and drawFrame blits the atlas 1:1, so it is
        already canvas pixels - scaling it by PX throws the arc three times
        the sword's length away from the character and off the screen. */
+    /* if they turned mid-swing the arc turns with them */
+    const ang2 = (hh && Math.cos(s2.ang) * fc < 0)
+      ? Math.PI - s2.ang : s2.ang;
     if(s2.kind === 'lance'){
-      pxLance(ctx, cx2, cy2, s2.ang, s2.hitReach*grow*1.02,
+      pxLance(ctx, cx2, cy2, ang2, s2.hitReach*grow*1.02,
               (s2.big ? 11 : 8)*(1-t*0.30), s2.col, a);
     } else {
       pxCrescent(ctx, cx2, cy2, s2.reach*1.15*grow, s2.arc*2.1,
-                 s2.ang, (s2.big ? 13 : 10)*(1-t*0.28),
+                 ang2, (s2.big ? 13 : 10)*(1-t*0.28),
                  s2.col, a, s2.dir < 0);
     }
   }
@@ -9300,7 +9344,7 @@ $('#freeshards').onclick=()=>{
   Sfx.coin();
 };
 $('#enter').onclick=()=>{ Sfx.ui(); enterNode(); };
-$('#abandon').onclick=()=>{ if(confirm('Withdraw from the run? You walk out with everything you are holding.')) endRun('abandoned'); };
+$('#abandon').onclick=()=>{ Sfx.ui(); confirmLeave(); };
 addEventListener('keydown',e=>{ if(e.code==='Escape' && B && B.kind==='raid' && !B.done) endRaid(false); });
 
 fxImg.onload  = () => { fxReady = true; };
