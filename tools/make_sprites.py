@@ -77,9 +77,12 @@ class Cv:
                 for dy in range(w):
                     s.set(x+dx-(w-1)/2, y+dy-(w-1)/2, c)
     def outline(s, col):
+        # The ring never lands on the border itself. Art that reaches the
+        # last column is not cut off, but an outline drawn past it would be,
+        # and it is what the edge check keeps reporting.
         add = []
-        for y in range(s.h):
-            for x in range(s.w):
+        for y in range(1, s.h-1):
+            for x in range(1, s.w-1):
                 if s.px[y][x] is not None: continue
                 for dx, dy in ((1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)):
                     n = s.get(x+dx, y+dy)
@@ -717,58 +720,75 @@ def carry(p, frame, pose):
 #   ranged   no swing at all - raise, fire, ride the recoil
 ATK_SETS = {
  'sword': [
-  dict(bob=1,  lean=-4, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-8,18), hf=(-13,12), wdeg=196, eye='fierce', sway=-4, hd=-2, both=1),
-  dict(bob=3,  lean=-8, feet=((-12,0,2,6),(8,4,-3,4)),  hb=(-10,15),hf=(-18,7),  wdeg=212, eye='fierce', sway=-9, hd=-4, both=1),
-  dict(bob=-1, lean=3,  feet=((-14,0,3,3),(11,6,-3,7)), hb=(-6,14), hf=(-8,2),   wdeg=258, eye='fierce', sway=4,  hd=3,  both=1),
-  dict(bob=1,  lean=9,  feet=((-17,0,5,0),(15,0,-1,6)), hb=(-2,16), hf=(6,1),    wdeg=326, eye='fierce', sway=10, hd=6,  both=1),
-  dict(bob=4,  lean=8,  feet=((-19,0,4,0),(17,0,0,9)),  hb=(0,20),  hf=(13,7),   wdeg=6,   eye='fierce', sway=8,  hd=5,  both=1),
-  dict(bob=3,  lean=5,  feet=((-14,0,2,1),(12,1,-1,5)), hb=(-2,24), hf=(11,16),  wdeg=40,  eye='fierce', sway=5,  hd=2,  both=1),
-  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-3,26), hf=(8,26),   wdeg=45,  eye='fierce', sway=3,  hd=1),
+  # coil - the weight drops back over the rear foot and the blade starts up
+  dict(dx=-3, rise=0, bob=3,  lean=-7,  feet=((-8,0,1,4),(7,0,-2,3)),   hb=(-9,17), hf=(-14,11), wdeg=212, eye='fierce', sway=-5, hd=-3, both=1),
+  # wind - fully loaded: crouched over the back leg, front foot gone light
+  dict(dx=-5, rise=0, bob=6,  lean=-13, feet=((-10,0,2,7),(9,4,-3,5)),  hb=(-12,13),hf=(-20,5),  wdeg=243, eye='fierce', sway=-11,hd=-5, both=1),
+  # launch - the back leg fires and the whole body leaves the floor
+  dict(dx=2,  rise=5, bob=-4, lean=5,   feet=((-15,2,3,4),(12,7,-4,8)), hb=(-5,12), hf=(-6,0),   wdeg=274, eye='fierce', sway=5,  hd=4,  both=1),
+  # strike - it all arrives at once, onto the front foot
+  dict(dx=7,  rise=0, bob=3,  lean=13,  feet=((-18,0,6,0),(16,0,-1,7)), hb=(-1,15), hf=(8,1),    wdeg=322, eye='fierce', sway=13, hd=7,  both=1),
+  # through - the lunge at its deepest, the blade carried past the body
+  dict(dx=9,  rise=0, bob=7,  lean=11,  feet=((-21,0,5,0),(19,0,0,10)), hb=(2,20),  hf=(6,12),   wdeg=48,   eye='fierce', sway=10, hd=6,  both=1),
+  # recover - the weight comes back up off the front foot
+  dict(dx=5,  rise=0, bob=4,  lean=6,   feet=((-15,0,3,2),(13,1,-1,6)), hb=(-2,24), hf=(8,20),   wdeg=66,  eye='fierce', sway=6,  hd=3,  both=1),
+  # settle - back to guard
+  dict(dx=1,  rise=0, bob=1,  lean=2,   feet=((-9,0),(9,0)),            hb=(-3,26), hf=(6,26),   wdeg=115,  eye='fierce', sway=3,  hd=1),
  ],
  'dagger': [
-  dict(bob=0,  lean=-2, feet=((-7,0,0,2),(6,0,-1,2)),   hb=(2,16),  hf=(-4,14),  wdeg=200, eye='fierce', sway=-2, hd=-1),
-  dict(bob=1,  lean=-4, feet=((-9,0,1,3),(7,2,-2,3)),   hb=(4,14),  hf=(-10,10), wdeg=232, eye='fierce', sway=-5, hd=-2),
-  dict(bob=0,  lean=6,  feet=((-12,0,3,1),(12,1,-2,5)), hb=(6,18),  hf=(10,13),  wdeg=18,  eye='fierce', sway=7,  hd=4),
-  dict(bob=2,  lean=7,  feet=((-14,0,4,0),(14,0,-1,6)), hb=(12,8),  hf=(4,20),   wdeg=312, eye='fierce', sway=9,  hd=5),
-  dict(bob=1,  lean=8,  feet=((-15,0,4,0),(15,0,0,7)),  hb=(14,12), hf=(12,5),   wdeg=350, eye='fierce', sway=8,  hd=5),
-  dict(bob=2,  lean=4,  feet=((-11,0,2,1),(11,1,-1,4)), hb=(8,18),  hf=(9,17),   wdeg=28,  eye='fierce', sway=4,  hd=2),
-  dict(bob=1,  lean=2,  feet=((-8,0),(8,0)),            hb=(3,22),  hf=(7,24),   wdeg=40,  eye='fierce', sway=2,  hd=1),
+  # in close, hands tight - a knife has no wind-up worth the name, so the
+  # travel is the tell: two short steps in and a sharp pull back out
+  dict(dx=-2, bob=2,  lean=-4,  feet=((-7,0,0,3),(6,0,-1,2)),   hb=(2,16),  hf=(-4,14),  wdeg=200, eye='fierce', sway=-3, hd=-2),
+  dict(dx=-4, bob=4,  lean=-7,  feet=((-9,0,1,5),(8,2,-2,4)),   hb=(4,14),  hf=(-11,10), wdeg=232, eye='fierce', sway=-6, hd=-3),
+  dict(dx=5,  rise=4, bob=-3, lean=7, feet=((-13,2,3,3),(13,4,-2,6)), hb=(6,17), hf=(11,12), wdeg=18, eye='fierce', sway=9, hd=5),
+  dict(dx=11, bob=3,  lean=10, feet=((-15,0,4,0),(16,0,-1,7)),  hb=(13,7),  hf=(4,20),   wdeg=312, eye='fierce', sway=12, hd=6),
+  dict(dx=13, bob=4,  lean=11, feet=((-17,0,4,0),(18,0,0,8)),   hb=(15,11), hf=(13,4),   wdeg=350, eye='fierce', sway=11, hd=6),
+  dict(dx=6,  bob=3,  lean=5,  feet=((-12,0,2,1),(12,1,-1,5)),  hb=(8,18),  hf=(9,17),   wdeg=28,  eye='fierce', sway=5,  hd=3),
+  dict(dx=1,  bob=1,  lean=2,  feet=((-8,0),(8,0)),             hb=(3,22),  hf=(7,24),   wdeg=40,  eye='fierce', sway=2,  hd=1),
  ],
  'heavy': [
-  dict(bob=0,  lean=-3, feet=((-8,0,1,2),(5,0,-1,2)),   hb=(-4,24), hf=(-5,16),  wep=-0.45, eye='fierce', sway=-3, hd=-1, both=1),
-  dict(bob=2,  lean=-7, feet=((-10,0,2,5),(7,3,-3,3)),  hb=(-6,22), hf=(-11,4),  wep=-0.85, eye='fierce', sway=-8, hd=-3, both=1),
-  dict(bob=-1, lean=2,  feet=((-13,0,3,2),(10,5,-3,6)), hb=(-4,24), hf=(-2,2),   wep=-0.35, eye='fierce', sway=3,  hd=3,  both=1),
-  dict(bob=2,  lean=8,  feet=((-15,0,5,0),(13,0,-1,6)), hb=(-3,25), hf=(9,4),    wep=1.15,  eye='fierce', sway=9,  hd=6,  both=1),
-  dict(bob=4,  lean=7,  feet=((-16,0,4,0),(14,0,0,9)),  hb=(-2,27), hf=(8,17),   wep=1.45,  eye='fierce', sway=7,  hd=4,  both=1),
-  dict(bob=3,  lean=4,  feet=((-12,0,2,1),(10,1,-1,4)), hb=(-2,27), hf=(8,25),   wep=0.95,  eye='fierce', sway=4,  hd=2,  both=1),
-  dict(bob=2,  lean=2,  feet=((-8,0),(8,0)),            hb=(-3,26), hf=(7,28),   wep=1.00,  eye='fierce', sway=3,  hd=1),
+  # an axe is all weight. The crouch is deeper, the launch slower off the
+  # floor and the landing drops harder than anything else in the game.
+  dict(dx=-2, bob=4,  lean=-5,  feet=((-8,0,1,4),(5,0,-1,3)),   hb=(-4,24), hf=(-5,16),  wep=-0.45, eye='fierce', sway=-4, hd=-2, both=1),
+  dict(dx=-4, bob=8,  lean=-10, feet=((-11,0,2,8),(8,3,-3,5)),  hb=(-7,21), hf=(-12,3),  wep=-0.85, eye='fierce', sway=-10,hd=-5, both=1),
+  dict(dx=0,  rise=6, bob=-5, lean=3, feet=((-14,2,3,4),(11,8,-3,8)), hb=(-4,23), hf=(-2,1), wep=-0.35, eye='fierce', sway=4, hd=4, both=1),
+  dict(dx=6,  bob=5,  lean=11, feet=((-17,0,6,0),(14,0,-1,7)),  hb=(-3,25), hf=(9,4),    wep=1.15,  eye='fierce', sway=12, hd=7, both=1),
+  dict(dx=8,  bob=9,  lean=9,  feet=((-19,0,5,0),(16,0,0,11)),  hb=(-2,27), hf=(8,17),   wep=1.45,  eye='fierce', sway=9,  hd=5, both=1),
+  dict(dx=5,  bob=5,  lean=5,  feet=((-13,0,2,2),(11,1,-1,5)),  hb=(-2,27), hf=(8,25),   wep=0.95,  eye='fierce', sway=5,  hd=3, both=1),
+  dict(dx=1,  bob=2,  lean=2,  feet=((-8,0),(8,0)),             hb=(-3,26), hf=(7,28),   wep=1.00,  eye='fierce', sway=3,  hd=1),
  ],
  'polearm': [
-  dict(bob=0,  lean=-3, feet=((-9,0,1,2),(6,0,-1,3)),   hb=(-6,18), hf=(-8,13),  wdeg=332, eye='fierce', sway=-3, hd=-1, both=1),
-  dict(bob=2,  lean=-7, feet=((-12,0,2,6),(8,4,-3,4)),  hb=(-6,18), hf=(-16,8),  wdeg=310, eye='fierce', sway=-8, hd=-3, both=1),
-  dict(bob=-1, lean=1,  feet=((-14,0,3,3),(11,5,-3,6)), hb=(-6,18), hf=(-15,12), wdeg=342, eye='fierce', sway=1,  hd=1,  both=1),
-  dict(bob=1,  lean=9,  feet=((-18,0,5,0),(16,0,-1,5)), hb=(-6,18), hf=(-13,10), wdeg=356, eye='fierce', sway=9,  hd=5,  both=1),
-  dict(bob=2,  lean=11, feet=((-21,0,4,0),(19,0,0,7)),  hb=(-6,18), hf=(-12,10), wdeg=2,   eye='fierce', sway=11, hd=6,  both=1),
-  dict(bob=2,  lean=5,  feet=((-14,0,2,1),(12,1,-1,4)), hb=(-6,18), hf=(-14,12), wdeg=344, eye='fierce', sway=5,  hd=2,  both=1),
-  dict(bob=2,  lean=2,  feet=((-9,0),(9,0)),            hb=(-6,18), hf=(-11,16), wdeg=332, eye='fierce', sway=3,  hd=1,  both=1),
+  # a thrust is the longest travel of the six and the flattest: the point is
+  # chambered high and back, then the whole body drives out behind it.
+  dict(dx=-4, bob=2,  lean=-5,  feet=((-9,0,1,3),(6,0,-1,3)),   hb=(-6,18), hf=(-8,13),  wdeg=332, eye='fierce', sway=-4, hd=-2, both=1),
+  dict(dx=-6, bob=5,  lean=-10, feet=((-12,0,2,7),(9,4,-3,5)),  hb=(-6,18), hf=(-16,8),  wdeg=310, eye='fierce', sway=-10,hd=-5, both=1),
+  dict(dx=-3, rise=4, bob=-2, lean=3, feet=((-15,2,3,4),(12,6,-3,7)), hb=(-6,18), hf=(-15,12), wdeg=342, eye='fierce', sway=3, hd=2, both=1),
+  dict(dx=7,  bob=4,  lean=12, feet=((-19,0,5,0),(17,0,-1,6)),  hb=(-6,18), hf=(-13,10), wdeg=356, eye='fierce', sway=12, hd=6, both=1),
+  dict(dx=9,  bob=6,  lean=14, feet=((-22,0,4,0),(20,0,0,9)),   hb=(-6,18), hf=(-12,10), wdeg=2,   eye='fierce', sway=14, hd=7, both=1),
+  dict(dx=4,  bob=4,  lean=6,  feet=((-15,0,2,2),(13,1,-1,5)),  hb=(-6,18), hf=(-14,12), wdeg=344, eye='fierce', sway=6,  hd=3, both=1),
+  dict(dx=1,  bob=1,  lean=2,  feet=((-9,0),(9,0)),             hb=(-6,18), hf=(-11,16), wdeg=332, eye='fierce', sway=3,  hd=1, both=1),
  ],
  'fist': [
-  dict(bob=0,  lean=-2, feet=((-8,0,0,2),(6,0,-1,2)),   hb=(0,12),  hf=(-2,10),  wdeg=0, eye='fierce', sway=-2, hd=-1),
-  dict(bob=1,  lean=-4, feet=((-10,0,1,3),(7,1,-2,3)),  hb=(-4,12), hf=(0,9),    wdeg=0, eye='fierce', sway=-5, hd=-2),
-  dict(bob=0,  lean=6,  feet=((-12,0,3,1),(12,1,-2,4)), hb=(-2,12), hf=(12,6),   wdeg=0, eye='fierce', sway=7,  hd=4),
-  dict(bob=2,  lean=9,  feet=((-15,0,4,0),(15,0,-1,5)), hb=(10,8),  hf=(4,10),   wdeg=0, eye='fierce', sway=10, hd=6),
-  dict(bob=2,  lean=10, feet=((-16,0,4,0),(16,0,0,6)),  hb=(14,7),  hf=(2,12),   wdeg=0, eye='fierce', sway=11, hd=6),
-  dict(bob=2,  lean=4,  feet=((-11,0,2,1),(11,1,-1,4)), hb=(4,11),  hf=(2,11),   wdeg=0, eye='fierce', sway=4,  hd=2),
-  dict(bob=1,  lean=2,  feet=((-8,0),(8,0)),            hb=(-1,13), hf=(1,12),   wdeg=0, eye='fierce', sway=2,  hd=1),
+  # no weapon to carry the read, so the body has to do all of it: the hips
+  # turn over, the rear hand follows, and the step lands with the punch.
+  dict(dx=-2, bob=2,  lean=-4,  feet=((-8,0,0,3),(6,0,-1,2)),   hb=(0,12),  hf=(-2,10),  wdeg=0, eye='fierce', sway=-3, hd=-2),
+  dict(dx=-5, bob=5,  lean=-7,  feet=((-10,0,1,5),(8,1,-2,4)),  hb=(-5,12), hf=(0,9),    wdeg=0, eye='fierce', sway=-7, hd=-3),
+  dict(dx=4,  rise=4, bob=-3, lean=8, feet=((-13,2,3,3),(13,5,-2,6)), hb=(-2,12), hf=(13,6), wdeg=0, eye='fierce', sway=9, hd=5),
+  dict(dx=12, bob=4,  lean=12, feet=((-16,0,4,0),(16,0,-1,6)),  hb=(11,8),  hf=(4,10),   wdeg=0, eye='fierce', sway=13, hd=7),
+  dict(dx=14, bob=5,  lean=13, feet=((-18,0,4,0),(18,0,0,7)),   hb=(15,7),  hf=(2,12),   wdeg=0, eye='fierce', sway=14, hd=7),
+  dict(dx=6,  bob=3,  lean=5,  feet=((-12,0,2,1),(12,1,-1,4)),  hb=(4,11),  hf=(2,11),   wdeg=0, eye='fierce', sway=5,  hd=3),
+  dict(dx=1,  bob=1,  lean=2,  feet=((-8,0),(8,0)),             hb=(-1,13), hf=(1,12),   wdeg=0, eye='fierce', sway=2,  hd=1),
  ],
  'ranged': [
-  dict(bob=0,  lean=-1, feet=((-6,0),(5,0)),      hb=(-3,18), hf=(2,14), wep=0.20, eye='fierce', sway=-1),
-  dict(bob=1,  lean=0,  feet=((-7,0),(6,0)),      hb=(-4,16), hf=(4,10), wep=0.10, eye='fierce', sway=0,  hd=1),
-  dict(bob=0,  lean=2,  feet=((-8,0),(7,0)),      hb=(-4,15), hf=(7,8),  wep=0.05, eye='fierce', sway=2,  hd=2),
-  dict(bob=-1, lean=4,  feet=((-9,0,1),(8,0,-1)), hb=(-5,14), hf=(9,7),  wep=0.00, eye='fierce', sway=3,  hd=3),
-  dict(bob=1,  lean=1,  feet=((-9,0,1),(8,0,-1)), hb=(-4,16), hf=(6,10), wep=0.25, eye='fierce', sway=1,  hd=1),
-  dict(bob=1,  lean=0,  feet=((-7,0),(6,0)),      hb=(-3,18), hf=(4,14), wep=0.55, eye='open',   sway=0),
-  dict(bob=1,  lean=0,  feet=((-6,0),(5,0)),      hb=(-2,20), hf=(3,18), wep=0.85, eye='open',   sway=0),
+  # a shot travels the least and the wrong way: the body settles INTO the
+  # stance, then the recoil throws it back and it walks the weapon down.
+  dict(dx=1,  bob=0,  lean=-1, feet=((-6,0),(5,0)),       hb=(-3,18), hf=(2,14), wep=0.20, eye='fierce', sway=-1),
+  dict(dx=2,  bob=-1, lean=1,  feet=((-7,0),(6,0)),       hb=(-4,16), hf=(4,10), wep=0.10, eye='fierce', sway=1,  hd=1),
+  dict(dx=3,  bob=-2, lean=3,  feet=((-8,0),(7,0)),       hb=(-4,15), hf=(7,8),  wep=0.05, eye='fierce', sway=3,  hd=2),
+  dict(dx=3,  bob=-2, lean=5,  feet=((-9,0,1),(8,0,-1)),  hb=(-5,14), hf=(9,7),  wep=0.00, eye='fierce', sway=4,  hd=3),
+  dict(dx=-3, bob=2,  lean=-3, feet=((-10,0,1),(8,0,-1)), hb=(-4,16), hf=(6,10), wep=0.25, eye='fierce', sway=-4, hd=-2),
+  dict(dx=-1, bob=1,  lean=0,  feet=((-7,0),(6,0)),       hb=(-3,18), hf=(4,14), wep=0.55, eye='open',   sway=0),
+  dict(dx=0,  bob=0,  lean=0,  feet=((-6,0),(5,0)),       hb=(-2,20), hf=(3,18), wep=0.85, eye='open',   sway=0),
  ],
 }
 
@@ -2117,8 +2137,13 @@ def fitL(L, hxp, hyp, ux, uy, pad=3):
     A long weapon at a shallow angle runs off the edge, and a clipped sword
     looks broken in a way a slightly shorter one never does. Every pose keeps
     the full length it can and no pose loses more than it has to."""
-    for lim, d, v in ((W-1-pad, ux, hxp), (pad, -ux, -hxp),
-                      (H-1-pad, uy, hyp), (pad, -uy, -hyp)):
+    # The near edges are -pad, not +pad. Solving hxp + ux*L >= pad against
+    # the negated axis needs (hxp - pad)/(-ux); passing +pad computed
+    # (hxp + pad)/(-ux) and let every weapon pointing left or up overrun the
+    # frame by 2*pad. That is the left-edge clipping the sprite check has
+    # been reporting on the wind-up frames all along.
+    for lim, d, v in ((W-1-pad, ux, hxp), (-pad, -ux, -hxp),
+                      (H-1-pad, uy, hyp), (-pad, -uy, -hyp)):
         if d > 0.01:
             L = min(L, (lim - v) / d)
     return int(max(6, L))   # whole pixels: some blades are drawn by stepping along them
@@ -2156,11 +2181,13 @@ def draw_weapon(c, p, pose):
         c.ellipse(ox-1.5, oy-1.5, 1.8, 1.8, '#ffffff')
         for dx2, dy2 in ((0,-9), (0,9), (8,-5)): c.rect(ox+dx2, oy+dy2, 2, 2, p['hair3'])
     elif w == 'daggers':
-        c.taper(hxp+nx*2, hyp+ny*2, hxp+ux*14+nx*1.5, hyp+uy*14+ny*1.5, p['ink'], 3, 2)
-        c.taper(hxp, hyp, hxp+ux*14, hyp+uy*14, p['metal'], 4, 2)
-        c.line(hxp+ux*4, hyp+uy*4, hxp+ux*12, hyp+uy*12, '#ffffff', 1)
+        Ld = fitL(14, hxp, hyp, ux, uy, pad=4)
+        c.taper(hxp+nx*2, hyp+ny*2, hxp+ux*Ld+nx*1.5, hyp+uy*Ld+ny*1.5, p['ink'], 3, 2)
+        c.taper(hxp, hyp, hxp+ux*Ld, hyp+uy*Ld, p['metal'], 4, 2)
+        c.line(hxp+ux*4, hyp+uy*4, hxp+ux*(Ld-2), hyp+uy*(Ld-2), '#ffffff', 1)
         c.rect(hxp-2, hyp, 5, 3, p['grip'])
         bx, by = hand(pose, True)
+        bx = min(bx, W - 7)                       # the off-hand grip is 5 wide
         c.taper(bx, by, bx-abs(ux)*12, by-uy*8, p['metal'], 4, 2)
         c.rect(bx-2, by, 5, 3, p['grip'])
     elif w == 'bow':
@@ -2178,7 +2205,11 @@ def draw_weapon(c, p, pose):
         c.rect(gx-11, gy-3, 4, 7, p['accent'])                # fletching
         c.rect(gx-2, gy-4, 5, 9, p['grip'])                   # grip
     elif w == 'hammer':
-        L = fitL(28, hxp, hyp, ux, uy)
+        # the head is a slab centred on the tip, so the haft has to stop far
+        # enough in to leave room for it - fitL only knows about the line, and
+        # a slab ten wide still clips sideways, so the hand comes in as well
+        hxp = min(hxp, W - 24)
+        L = fitL(28, hxp, hyp, ux, uy, pad=12)
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 5, 4)   # haft
         hx2, hy2 = hxp+ux*L, hyp+uy*L
         px2, py2 = -uy, ux
@@ -2210,6 +2241,7 @@ def draw_weapon(c, p, pose):
             c.rect(hx3-5, hy3+3, 10, 3, p['cloth3'])
             for k in (-3, 0, 3): c.set(hx3+k, hy3-3, p['trim'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         for k in range(4):                                    # arc of current
             c.set(hx4+7+k*2, hy4-6+((k%2)*4-2), p['accent'])
     elif w == 'glaive':
@@ -2255,9 +2287,10 @@ def draw_weapon(c, p, pose):
         for sgn, hd in ((1, (hxp, hyp)), (-1, hand(pose, True))):
             bx3, by3 = hd
             ax, ay = (ux, uy) if sgn > 0 else (-abs(ux), uy*0.6)
+            Lk = fitL(17, bx3, by3, ax, ay, pad=4)
             c.taper(bx3-ax*5, by3-ay*5, bx3, by3, p['grip'], 4, 4)
-            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*17, by3+ay*17, p['metal'], 5, 2)
-            c.line(bx3+ax*4, by3+ay*4, bx3+ax*15, by3+ay*15, '#ffffff', 1)
+            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*Lk, by3+ay*Lk, p['metal'], 5, 2)
+            c.line(bx3+ax*4, by3+ay*4, bx3+ax*(Lk-2), by3+ay*(Lk-2), '#ffffff', 1)
             c.rect(bx3-2, by3-3, 4, 2, p['cloth2'])
     elif w == 'spear':
         hxp = min(hxp, CX + 0)
@@ -2345,7 +2378,7 @@ def draw_weapon(c, p, pose):
         c.set(hxp+ux*(L+1), hyp+uy*(L+1), p['accent'])                       # muzzle glow
         c.set(hxp+ux*(L+2), hyp+uy*(L+2), p['trim'])
     elif w == 'hookblade':
-        L = fitL(28, hxp, hyp, ux, uy)
+        L = fitL(28, hxp, hyp, ux, uy, pad=8)   # the hook curls past the tip
         c.taper(hxp-ux*6, hyp-uy*6, hxp, hyp, p['grip'], 4, 4)
         c.taper(hxp+ux*2, hyp+uy*2, hxp+ux*L, hyp+uy*L, p['metal'], 4, 2)
         for k in range(7):                                         # the hook curls back
@@ -2358,7 +2391,7 @@ def draw_weapon(c, p, pose):
             c.set(lx, ly, p['trim']); c.set(lx, ly+1, p['metal'])
     elif w == 'nodachi':
         hxp = min(hxp, CX + 0)
-        L = fitL(45, hxp, hyp, ux, uy)                          # long, slim, slightly curved
+        L = fitL(45, hxp, hyp, ux, uy, pad=7)   # long, slim, and it bows off the line
         c.taper(hxp-ux*11, hyp-uy*11, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*4, hyp-uy*3-ny*4, hxp-ux*3+nx*4, hyp-uy*3+ny*4, p['accent'], 2)
         for k in range(4, L):
@@ -2371,8 +2404,9 @@ def draw_weapon(c, p, pose):
         for sgn, hd in ((1, (hxp, hyp)), (-1, hand(pose, True))):
             bx3, by3 = hd
             ax, ay = (ux, uy) if sgn > 0 else (-abs(ux), uy*0.5)
+            Lk = fitL(18, bx3, by3, ax, ay, pad=5)
             c.taper(bx3-ax*5, by3-ay*5, bx3, by3, p['grip'], 4, 4)
-            for k in range(2, 19):                          # a curved sabre
+            for k in range(2, int(Lk)+1):                   # a curved sabre
                 t2 = (k-2)/17.0
                 c.set(bx3+ax*k - ay*t2*t2*4, by3+ay*k + ax*t2*t2*4, p['metal'])
                 if k % 2: c.set(bx3+ax*k - ay*t2*t2*4, by3+ay*k+ax*t2*t2*4-1, '#ffffff')
@@ -2381,9 +2415,10 @@ def draw_weapon(c, p, pose):
         for sgn, hd in ((1, (hxp, hyp)), (-1, hand(pose, True))):
             bx3, by3 = hd
             ax, ay = (ux, uy) if sgn > 0 else (-abs(ux), uy*0.6)
+            Lk = fitL(20, bx3, by3, ax, ay, pad=4)
             c.taper(bx3-ax*6, by3-ay*6, bx3, by3, p['grip'], 5, 4)
-            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*20, by3+ay*20, p['metal'], 4, 2)
-            c.line(bx3+ax*4, by3+ay*4, bx3+ax*18, by3+ay*18, '#ffffff', 1)
+            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*Lk, by3+ay*Lk, p['metal'], 4, 2)
+            c.line(bx3+ax*4, by3+ay*4, bx3+ax*(Lk-2), by3+ay*(Lk-2), '#ffffff', 1)
             c.rect(bx3-2, by3-3, 4, 2, p['cloth2'])
         for k in range(5):                                  # the gas line, trailing back
             c.set(hxp-ux*(9+k*3)-4, hyp-uy*(9+k*3)+math.sin(k)*2, p['trim'])
@@ -2420,20 +2455,24 @@ def draw_weapon(c, p, pose):
         for sgn, hd in ((1, (hxp, hyp)), (-1, hand(pose, True))):
             bx3, by3 = hd
             ax, ay = (ux, uy) if sgn > 0 else (-abs(ux), uy*0.6)
+            Lk = fitL(18, bx3, by3, ax, ay, pad=4)
             c.taper(bx3-ax*5, by3-ay*5, bx3, by3, p['grip'], 4, 4)
-            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*18, by3+ay*18, p['metal'], 4, 2)
-            c.line(bx3+ax*4, by3+ay*4, bx3+ax*16, by3+ay*16, '#ffffff', 1)
+            c.taper(bx3+ax*2, by3+ay*2, bx3+ax*Lk, by3+ay*Lk, p['metal'], 4, 2)
+            c.line(bx3+ax*4, by3+ay*4, bx3+ax*(Lk-2), by3+ay*(Lk-2), '#ffffff', 1)
         mx2, my2 = CX + 3 + TURN, HEADY + pose['bob'] + 12  # and the third, in his teeth
+        mx2 = min(mx2, W - 21)
         c.taper(mx2, my2, mx2+16, my2-3, p['metal'], 4, 2)
         c.line(mx2+3, my2-1, mx2+14, my2-3, '#ffffff', 1)
         c.rect(mx2-3, my2-1, 4, 3, p['grip'])
     elif w == 'claws':
         for hx3, hy3 in (hand(pose, False), hand(pose, True)):
+            hx3 = min(hx3, W - 14)          # the blades reach nine past the fist
             c.ellipse(hx3, hy3+1, 4.0, 4.0, p['cloth2'])
             for k in (-3, 0, 3):
                 c.taper(hx3+2, hy3+k*0.6, hx3+9, hy3+k*1.3, p['metal'], 3, 1)
                 c.set(hx3+9, hy3+k*1.3, '#ffffff')
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         for k in range(5):                                  # current running off them
             c.set(hx4+6+k*2, hy4-4+((k%2)*5-2), p['trim'])
     elif w == 'satchel':
@@ -2466,6 +2505,7 @@ def draw_weapon(c, p, pose):
         for hx3, hy3 in (hand(pose, False), hand(pose, True)):
             c.ellipse(hx3, hy3+1, 3.4, 3.6, p['skin'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         for k in range(18):                                  # a ring of sigil marks
             a2 = ph*2 + k/18*math.pi*2
             c.set(hx4+4 + math.cos(a2)*9, hy4 + math.sin(a2)*8, p['trim'])
@@ -2514,6 +2554,7 @@ def draw_weapon(c, p, pose):
         c.line(hxp+ux*6, hyp+uy*6, hxp+ux*(L-2), hyp+uy*(L-2), p['shine'], 1)
     elif w == 'warfans':
         # a fan open in the lead hand and a second folded behind the hip
+        hxp = min(hxp, W - 17)
         for k in range(7):
             a = -0.9 + k*0.30
             c.taper(hxp, hyp, hxp+math.cos(a)*ux*14 - math.sin(a)*nx*14,
@@ -2524,7 +2565,7 @@ def draw_weapon(c, p, pose):
         c.taper(hxp-ux*22, hyp-uy*22-4, hxp-ux*13, hyp-uy*13-6, p['cloth3'], 3, 2)
     elif w == 'astrolabe':
         # a ringed disc on the end of a short haft, and it turns
-        L = fitL(17, hxp, hyp, ux, uy)
+        L = fitL(17, hxp, hyp, ux, uy, pad=15)  # the disc hangs six past the tip
         c.taper(hxp-ux*10, hyp-uy*10, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
         ex, ey = hxp+ux*(L+6), hyp+uy*(L+6)
         c.ellipse(ex, ey, 7.6, 7.6, p['metal'])
@@ -2537,6 +2578,7 @@ def draw_weapon(c, p, pose):
             c.set(int(ex+math.cos(a)*4.4), int(ey+math.sin(a)*4.4), p['shine'])
     elif w == 'taikosticks':
         # two heavy bachi, and the drum they belong to rides the shoulder
+        hxp = min(hxp, W - 18)
         for sgn, off in ((1, 0), (-1, 5)):
             c.taper(hxp-ux*6-nx*sgn*3, hyp-uy*6-ny*sgn*3+off,
                     hxp+ux*11-nx*sgn*5, hyp+uy*11-ny*sgn*5+off, p['grip'], 3, 4)
@@ -2577,7 +2619,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp-ux*22, hyp-uy*22+6, 3.2, 3.2, p['cloth3'])
     elif w == 'coilrod':
         # a copper rod wound with wire, arcing at the tip
-        L = fitL(24, hxp, hyp, ux, uy)
+        L = fitL(24, hxp, hyp, ux, uy, pad=9)   # the arc runs five past the tip
         c.taper(hxp-ux*8, hyp-uy*8, hxp+ux*L, hyp+uy*L, p['grip'], 3, 3)
         for k in range(7):
             c.line(hxp+ux*(4+k*2.4)-nx*3, hyp+uy*(4+k*2.4)-ny*3,
@@ -2611,7 +2653,7 @@ def draw_weapon(c, p, pose):
         c.ellipse(hxp+6, hyp+3+wob, 2.0, 1.6, p['trim'])   # a drip pulling away
     elif w == 'odachi':
         hxp = min(hxp, CX + 2)
-        L = fitL(47, hxp, hyp, ux, uy)                          # very long, gently curved
+        L = fitL(47, hxp, hyp, ux, uy, pad=6)   # very long, and it curves off the line
         c.taper(hxp-ux*12, hyp-uy*12, hxp, hyp, p['grip'], 4, 4)
         c.line(hxp-ux*3-nx*5, hyp-uy*3-ny*5, hxp-ux*3+nx*5, hyp-uy*3+ny*5, p['accent'], 3)
         for k in range(4, L):
@@ -2630,6 +2672,7 @@ def draw_weapon(c, p, pose):
                 c.taper(hx3+3, hy3+k*0.6, hx3+9, hy3+k, p['metal'], 3, 1)
             c.rect(hx3-6, hy3+3, 12, 3, p['cloth3'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         for k in range(6):
             a2 = ang + k*1.05
             c.set(hx4+3 + math.cos(a2)*9, hy4 + math.sin(a2)*8, p['accent'])
@@ -2639,6 +2682,7 @@ def draw_weapon(c, p, pose):
             c.rect(hx3-3, hy3+3, 7, 2, '#ffffff')
             c.set(hx3-2, hy3+4, p['cloth3'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         for k in range(11):                                 # dark fire off the palm
             t2 = k/10.0
             c.set(hx4 + 4 + t2*9, hy4 - 2 + math.sin(t2*7 + ph*4)*4*t2,
@@ -2706,6 +2750,7 @@ def draw_weapon(c, p, pose):
             c.ellipse(hx3, hy3+1, 3.4, 3.6, p['skin'])
             c.rect(hx3-2, hy3+2, 4, 1, p['skin3'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         c.ellipse(hx4+3, hy4, 4.6, 4.6, p['accent'])       # the field around the hand
         c.ellipse(hx4+3, hy4, 2.8, 2.8, p['trim'])
         c.ellipse(hx4+2, hy4-1, 1.2, 1.2, '#ffffff')
@@ -2720,6 +2765,7 @@ def draw_weapon(c, p, pose):
             c.rect(hx3-3, hy3+3, 7, 2, '#efe7d8')
             c.rect(hx3-3, hy3+4, 7, 1, p['cloth3'])
         hx4, hy4 = hand(pose, False)
+        hx4 = min(hx4, W - 16)        # the sparks reach a dozen past the palm
         c.set(hx4+3, hy4-2, p['trim']); c.set(hx4+4, hy4, p['trim'])
     elif w == 'sealcards':
         # talisman slips fanned between the fingers, and one already burning off
@@ -2795,6 +2841,26 @@ def draw_char(key, frame):
     p = CHARS[key]
     pose = atk_pose(p, frame) if frame in ATK_FRAMES else carry(p, frame, POSES[frame])
     c = Cv(W, H)
+    # `lean` only ever sheared the figure: the head moved a fraction of it, the
+    # hips a smaller fraction, and the feet not at all - so a swing came out as
+    # a mannequin with a rotating stick. `dx` is the missing term, the whole
+    # body travelling. Every part hangs off CX, so moving CX for the frame
+    # carries the head, torso, hips, arms, hair, cape and weapon together and
+    # nothing can come apart. A lunge is the body arriving somewhere, not a
+    # tilt. `rise` does the same vertically for the feet, which is what makes
+    # the launch frame leave the floor.
+    cx0, feet0 = CX, FEET
+    _set_body(cx0 + pose.get('dx', 0), feet0 - pose.get('rise', 0))
+    try:
+        return _draw_char_body(c, p, pose)
+    finally:
+        _set_body(cx0, feet0)
+
+def _set_body(cx, feet):
+    global CX, FEET
+    CX, FEET = cx, feet
+
+def _draw_char_body(c, p, pose):
     cx, cy = head_pos(pose)
     # A second hand on the hilt is no use behind the body, where the torso
     # covers it. On a two-handed swing the trailing arm comes ACROSS the
