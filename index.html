@@ -1167,6 +1167,13 @@ function pxOval(ctx, cx, cy, rx, ry, rot, col, alpha){
 }
 
 const badScale = new Set();
+/* The effects rasterise on the SPRITE grid, not the world grid. Positions
+   are logic units scaled by PX, but drawFrame blits the atlas 1:1, so one
+   pixel of character art is one canvas pixel. Snapping the crescent to PX
+   made its blocks three times the size of the pixels in the art it sits
+   next to, which is the one thing that gives it away as not belonging. */
+const FXPX = 1;
+
 /* ---- swing effects ---------------------------------------------------
    A crescent for anything that cuts, a lance for anything that stabs. Both
    are rasterised the same way everything else is: whole pixel blocks on the
@@ -1179,10 +1186,11 @@ const badScale = new Set();
    then a white core on the inside edge - which is what gives it the hard
    banded look instead of a flat smear. */
 function pxCrescent(ctx, cx, cy, r, span, mid, thick, col, alpha, flip){
-  const steps = Math.max(10, Math.round(r*span/PX));
-  const bands = [[thick,          '#0b0f1a', .55, 0],
-                 [thick*0.78,     col,       1,   0],
-                 [thick*0.34,     '#ffffff', 1,   thick*0.20]];
+  const G = FXPX;
+  const steps = Math.max(16, Math.round(r*span/G));
+  const bands = [[thick,        '#0b0f1a', .55, 0],
+                 [thick*0.72,   col,       1,   0],
+                 [thick*0.30,   '#ffffff', 1,   thick*0.22]];
   for(const [w, c2, a2, push] of bands){
     ctx.globalAlpha = (alpha == null ? 1 : alpha) * a2;
     ctx.fillStyle = c2;
@@ -1191,15 +1199,15 @@ function pxCrescent(ctx, cx, cy, r, span, mid, thick, col, alpha, flip){
       const a = mid + (t - .5)*span*(flip ? -1 : 1);
       const taper = Math.sin(t*Math.PI);          // points at both ends
       const half = (w*taper)/2;
-      if(half < PX*0.5) continue;
+      if(half < G*0.5) continue;
       const rr = r + push;
       const x0 = cx + Math.cos(a)*(rr-half), y0 = cy + Math.sin(a)*(rr-half)*0.82;
       const x1 = cx + Math.cos(a)*(rr+half), y1 = cy + Math.sin(a)*(rr+half)*0.82;
-      const n = Math.max(1, Math.round(Math.hypot(x1-x0, y1-y0)/PX));
+      const n = Math.max(1, Math.round(Math.hypot(x1-x0, y1-y0)/G));
       for(let k = 0; k <= n; k++){
-        const px2 = Math.round((x0 + (x1-x0)*k/n)/PX)*PX;
-        const py2 = Math.round((y0 + (y1-y0)*k/n)/PX)*PX;
-        ctx.fillRect(px2, py2, PX, PX);
+        const px2 = Math.round((x0 + (x1-x0)*k/n)/G)*G;
+        const py2 = Math.round((y0 + (y1-y0)*k/n)/G)*G;
+        ctx.fillRect(px2, py2, G, G);
       }
     }
   }
@@ -1208,21 +1216,22 @@ function pxCrescent(ctx, cx, cy, r, span, mid, thick, col, alpha, flip){
 /* A thrust gets a lance instead: a spike along the facing, widest a third of
    the way out, so it reads as something driven rather than swept. */
 function pxLance(ctx, cx, cy, ang, len, wide, col, alpha){
+  const G = FXPX;
   const ux = Math.cos(ang), uy = Math.sin(ang)*0.82, nx = -uy, ny = ux;
-  const n = Math.max(6, Math.round(len/PX));
-  const bands = [[wide, '#0b0f1a', .55], [wide*0.72, col, 1], [wide*0.30, '#ffffff', 1]];
+  const n = Math.max(8, Math.round(len/G));
+  const bands = [[wide, '#0b0f1a', .55], [wide*0.70, col, 1], [wide*0.26, '#ffffff', 1]];
   for(const [w, c2, a2] of bands){
     ctx.globalAlpha = (alpha == null ? 1 : alpha) * a2;
     ctx.fillStyle = c2;
     for(let i = 0; i <= n; i++){
       const t = i/n;
       const half = w*Math.sin(Math.pow(t, .55)*Math.PI)/2;
-      if(half < PX*0.5) continue;
+      if(half < G*0.5) continue;
       const bx = cx + ux*len*t, by = cy + uy*len*t;
-      const m = Math.max(1, Math.round(half*2/PX));
+      const m = Math.max(1, Math.round(half*2/G));
       for(let k = 0; k <= m; k++){
         const o = -half + (half*2)*k/m;
-        ctx.fillRect(Math.round((bx+nx*o)/PX)*PX, Math.round((by+ny*o)/PX)*PX, PX, PX);
+        ctx.fillRect(Math.round((bx+nx*o)/G)*G, Math.round((by+ny*o)/G)*G, G, G);
       }
     }
   }
@@ -4507,6 +4516,9 @@ function heroAttack_(step){
       kind: (wc === 'dagger' || wc === 'polearm') ? 'lance' : 'crescent',
       x: h.x, y: h.y - 9, ang, face: h.face,
       reach: (WEP_R[c.id] || 45) * (longReach ? 1.35 : 1),
+      /* how far the thrust actually lands, in canvas pixels - a lance that
+         stops short of its own hitbox teaches the wrong spacing */
+      hitReach: (meleeReach(h) + (longReach ? 12 : 0)) * PX,
       arc: (MELEE_ARC + (shots > 1 ? 0.18 : 0)) * (cs === 3 ? 1.30 : 1),
       dir: (cs === 2 ? -1 : 1),
       col: ELC[c.element], big: cs === 3,
@@ -8841,11 +8853,11 @@ function render(){
        already canvas pixels - scaling it by PX throws the arc three times
        the sword's length away from the character and off the screen. */
     if(s2.kind === 'lance'){
-      pxLance(ctx, cx2, cy2, s2.ang, s2.reach*grow*1.05,
-              (s2.big ? 22 : 17)*(1-t*0.30), s2.col, a);
+      pxLance(ctx, cx2, cy2, s2.ang, s2.hitReach*grow*1.02,
+              (s2.big ? 11 : 8)*(1-t*0.30), s2.col, a);
     } else {
-      pxCrescent(ctx, cx2, cy2, s2.reach*1.12*grow, s2.arc*1.9,
-                 s2.ang, (s2.big ? 25 : 19)*(1-t*0.28),
+      pxCrescent(ctx, cx2, cy2, s2.reach*1.15*grow, s2.arc*2.1,
+                 s2.ang, (s2.big ? 13 : 10)*(1-t*0.28),
                  s2.col, a, s2.dir < 0);
     }
   }
