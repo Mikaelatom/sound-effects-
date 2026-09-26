@@ -720,42 +720,59 @@ def carry(p, frame, pose):
 #   ranged   no swing at all - raise, fire, ride the recoil
 ATK_SETS = {
  'sword': [
-  # coil - the weight drops back over the rear foot and the blade starts up
-  dict(dx=-3, rise=0, bob=3,  lean=-7,  feet=((-8,0,1,4),(7,0,-2,3)),   hb=(-9,17), hf=(-14,11), wdeg=212, eye='fierce', sway=-5, hd=-3, both=1),
-  # wind - fully loaded: crouched over the back leg, front foot gone light
-  dict(dx=-5, rise=0, bob=6,  lean=-13, feet=((-10,0,2,7),(9,4,-3,5)),  hb=(-12,13),hf=(-20,5),  wdeg=243, eye='fierce', sway=-11,hd=-5, both=1),
-  # launch - the back leg fires and the whole body leaves the floor
-  dict(dx=2,  rise=5, bob=-4, lean=5,   feet=((-15,2,3,4),(12,7,-4,8)), hb=(-5,12), hf=(-6,0),   wdeg=274, eye='fierce', sway=5,  hd=4,  both=1),
-  # strike - it all arrives at once, onto the front foot
-  dict(dx=7,  rise=0, bob=3,  lean=13,  feet=((-18,0,6,0),(16,0,-1,7)), hb=(-1,15), hf=(8,1),    wdeg=322, eye='fierce', sway=13, hd=7,  both=1),
-  # through - the lunge at its deepest, the blade carried past the body
-  dict(dx=9,  rise=0, bob=7,  lean=11,  feet=((-21,0,5,0),(19,0,0,10)), hb=(2,20),  hf=(6,12),   wdeg=48,   eye='fierce', sway=10, hd=6,  both=1),
-  # recover - the weight comes back up off the front foot
-  dict(dx=5,  rise=0, bob=4,  lean=6,   feet=((-15,0,3,2),(13,1,-1,6)), hb=(-2,24), hf=(8,20),   wdeg=66,  eye='fierce', sway=6,  hd=3,  both=1),
-  # settle - back to guard
-  dict(dx=1,  rise=0, bob=1,  lean=2,   feet=((-9,0),(9,0)),            hb=(-3,26), hf=(6,26),   wdeg=115,  eye='fierce', sway=3,  hd=1),
+  # A cut is not a windmill. The blade used to travel an even slice of the
+  # arc on every frame, which is exactly what a windmill is; here it lifts,
+  # then CHAMBERS and holds over the shoulder while the body does the
+  # loading, crosses in one frame, and decelerates through the follow.
+  # Rotation per frame: 42, 60, 6, 89, 55, 35, 60 - nearly still through the
+  # wind, fastest on the pass. That unevenness is the whole read.
+  # lift - the blade comes up off the carry, weight settling back
+  dict(dx=-3, rise=0, bob=3,  lean=-7,  feet=((-8,0,1,4),(7,0,-2,3)),   hb=(-9,17), hf=(-14,11), wdeg=190, eye='fierce', sway=-5, hd=-3, both=1),
+  # chamber - high over the shoulder, crouched hard over the back leg
+  dict(dx=-5, rise=0, bob=6,  lean=-13, feet=((-10,0,2,7),(9,4,-3,5)),  hb=(-12,13),hf=(-20,5),  wdeg=250, eye='fierce', sway=-11,hd=-5, both=1),
+  # hold - the blade has barely moved; the BODY is what fires here
+  dict(dx=2,  rise=5, bob=-4, lean=5,   feet=((-15,2,3,4),(12,7,-4,8)), hb=(-5,12), hf=(-6,0),   wdeg=256, eye='fierce', sway=5,  hd=4,  both=1),
+  # pass - one frame, seventy degrees, the fastest thing on screen
+  dict(dx=7,  rise=0, bob=3,  lean=13,  feet=((-18,0,6,0),(16,0,-1,7)), hb=(-1,15), hf=(8,1),    wdeg=345, eye='fierce', sway=13, hd=7,  both=1),
+  # contact - the cut lands and the lunge is at its deepest
+  dict(dx=9,  rise=0, bob=7,  lean=11,  feet=((-21,0,5,0),(19,0,0,10)), hb=(2,20),  hf=(6,12),   wdeg=40,  eye='fierce', sway=10, hd=6,  both=1),
+  # follow - decelerating, the weight coming back off the front foot
+  dict(dx=5,  rise=0, bob=4,  lean=6,   feet=((-15,0,3,2),(13,1,-1,6)), hb=(-2,24), hf=(8,20),   wdeg=75,  eye='fierce', sway=6,  hd=3,  both=1),
+  # settle - blade low and still, on its way back to the carry
+  dict(dx=1,  rise=0, bob=1,  lean=2,   feet=((-9,0),(9,0)),            hb=(-3,26), hf=(2,26),   wdeg=135, eye='fierce', sway=3,  hd=1),
  ],
  'dagger': [
-  # in close, hands tight - a knife has no wind-up worth the name, so the
-  # travel is the tell: two short steps in and a sharp pull back out
-  dict(dx=-2, bob=2,  lean=-4,  feet=((-7,0,0,3),(6,0,-1,2)),   hb=(2,16),  hf=(-4,14),  wdeg=200, eye='fierce', sway=-3, hd=-2),
-  dict(dx=-4, bob=4,  lean=-7,  feet=((-9,0,1,5),(8,2,-2,4)),   hb=(4,14),  hf=(-11,10), wdeg=232, eye='fierce', sway=-6, hd=-3),
-  dict(dx=5,  rise=4, bob=-3, lean=7, feet=((-13,2,3,3),(13,4,-2,6)), hb=(6,17), hf=(11,12), wdeg=18, eye='fierce', sway=9, hd=5),
-  dict(dx=11, bob=3,  lean=10, feet=((-15,0,4,0),(16,0,-1,7)),  hb=(13,7),  hf=(4,20),   wdeg=312, eye='fierce', sway=12, hd=6),
-  dict(dx=13, bob=4,  lean=11, feet=((-17,0,4,0),(18,0,0,8)),   hb=(15,11), hf=(13,4),   wdeg=350, eye='fierce', sway=11, hd=6),
-  dict(dx=6,  bob=3,  lean=5,  feet=((-12,0,2,1),(12,1,-1,5)),  hb=(8,18),  hf=(9,17),   wdeg=28,  eye='fierce', sway=5,  hd=3),
-  dict(dx=1,  bob=1,  lean=2,  feet=((-8,0),(8,0)),             hb=(3,22),  hf=(7,24),   wdeg=40,  eye='fierce', sway=2,  hd=1),
+  # A knife stabs. The old set was two cross-cuts, which is why it read as a
+  # small sword - a thrust is the HAND traveling while the blade angle holds
+  # still. Total rotation across the whole move is about thirty degrees;
+  # everything else is the arm extending and the body going with it.
+  # chamber - knife drawn back to the hip, point already facing the target
+  dict(dx=-2, bob=2,  lean=-4,  feet=((-7,0,0,3),(6,0,-1,2)),   hb=(4,15),  hf=(-9,16),  wdeg=352, eye='fierce', sway=-3, hd=-2),
+  # load - further back, weight over the rear foot, front foot light
+  dict(dx=-5, bob=5,  lean=-8,  feet=((-9,0,1,5),(8,3,-2,4)),   hb=(6,13),  hf=(-15,15), wdeg=347, eye='fierce', sway=-7, hd=-4),
+  # step - the body goes first and the hand is still back
+  dict(dx=4,  rise=4, bob=-3, lean=7, feet=((-13,2,3,3),(13,5,-2,6)), hb=(5,14), hf=(-5,14), wdeg=355, eye='fierce', sway=8, hd=4),
+  # drive - the arm fires straight out
+  dict(dx=11, bob=3,  lean=11, feet=((-16,0,4,0),(16,0,-1,7)),  hb=(2,17),  hf=(9,12),   wdeg=0,  eye='fierce', sway=12, hd=6),
+  # full extension - everything behind the point
+  dict(dx=13, bob=4,  lean=12, feet=((-18,0,4,0),(18,0,0,8)),   hb=(0,19),  hf=(14,11),  wdeg=2,  eye='fierce', sway=13, hd=7),
+  # retract - the knife comes back before the body does
+  dict(dx=6,  bob=3,  lean=5,  feet=((-12,0,2,1),(12,1,-1,5)),  hb=(3,19),  hf=(7,15),   wdeg=10, eye='fierce', sway=5,  hd=3),
+  # settle - back to a low guard
+  dict(dx=1,  bob=1,  lean=2,  feet=((-8,0),(8,0)),             hb=(3,22),  hf=(2,20),   wdeg=22, eye='fierce', sway=2,  hd=1),
  ],
  'heavy': [
-  # an axe is all weight. The crouch is deeper, the launch slower off the
-  # floor and the landing drops harder than anything else in the game.
-  dict(dx=-2, bob=4,  lean=-5,  feet=((-8,0,1,4),(5,0,-1,3)),   hb=(-4,24), hf=(-5,16),  wep=-0.45, eye='fierce', sway=-4, hd=-2, both=1),
-  dict(dx=-4, bob=8,  lean=-10, feet=((-11,0,2,8),(8,3,-3,5)),  hb=(-7,21), hf=(-12,3),  wep=-0.85, eye='fierce', sway=-10,hd=-5, both=1),
-  dict(dx=0,  rise=6, bob=-5, lean=3, feet=((-14,2,3,4),(11,8,-3,8)), hb=(-4,23), hf=(-2,1), wep=-0.35, eye='fierce', sway=4, hd=4, both=1),
-  dict(dx=6,  bob=5,  lean=11, feet=((-17,0,6,0),(14,0,-1,7)),  hb=(-3,25), hf=(9,4),    wep=1.15,  eye='fierce', sway=12, hd=7, both=1),
-  dict(dx=8,  bob=9,  lean=9,  feet=((-19,0,5,0),(16,0,0,11)),  hb=(-2,27), hf=(8,17),   wep=1.45,  eye='fierce', sway=9,  hd=5, both=1),
-  dict(dx=5,  bob=5,  lean=5,  feet=((-13,0,2,2),(11,1,-1,5)),  hb=(-2,27), hf=(8,25),   wep=0.95,  eye='fierce', sway=5,  hd=3, both=1),
-  dict(dx=1,  bob=2,  lean=2,  feet=((-8,0),(8,0)),             hb=(-3,26), hf=(7,28),   wep=1.00,  eye='fierce', sway=3,  hd=1),
+  # An axe is all weight, and a chop STOPS at the bottom - the old set carried
+  # it right on round and the hammer ended up dragging behind her. Named
+  # angles now, like the sword, so the arc can be held: overhead, hold, one
+  # fast frame down, then it buries and stays there.
+  dict(dx=-2, bob=4,  lean=-5,  feet=((-8,0,1,4),(5,0,-1,3)),   hb=(-4,24), hf=(-5,16),  wdeg=230, eye='fierce', sway=-4, hd=-2, both=1),
+  dict(dx=-4, bob=8,  lean=-10, feet=((-11,0,2,8),(8,3,-3,5)),  hb=(-7,21), hf=(-12,3),  wdeg=265, eye='fierce', sway=-10,hd=-5, both=1),
+  dict(dx=0,  rise=6, bob=-5, lean=3, feet=((-14,2,3,4),(11,8,-3,8)), hb=(-4,23), hf=(-2,1), wdeg=272, eye='fierce', sway=4, hd=4, both=1),
+  dict(dx=6,  bob=5,  lean=11, feet=((-17,0,6,0),(14,0,-1,7)),  hb=(-3,25), hf=(6,4),    wdeg=320, eye='fierce', sway=12, hd=7, both=1),
+  dict(dx=8,  bob=9,  lean=9,  feet=((-19,0,5,0),(16,0,0,11)),  hb=(-2,27), hf=(7,16),   wdeg=45,  eye='fierce', sway=9,  hd=5, both=1),
+  dict(dx=5,  bob=5,  lean=5,  feet=((-13,0,2,2),(11,1,-1,5)),  hb=(-2,27), hf=(6,22),   wdeg=70,  eye='fierce', sway=5,  hd=3, both=1),
+  dict(dx=1,  bob=2,  lean=2,  feet=((-8,0),(8,0)),             hb=(-3,26), hf=(4,26),   wdeg=100, eye='fierce', sway=3,  hd=1),
  ],
  'polearm': [
   # a thrust is the longest travel of the six and the flattest: the point is
@@ -763,9 +780,9 @@ ATK_SETS = {
   dict(dx=-4, bob=2,  lean=-5,  feet=((-9,0,1,3),(6,0,-1,3)),   hb=(-6,18), hf=(-8,13),  wdeg=332, eye='fierce', sway=-4, hd=-2, both=1),
   dict(dx=-6, bob=5,  lean=-10, feet=((-12,0,2,7),(9,4,-3,5)),  hb=(-6,18), hf=(-16,8),  wdeg=310, eye='fierce', sway=-10,hd=-5, both=1),
   dict(dx=-3, rise=4, bob=-2, lean=3, feet=((-15,2,3,4),(12,6,-3,7)), hb=(-6,18), hf=(-15,12), wdeg=342, eye='fierce', sway=3, hd=2, both=1),
-  dict(dx=7,  bob=4,  lean=12, feet=((-19,0,5,0),(17,0,-1,6)),  hb=(-6,18), hf=(-13,10), wdeg=356, eye='fierce', sway=12, hd=6, both=1),
-  dict(dx=9,  bob=6,  lean=14, feet=((-22,0,4,0),(20,0,0,9)),   hb=(-6,18), hf=(-12,10), wdeg=2,   eye='fierce', sway=14, hd=7, both=1),
-  dict(dx=4,  bob=4,  lean=6,  feet=((-15,0,2,2),(13,1,-1,5)),  hb=(-6,18), hf=(-14,12), wdeg=344, eye='fierce', sway=6,  hd=3, both=1),
+  dict(dx=4,  bob=4,  lean=12, feet=((-19,0,5,0),(17,0,-1,6)),  hb=(-6,18), hf=(-21,10), wdeg=356, eye='fierce', sway=12, hd=6, both=1),
+  dict(dx=6,  bob=6,  lean=14, feet=((-22,0,4,0),(20,0,0,9)),   hb=(-6,18), hf=(-19,10), wdeg=2,   eye='fierce', sway=14, hd=7, both=1),
+  dict(dx=3,  bob=4,  lean=6,  feet=((-15,0,2,2),(13,1,-1,5)),  hb=(-6,18), hf=(-17,12), wdeg=344, eye='fierce', sway=6,  hd=3, both=1),
   dict(dx=1,  bob=1,  lean=2,  feet=((-9,0),(9,0)),             hb=(-6,18), hf=(-11,16), wdeg=332, eye='fierce', sway=3,  hd=1, both=1),
  ],
  'fist': [
@@ -773,9 +790,9 @@ ATK_SETS = {
   # turn over, the rear hand follows, and the step lands with the punch.
   dict(dx=-2, bob=2,  lean=-4,  feet=((-8,0,0,3),(6,0,-1,2)),   hb=(0,12),  hf=(-2,10),  wdeg=0, eye='fierce', sway=-3, hd=-2),
   dict(dx=-5, bob=5,  lean=-7,  feet=((-10,0,1,5),(8,1,-2,4)),  hb=(-5,12), hf=(0,9),    wdeg=0, eye='fierce', sway=-7, hd=-3),
-  dict(dx=4,  rise=4, bob=-3, lean=8, feet=((-13,2,3,3),(13,5,-2,6)), hb=(-2,12), hf=(13,6), wdeg=0, eye='fierce', sway=9, hd=5),
-  dict(dx=12, bob=4,  lean=12, feet=((-16,0,4,0),(16,0,-1,6)),  hb=(11,8),  hf=(4,10),   wdeg=0, eye='fierce', sway=13, hd=7),
-  dict(dx=14, bob=5,  lean=13, feet=((-18,0,4,0),(18,0,0,7)),   hb=(15,7),  hf=(2,12),   wdeg=0, eye='fierce', sway=14, hd=7),
+  dict(dx=4,  rise=4, bob=-3, lean=8, feet=((-13,2,3,3),(13,5,-2,6)), hb=(4,11),  hf=(10,8), wdeg=0, eye='fierce', sway=9, hd=5),
+  dict(dx=12, bob=4,  lean=12, feet=((-16,0,4,0),(16,0,-1,6)),  hb=(16,9),  hf=(2,13),   wdeg=0, eye='fierce', sway=13, hd=7),
+  dict(dx=14, bob=5,  lean=13, feet=((-18,0,4,0),(18,0,0,7)),   hb=(20,8),  hf=(0,14),   wdeg=0, eye='fierce', sway=14, hd=7),
   dict(dx=6,  bob=3,  lean=5,  feet=((-12,0,2,1),(12,1,-1,4)),  hb=(4,11),  hf=(2,11),   wdeg=0, eye='fierce', sway=5,  hd=3),
   dict(dx=1,  bob=1,  lean=2,  feet=((-8,0),(8,0)),             hb=(-1,13), hf=(1,12),   wdeg=0, eye='fierce', sway=2,  hd=1),
  ],
