@@ -1254,8 +1254,13 @@ def draw_arm(c, p, pose, back):
     # take the hilt it is in front, and has to be lit like it
     front_ish = (not back) or two_handed(p, pose)
     sk  = p['skin'] if front_ish else p['skin2']
-    cl  = p['cloth'] if front_ish else p['cloth3']
-    cl2 = p['cloth2'] if front_ish else p['cloth3']
+    # The sleeve used to be the same cloth as the chest, so an arm drawn over
+    # the torso vanished into it and a swing read as a floating fist with a
+    # sword attached. A limb in front of a body is a tone off it - that is
+    # what separates the two, not an outline, which blobs when the arm is
+    # foreshortened and the stroke is wider than the arm is long.
+    cl  = p['cloth3'] if front_ish else shade(p['cloth3'], 0.72)
+    cl2 = p['cloth'] if front_ish else p['cloth3']
     sx, sy = shoulder(pose, back)
     hxp, hyp = hand(pose, back, p)
     t = p['sleeve']
