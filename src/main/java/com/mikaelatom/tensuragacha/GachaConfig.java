@@ -73,6 +73,37 @@ public class GachaConfig {
 
     static {
         BUILDER.pop();
+        BUILDER.comment("Soul Market shop. Every item gets a price in Soul Coins based on how rare it is:",
+                "raw materials have base values, and crafted/smelted items are priced from their recipes.").push("shop");
+    }
+
+    public static final ModConfigSpec.BooleanValue SHOP_COMMAND = BUILDER
+            .comment("Allow players to open the shop anywhere with /shop. If false, they need a Soul Market block.")
+            .define("allowShopCommand", true);
+
+    public static final ModConfigSpec.DoubleValue SHOP_SELL_MULTIPLIER = BUILDER
+            .comment("Selling pays this fraction of an item's buy price. Keep it below 1 so buying and selling back can't make coins.")
+            .defineInRange("sellMultiplier", 0.5, 0.0, 1.0);
+
+    public static final ModConfigSpec.DoubleValue SHOP_PRICE_MULTIPLIER = BUILDER
+            .comment("Multiplies every buy price, for making the whole shop cheaper or more expensive.")
+            .defineInRange("priceMultiplier", 1.0, 0.01, 1000.0);
+
+    public static final ModConfigSpec.BooleanValue SHOP_SPAWN_EGGS = BUILDER
+            .comment("Allow spawn eggs to be bought and sold.")
+            .define("allowSpawnEggs", false);
+
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> SHOP_BLACKLIST = BUILDER
+            .comment("Item ids that can't be bought or sold, on top of the built-in list of creative-only items.")
+            .defineListAllowEmpty("blacklist", List.of(), () -> "", o -> o instanceof String);
+
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> SHOP_VALUE_OVERRIDES = BUILDER
+            .comment("Fixed prices in Soul Coins, as \"item_id=price\" or \"#tag_id=price\", e.g. \"minecraft:diamond=2000\".",
+                    "Items crafted from these are re-priced from their recipes automatically.")
+            .defineListAllowEmpty("valueOverrides", List.of(), () -> "", o -> o instanceof String s && s.contains("="));
+
+    static {
+        BUILDER.pop();
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();

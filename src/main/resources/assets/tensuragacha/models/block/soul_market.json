@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "tensuragacha:block/soul_market_top",
+    "bottom": "tensuragacha:block/soul_market_bottom",
+    "side": "tensuragacha:block/soul_market_side"
+  }
+}

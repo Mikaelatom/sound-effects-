@@ -33,6 +33,26 @@ Rarity comes from how far up its evolution line a race is. The game first picks 
 - You can move any race into a different tier in the config, for example to make Lesser Daemon Rare.
 - Recipe: a Soul Gacha Ticket in the middle, slime balls on the sides, diamonds in the corners.
 
+### Soul Market (shop)
+Buy **any item in the game** with Soul Coins, including both gacha tickets, and sell items to earn them. Open it by right-clicking a **Soul Market** block, or anywhere with `/shop` if the server allows it.
+
+- **Buy:** left-click an item to buy 1, right-click to buy 8, shift-click to buy a full stack.
+- **Sell:** shift-click a stack in your own inventory, or hold it and type `/shop sell`. Selling pays 50% of the buy price, and damaged gear sells for less.
+- **Browse:** use the arrows to change page and the hopper to filter by mod (All, this add-on, Tensura, Minecraft, others). `/shop search <name>` finds items by name.
+- **Prices depend on rarity.** Raw materials have hand-set values (dirt 1, iron 64, diamond 1,024, nether star 32,768). Everything else is priced from its cheapest recipe, so prices follow crafting chains automatically, including other mods' items. Items with no recipe or base value are priced by their rarity. Buying, crafting and selling back can never make a profit.
+- Creative-only items (command blocks, bedrock, barriers, spawn eggs...) aren't sold.
+- Recipe: gold ingots around the edge, an emerald on top, amethyst shards on the sides and a chest in the middle.
+
+| Command | What it does |
+| --- | --- |
+| `/shop` | Open the shop |
+| `/shop search <name>` | Open the shop showing only matching items |
+| `/shop sell` | Sell the stack in your hand |
+| `/shop price` | Show the buy and sell price of the item in your hand |
+| `/shop balance` | Show your Soul Coins |
+| `/shop coins add\|set <players> <amount>` | Give or set coins (operators) |
+| `/shop reload` | Recalculate every price (operators) |
+
 ### Unique Skill: Gambler
 Press the skill key to spin three reels:
 - **Three of a kind:** a strong buff (Strength, Regeneration, Resistance, Speed or Absorption, level III).
@@ -53,6 +73,8 @@ The gacha, Gambler and Astral Core all play the squish-pop sound (`pixelcrusher-
 Server config `tensuragacha-server.toml` (in each world's `serverconfig/` folder): `jackpotChance`, `astralCoreChance`, `pityThreshold`, `blacklist` (skill ids the gacha never rolls, e.g. `"tensura:great_sage"`).
 
 Race gacha settings are in the `[raceGacha]` section: `weightCommon`, `weightRare`, `weightEpic`, `weightLegendary`, `pityThreshold`, `blacklist` (race ids the gacha never rolls, e.g. `"tensura:devil_lord"`), and `commonRaces` / `rareRaces` / `epicRaces` / `legendaryRaces` to move races into a different tier.
+
+Shop settings are in the `[shop]` section: `allowShopCommand`, `sellMultiplier`, `priceMultiplier`, `allowSpawnEggs`, `blacklist`, and `valueOverrides` to set any price yourself, e.g. `"minecraft:diamond=2000"` or `"#minecraft:logs=4"`.
 
 ## Building
 Requires Java 21.

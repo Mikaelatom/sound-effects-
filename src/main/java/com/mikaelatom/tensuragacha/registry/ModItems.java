@@ -6,6 +6,7 @@ import com.mikaelatom.tensuragacha.item.RaceGachaTicketItem;
 import com.mikaelatom.tensuragacha.item.SoulGachaTicketItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -27,6 +28,8 @@ public class ModItems {
     public static final DeferredItem<AstralCoreItem> ASTRAL_CORE = ITEMS.register("astral_core",
             () -> new AstralCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
 
+    public static final DeferredItem<BlockItem> SOUL_MARKET = ITEMS.registerSimpleBlockItem("soul_market", ModBlocks.SOUL_MARKET);
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register("main",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.tensuragacha"))
@@ -35,6 +38,7 @@ public class ModItems {
                         output.accept(SOUL_GACHA_TICKET.get());
                         output.accept(RACE_GACHA_TICKET.get());
                         output.accept(ASTRAL_CORE.get());
+                        output.accept(SOUL_MARKET.get());
                     })
                     .build());
 }
