@@ -1,0 +1,17 @@
+-d
+/tmp/claude-0/-home-user-sound-effects-/46189ff2-df5c-53b2-b81b-5d54fe39383e/scratchpad/out2
+src/main/java/com/mikaelatom/tensuragacha/race/CelestialSlimeRace.java
+src/main/java/com/mikaelatom/tensuragacha/race/AstralSlimeRace.java
+src/main/java/com/mikaelatom/tensuragacha/gacha/RaceGachaRoller.java
+src/main/java/com/mikaelatom/tensuragacha/gacha/GachaRoller.java
+src/main/java/com/mikaelatom/tensuragacha/item/AstralCoreItem.java
+src/main/java/com/mikaelatom/tensuragacha/item/RaceGachaTicketItem.java
+src/main/java/com/mikaelatom/tensuragacha/item/SoulGachaTicketItem.java
+src/main/java/com/mikaelatom/tensuragacha/registry/ModItems.java
+src/main/java/com/mikaelatom/tensuragacha/registry/ModSounds.java
+src/main/java/com/mikaelatom/tensuragacha/registry/ModSkills.java
+src/main/java/com/mikaelatom/tensuragacha/registry/ModAttachments.java
+src/main/java/com/mikaelatom/tensuragacha/registry/ModRaces.java
+src/main/java/com/mikaelatom/tensuragacha/GachaConfig.java
+src/main/java/com/mikaelatom/tensuragacha/TensuraGacha.java
+src/main/java/com/mikaelatom/tensuragacha/skill/GamblerSkill.java

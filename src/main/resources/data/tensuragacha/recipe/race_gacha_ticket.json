@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["DSD", "STS", "DSD"],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "S": { "item": "minecraft:slime_ball" },
+    "T": { "item": "tensuragacha:soul_gacha_ticket" }
+  },
+  "result": { "id": "tensuragacha:race_gacha_ticket", "count": 1 }
+}

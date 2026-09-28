@@ -17,6 +17,20 @@ Right-click to roll a random **Unique Skill** you don't own yet. The pool is eve
 - If there's nothing left to roll, the ticket isn't used up.
 - Recipe: gold ingots in the corners, amethyst shards on the sides, paper in the middle.
 
+### Race Gacha Ticket
+Sneak and right-click to be reincarnated as a random race. The pool is every registered race, including Tensura's, this add-on's and other add-ons'. Your current race is never rolled. **This replaces your current race.**
+
+| Rarity | Race difficulty | Default weight |
+| --- | --- | --- |
+| Common | Easy | 60 |
+| Rare | Intermediate | 28 |
+| Epic | Hard | 10 |
+| **Legendary** (announced to the server) | Extreme | 2 |
+
+- **Pity:** after 20 rolls without an Epic or Legendary race, the next roll is guaranteed to be one.
+- By default only base races are rolled, not evolutions (`startingRacesOnly`).
+- Recipe: a Soul Gacha Ticket in the middle, slime balls on the sides, diamonds in the corners.
+
 ### Unique Skill: Gambler
 Press the skill key to spin three reels:
 - **Three of a kind:** a strong buff (Strength, Regeneration, Resistance, Speed or Absorption, level III).
@@ -36,6 +50,8 @@ The gacha, Gambler and Astral Core all play the squish-pop sound (`pixelcrusher-
 ## Config
 Server config `tensuragacha-server.toml` (in each world's `serverconfig/` folder): `jackpotChance`, `astralCoreChance`, `pityThreshold`, `blacklist` (skill ids the gacha never rolls, e.g. `"tensura:great_sage"`).
 
+Race gacha settings are in the `[raceGacha]` section: `weightEasy`, `weightIntermediate`, `weightHard`, `weightExtreme`, `startingRacesOnly`, `pityThreshold`, `blacklist` (race ids, e.g. `"tensura:human"`).
+
 ## Building
 Requires Java 21.
 
@@ -50,5 +66,6 @@ Put the jar in your `mods` folder next to Tensura: Reincarnated (2.0.1.0+) and M
 ## Commands for testing
 ```
 /give @s tensuragacha:soul_gacha_ticket 64
+/give @s tensuragacha:race_gacha_ticket 64
 /give @s tensuragacha:astral_core
 ```

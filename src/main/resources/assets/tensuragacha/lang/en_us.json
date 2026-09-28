@@ -3,6 +3,10 @@
 
   "item.tensuragacha.soul_gacha_ticket": "Soul Gacha Ticket",
   "item.tensuragacha.soul_gacha_ticket.tooltip": "Use to roll a random Unique Skill you don't have yet.",
+  "item.tensuragacha.race_gacha_ticket": "Race Gacha Ticket",
+  "item.tensuragacha.race_gacha_ticket.tooltip": "Sneak + use to be reincarnated as a random race.",
+  "item.tensuragacha.race_gacha_ticket.warning": "Replaces your current race!",
+  "item.tensuragacha.race_gacha_ticket.sneak": "Sneak while using to accept reincarnation.",
   "item.tensuragacha.astral_core": "Astral Core",
   "item.tensuragacha.astral_core.tooltip": "Sneak + use to reincarnate as an Astral Slime. Replaces your current race!",
   "item.tensuragacha.astral_core.sneak": "Sneak while using to accept reincarnation.",
@@ -15,6 +19,15 @@
   "tensuragacha.gacha.pool_empty": "There are no Unique Skills left for you to roll.",
   "tensuragacha.gacha.failed": "Your soul rejected the skill. The ticket was not used.",
   "tensuragacha.gacha.pity": "Pity: %s / %s",
+
+  "tensuragacha.race_gacha.reborn": "Race Gacha [%s]: you have been reincarnated as %s!",
+  "tensuragacha.race_gacha.legendary": "★ LEGENDARY PULL! ★ %s has been reincarnated as %s!",
+  "tensuragacha.race_gacha.pool_empty": "There are no races left for you to roll.",
+  "tensuragacha.race_gacha.failed": "Your soul resisted reincarnation. The ticket was not used.",
+  "tensuragacha.race_gacha.tier.common": "Common",
+  "tensuragacha.race_gacha.tier.rare": "Rare",
+  "tensuragacha.race_gacha.tier.epic": "Epic",
+  "tensuragacha.race_gacha.tier.legendary": "Legendary",
 
   "tensuragacha.skill.gambler": "Gambler",
   "tensuragacha.skill.gambler.description": "A Unique Skill born from a soul that bet everything on its next life. Spin three reels: three of a kind grants a powerful blessing, a pair a small one, and no match leaves you sluggish. Mastery extends the blessings.",

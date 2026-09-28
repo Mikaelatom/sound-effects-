@@ -15,4 +15,8 @@ public class ModAttachments {
     /** Rolls since the last jackpot, kept across deaths. */
     public static final Supplier<AttachmentType<Integer>> PITY = ATTACHMENT_TYPES.register("pity",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
+    /** Race rolls since the last Hard or Extreme race, kept across deaths. */
+    public static final Supplier<AttachmentType<Integer>> RACE_PITY = ATTACHMENT_TYPES.register("race_pity",
+            () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 }
