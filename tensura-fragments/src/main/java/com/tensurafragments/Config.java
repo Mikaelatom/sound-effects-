@@ -21,6 +21,9 @@ public final class Config {
         BUILDER.pop().comment("Gambit Cards: place cards, teleport to them, blow them up").push("cards");
     }
 
+    public static final ModConfigSpec.BooleanValue GRANT_GAMBIT_CARDS = BUILDER
+            .comment("Give every player the Gambit Cards skill.")
+            .define("grantGambitCards", true);
     public static final ModConfigSpec.IntValue DECK_SIZE = BUILDER
             .comment("Cards the deck can hold.")
             .defineInRange("deckSize", 5, 1, 64);

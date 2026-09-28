@@ -2,6 +2,8 @@ package com.tensurafragments.card;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import io.github.manasmods.tensura.particle.TensuraParticleHelper;
+import io.github.manasmods.tensura.particle.TensuraParticleUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -250,6 +252,9 @@ public class CardEntity extends Projectile {
         }
 
         serverLevel.sendParticles(ParticleTypes.EXPLOSION, getX(), getY(), getZ(), 1 + Math.round(getCharge() * 2), 0.5, 0.5, 0.5, 0);
+        // Tensura's shockwave ring, sized to the blast.
+        TensuraParticleHelper.spawnServerParticles(serverLevel,
+                TensuraParticleUtils.getColorlessReversedWave(0.9F, (float) radius), getX(), getY(), getZ());
         serverLevel.sendParticles(ParticleTypes.ENCHANTED_HIT, getX(), getY(), getZ(), 30, 0.3, 0.3, 0.3, 0.6);
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS,
                 1.0F + getCharge() * 0.5F, 1.2F);

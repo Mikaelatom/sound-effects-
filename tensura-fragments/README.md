@@ -8,20 +8,23 @@ Abilities are meant to take practice: momentum, placement, aim, time limits and 
 
 ## Skill 1: Gambit Cards
 
-| Key (default) | Action |
+Gambit Cards is a real Tensura skill (Unique). It shows up in Tensura's skill menu, goes on Tensura's skill keys,
+and you switch between its three modes the same way as any Tensura skill. Every player is given it automatically.
+
+| Mode | What it does |
 |---|---|
-| `Z` | **Throw** a card where you aim. It sticks to the first block or mob it hits and inherits your momentum. |
-| `X` | **Teleport** to the card under your crosshair (or your newest card). You keep your speed, redirected where you look. |
-| `C` | **Detonate** every card. Sneak + `C` detonates only the card you're aiming at. |
+| **Throw** | A card flies where you aim and sticks to the first block or mob it hits. It inherits your momentum. |
+| **Teleport** | Warp to the card under your crosshair (or your newest card). You keep your speed, redirected where you look. |
+| **Detonate** | Blow up every card. Sneak while using it to detonate only the card you're aiming at. |
 
 - **Deck:** 5 cards; one is drawn back every 3 seconds. At most 3 cards can be out; throwing a 4th makes the oldest fizzle.
-- **Magicules:** throwing costs 40, teleporting costs 60 (Tensura's magicule pool).
+- **Magicules:** throwing costs 40, teleporting costs 60, charged by Tensura like any skill (nothing is charged if the action can't happen).
 - **Charge:** a card's blast grows from 50% to 150% over 5 seconds. It sparks and glows when fully charged.
 - **Time limit:** cards fizzle after 20 seconds and blink during their last 3.
 - **Blast:** damage falls off with distance and **hits you too** if you're inside the radius (4 blocks).
   The knockback also hits you, so a careful self-blast doubles as a launch. Blasts set off other cards nearby.
 
-Everything above is tunable in `serverconfig/tensurafragments-server.toml`.
+Uses Tensura's shockwave particle for the blast and teleport. Everything above is tunable in `serverconfig/tensurafragments-server.toml`.
 
 The HUD (bottom right) shows your deck, the next draw, and a timer bar per active card (gold = fully charged).
 
@@ -29,6 +32,8 @@ The HUD (bottom right) shows your deck, the next draw, and a timer bar per activ
 
 By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).
 Races are untouched. Turn this off with `stripOriginalSkills = false` in the server config.
+
+See `docs/tensura-reference.md` for the Tensura code and magic entities we can reuse.
 
 ## Building
 

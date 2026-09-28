@@ -17,9 +17,11 @@ public final class SkillEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
+        MomentumTracker.tick(player);
         GambitCards.tickDeck(player);
         if (player.tickCount % 40 == 0) {
             OriginalSkillStripper.strip(player);
+            GambitCards.grantSkill(player);
         }
     }
 
@@ -27,6 +29,7 @@ public final class SkillEvents {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             OriginalSkillStripper.strip(player);
+            GambitCards.grantSkill(player);
             GambitCards.sync(player);
         }
     }

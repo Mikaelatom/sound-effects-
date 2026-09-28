@@ -1,6 +1,7 @@
 package com.tensurafragments;
 
 import com.tensurafragments.network.ModNetwork;
+import com.tensurafragments.skill.ModSkills;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -13,6 +14,7 @@ public class TensuraFragments {
 
     public TensuraFragments(IEventBus modEventBus, ModContainer modContainer) {
         ModRegistries.register(modEventBus);
+        ModSkills.init();
         modEventBus.addListener(ModNetwork::registerPayloads);
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }

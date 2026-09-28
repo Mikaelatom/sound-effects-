@@ -4,6 +4,10 @@ import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.card.CardEntity;
 import com.tensurafragments.network.SyncDeckPayload;
+import io.github.manasmods.manascore.skill.api.SkillAPI;
+import io.github.manasmods.tensura.ability.SkillHelper;
+import io.github.manasmods.tensura.particle.TensuraParticleHelper;
+import io.github.manasmods.tensura.particle.TensuraParticleUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * Gambit Cards, the first skill.
+ * Gambit Cards, the first skill. Triggered through {@link GambitCardsSkill}; magicule costs are charged by Tensura.
  * <ul>
  *   <li>Throw: a card flies where you aim and sticks to whatever it hits. It inherits your momentum.</li>
  *   <li>Teleport: warp to the card under your crosshair (or your newest one). Your speed is kept and
@@ -36,14 +40,10 @@ public final class GambitCards {
     private GambitCards() {
     }
 
-    public static void throwCard(ServerPlayer player, Vec3 clientVelocity) {
+    public static void throwCard(ServerPlayer player) {
         int deck = getDeck(player);
         if (deck <= 0) {
             player.displayClientMessage(Component.translatable("tensurafragments.cards.deck_empty"), true);
-            return;
-        }
-        if (!Magicules.trySpend(player, Config.THROW_MAGICULE_COST.get())) {
-            player.displayClientMessage(Component.translatable("tensurafragments.cards.no_magicules"), true);
             return;
         }
 
@@ -54,7 +54,7 @@ public final class GambitCards {
         }
 
         CardEntity card = CardEntity.create(player);
-        Vec3 velocity = player.getLookAngle().scale(Config.THROW_SPEED.get()).add(clampSpeed(clientVelocity));
+        Vec3 velocity = player.getLookAngle().scale(Config.THROW_SPEED.get()).add(clampSpeed(MomentumTracker.velocity(player)));
         card.setDeltaMovement(velocity);
         player.level().addFreshEntity(card);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
@@ -63,14 +63,10 @@ public final class GambitCards {
         setDeck(player, deck - 1);
     }
 
-    public static void teleport(ServerPlayer player, Vec3 clientVelocity) {
+    public static void teleport(ServerPlayer player) {
         CardEntity card = findTarget(player, false);
         if (card == null) {
             player.displayClientMessage(Component.translatable("tensurafragments.cards.no_card"), true);
-            return;
-        }
-        if (!Magicules.trySpend(player, Config.TELEPORT_MAGICULE_COST.get())) {
-            player.displayClientMessage(Component.translatable("tensurafragments.cards.no_magicules"), true);
             return;
         }
 
@@ -79,16 +75,18 @@ public final class GambitCards {
         level.sendParticles(ParticleTypes.PORTAL, player.getX(), player.getY() + 1, player.getZ(), 20, 0.3, 0.6, 0.3, 0.2);
 
         // Momentum: keep your speed but send it where you're looking.
-        double speed = clampSpeed(clientVelocity).length() * Config.MOMENTUM_CARRY.get();
+        double speed = clampSpeed(MomentumTracker.velocity(player)).length() * Config.MOMENTUM_CARRY.get();
         Vec3 carried = player.getLookAngle().scale(speed);
 
         player.teleportTo(destination.x, destination.y, destination.z);
         player.resetFallDistance();
         player.setDeltaMovement(carried);
         player.hurtMarked = true;
+        MomentumTracker.reset(player, carried);
         card.discard();
 
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, destination.x, destination.y + 1, destination.z, 20, 0.3, 0.6, 0.3, 0.05);
+        TensuraParticleHelper.spawnServerParticles(level, TensuraParticleUtils.getColorlessReversedWave(0.6F, 2.0F),
+                destination.x, destination.y + player.getBbHeight() / 2, destination.z);
         level.playSound(null, destination.x, destination.y, destination.z, SoundEvents.ENDERMAN_TELEPORT,
                 SoundSource.PLAYERS, 0.7F, 1.4F);
     }
@@ -103,6 +101,14 @@ public final class GambitCards {
         }
         for (CardEntity card : getCards(player)) {
             card.prime(1);
+        }
+    }
+
+    /** Gives the player the skill if they don't have it yet (the originals are stripped, so this is the kit). */
+    public static void grantSkill(ServerPlayer player) {
+        if (Config.GRANT_GAMBIT_CARDS.get()
+                && SkillAPI.getSkillsFrom(player).getSkill(ModSkills.GAMBIT_CARDS.getId()).isEmpty()) {
+            SkillHelper.learnSkill(player, ModSkills.GAMBIT_CARDS.get());
         }
     }
 
