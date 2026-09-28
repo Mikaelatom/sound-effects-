@@ -99,6 +99,9 @@ dependencies {
     implementation "curse.maven:smartbrainlib-661293:7055149"
     implementation tensuraDep
     tensuraJar tensuraDep
+
+    // Needed by Tensura at runtime only.
+    runtimeOnly "curse.maven:terrablender-neoforge-940057:6054947"
 }
 
 tasks.withType(ProcessResources).configureEach {

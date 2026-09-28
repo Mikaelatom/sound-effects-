@@ -42,10 +42,15 @@ Requires JDK 21.
 ```
 ./gradlew build          # jar in build/libs/
 ./gradlew runClient      # test client with Tensura + dependencies
+./gradlew runGameTestServer      # headless launch with Tensura that runs the in-world tests, then exits
 ./gradlew catalogTensuraAssets   # writes docs/tensura-assets.md, a list of every Tensura asset to pick from
 ```
 
-Tensura: Reincarnated, ManasCore, Architectury, GeckoLib and SmartBrainLib are pulled from CurseForge via
+The in-world tests (`src/main/java/com/tensurafragments/test/CardGameTests.java`) check that a blast hurts mobs in
+range but not outside it, hurts the owner when they're too close, chains into nearby cards, and that teleporting
+moves you to the card and uses it up.
+
+Tensura: Reincarnated, ManasCore, Architectury, GeckoLib, SmartBrainLib and TerraBlender (runtime only) are pulled from CurseForge via
 CurseMaven (versions in `build.gradle`). If you update Tensura, bump the file id in `tensuraDep`.
 
 The card place sound is `pixelcrusher-squish-pop-256410.mp3` from the repo root, converted to Ogg.

@@ -218,6 +218,7 @@ public class CardEntity extends Projectile {
         double radius = Config.BLAST_RADIUS.get();
         float damage = (float) (Config.BLAST_DAMAGE.get() * getCharge());
         DamageSource source = damageSources().explosion(this, owner);
+        DamageSource selfSource = damageSources().explosion(this, null);
 
         for (LivingEntity victim : level().getEntitiesOfClass(LivingEntity.class, new AABB(centre, centre).inflate(radius))) {
             Vec3 body = victim.position().add(0, victim.getBbHeight() / 2.0, 0);
@@ -232,7 +233,8 @@ public class CardEntity extends Projectile {
                 amount *= Config.SELF_DAMAGE_MULTIPLIER.get().floatValue();
             }
             if (amount > 0) {
-                victim.hurt(source, amount);
+                // Self damage has no attacker, so it still applies on servers with PvP turned off.
+                victim.hurt(victim == owner ? selfSource : source, amount);
             }
 
             Vec3 push = body.subtract(centre);
