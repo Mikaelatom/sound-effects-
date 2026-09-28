@@ -50,7 +50,8 @@ public final class ItemValues {
             "minecraft:trial_spawner", "minecraft:vault", "minecraft:end_portal_frame",
             "minecraft:reinforced_deepslate", "minecraft:budding_amethyst", "minecraft:petrified_oak_slab",
             "minecraft:frogspawn", "minecraft:farmland", "minecraft:dirt_path", "minecraft:bundle",
-            "minecraft:trial_key", "minecraft:ominous_trial_key", "minecraft:ominous_bottle");
+            "minecraft:trial_key", "minecraft:ominous_trial_key", "minecraft:ominous_bottle",
+            "tensura:labyrinth_barrier_block");
 
     private static Map<Item, Long> values = new HashMap<>();
     private static List<Item> shopItems = List.of();

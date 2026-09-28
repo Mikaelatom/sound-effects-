@@ -1,11 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "pattern": ["DSD", "STS", "DSD"],
-  "key": {
-    "D": { "item": "minecraft:diamond" },
-    "S": { "item": "minecraft:slime_ball" },
-    "T": { "item": "tensuragacha:soul_gacha_ticket" }
-  },
+  "ingredients": [
+    { "item": "tensura:pure_magisteel_ingot" },
+    { "item": "minecraft:paper" }
+  ],
   "result": { "id": "tensuragacha:race_gacha_ticket", "count": 1 }
 }

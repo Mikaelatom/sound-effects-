@@ -15,7 +15,7 @@ Right-click to roll a random **Unique Skill** you don't own yet. The pool is eve
 
 - **Pity:** after 50 rolls without the jackpot, Gambler is guaranteed.
 - If there's nothing left to roll, the ticket isn't used up.
-- Recipe: gold ingots in the corners, amethyst shards on the sides, paper in the middle.
+- Recipe (shapeless): **High Magisteel Ingot + Paper**. It's also sold in the Soul Market.
 
 ### Race Gacha Ticket
 Sneak and right-click to be reincarnated as a random race. The pool is every registered race, including Tensura's, this add-on's and other add-ons'. Your current race is never rolled. **This replaces your current race.**
@@ -31,7 +31,7 @@ Rarity comes from how far up its evolution line a race is. The game first picks 
 
 - **Pity:** after 20 rolls without an Epic or Legendary race, the next roll is guaranteed to be one.
 - You can move any race into a different tier in the config, for example to make Lesser Daemon Rare.
-- Recipe: a Soul Gacha Ticket in the middle, slime balls on the sides, diamonds in the corners.
+- Recipe (shapeless): **Pure Magisteel Ingot + Paper**. It's also sold in the Soul Market.
 
 ### Soul Market (shop)
 Buy **any item in the game** with Soul Coins, including both gacha tickets, and sell items to earn them. Open it by right-clicking a **Soul Market** block, or anywhere with `/shop` if the server allows it.
