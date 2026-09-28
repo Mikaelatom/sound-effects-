@@ -78,6 +78,11 @@ runs {
     server {
         argument '--nogui'
     }
+
+    // Headless launch that loads every mod and exits; used as a smoke test.
+    gameTestServer {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+    }
 }
 
 def tensuraDep = "curse.maven:tensura-reincarnated-643695:8098859"
