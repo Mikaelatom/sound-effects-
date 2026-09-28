@@ -1,0 +1,119 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    mavenCentral()
+
+    // Tensura: Reincarnated and its libraries are pulled from CurseForge through CurseMaven.
+    maven {
+        name = "CurseMaven"
+        url = "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+// ManasCore ships its modules as jars nested inside the main jar; extract them onto the classpath.
+def extractedManasCoreDir = layout.buildDirectory.dir("extracted-deps/manascore")
+
+configurations {
+    manasCoreBundle {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+    }
+    tensuraJar {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+    }
+}
+
+tasks.register("extractManasCoreModules", Copy) {
+    group = "dependencies"
+    inputs.files(configurations.manasCoreBundle)
+    from {
+        configurations.manasCoreBundle.collect { jarFile ->
+            zipTree(jarFile).matching { include "**/*.jar" }
+        }
+    }
+    into extractedManasCoreDir
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Writes docs/tensura-assets.md: every texture, sound, particle and model inside Tensura's jar.
+tasks.register("catalogTensuraAssets", Exec) {
+    group = "tensurafragments"
+    description = "Lists every asset in the Tensura: Reincarnated jar so we can pick parts for new skills."
+    inputs.files(configurations.tensuraJar)
+    doFirst {
+        commandLine 'python3', file('tools/catalog_tensura_assets.py').absolutePath,
+                configurations.tensuraJar.singleFile.absolutePath,
+                file('docs/tensura-assets.md').absolutePath
+    }
+}
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.console.level', 'debug'
+        workingDirectory project.layout.projectDirectory.dir('run').dir(name)
+        modSource project.sourceSets.main
+    }
+
+    client {}
+
+    server {
+        argument '--nogui'
+    }
+}
+
+def tensuraDep = "curse.maven:tensura-reincarnated-643695:8098859"
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+
+    manasCoreBundle "curse.maven:manascore-619025:8022425"
+    implementation "curse.maven:manascore-619025:8022425"
+    implementation fileTree(dir: extractedManasCoreDir.get().asFile, include: ["**/*.jar"])
+
+    implementation "curse.maven:architectury-api-419699:5786327"
+    implementation "curse.maven:geckolib-388172:8350073"
+    implementation "curse.maven:smartbrainlib-661293:7055149"
+    implementation tensuraDep
+    tensuraJar tensuraDep
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    dependsOn tasks.named("extractManasCoreModules")
+    options.encoding = 'UTF-8'
+}

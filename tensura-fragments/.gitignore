@@ -1,0 +1,44 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Minecraft run folders
+run/
+runs/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Logs and crash reports
+*.log
+logs/
+crash-reports/
+
+# Generated JARs
+*.jar
+
+# The Gradle wrapper JAR is required for clean checkouts and CI builds
+!gradle/wrapper/gradle-wrapper.jar
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Local dependency JARs
+libs/

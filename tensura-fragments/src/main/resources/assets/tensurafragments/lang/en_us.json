@@ -1,0 +1,12 @@
+{
+  "key.categories.tensurafragments": "Tensura: Fragments",
+  "key.tensurafragments.throw_card": "Gambit Cards: Throw",
+  "key.tensurafragments.teleport_card": "Gambit Cards: Teleport",
+  "key.tensurafragments.detonate_cards": "Gambit Cards: Detonate (sneak = aimed only)",
+  "entity.tensurafragments.card": "Gambit Card",
+  "subtitles.tensurafragments.card_place": "Card sticks",
+  "tensurafragments.cards.deck_empty": "Your deck is empty",
+  "tensurafragments.cards.no_magicules": "Not enough magicules",
+  "tensurafragments.cards.no_card": "No card to teleport to",
+  "tensurafragments.skill.stripped": "This power has been broken down into fragments"
+}
