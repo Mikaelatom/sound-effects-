@@ -1,0 +1,37 @@
+name: Inspect Tensura API
+
+on:
+  push:
+    paths:
+      - .github/workflows/inspect-tensura.yml
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x gradlew && ./gradlew compileJava --no-daemon -q
+      - name: Dump item info
+        run: |
+          JAR=$(find ~/.gradle/caches -name "tensura-reincarnated-643695-8098859*.jar" | head -1)
+          mkdir -p t && cd t && unzip -q -o "$JAR"
+          echo "=== ITEM LANG KEYS ==="
+          python3 - <<'EOF'
+          import json
+          d = json.load(open('assets/tensura/lang/en_us.json', encoding='utf-8'))
+          for k, v in d.items():
+              if (k.startswith('item.tensura.') or k.startswith('block.tensura.')) and k.count('.') == 2:
+                  print(k, '=', v)
+          EOF
+          echo "=== RECIPE TYPES ==="
+          find data -path "*recipe*" -name "*.json" | xargs -I{} python3 -c "import json,sys; print(json.load(open('{}')).get('type'))" | sort | uniq -c | sort -rn
+          echo "=== MAGISTEEL RECIPES ==="
+          for f in $(grep -rl "magisteel" data --include=*.json | grep recipe | head -30); do echo "--- $f"; cat "$f" | tr -d '\n' | head -c 600; echo; done
+          echo "=== ORE / TAG FILES ==="
+          find data -path "*tags/item*" -name "*.json" | head -60
