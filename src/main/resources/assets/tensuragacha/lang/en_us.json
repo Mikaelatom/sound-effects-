@@ -1,0 +1,36 @@
+{
+  "itemGroup.tensuragacha": "Tensura: Soul Gacha",
+
+  "item.tensuragacha.soul_gacha_ticket": "Soul Gacha Ticket",
+  "item.tensuragacha.soul_gacha_ticket.tooltip": "Use to roll a random Unique Skill you don't have yet.",
+  "item.tensuragacha.astral_core": "Astral Core",
+  "item.tensuragacha.astral_core.tooltip": "Sneak + use to reincarnate as an Astral Slime. Replaces your current race!",
+  "item.tensuragacha.astral_core.sneak": "Sneak while using to accept reincarnation.",
+  "item.tensuragacha.astral_core.already": "Your soul is already astral.",
+  "item.tensuragacha.astral_core.reborn": "Your soul dissolves and reforms... You have been reborn as an Astral Slime!",
+
+  "tensuragacha.gacha.learned": "Soul Gacha: you obtained the Unique Skill [%s]!",
+  "tensuragacha.gacha.jackpot": "★ JACKPOT! ★ %s has obtained the Unique Skill [Gambler]!",
+  "tensuragacha.gacha.astral_core": "Soul Gacha: an Astral Core crystallised in your hands!",
+  "tensuragacha.gacha.pool_empty": "There are no Unique Skills left for you to roll.",
+  "tensuragacha.gacha.failed": "Your soul rejected the skill. The ticket was not used.",
+  "tensuragacha.gacha.pity": "Pity: %s / %s",
+
+  "tensuragacha.skill.gambler": "Gambler",
+  "tensuragacha.skill.gambler.description": "A Unique Skill born from a soul that bet everything on its next life. Spin three reels: three of a kind grants a powerful blessing, a pair a small one, and no match leaves you sluggish. Mastery extends the blessings.",
+  "tensuragacha.skill.gambler.triple": "JACKPOT!",
+  "tensuragacha.skill.gambler.pair": "Pair!",
+  "tensuragacha.skill.gambler.bust": "Bust...",
+
+  "tensuragacha.race.astral_slime": "Astral Slime",
+  "tensuragacha.race.astral_slime.description": "A slime whose core formed from a lucky soul. Fragile, but bouncy, swift and blessed by fortune. Reach level 30 to evolve.",
+  "tensuragacha.race.celestial_slime": "Celestial Slime",
+  "tensuragacha.race.celestial_slime.description": "An evolved Astral Slime that shines like a star. Born with the Unique Skill Gambler.",
+
+  "tensuragacha.configuration.jackpotChance": "Jackpot Chance",
+  "tensuragacha.configuration.astralCoreChance": "Astral Core Chance",
+  "tensuragacha.configuration.pityThreshold": "Pity Threshold",
+  "tensuragacha.configuration.blacklist": "Skill Blacklist",
+
+  "subtitles.tensuragacha.squish_pop": "Soul squishes"
+}

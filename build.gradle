@@ -1,0 +1,159 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+    exclude("**/*.bbmodel")
+    exclude("src/generated/**/.cache")
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        name = "CurseMaven"
+        url = "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+def extractedManasCoreDir = layout.buildDirectory.dir("extracted-deps/manascore")
+
+configurations {
+    manasCoreBundle {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+    }
+
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+tasks.register("extractManasCoreModules", Copy) {
+    group = "dependencies"
+    description = "Extracts nested ManasCore module jars from the downloaded ManasCore jar."
+
+    inputs.files(configurations.manasCoreBundle)
+
+    from {
+        configurations.manasCoreBundle.collect { jarFile ->
+            zipTree(jarFile).matching {
+                include "**/*.jar"
+            }
+        }
+    }
+
+    into extractedManasCoreDir
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        workingDirectory project.layout.projectDirectory.dir('run').dir(name)
+        modSource project.sourceSets.main
+    }
+
+    client {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+    }
+
+    server {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        argument '--nogui'
+    }
+
+    gameTestServer {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+    }
+
+    data {
+        arguments.addAll '--mod', project.mod_id,
+                '--all',
+                '--output', file('src/generated/resources/').getAbsolutePath(),
+                '--existing', file('src/main/resources/').getAbsolutePath()
+    }
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+
+    /*
+     * ManasCore is downloaded as the normal mod jar.
+     * Its nested module jars are extracted by extractManasCoreModules and then
+     * added to the classpath below.
+     */
+    manasCoreBundle "curse.maven:manascore-619025:8022425"
+    implementation "curse.maven:manascore-619025:8022425"
+
+    implementation fileTree(dir: extractedManasCoreDir.get().asFile, include: ["**/*.jar"])
+
+    /*
+     * Tensura: Reincarnated and library dependencies.
+     * These replace the old local libs/*.jar dependencies.
+     */
+    implementation "curse.maven:architectury-api-419699:5786327"
+    implementation "curse.maven:geckolib-388172:8350073"
+    implementation "curse.maven:smartbrainlib-661293:7055149"
+    implementation "curse.maven:tensura-reincarnated-643695:8098859"
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+}
+
+tasks.withType(JavaCompile).configureEach {
+    dependsOn tasks.named("extractManasCoreModules")
+    options.encoding = 'UTF-8'
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

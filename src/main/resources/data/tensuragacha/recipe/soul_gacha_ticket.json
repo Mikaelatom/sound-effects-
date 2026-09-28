@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["GAG", "APA", "GAG"],
+  "key": {
+    "G": { "item": "minecraft:gold_ingot" },
+    "A": { "item": "minecraft:amethyst_shard" },
+    "P": { "item": "minecraft:paper" }
+  },
+  "result": { "id": "tensuragacha:soul_gacha_ticket", "count": 1 }
+}

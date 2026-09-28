@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+modId="tensuragacha"
+version="1.0.0"
+displayName="Tensura: Soul Gacha"
+authors="mikaelatom"
+description='''
+An add-on for Tensura: Reincarnated. Roll Soul Gacha Tickets for random Unique Skills, chase the jackpot Unique Skill Gambler, and reincarnate as an Astral Slime that evolves into a Celestial Slime.
+'''
+
+[[dependencies.tensuragacha]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.tensuragacha]]
+modId = "tensura"
+type = "required"
+versionRange = "[2.0.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tensuragacha]]
+modId = "manascore"
+type = "required"
+versionRange = "[4.0.0.2,)"
+ordering = "AFTER"
+side = "BOTH"
