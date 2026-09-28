@@ -20,15 +20,17 @@ Right-click to roll a random **Unique Skill** you don't own yet. The pool is eve
 ### Race Gacha Ticket
 Sneak and right-click to be reincarnated as a random race. The pool is every registered race, including Tensura's, this add-on's and other add-ons'. Your current race is never rolled. **This replaces your current race.**
 
-| Rarity | Race difficulty | Default weight |
-| --- | --- | --- |
-| Common | Easy | 60 |
-| Rare | Intermediate | 28 |
-| Epic | Hard | 10 |
-| **Legendary** (announced to the server) | Extreme | 2 |
+Rarity comes from how far up its evolution line a race is. The game first picks a tier, then a random race from that tier.
+
+| Rarity | Evolution stage | Examples | Chance |
+| --- | --- | --- | --- |
+| Common | Base race | Human, Slime, Goblin, Orc, Lesser Daemon | 60% |
+| Rare | 1st evolution | Enlightened Human, Metal Slime, Hobgoblin, High Orc | 28% |
+| Epic | 2nd evolution | Human Saint, Demon Slime, Orc Lord, Arch Daemon | 10% |
+| **Legendary** (announced to the server) | 3rd evolution or higher | Divine Human, God Slime, Orc Disaster, Devil Lord | 2% |
 
 - **Pity:** after 20 rolls without an Epic or Legendary race, the next roll is guaranteed to be one.
-- By default only base races are rolled, not evolutions (`startingRacesOnly`).
+- You can move any race into a different tier in the config, for example to make Lesser Daemon Rare.
 - Recipe: a Soul Gacha Ticket in the middle, slime balls on the sides, diamonds in the corners.
 
 ### Unique Skill: Gambler
@@ -50,7 +52,7 @@ The gacha, Gambler and Astral Core all play the squish-pop sound (`pixelcrusher-
 ## Config
 Server config `tensuragacha-server.toml` (in each world's `serverconfig/` folder): `jackpotChance`, `astralCoreChance`, `pityThreshold`, `blacklist` (skill ids the gacha never rolls, e.g. `"tensura:great_sage"`).
 
-Race gacha settings are in the `[raceGacha]` section: `weightEasy`, `weightIntermediate`, `weightHard`, `weightExtreme`, `startingRacesOnly`, `pityThreshold`, `blacklist` (race ids, e.g. `"tensura:human"`).
+Race gacha settings are in the `[raceGacha]` section: `weightCommon`, `weightRare`, `weightEpic`, `weightLegendary`, `pityThreshold`, `blacklist` (race ids the gacha never rolls, e.g. `"tensura:devil_lord"`), and `commonRaces` / `rareRaces` / `epicRaces` / `legendaryRaces` to move races into a different tier.
 
 ## Building
 Requires Java 21.
