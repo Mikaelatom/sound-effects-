@@ -4,9 +4,11 @@ import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.card.CardEntity;
 import com.mojang.authlib.GameProfile;
 import com.tensurafragments.skill.GambitCards;
+import com.tensurafragments.skill.ModSkills;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -94,6 +96,14 @@ public final class CardGameTests {
 
         helper.assertTrue(second.isAlive(), "chained card waits a few ticks before going off");
         helper.succeedWhen(() -> helper.assertTrue(second.isRemoved(), "second card should chain-detonate"));
+    }
+
+    @GameTest(template = "platform")
+    public static void skillIconFileExists(GameTestHelper helper) {
+        ResourceLocation icon = ModSkills.GAMBIT_CARDS.get().getSkillIcon();
+        String path = "/assets/" + icon.getNamespace() + "/" + icon.getPath();
+        helper.assertTrue(CardGameTests.class.getResource(path) != null, "skill icon missing: " + path);
+        helper.succeed();
     }
 
     @GameTest(template = "platform")

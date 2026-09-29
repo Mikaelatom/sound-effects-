@@ -1,8 +1,10 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.Config;
+import com.tensurafragments.TensuraFragments;
 import io.github.manasmods.manascore.skill.api.ManasSkillInstance;
 import io.github.manasmods.tensura.ability.skill.Skill;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +25,12 @@ public class GambitCardsSkill extends Skill {
 
     public GambitCardsSkill() {
         super(SkillType.UNIQUE);
+    }
+
+    /** Tensura's default icon lookup always uses the "tensura" namespace, so point it at our own texture. */
+    @Override
+    public ResourceLocation getSkillIcon() {
+        return TensuraFragments.id("textures/skill/unique/gambit_cards.png");
     }
 
     @Override
