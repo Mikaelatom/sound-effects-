@@ -4,10 +4,13 @@ import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.flame.FlameEmperor;
 import com.tensurafragments.grimoire.SealingGrimoire;
 import com.tensurafragments.rainbow.RainbowMagic;
+import com.tensurafragments.shikigami.PaperBeasts;
 import com.tensurafragments.shikigami.ShikigamiControl;
+import com.tensurafragments.spirit.SpiritControl;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -24,6 +27,7 @@ public final class SkillEvents {
         }
         MomentumTracker.tick(player);
         GambitCards.tickDeck(player);
+        PaperBeasts.tick(player);
         if (player.tickCount % 40 == 0) {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
@@ -31,6 +35,7 @@ public final class SkillEvents {
             SealingGrimoire.grantSkill(player);
             RainbowMagic.grantSkill(player);
             FlameEmperor.grantSkill(player);
+            SpiritControl.grantSkill(player);
         }
     }
 
@@ -47,6 +52,21 @@ public final class SkillEvents {
         }
     }
 
+    /** Your body was hurt while you were seeing through a paper beast: back you go. */
+    @SubscribeEvent
+    public static void onDamaged(LivingDamageEvent.Post event) {
+        if (event.getEntity() instanceof ServerPlayer player && event.getNewDamage() > 0) {
+            PaperBeasts.onOwnerHurt(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            PaperBeasts.forget(player);
+        }
+    }
+
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -56,6 +76,7 @@ public final class SkillEvents {
             SealingGrimoire.grantSkill(player);
             RainbowMagic.grantSkill(player);
             FlameEmperor.grantSkill(player);
+            SpiritControl.grantSkill(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
         }
@@ -64,6 +85,7 @@ public final class SkillEvents {
     @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            PaperBeasts.release(player);
             GambitCards.sync(player);
         }
     }
@@ -71,6 +93,7 @@ public final class SkillEvents {
     @SubscribeEvent
     public static void onChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            PaperBeasts.release(player);
             GambitCards.sync(player);
         }
     }

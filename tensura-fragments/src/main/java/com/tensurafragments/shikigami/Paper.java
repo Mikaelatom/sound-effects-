@@ -41,6 +41,29 @@ public final class Paper {
         return player.getAbilities().instabuild || count(player) > 0 || countLeaves(player) > 0;
     }
 
+    /** Whether the player has {@code sheets} paper and leaves between them (creative players always do). */
+    public static boolean has(Player player, int sheets) {
+        return player.getAbilities().instabuild || count(player) + countLeaves(player) >= sheets;
+    }
+
+    /**
+     * Uses {@code sheets} paper or leaves (paper first). Returns the weakest potency used, or -1 if there wasn't
+     * enough (then nothing is used).
+     */
+    public static float consume(Player player, int sheets) {
+        if (!has(player, sheets)) {
+            return -1;
+        }
+        float potency = 1.0F;
+        for (int i = 0; i < sheets; i++) {
+            Talisman used = consume(player);
+            if (used != null) {
+                potency = Math.min(potency, used.potency());
+            }
+        }
+        return potency;
+    }
+
     /**
      * Uses one paper, or one leaf block if there's no paper. Returns what was used, or null if there was nothing.
      * Creative players use nothing and always get full-strength paper.

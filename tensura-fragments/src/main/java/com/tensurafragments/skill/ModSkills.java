@@ -5,6 +5,7 @@ import com.tensurafragments.flame.FlameEmperorSkill;
 import com.tensurafragments.grimoire.SealingGrimoireSkill;
 import com.tensurafragments.rainbow.RainbowMagicSkill;
 import com.tensurafragments.shikigami.ShikigamiControlSkill;
+import com.tensurafragments.spirit.SpiritControlSkill;
 import dev.architectury.registry.registries.RegistrySupplier;
 import io.github.manasmods.manascore.skill.api.ManasSkill;
 import io.github.manasmods.manascore.skill.impl.SkillRegistry;
@@ -21,6 +22,7 @@ public final class ModSkills {
     public static final RegistrySupplier<RainbowMagicSkill> RAINBOW_MAGIC =
             register("rainbow_talismans", RainbowMagicSkill::new);
     public static final RegistrySupplier<FlameEmperorSkill> FLAME_EMPEROR = register("flame_emperor", FlameEmperorSkill::new);
+    public static final RegistrySupplier<SpiritControlSkill> SPIRIT_CONTROL = register("spirit_control", SpiritControlSkill::new);
 
     private ModSkills() {
     }

@@ -9,8 +9,11 @@ import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.grimoire.GrimoireContents;
 import com.tensurafragments.grimoire.SealingGrimoireItem;
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
+import com.tensurafragments.shikigami.BeastKind;
+import com.tensurafragments.shikigami.PaperBeastEntity;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.shikigami.TalismanEntity;
+import com.tensurafragments.spirit.SpiritEntity;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
@@ -81,6 +84,15 @@ public final class ModRegistries {
             () -> EntityType.Builder.<HellStormEntity>of(HellStormEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(1).noSave().build("hell_storm"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> PAPER_OWL = paperBeast("paper_owl", 0.6F, 0.6F);
+    public static final DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> PAPER_HOUND = paperBeast("paper_hound", 0.8F, 1.0F);
+    public static final DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> PAPER_CAT = paperBeast("paper_cat", 0.6F, 0.8F);
+    public static final DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> PAPER_RABBIT = paperBeast("paper_rabbit", 0.5F, 0.6F);
+
+    public static final DeferredHolder<EntityType<?>, EntityType<SpiritEntity>> SPIRIT = ENTITY_TYPES.register("spirit",
+            () -> EntityType.Builder.<SpiritEntity>of(SpiritEntity::new, MobCategory.MISC)
+                    .sized(0.8F, 1.8F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("spirit"));
+
     /** Draconic Hellfire: Hell Storm's burn that never goes out. */
     public static final DeferredHolder<MobEffect, DraconicHellfireEffect> DRACONIC_HELLFIRE =
             MOB_EFFECTS.register("draconic_hellfire", DraconicHellfireEffect::new);
@@ -112,6 +124,18 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> FIRE_SPELL = ATTACHMENTS.register(
             "fire_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
+    /** Which paper beast Shikigami Control folds (index into BeastKind). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SELECTED_BEAST = ATTACHMENTS.register(
+            "selected_beast", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
+    /** Which spirit Spirit Control calls next (index into SpiritKind). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SPIRIT_INDEX = ATTACHMENTS.register(
+            "spirit_index", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
+    /** Whether your attacks call spirits (Spirit Link). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_LINK = ATTACHMENTS.register(
+            "spirit_link", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
@@ -119,13 +143,22 @@ public final class ModRegistries {
     private ModRegistries() {
     }
 
+    private static DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> paperBeast(String name, float width, float height) {
+        return ENTITY_TYPES.register(name, () -> EntityType.Builder.<PaperBeastEntity>of(PaperBeastEntity::new, MobCategory.MISC)
+                .sized(width, height).clientTrackingRange(10).updateInterval(1).build(name));
+    }
+
     static void register(IEventBus modEventBus) {
         ENTITY_TYPES.register(modEventBus);
         ITEMS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
         COMPONENTS.register(modEventBus);
-        modEventBus.addListener((EntityAttributeCreationEvent event) ->
-                event.put(SHIKIGAMI.get(), ShikigamiEntity.createAttributes().build()));
+        modEventBus.addListener((EntityAttributeCreationEvent event) -> {
+            event.put(SHIKIGAMI.get(), ShikigamiEntity.createAttributes().build());
+            for (BeastKind kind : BeastKind.values()) {
+                event.put(kind.type(), PaperBeastEntity.createAttributes(kind).build());
+            }
+        });
         SOUNDS.register(modEventBus);
         ATTACHMENTS.register(modEventBus);
     }

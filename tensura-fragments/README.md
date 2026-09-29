@@ -43,7 +43,21 @@ always used first. Things made from leaves have a green talisman.
 | **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
 | **Spell Talisman** | Throw your selected spell talisman. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
+| **Paper Beast** | Fold paper into the selected beast, just in front of you. It follows you and fights your enemies on its own until you possess it. It's paper: fire does triple damage, falls do nothing, and it falls apart if you leave. No limit on how many. **Sneak** to switch beast (see below). | The beast's paper + 40 magicules |
+| **Possess** | See through a paper beast's eyes and control it: the one you're looking at, or your nearest. Your movement keys and mouse steer it, attack is its attack, and your body stands still (and helpless) where you left it. Press again to come back. Taking damage, going over 96 blocks away, or running out of magicules snaps you back. **Sneak** (when not possessing) to unfold all your beasts. | 2 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
+
+**Paper beasts** are drawn with Tensura's own creature models and animations, folded from paper:
+
+| Beast | Paper | When you control it |
+|---|---|---|
+| **Owl** (Tensura's one-eyed owl) | 2 | Flies freely (jump: up, sneak: down, it flies the way you look). You see in the dark. Its peck (3) marks what it hits, glowing through walls for 10 seconds: a scout. |
+| **Hound** (Tensura's hound dog) | 3 | Fast runner with a hard bite (7 and knockback). Attacking with nothing in reach lunges forward. |
+| **Winged Cat** (Tensura's winged cat) | 2 | Strikes twice (4 + 4). Hold jump in the air to glide on its wings, faster than it runs; the glide gauge (under its name at the top of the screen) refills on the ground. |
+| **Horned Rabbit** (Tensura's horned rabbit) | 1 | Tiny and jumps very high. Its horn charge hits harder the faster it's moving (momentum!); attacking with nothing in reach charges forward. |
+
+Leaves work here too, and make a weaker beast. While you possess one, the top of the screen shows which beast and its
+health. Substitution still guards your body while you're away (a doll takes the hit and you stay in the beast).
 
 **Spell talismans** (after Seika's five-phase onmyōdō). Only Explosive can hurt you; the elemental ones spare you, your
 shikigami, your pets and your released grimoire creatures. Leaves make every spell weaker.
@@ -64,7 +78,7 @@ Costs scale with `spellCostMultiplier`.
 
 The HUD (bottom left, only while Shikigami Control is on your active skill preset) shows your paper (or leaves once
 the paper is gone), the Substitution doll (glows while it's on), a health and
-time bar per shikigami, the selected spell talisman, and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
+time bar per shikigami, the selected spell talisman and paper beast (with the paper it takes), and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 
@@ -138,6 +152,27 @@ magicules, 30 second cooldown.
 
 All numbers are in the `[flame]` section of the server config.
 
+## Skill 6: Spirit Control
+
+Every blow calls a spirit. A Unique skill, given to every player. While it's on your active skill preset, **each of
+your melee hits** calls the next spirit in line onto what you hit; it does one of its attacks and vanishes. They come
+in turn, using Tensura's own spirit models, textures and attack animations:
+
+| Spirit | Its attack | Damage |
+|---|---|---|
+| **Ifrit** | Appears beside you and hurls one of Tensura's fire balls (sets targets alight) | 12 |
+| **Sylphide** | Appears beside you and throws one of Tensura's wind blades | 12 |
+| **Undine** | Appears beside you and throws one of Tensura's water balls | 12 |
+| **War Gnome** | Rises beside the target and stomps: the ground bursts, everything within 3 blocks is hurt and thrown into the air | 14 |
+| **Blade Tiger** | Appears a few blocks off and pounces straight through the target, cutting everything on its path | 17 |
+
+**The skill key** sends the next spirit at whatever you're aiming at, up to 32 blocks away (a creature, or the spot you
+point at). **Sneak** + key turns **Spirit Link** (the melee part) off or on, so you can hit things without calling
+spirits. Spirits never hurt you, your shikigami, pets or released grimoire creatures.
+
+30 magicules per spirit, at most one every half second (so fast clicking doesn't flood the field). All numbers are in
+the `[spirits]` section of the server config.
+
 ## Original skills
 
 By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).
@@ -161,7 +196,10 @@ chaining), teleporting, the skill icons, turning blocks into shikigami (and need
 dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
 grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching
 and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura spells, all ten Flame Emperor fire
-spells, and Draconic Hell Storm (charge, damage, and a burn that can't be cured).
+spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), paper beasts (folding each one, paper cost,
+possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper) and
+Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
+allies).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
 casts Draconic Hell Storm and a Rainbow Magic spell, saves screenshots to `run/client/screenshots/`, and quits.

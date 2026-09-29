@@ -1,6 +1,7 @@
 package com.tensurafragments.client;
 
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
+import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.shikigami.ShikigamiEntity;
@@ -56,8 +57,14 @@ public final class ShikigamiHud {
         Spell spell = ClientShikigamiState.spell();
         int sx = x + 30;
         graphics.blit(TalismanRenderer.texture(spell), sx, y, 0, 0, 8, 16, 8, 16);
-        graphics.drawString(mc.font, Component.translatable("tensurafragments.spell." + spell.id()), sx + 11, y + 5,
-                spell.colour(), true);
+        Component spellName = Component.translatable("tensurafragments.spell." + spell.id());
+        graphics.drawString(mc.font, spellName, sx + 11, y + 5, spell.colour(), true);
+
+        // The paper beast that will be folded next, and the paper it takes.
+        BeastKind beast = ClientShikigamiState.beast();
+        graphics.drawString(mc.font, Component.translatable("tensurafragments.beast.hud",
+                        Component.translatable("tensurafragments.beast." + beast.id()), beast.paper()),
+                sx + 11 + mc.font.width(spellName) + 10, y + 5, 0xFFF4EFE0, true);
 
         int anchors = 0;
         boolean barrierUp = false;

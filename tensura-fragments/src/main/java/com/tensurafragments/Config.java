@@ -143,6 +143,19 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue SUBSTITUTION_BLINK_DISTANCE = BUILDER
             .comment("How far you blink away from the attacker when the paper doll takes the hit.")
             .defineInRange("substitutionBlinkDistance", 3.0, 0.0, 16.0);
+    public static final ModConfigSpec.DoubleValue PAPER_BEAST_MAGICULE_COST = BUILDER
+            .comment("Paper beasts: fold paper into an owl, hound, winged cat or horned rabbit. Magicules to fold one (the",
+                    "paper each takes is set per beast: owl 2, hound 3, cat 2, rabbit 1).")
+            .defineInRange("paperBeastMagiculeCost", 40.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue PAPER_BEAST_STRENGTH = BUILDER
+            .comment("Multiplier on paper beasts' health and damage.")
+            .defineInRange("paperBeastStrength", 1.0, 0.05, 100.0);
+    public static final ModConfigSpec.DoubleValue POSSESSION_MAGICULES_PER_SECOND = BUILDER
+            .comment("Magicules per second while you see through and control a paper beast.")
+            .defineInRange("possessionMagiculesPerSecond", 2.0, 0.0, 1.0E6);
+    public static final ModConfigSpec.DoubleValue POSSESSION_RANGE = BUILDER
+            .comment("How far a possessed beast can go from your body before the link snaps back.")
+            .defineInRange("possessionRange", 96.0, 8.0, 256.0);
 
     static {
         BUILDER.pop().comment("Sealing Grimoire: seal creatures and magic in a book with paper, then release them").push("grimoire");
@@ -220,6 +233,26 @@ public final class Config {
             .comment("Draconic Hellfire: the burn Hell Storm leaves never goes out, dealing this much every second until",
                     "the target dies.")
             .defineInRange("hellfireBurnPerSecond", 8.0, 0.0, 100000.0);
+
+    static {
+        BUILDER.pop().comment("Spirit Control: every attack calls a different spirit that strikes once and vanishes").push("spirits");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_SPIRIT_CONTROL = BUILDER
+            .comment("Give every player the Spirit Control skill.")
+            .define("grantSpiritControl", true);
+    public static final ModConfigSpec.DoubleValue SPIRIT_MAGICULE_COST = BUILDER
+            .comment("Magicules per spirit.")
+            .defineInRange("spiritMagiculeCost", 30.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.IntValue SPIRIT_INTERVAL_TICKS = BUILDER
+            .comment("Minimum ticks between two spirits, so each attack gets one and spam-clicking doesn't flood.")
+            .defineInRange("spiritIntervalTicks", 10, 0, 200);
+    public static final ModConfigSpec.DoubleValue SPIRIT_DAMAGE = BUILDER
+            .comment("Base damage of a spirit's attack (Ifrit, Sylphide and Undine x1, War Gnome x1.2, Blade Tiger x1.4).")
+            .defineInRange("spiritDamage", 12.0, 0.0, 100000.0);
+    public static final ModConfigSpec.DoubleValue SPIRIT_RANGE = BUILDER
+            .comment("How far away you can aim a spirit with the skill key.")
+            .defineInRange("spiritRange", 32.0, 4.0, 128.0);
 
     static {
         BUILDER.pop();

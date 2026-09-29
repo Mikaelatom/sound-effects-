@@ -3,6 +3,7 @@ package com.tensurafragments.client;
 import com.tensurafragments.flame.FireSpell;
 import com.tensurafragments.network.SyncShikigamiPayload;
 import com.tensurafragments.rainbow.RainbowSpell;
+import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.Spell;
 
 /** Substitution on/off and cooldown as last sent by the server, counted down locally. */
@@ -13,6 +14,7 @@ public final class ClientShikigamiState {
     private static Spell spell = Spell.EXPLOSIVE;
     private static RainbowSpell rainbowSpell = RainbowSpell.FIRE_BALL;
     private static FireSpell fireSpell = FireSpell.FIRE_BOLT;
+    private static BeastKind beast = BeastKind.OWL;
 
     private ClientShikigamiState() {
     }
@@ -24,6 +26,7 @@ public final class ClientShikigamiState {
         spell = Spell.byIndex(payload.spell());
         rainbowSpell = RainbowSpell.byIndex(payload.rainbowSpell());
         fireSpell = FireSpell.byIndex(payload.fireSpell());
+        beast = BeastKind.byIndex(payload.beast());
     }
 
     static void tick() {
@@ -42,6 +45,10 @@ public final class ClientShikigamiState {
 
     public static RainbowSpell rainbowSpell() {
         return rainbowSpell;
+    }
+
+    public static BeastKind beast() {
+        return beast;
     }
 
     public static boolean isEnabled() {

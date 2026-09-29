@@ -273,7 +273,7 @@ public final class ShikigamiControl {
         int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - player.level().getGameTime());
         PacketDistributor.sendToPlayer(player, new SyncShikigamiPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED),
                 cooldown, player.getData(ModRegistries.SELECTED_SPELL), player.getData(ModRegistries.RAINBOW_SPELL),
-                player.getData(ModRegistries.FIRE_SPELL)));
+                player.getData(ModRegistries.FIRE_SPELL), player.getData(ModRegistries.SELECTED_BEAST)));
     }
 
     // ---- Shared ------------------------------------------------------------------------------------------------

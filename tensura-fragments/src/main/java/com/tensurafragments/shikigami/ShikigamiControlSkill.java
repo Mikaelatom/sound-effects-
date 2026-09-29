@@ -16,6 +16,8 @@ import net.minecraft.world.entity.player.Player;
  *   <li>Talisman: throw the selected spell talisman (sneak: switch spell)</li>
  *   <li>Barrier: plant a talisman anchor (sneak: raise or dispel the barrier)</li>
  *   <li>Substitution: turn the automatic paper-doll dodge on or off (on by default)</li>
+ *   <li>Paper Beast: fold paper into the selected beast (sneak: switch beast)</li>
+ *   <li>Possess: see through a paper beast and control it; press again to come back (sneak: unfold all beasts)</li>
  * </ol>
  * Magicules are charged by {@link ShikigamiControl} only when an action actually happens.
  */
@@ -24,7 +26,9 @@ public class ShikigamiControlSkill extends Skill {
     public static final int MODE_TALISMAN = 1;
     public static final int MODE_BARRIER = 2;
     public static final int MODE_SUBSTITUTION = 3;
-    private static final String[] MODE_IDS = {"shikigami", "talisman", "barrier", "substitution"};
+    public static final int MODE_BEAST = 4;
+    public static final int MODE_POSSESS = 5;
+    private static final String[] MODE_IDS = {"shikigami", "talisman", "barrier", "substitution", "beast", "possess"};
 
     public ShikigamiControlSkill() {
         super(SkillType.UNIQUE);
@@ -80,6 +84,20 @@ public class ShikigamiControlSkill extends Skill {
                 yield ShikigamiControl.placeAnchor(player);
             }
             case MODE_SUBSTITUTION -> ShikigamiControl.toggleSubstitution(player);
+            case MODE_BEAST -> {
+                if (sneaking) {
+                    PaperBeasts.cycleKind(player);
+                    yield false;
+                }
+                yield PaperBeasts.fold(player);
+            }
+            case MODE_POSSESS -> {
+                if (sneaking && PaperBeasts.possessed(player) == null) {
+                    PaperBeasts.dismissAll(player);
+                    yield false;
+                }
+                yield PaperBeasts.togglePossession(player);
+            }
             default -> false;
         };
         if (used) {

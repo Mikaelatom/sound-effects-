@@ -2,6 +2,7 @@ package com.tensurafragments.client;
 
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.shikigami.BeastKind;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -21,6 +22,10 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModRegistries.BARRIER_ANCHOR.get(), BarrierAnchorRenderer::new);
         event.registerEntityRenderer(ModRegistries.HELL_CIRCLE.get(), HellCircleRenderer::new);
         event.registerEntityRenderer(ModRegistries.HELL_STORM.get(), HellStormRenderer::new);
+        for (BeastKind kind : BeastKind.values()) {
+            event.registerEntityRenderer(kind.type(), context -> new PaperBeastRenderer(context, kind));
+        }
+        event.registerEntityRenderer(ModRegistries.SPIRIT.get(), SpiritRenderer::new);
     }
 
     @SubscribeEvent
@@ -30,5 +35,6 @@ public final class ClientSetup {
         event.registerAboveAll(TensuraFragments.id("grimoire_hud"), GrimoireHud::render);
         event.registerAboveAll(TensuraFragments.id("rainbow_hud"), RainbowHud::render);
         event.registerAboveAll(TensuraFragments.id("flame_hud"), FlameHud::render);
+        event.registerAboveAll(TensuraFragments.id("possession_hud"), ClientPossession::renderHud);
     }
 }
