@@ -15,6 +15,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -57,7 +58,7 @@ public final class FlameGameTests {
     public static void hellStormBurnsWhatItTouchesForever(GameTestHelper helper) {
         ServerPlayer player = emperor(helper, 4.5, 0.5);
         Husk husk = helper.spawnWithNoFreeWill(EntityType.HUSK, new Vec3(4.5, GROUND, 6.5));
-        husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);
+        husk.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
         husk.setHealth(1000);
         player.lookAt(EntityAnchorArgument.Anchor.EYES, husk.position().add(0, 1, 0));
         helper.assertTrue(FlameEmperor.hellStorm(player), "hell storm cast");
@@ -74,6 +75,43 @@ public final class FlameGameTests {
         helper.runAfterDelay(130, () -> {
             helper.assertTrue(husk.hasEffect(ModRegistries.DRACONIC_HELLFIRE) && husk.isOnFire(),
                     "still burning long after the storm ended");
+            helper.succeed();
+        });
+    }
+
+    private static Husk dummy(GameTestHelper helper, double x, double z) {
+        Husk husk = helper.spawnWithNoFreeWill(EntityType.HUSK, new Vec3(x, GROUND, z));
+        husk.setNoGravity(true);
+        husk.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+        husk.setHealth(1000);
+        return husk;
+    }
+
+    /** The storm burns the cone the mist is drawn as: thin at the hand, wide far out, nothing behind or beside you. */
+    @GameTest(template = "platform", timeoutTicks = 100)
+    public static void hellStormHitsOnlyTheMistInFront(GameTestHelper helper) {
+        ServerPlayer player = emperor(helper, 4.5, 0.5);
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, player.getEyePosition().add(0, 0, 30));
+        Husk ahead = dummy(helper, 4.5, 6.5);
+        Husk behind = dummy(helper, 4.5, -2.5);
+        Husk besideTheHand = dummy(helper, 7.0, 3.0);
+        Husk wideFarOut = dummy(helper, 7.0, 8.0);
+        helper.assertTrue(FlameEmperor.hellStorm(player), "hell storm cast");
+
+        helper.runAfterDelay(50, () -> {
+            HellStormEntity storm = helper.getLevel().getEntitiesOfClass(HellStormEntity.class,
+                    new AABB(player.blockPosition()).inflate(4)).stream().findFirst().orElse(null);
+            helper.assertTrue(storm != null, "storm pouring out");
+            helper.assertTrue(storm.position().subtract(player.getEyePosition()).dot(player.getLookAngle()) > 0.5,
+                    "the storm starts in front of the caster");
+            // The next test's structure is a wall about 7 blocks out; the storm stops there and keeps its cone shape.
+            helper.assertTrue(storm.getLength() > 6.5, "the storm reaches out, length " + storm.getLength());
+            helper.assertTrue(ahead.getHealth() < 1000, "straight ahead burns");
+            helper.assertTrue(wideFarOut.getHealth() < 1000, "the wide far end of the mist burns");
+            helper.assertTrue(behind.getHealth() == 1000 && !behind.hasEffect(ModRegistries.DRACONIC_HELLFIRE),
+                    "nothing behind the caster burns");
+            helper.assertTrue(besideTheHand.getHealth() == 1000 && !besideTheHand.hasEffect(ModRegistries.DRACONIC_HELLFIRE),
+                    "the mist is thin at the hand, so beside it is safe");
             helper.succeed();
         });
     }

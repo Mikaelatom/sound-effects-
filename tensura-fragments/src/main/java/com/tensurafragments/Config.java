@@ -208,9 +208,10 @@ public final class Config {
             .defineInRange("hellStormDurationTicks", 60, 1, 1200);
     public static final ModConfigSpec.DoubleValue HELL_STORM_RANGE = BUILDER
             .defineInRange("hellStormRange", 18.0, 1.0, 64.0);
-    public static final ModConfigSpec.DoubleValue HELL_STORM_WIDTH = BUILDER
-            .comment("Radius of the storm around its centre line.")
-            .defineInRange("hellStormWidth", 2.5, 0.5, 16.0);
+    public static final ModConfigSpec.DoubleValue HELL_STORM_END_RADIUS = BUILDER
+            .comment("The storm is Gluttony's mist: a cone, thin at your hand and this wide (radius) at its far end.",
+                    "The mist is drawn to match, so what you see is what burns.")
+            .defineInRange("hellStormEndRadius", 5.0, 0.5, 16.0);
     public static final ModConfigSpec.DoubleValue HELL_STORM_DAMAGE = BUILDER
             .comment("Fire damage per hit. Anything in the storm is hit 4 times a second.")
             .defineInRange("hellStormDamage", 20.0, 0.0, 10000.0);

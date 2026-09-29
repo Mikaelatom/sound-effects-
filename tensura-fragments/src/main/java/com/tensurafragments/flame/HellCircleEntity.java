@@ -57,6 +57,10 @@ public class HellCircleEntity extends Entity implements GeoEntity {
         builder.define(CASTER, -1);
     }
 
+    public int getCasterId() {
+        return entityData.get(CASTER);
+    }
+
     @Override
     public void tick() {
         super.tick();

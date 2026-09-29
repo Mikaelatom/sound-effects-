@@ -42,6 +42,9 @@ public class HellStormEntity extends Entity implements GeoEntity {
     /** How far the storm reaches right now (it stops at walls). Synced so the model is drawn the right length. */
     private static final EntityDataAccessor<Float> LENGTH =
             SynchedEntityData.defineId(HellStormEntity.class, EntityDataSerializers.FLOAT);
+    /** The cone's radius at its far end. Synced so the model is drawn exactly as wide as it burns. */
+    private static final EntityDataAccessor<Float> END_RADIUS =
+            SynchedEntityData.defineId(HellStormEntity.class, EntityDataSerializers.FLOAT);
     private static final RawAnimation ANIMATION = RawAnimation.begin()
             .thenPlay("animation.gluttony_mist.start").thenLoop("animation.gluttony_mist.loop");
 
@@ -57,6 +60,7 @@ public class HellStormEntity extends Entity implements GeoEntity {
         HellStormEntity storm = new HellStormEntity(ModRegistries.HELL_STORM.get(), caster.level());
         storm.entityData.set(CASTER, caster.getId());
         storm.duration = duration;
+        storm.entityData.set(END_RADIUS, Config.HELL_STORM_END_RADIUS.get().floatValue());
         HellStormParts.follow(storm, caster);
         return storm;
     }
@@ -65,10 +69,19 @@ public class HellStormEntity extends Entity implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(CASTER, -1);
         builder.define(LENGTH, 18.0F);
+        builder.define(END_RADIUS, 5.0F);
+    }
+
+    public int getCasterId() {
+        return entityData.get(CASTER);
     }
 
     public float getLength() {
         return entityData.get(LENGTH);
+    }
+
+    public float getEndRadius() {
+        return entityData.get(END_RADIUS);
     }
 
     @Override
@@ -93,11 +106,13 @@ public class HellStormEntity extends Entity implements GeoEntity {
         entityData.set(LENGTH, (float) length);
         Vec3 to = from.add(direction.scale(length));
 
-        // Flames along the storm and a burst where it hits.
-        for (int i = 0; i < 6; i++) {
-            Vec3 p = from.add(direction.scale(random.nextDouble() * length));
+        // Flames through the cone and a burst where it hits.
+        for (int i = 0; i < 8; i++) {
+            double along = random.nextDouble() * length;
+            double spread = HellStormParts.radiusAt(along, length, getEndRadius()) * 0.6;
+            Vec3 p = from.add(direction.scale(along));
             level.sendParticles(random.nextBoolean() ? ParticleTypes.FLAME : TensuraParticleTypes.RED_FIRE.get(),
-                    p.x, p.y, p.z, 1, 0.6, 0.6, 0.6, 0.05);
+                    p.x, p.y, p.z, 1, spread, spread, spread, 0.05);
         }
         level.sendParticles(ParticleTypes.LAVA, to.x, to.y, to.z, 3, 0.8, 0.4, 0.8, 0);
         if (tickCount % 10 == 0) {
@@ -110,13 +125,14 @@ public class HellStormEntity extends Entity implements GeoEntity {
     }
 
     private void burn(ServerLevel level, ServerPlayer caster, Vec3 from, Vec3 to) {
-        double width = Config.HELL_STORM_WIDTH.get();
-        AABB box = new AABB(from, to).inflate(width);
+        double endRadius = getEndRadius();
+        double length = from.distanceTo(to);
+        Vec3 direction = to.subtract(from).normalize();
+        AABB box = new AABB(from, to).inflate(endRadius);
         DamageSource source = level.damageSources().source(TensuraDamageTypes.BLACK_FLAME, this, caster);
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, box,
                 e -> e.isAlive() && !e.isSpectator() && !Spell.isAlly(e, caster))) {
-            Vec3 centre = target.position().add(0, target.getBbHeight() / 2, 0);
-            if (distanceToSegment(centre, from, to) > width + target.getBbWidth() / 2) {
+            if (!insideCone(target, from, direction, length, endRadius)) {
                 continue;
             }
             target.invulnerableTime = 0;
@@ -126,11 +142,24 @@ public class HellStormEntity extends Entity implements GeoEntity {
         }
     }
 
-    private static double distanceToSegment(Vec3 point, Vec3 a, Vec3 b) {
-        Vec3 ab = b.subtract(a);
-        double lengthSqr = ab.lengthSqr();
-        double t = lengthSqr < 1.0E-9 ? 0 : Math.max(0, Math.min(1, point.subtract(a).dot(ab) / lengthSqr));
-        return point.distanceTo(a.add(ab.scale(t)));
+    /** Whether any of the target's body is inside the mist's cone (the same shape the client draws). */
+    private static boolean insideCone(LivingEntity target, Vec3 from, Vec3 direction, double length, double endRadius) {
+        double reach = target.getBbWidth() / 2;
+        double halfHeight = target.getBbHeight() / 2;
+        Vec3 centre = target.position().add(0, halfHeight, 0);
+        double along = centre.subtract(from).dot(direction);
+        // Anything behind the hand is out, however wide the storm.
+        if (along < -reach || along > length + reach) {
+            return false;
+        }
+        double clamped = Math.max(0, Math.min(length, along));
+        Vec3 axisPoint = from.add(direction.scale(clamped));
+        // Nearest point of the target's box to the storm's centre line.
+        AABB body = target.getBoundingBox();
+        Vec3 nearest = new Vec3(Math.max(body.minX, Math.min(body.maxX, axisPoint.x)),
+                Math.max(body.minY, Math.min(body.maxY, axisPoint.y)),
+                Math.max(body.minZ, Math.min(body.maxZ, axisPoint.z)));
+        return nearest.distanceTo(axisPoint) <= HellStormParts.radiusAt(clamped, length, endRadius);
     }
 
     @Override
