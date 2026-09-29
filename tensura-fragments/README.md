@@ -43,12 +43,11 @@ always used first. Things made from leaves have a green talisman.
 | **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). Up to 3; a 4th replaces the oldest. **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
 | **Talisman** | Throw a paper talisman that explodes on impact (3-block radius). Same blast rules as the cards: it hurts you if you're close, and it sets off cards. | 1 paper + 20 magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
-| **Substitution** | Ready a paper doll for half a second. If you're hit in that window, the doll takes the hit: no damage, you lose 1 paper and blink 3 blocks away from the attacker. A good dodge is ready again at once; a mistimed one goes on a 2 second cooldown. | 1 paper when it triggers |
+| **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
 
 The HUD (bottom left, only while Shikigami Control is on your active skill preset) shows your paper (or leaves once
-the paper is gone), the Substitution doll (glows while ready, grey bar on cooldown), a health and
-time bar per shikigami, and your barrier anchors (◇ placed, ◆ barrier up). Server owners who prefer a passive dodge
-can set `autoSubstitution = true`. All numbers are in the `[shikigami]` section of the server config.
+the paper is gone), the Substitution doll (glows while it's on), a health and
+time bar per shikigami, and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 

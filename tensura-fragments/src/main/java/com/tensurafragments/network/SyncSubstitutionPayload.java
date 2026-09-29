@@ -8,11 +8,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/** Server tells the client how long the Substitution window and cooldown have left, for the HUD. */
-public record SyncSubstitutionPayload(int windowTicks, int cooldownTicks) implements CustomPacketPayload {
+/** Server tells the client whether Substitution is on and how long its cooldown has left, for the HUD. */
+public record SyncSubstitutionPayload(boolean enabled, int cooldownTicks) implements CustomPacketPayload {
     public static final Type<SyncSubstitutionPayload> TYPE = new Type<>(TensuraFragments.id("sync_substitution"));
     public static final StreamCodec<ByteBuf, SyncSubstitutionPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, SyncSubstitutionPayload::windowTicks,
+            ByteBufCodecs.BOOL, SyncSubstitutionPayload::enabled,
             ByteBufCodecs.VAR_INT, SyncSubstitutionPayload::cooldownTicks,
             SyncSubstitutionPayload::new);
 

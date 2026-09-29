@@ -113,28 +113,52 @@ public final class ShikigamiGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "platform")
-    public static void substitutionTakesTheHit(GameTestHelper helper) {
-        ServerPlayer player = caster(helper, 4.5, 4.5, 2);
-        helper.assertTrue(ShikigamiControl.readySubstitution(player), "doll readied");
-        player.hurt(player.damageSources().generic(), 6.0F);
+    /** A real hit from a mob, which is what Substitution reacts to. */
+    private static void hitByMob(GameTestHelper helper, ServerPlayer player, float amount) {
+        Pig attacker = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(4.5, GROUND, 6.5));
+        player.hurt(player.damageSources().mobAttack(attacker), amount);
+    }
 
-        helper.assertTrue(player.getHealth() == player.getMaxHealth(), "the paper doll took the hit");
+    @GameTest(template = "platform")
+    public static void substitutionIsAutomaticWithPaper(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 2);
+        hitByMob(helper, player, 6.0F);
+
+        helper.assertTrue(player.getHealth() == player.getMaxHealth(), "the paper doll took the hit, no button needed");
         helper.assertTrue(Paper.count(player) == 1, "one paper used");
         helper.succeed();
     }
 
-    @GameTest(template = "platform", timeoutTicks = 100)
-    public static void mistimedSubstitutionGoesOnCooldown(GameTestHelper helper) {
+    @GameTest(template = "platform")
+    public static void noPaperNoSubstitution(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 0);
+        hitByMob(helper, player, 6.0F);
+
+        helper.assertTrue(player.getHealth() < player.getMaxHealth(), "without paper the hit lands");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void substitutionCanBeTurnedOff(GameTestHelper helper) {
         ServerPlayer player = caster(helper, 4.5, 4.5, 2);
-        helper.assertTrue(ShikigamiControl.readySubstitution(player), "doll readied");
-        helper.runAfterDelay(20, () -> {
-            player.hurt(player.damageSources().generic(), 6.0F);
-            helper.assertTrue(player.getHealth() < player.getMaxHealth(), "hit after the window lands");
-            helper.assertTrue(Paper.count(player) == 2, "no paper used");
-            helper.assertFalse(ShikigamiControl.readySubstitution(player), "whiff puts it on cooldown");
-            helper.succeed();
-        });
+        ShikigamiControl.toggleSubstitution(player);
+        hitByMob(helper, player, 6.0F);
+
+        helper.assertTrue(player.getHealth() < player.getMaxHealth(), "turned off: the hit lands");
+        helper.assertTrue(Paper.count(player) == 2, "and no paper is used");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void fallingAndBurningDontUsePaper(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 2);
+        player.hurt(player.damageSources().fall(), 3.0F);
+        player.invulnerableTime = 0;
+        player.hurt(player.damageSources().onFire(), 1.0F);
+
+        helper.assertTrue(player.getHealth() < player.getMaxHealth(), "environmental damage isn't dodged");
+        helper.assertTrue(Paper.count(player) == 2, "so it doesn't eat paper");
+        helper.succeed();
     }
 
     @GameTest(template = "platform")
@@ -207,8 +231,7 @@ public final class ShikigamiGameTests {
     public static void leafDollOnlyBlocksPartOfTheHit(GameTestHelper helper) {
         ServerPlayer player = caster(helper, 4.5, 4.5, 0);
         player.getInventory().add(new ItemStack(Items.OAK_LEAVES, 1));
-        helper.assertTrue(ShikigamiControl.readySubstitution(player), "leaf doll readied");
-        player.hurt(player.damageSources().generic(), 8.0F);
+        hitByMob(helper, player, 8.0F);
 
         float taken = player.getMaxHealth() - player.getHealth();
         helper.assertTrue(taken > 0 && taken < 8.0F, "leaf doll should block some but not all of the hit, took " + taken);

@@ -30,7 +30,7 @@ public final class SkillEvents {
         }
     }
 
-    /** A readied paper doll (Shikigami Control's Substitution) takes the hit instead of you. */
+    /** While Shikigami Control's Substitution is on, a paper doll takes the hit instead of you. */
     @SubscribeEvent
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -51,6 +51,7 @@ public final class SkillEvents {
             ShikigamiControl.grantSkill(player);
             SealingGrimoire.grantSkill(player);
             GambitCards.sync(player);
+            ShikigamiControl.sync(player);
         }
     }
 

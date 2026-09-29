@@ -42,9 +42,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * inventory is the ammo. Triggered through {@link ShikigamiControlSkill}.
  */
 public final class ShikigamiControl {
-    /** Game time until which the paper doll is ready, per player. */
-    private static final Map<UUID, Long> SUBSTITUTION_WINDOW = new HashMap<>();
-    /** Game time until which Substitution can't be used again, per player. */
+    /** Game time until which Substitution can't trigger again, per player. */
     private static final Map<UUID, Long> SUBSTITUTION_COOLDOWN = new HashMap<>();
 
     private ShikigamiControl() {
@@ -183,46 +181,38 @@ public final class ShikigamiControl {
 
     // ---- Substitution ------------------------------------------------------------------------------------------
 
-    /** Readies a paper doll for a short window. Taking a hit in the window is blocked; missing it costs a cooldown. */
-    public static boolean readySubstitution(ServerPlayer player) {
-        long now = player.level().getGameTime();
-        if (now < SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L)) {
-            player.displayClientMessage(Component.translatable("tensurafragments.shikigami.substitution_cooldown"), true);
-            return false;
-        }
-        if (!Paper.has(player)) {
-            player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_paper"), true);
-            return false;
-        }
-        int window = Config.SUBSTITUTION_WINDOW_TICKS.get();
-        SUBSTITUTION_WINDOW.put(player.getUUID(), now + window);
-        // Whiffing puts it on cooldown; a successful dodge clears this.
-        SUBSTITUTION_COOLDOWN.put(player.getUUID(), now + window + Config.SUBSTITUTION_WHIFF_COOLDOWN_TICKS.get());
-        sync(player);
+    /** Turns automatic Substitution on or off (it's on by default), so you can save your paper. */
+    public static boolean toggleSubstitution(ServerPlayer player) {
+        boolean enabled = !player.getData(ModRegistries.SUBSTITUTION_ENABLED);
+        player.setData(ModRegistries.SUBSTITUTION_ENABLED, enabled);
+        player.displayClientMessage(Component.translatable(enabled
+                ? "tensurafragments.shikigami.substitution_on" : "tensurafragments.shikigami.substitution_off"), true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,
-                SoundSource.PLAYERS, 0.6F, 2.0F);
-        return true;
+                SoundSource.PLAYERS, 0.6F, enabled ? 2.0F : 1.2F);
+        sync(player);
+        return false;
     }
 
     /**
-     * Called when the player is about to take damage. If a doll takes the hit, returns how much of the damage
-     * still gets through: 0 for a paper doll, more for a leaf doll. Returns 1 if nothing happened.
+     * Called when the player is about to be hit. While Substitution is on and they have paper, a paper doll takes the
+     * hit and they blink away. Only real attacks count (something hit them, or a blast went off near them), so
+     * burning, drowning, falling and the like don't eat paper. Returns how much of the damage still gets through:
+     * 0 for a paper doll, more for a leaf doll, 1 if no doll was used.
      */
     public static float trySubstitute(ServerPlayer player, DamageSource source) {
-        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || !hasSkill(player) || !Paper.has(player)) {
+        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || !hasSkill(player)
+                || !player.getData(ModRegistries.SUBSTITUTION_ENABLED) || !Paper.has(player)
+                || (source.getEntity() == null && source.getDirectEntity() == null && source.getSourcePosition() == null)) {
             return 1;
         }
         long now = player.level().getGameTime();
         UUID id = player.getUUID();
-        boolean windowOpen = now <= SUBSTITUTION_WINDOW.getOrDefault(id, -1L);
-        boolean auto = Config.AUTO_SUBSTITUTION.get() && now >= SUBSTITUTION_COOLDOWN.getOrDefault(id, 0L);
-        if (!windowOpen && !auto) {
+        if (now < SUBSTITUTION_COOLDOWN.getOrDefault(id, 0L)) {
             return 1;
         }
 
         Paper.Talisman doll = Paper.consume(player);
-        SUBSTITUTION_WINDOW.remove(id);
-        SUBSTITUTION_COOLDOWN.put(id, auto && !windowOpen ? now + Config.AUTO_SUBSTITUTION_COOLDOWN_TICKS.get() : now);
+        SUBSTITUTION_COOLDOWN.put(id, now + Config.SUBSTITUTION_COOLDOWN_TICKS.get());
 
         ServerLevel level = player.serverLevel();
         Vec3 from = player.position();
@@ -259,15 +249,11 @@ public final class ShikigamiControl {
         }
     }
 
-    public static boolean isSubstitutionReady(ServerPlayer player) {
-        return player.level().getGameTime() <= SUBSTITUTION_WINDOW.getOrDefault(player.getUUID(), -1L);
-    }
-
-    private static void sync(ServerPlayer player) {
-        long now = player.level().getGameTime();
-        int window = (int) Math.max(0, SUBSTITUTION_WINDOW.getOrDefault(player.getUUID(), 0L) - now);
-        int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - now);
-        PacketDistributor.sendToPlayer(player, new SyncSubstitutionPayload(window, cooldown));
+    /** Sends the Substitution state to the client for the HUD. */
+    public static void sync(ServerPlayer player) {
+        int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - player.level().getGameTime());
+        PacketDistributor.sendToPlayer(player,
+                new SyncSubstitutionPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED), cooldown));
     }
 
     // ---- Shared ------------------------------------------------------------------------------------------------

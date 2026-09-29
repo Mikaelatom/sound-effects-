@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
  *   <li>Shikigami: turn the block you look at into a helper (sneak: dismiss all)</li>
  *   <li>Talisman: throw an exploding paper talisman</li>
  *   <li>Barrier: plant a talisman anchor (sneak: raise or dispel the barrier)</li>
- *   <li>Substitution: ready a paper doll that takes the next hit in a short window</li>
+ *   <li>Substitution: turn the automatic paper-doll dodge on or off (on by default)</li>
  * </ol>
  * Magicules are charged by {@link ShikigamiControl} only when an action actually happens.
  */
@@ -73,7 +73,7 @@ public class ShikigamiControlSkill extends Skill {
                 }
                 yield ShikigamiControl.placeAnchor(player);
             }
-            case MODE_SUBSTITUTION -> ShikigamiControl.readySubstitution(player);
+            case MODE_SUBSTITUTION -> ShikigamiControl.toggleSubstitution(player);
             default -> false;
         };
         if (used) {

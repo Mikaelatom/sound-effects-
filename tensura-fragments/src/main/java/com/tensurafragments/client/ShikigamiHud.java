@@ -14,8 +14,8 @@ import net.minecraft.world.item.Items;
 
 /**
  * Bottom-left HUD for Shikigami Control, shown while it's on the active skill preset: paper count (or leaves once
- * the paper runs out), the Substitution doll (bright while the window is open,
- * greyed with a bar while on cooldown), one timer bar per shikigami, and barrier anchors placed.
+ * the paper runs out), the Substitution doll (glowing while automatic dodging is on,
+ * with a bar while on cooldown), one timer bar per shikigami, and barrier anchors placed.
  */
 public final class ShikigamiHud {
     private static final ItemStack PAPER = new ItemStack(Items.PAPER);
@@ -33,20 +33,20 @@ public final class ShikigamiHud {
         int x = 8;
         int y = graphics.guiHeight() - 40;
 
-        // Paper, with the Substitution state drawn behind it.
-        if (ClientShikigamiState.isWindowOpen()) {
-            graphics.fill(x - 2, y - 2, x + 18, y + 18, 0xA0FFE08A);
-        }
+        // Paper, with a glow behind it while automatic Substitution is on.
         int paper = Paper.count(mc.player);
         int leaves = Paper.countLeaves(mc.player);
         // Show leaves in place of paper once the paper runs out, since that's what will be used next.
         boolean usingLeaves = paper == 0 && leaves > 0;
+        if (ClientShikigamiState.isEnabled() && (paper > 0 || leaves > 0)) {
+            graphics.fill(x - 2, y - 2, x + 18, y + 18, usingLeaves ? 0x6096E078 : 0x60FFE08A);
+        }
         graphics.renderItem(usingLeaves ? LEAVES : PAPER, x, y);
         int shown = usingLeaves ? leaves : paper;
         graphics.drawString(mc.font, String.valueOf(shown), x + 18, y + 5,
                 shown > 0 ? (usingLeaves ? 0xFF9BE07C : 0xFFFFFFFF) : 0xFFFF6060, true);
         float cooldown = ClientShikigamiState.cooldownFraction();
-        if (cooldown > 0 && !ClientShikigamiState.isWindowOpen()) {
+        if (cooldown > 0) {
             graphics.fill(x, y + 17, x + Math.round(16 * cooldown), y + 19, 0xFFB0B0B0);
         }
 

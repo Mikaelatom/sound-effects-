@@ -119,17 +119,10 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue BARRIER_DAMAGE_PER_SECOND = BUILDER
             .comment("Damage per second to hostile mobs caught inside the barrier while being pushed out.")
             .defineInRange("barrierDamagePerSecond", 2.0, 0.0, 1000.0);
-    public static final ModConfigSpec.IntValue SUBSTITUTION_WINDOW_TICKS = BUILDER
-            .comment("How long the paper doll is ready after you use Substitution. Get hit in this window and it takes the hit.")
-            .defineInRange("substitutionWindowTicks", 10, 1, 200);
-    public static final ModConfigSpec.IntValue SUBSTITUTION_WHIFF_COOLDOWN_TICKS = BUILDER
-            .comment("Cooldown if the window passes without a hit.")
-            .defineInRange("substitutionWhiffCooldownTicks", 40, 0, 1200);
-    public static final ModConfigSpec.BooleanValue AUTO_SUBSTITUTION = BUILDER
-            .comment("If true, any paper in your inventory blocks hits automatically (no timing needed), with the cooldown below.")
-            .define("autoSubstitution", false);
-    public static final ModConfigSpec.IntValue AUTO_SUBSTITUTION_COOLDOWN_TICKS = BUILDER
-            .defineInRange("autoSubstitutionCooldownTicks", 60, 0, 1200);
+    public static final ModConfigSpec.IntValue SUBSTITUTION_COOLDOWN_TICKS = BUILDER
+            .comment("Substitution is automatic: while it's on and you have paper, every attack is taken by a paper doll.",
+                    "Minimum ticks between two dolls (you're already invulnerable for a second after each one).")
+            .defineInRange("substitutionCooldownTicks", 0, 0, 1200);
     public static final ModConfigSpec.DoubleValue SUBSTITUTION_BLINK_DISTANCE = BUILDER
             .comment("How far you blink away from the attacker when the paper doll takes the hit.")
             .defineInRange("substitutionBlinkDistance", 3.0, 0.0, 16.0);

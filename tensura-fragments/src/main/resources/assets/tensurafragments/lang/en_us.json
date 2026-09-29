@@ -17,7 +17,7 @@
   "tensurafragments.skill.mode.shikigami_control.shikigami": "Shikigami (sneak: dismiss all)",
   "tensurafragments.skill.mode.shikigami_control.talisman": "Explosive Talisman",
   "tensurafragments.skill.mode.shikigami_control.barrier": "Barrier Talisman (sneak: raise / dispel)",
-  "tensurafragments.skill.mode.shikigami_control.substitution": "Substitution",
+  "tensurafragments.skill.mode.shikigami_control.substitution": "Substitution: on / off",
   "tensurafragments.shikigami.no_block": "Look at a block",
   "tensurafragments.shikigami.bad_block": "That block can't become a shikigami",
   "tensurafragments.shikigami.no_paper": "You need paper",
@@ -26,7 +26,6 @@
   "tensurafragments.shikigami.barrier_already_up": "Your barrier is already up (sneak to dispel it)",
   "tensurafragments.shikigami.too_many_anchors": "You can only place %s barrier talismans",
   "tensurafragments.shikigami.barrier_collapsed": "Your barrier collapsed: out of magicules",
-  "tensurafragments.shikigami.substitution_cooldown": "The paper doll isn't ready yet",
   "item.tensurafragments.sealing_grimoire": "Sealing Grimoire",
   "tensurafragments.skill.sealing_grimoire": "Sealing Grimoire",
   "tensurafragments.skill.sealing_grimoire.description": "§oAn empty book that hungers. Weaken a creature and bind it with paper, catch a spell mid-flight, and call them back out when you need them.",
@@ -44,5 +43,7 @@
   "tensurafragments.grimoire.selected": "Page %s: %s",
   "tensurafragments.grimoire.page_lost": "The page for %s crumbled",
   "tensurafragments.grimoire.faded": "%s faded away: no room in the grimoire",
-  "tensurafragments.grimoire.catch_cooldown": "The grimoire isn't ready yet"
+  "tensurafragments.grimoire.catch_cooldown": "The grimoire isn't ready yet",
+  "tensurafragments.shikigami.substitution_on": "Substitution on: paper dolls will take hits for you",
+  "tensurafragments.shikigami.substitution_off": "Substitution off: saving your paper"
 }

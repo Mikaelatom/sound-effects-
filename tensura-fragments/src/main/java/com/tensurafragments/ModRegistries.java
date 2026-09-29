@@ -78,6 +78,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Binding>> BINDING = ATTACHMENTS.register("binding",
             () -> AttachmentType.<Binding>builder(() -> null).serialize(Binding.CODEC).build());
 
+    /** Whether Shikigami Control's automatic Substitution is on. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SUBSTITUTION_ENABLED = ATTACHMENTS.register(
+            "substitution_enabled", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
