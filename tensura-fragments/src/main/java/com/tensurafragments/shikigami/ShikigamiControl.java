@@ -132,20 +132,16 @@ public final class ShikigamiControl {
 
     /** Throws the selected spell talisman. It goes off on contact with the ground or a creature. */
     public static boolean throwTalisman(ServerPlayer player, Vec3 momentum) {
-        return throwTalisman(player, momentum, selectedSpell(player), false);
-    }
-
-    /** Throws a talisman carrying {@code spell}, or its rainbow version. Shared with the Rainbow Talismans skill. */
-    public static boolean throwTalisman(ServerPlayer player, Vec3 momentum, Spell spell, boolean rainbow) {
         if (!Paper.has(player)) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_paper"), true);
             return false;
         }
-        if (!Magicules.trySpend(player, spell.magiculeCost(rainbow))) {
+        Spell spell = selectedSpell(player);
+        if (!Magicules.trySpend(player, spell.magiculeCost())) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
-        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player), spell, rainbow);
+        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player), spell);
         talisman.setDeltaMovement(player.getLookAngle().scale(Config.TALISMAN_SPEED.get()).add(momentum));
         player.level().addFreshEntity(talisman);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,

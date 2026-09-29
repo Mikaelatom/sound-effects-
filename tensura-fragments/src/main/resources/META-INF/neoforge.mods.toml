@@ -11,6 +11,9 @@ An addon for Tensura: Reincarnated that strips out the original skills and rebui
 the magic from their parts into new, skill-based abilities.
 '''
 
+[[mixins]]
+config="tensurafragments.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"

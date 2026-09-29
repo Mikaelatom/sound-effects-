@@ -1,7 +1,6 @@
 package com.tensurafragments.test;
 
 import com.tensurafragments.TensuraFragments;
-import com.tensurafragments.rainbow.RainbowTalismans;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.shikigami.TalismanEntity;
@@ -166,39 +165,6 @@ public final class SpellGameTests {
         helper.assertTrue(player.getDeltaMovement().y > 0.8, "caster launched up for a wind jump");
         helper.assertTrue(player.getHealth() == player.getMaxHealth(), "without being hurt");
         helper.assertTrue(arrow.getDeltaMovement().z > 0, "a stranger's arrow is thrown back");
-        helper.succeed();
-    }
-
-    @GameTest(template = "platform")
-    public static void rainbowDealsEveryElementAtOnce(GameTestHelper helper) {
-        ServerPlayer player = caster(helper, 0.5, 0.5);
-        Zombie plain = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new Vec3(2.5, GROUND, 6.5));
-        Zombie prism = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new Vec3(6.5, GROUND, 6.5));
-        Spell.WOOD.cast(helper.getLevel(), player, player, at(helper, 2.5, 6.5), 1.0F);
-        Spell.WOOD.castRainbow(helper.getLevel(), player, player, at(helper, 6.5, 6.5), 1.0F);
-
-        helper.assertTrue(plain.getHealth() == plain.getMaxHealth(), "plain Wood only roots");
-        helper.assertTrue(prism.getHealth() < prism.getMaxHealth(), "rainbow Wood also deals elemental damage");
-        helper.assertTrue(prism.isOnFire() && prism.getTicksFrozen() > 0, "burning and freezing at once");
-        helper.assertTrue(prism.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)
-                && prism.getEffect(MobEffects.MOVEMENT_SLOWDOWN).getAmplifier() >= 5, "and still rooted like Wood");
-        helper.succeed();
-    }
-
-    @GameTest(template = "platform")
-    public static void rainbowSkillThrowsRainbowTalismansOnItsOwn(GameTestHelper helper) {
-        ServerPlayer player = TestPlayers.spawn(helper, 4.5, 1.5);
-        TestPlayers.giveMagicules(player, 100_000);
-        player.getInventory().add(new ItemStack(Items.PAPER, 4));
-        SkillHelper.learnSkill(player, ModSkills.RAINBOW_TALISMANS.get()); // no Shikigami Control needed
-
-        RainbowTalismans.cycleSpell(player);
-        helper.assertTrue(RainbowTalismans.selectedSpell(player) == Spell.FIRE, "its own spell selection");
-        helper.assertTrue(ShikigamiControl.selectedSpell(player) == Spell.EXPLOSIVE, "separate from Shikigami Control's");
-        helper.assertTrue(RainbowTalismans.throwTalisman(player, Vec3.ZERO), "thrown");
-        List<TalismanEntity> thrown = helper.getLevel().getEntitiesOfClass(TalismanEntity.class, new AABB(player.blockPosition()).inflate(4));
-        helper.assertTrue(thrown.size() == 1 && thrown.get(0).isRainbow() && thrown.get(0).getSpell() == Spell.FIRE,
-                "a rainbow Fire talisman flies");
         helper.succeed();
     }
 

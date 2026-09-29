@@ -39,10 +39,6 @@ import org.joml.Vector3f;
  * The spells a Shikigami Control talisman can carry, after Seika's onmyōdō. Each one goes off when its talisman
  * touches the ground or a creature. Only the Explosive talisman can hurt its caster; the elemental ones spare the
  * caster and their allies. {@code potency} is 1 for paper and lower for leaves.
- * <p>
- * Each spell is split into its {@link #effect mechanics} and its {@link #visuals}, so a <b>rainbow</b> talisman can
- * keep a spell's shape while swapping in rainbow visuals and adding every element's damage at once (see
- * {@link #castRainbow}).
  */
 public enum Spell {
     EXPLOSIVE("explosive", 0xFFD04040, 20, 3.0, 0) {
@@ -267,7 +263,7 @@ public enum Spell {
         }
     };
 
-    /** Spells that count as an element for a rainbow talisman's combined damage. */
+    /** Spells that count as an element for Rainbow Magic's combined damage. */
     private static final Spell[] ELEMENTS = {FIRE, WATER, WOOD, LIGHTNING, EARTH, ICE, WIND};
     private static final int[] RAINBOW = {0xFF3030, 0xFF9A2E, 0xFFE84A, 0x4AE05A, 0x3AB0FF, 0x5A5AFF, 0xC45AFF};
 
@@ -299,8 +295,8 @@ public enum Spell {
         return radius;
     }
 
-    public double magiculeCost(boolean rainbow) {
-        return magiculeCost * Config.SPELL_COST_MULTIPLIER.get() * (rainbow ? Config.RAINBOW_COST_MULTIPLIER.get() : 1);
+    public double magiculeCost() {
+        return magiculeCost * Config.SPELL_COST_MULTIPLIER.get();
     }
 
     public Spell next() {
@@ -323,28 +319,17 @@ public enum Spell {
         visuals(level, at);
     }
 
-    /**
-     * The rainbow version: the same spell (same shape and mechanics) drawn in rainbow colours, and every enemy it
-     * reaches also takes every element's damage at once, burning, freezing and slowing them together.
-     */
-    public void castRainbow(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
-        effect(level, talisman, owner, at, potency);
-        float prism = 0;
+    /** Every element's damage added together (what a rainbow spell adds, before its multiplier). */
+    public static float totalElementDamage() {
+        float total = 0;
         for (Spell element : ELEMENTS) {
-            prism += element.elementDamage;
+            total += element.elementDamage;
         }
-        prism *= Config.RAINBOW_DAMAGE_MULTIPLIER.get().floatValue() * potency;
-        for (LivingEntity target : enemies(level, owner, at, Math.max(radius, 3.0))) {
-            target.invulnerableTime = 0; // the spell's own hit shouldn't swallow the prism damage
-            target.hurt(magic(level, talisman, owner), prism);
-            target.igniteForSeconds(3 * potency);
-            freeze(target, potency * 0.6F);
-            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, Math.round(60 * potency), 1));
-        }
-        rainbowVisuals(level, at, Math.max(radius, 3.0));
+        return total;
     }
 
-    private static void rainbowVisuals(ServerLevel level, Vec3 at, double radius) {
+    /** Rings of rainbow dust, a shockwave and a chime: how a rainbow spell ends. */
+    public static void rainbowBurst(ServerLevel level, Vec3 at, double radius) {
         for (int ring = 0; ring < RAINBOW.length; ring++) {
             int rgb = RAINBOW[ring];
             DustParticleOptions dust = new DustParticleOptions(

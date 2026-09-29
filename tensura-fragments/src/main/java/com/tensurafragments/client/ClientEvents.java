@@ -17,6 +17,7 @@ public final class ClientEvents {
         if (Minecraft.getInstance().player != null) {
             ClientDeckState.tick();
             ClientShikigamiState.tick();
+            ClientRainbow.tick();
         }
     }
 }

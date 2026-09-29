@@ -13,12 +13,8 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
-/**
- * Draws a thrown talisman facing the camera and spinning, in its spell's colours. Leaf talismans are tinted green and
- * rainbow talismans cycle through the rainbow.
- */
+/** Draws a thrown talisman facing the camera and spinning, in its spell's colours. Leaf talismans are tinted green. */
 public class TalismanRenderer extends EntityRenderer<TalismanEntity> {
     public TalismanRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -36,10 +32,6 @@ public class TalismanRenderer extends EntityRenderer<TalismanEntity> {
         PoseStack.Pose pose = poseStack.last();
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(texture(talisman.getSpell())));
         int colour = talisman.isLeaf() ? 0xFF96FF78 : 0xFFFFFFFF;
-        if (talisman.isRainbow()) {
-            // Rainbow talismans cycle through the colours as they fly.
-            colour = 0xFF000000 | Mth.hsvToRgb(((talisman.tickCount + partialTick) * 0.04F) % 1F, 0.55F, 1.0F);
-        }
         float w = 0.15F;
         float h = 0.3F;
         int glow = LightTexture.FULL_BRIGHT;

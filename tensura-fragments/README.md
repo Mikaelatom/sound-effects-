@@ -85,17 +85,26 @@ The HUD (right side, only while the skill is on your active preset) lists the pa
 magic) and marks the selected one; the item tooltip shows the same. All numbers are in the `[grimoire]` section of
 the server config.
 
-## Skill 4: Rainbow Talismans
+## Skill 4: Rainbow Magic
 
-A Unique skill of its own, given to every player, and it doesn't need Shikigami Control. Throw the **rainbow version**
-of any talisman spell (Explosive, Fire, Water, Wood, Lightning, Earth, Ice, Wind, Teleport). It has the same shape and
-effect as the normal spell (rainbow Wood still roots, rainbow Wind still launches you, rainbow Teleport still moves
-you), is drawn in rainbow colours, and every enemy it reaches also takes **every element's damage at once**: set on
-fire, frozen and slowed together, plus 12 extra damage (half the elements' combined damage,
-`rainbowDamageMultiplier`). **Sneak** to switch spell; it keeps its own selection, separate from Shikigami Control's.
+A Unique skill of its own, given to every player. It casts **Tensura's own spells**, recoloured in a moving rainbow
+(the spell's model is redrawn in rainbow bands and leaves a rainbow trail), and every hit strikes with **every element
+at once**: the spell's own damage plus 12 extra (half of all the elements' damage together,
+`rainbowDamageMultiplier`), and the target is set on fire, frozen and slowed. When the spell ends it bursts into
+rainbow rings. **Sneak** to switch spell.
 
-Each throw uses 1 paper (or leaf) and twice the spell's magicules (`rainbowCostMultiplier`). The HUD (bottom left,
-while it's on your active preset) shows the selected rainbow talisman.
+| Spell (Tensura's) | Damage | Magicules |
+|---|---|---|
+| Fire Ball | 6 (explodes) | 60 |
+| Water Blade | 6 | 60 |
+| Wind Blade | 5 | 50 |
+| Lightning Lance | 9 | 90 |
+| Stone Shot | 7 | 60 |
+| Ice Lance | 7 | 70 |
+
+Magicules are the spell's base cost times `rainbowCostMultiplier` (2). No paper needed. The HUD (bottom left, while
+it's on your active preset) shows the selected spell in rainbow letters. Only spells cast through Rainbow Magic are
+recoloured; Tensura's spells cast any other way look and hit as normal.
 
 ## Original skills
 

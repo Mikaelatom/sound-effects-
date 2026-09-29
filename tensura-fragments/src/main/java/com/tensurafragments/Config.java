@@ -99,14 +99,15 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue TELEPORT_RANGE = BUILDER
             .comment("Farthest a Teleport talisman can take you (halved for leaves).")
             .defineInRange("teleportTalismanRange", 48.0, 1.0, 1000.0);
-    public static final ModConfigSpec.BooleanValue GRANT_RAINBOW_TALISMANS = BUILDER
-            .comment("Give every player the Rainbow Talismans skill (rainbow versions of the talisman spells).")
-            .define("grantRainbowTalismans", true);
+    public static final ModConfigSpec.BooleanValue GRANT_RAINBOW_MAGIC = BUILDER
+            .comment("Give every player the Rainbow Magic skill (Tensura's spells in rainbow, striking with every element).")
+            .define("grantRainbowMagic", true);
     public static final ModConfigSpec.DoubleValue RAINBOW_COST_MULTIPLIER = BUILDER
-            .comment("A rainbow talisman costs this many times the normal spell's magicules.")
+            .comment("Rainbow Magic spells cost this many times their base magicules (Fire Ball 30, Water Blade 30,",
+                    "Wind Blade 25, Lightning Lance 45, Stone Shot 30, Ice Lance 35).")
             .defineInRange("rainbowCostMultiplier", 2.0, 0.0, 1000.0);
     public static final ModConfigSpec.DoubleValue RAINBOW_DAMAGE_MULTIPLIER = BUILDER
-            .comment("A rainbow talisman adds every element's damage at once (Fire 4 + Water 2 + Lightning 8 + Earth 5 +",
+            .comment("A Rainbow Magic hit adds every element's damage at once (Fire 4 + Water 2 + Lightning 8 + Earth 5 +",
                     "Ice 3 + Wind 2 = 24) on top of the spell itself, multiplied by this.")
             .defineInRange("rainbowDamageMultiplier", 0.5, 0.0, 100.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_RADIUS = BUILDER
