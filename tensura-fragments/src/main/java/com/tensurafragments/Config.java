@@ -68,6 +68,11 @@ public final class Config {
     public static final ModConfigSpec.BooleanValue GRANT_SHIKIGAMI_CONTROL = BUILDER
             .comment("Give every player the Shikigami Control skill.")
             .define("grantShikigamiControl", true);
+    public static final ModConfigSpec.DoubleValue LEAF_POTENCY = BUILDER
+            .comment("Leaves can stand in for paper when you have none. How strong a leaf talisman is compared to paper:",
+                    "shikigami health, damage and lifetime, talisman blast, barrier duration, and how much of a hit a",
+                    "leaf doll blocks.")
+            .defineInRange("leafPotency", 0.5, 0.0, 1.0);
     public static final ModConfigSpec.IntValue MAX_SHIKIGAMI = BUILDER
             .defineInRange("maxShikigami", 3, 1, 32);
     public static final ModConfigSpec.IntValue SHIKIGAMI_LIFETIME_TICKS = BUILDER

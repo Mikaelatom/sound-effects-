@@ -1,9 +1,10 @@
 package com.tensurafragments.client;
 
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
+import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.ShikigamiEntity;
+import com.tensurafragments.skill.EquippedSkills;
 import com.tensurafragments.skill.ModSkills;
-import io.github.manasmods.manascore.skill.api.SkillAPI;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,11 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Bottom-left HUD for Shikigami Control: paper count, the Substitution doll (bright while the window is open,
+ * Bottom-left HUD for Shikigami Control, shown while it's on the active skill preset: paper count (or leaves once
+ * the paper runs out), the Substitution doll (bright while the window is open,
  * greyed with a bar while on cooldown), one timer bar per shikigami, and barrier anchors placed.
  */
 public final class ShikigamiHud {
     private static final ItemStack PAPER = new ItemStack(Items.PAPER);
+    private static final ItemStack LEAVES = new ItemStack(Items.OAK_LEAVES);
 
     private ShikigamiHud() {
     }
@@ -24,7 +27,7 @@ public final class ShikigamiHud {
     public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()
-                || SkillAPI.getSkillsFrom(mc.player).getSkill(ModSkills.SHIKIGAMI_CONTROL.getId()).isEmpty()) {
+                || !EquippedSkills.isEquipped(mc.player, ModSkills.SHIKIGAMI_CONTROL.get())) {
             return;
         }
         int x = 8;
@@ -34,9 +37,14 @@ public final class ShikigamiHud {
         if (ClientShikigamiState.isWindowOpen()) {
             graphics.fill(x - 2, y - 2, x + 18, y + 18, 0xA0FFE08A);
         }
-        graphics.renderItem(PAPER, x, y);
-        int paper = mc.player.getInventory().countItem(Items.PAPER);
-        graphics.drawString(mc.font, String.valueOf(paper), x + 18, y + 5, paper > 0 ? 0xFFFFFFFF : 0xFFFF6060, true);
+        int paper = Paper.count(mc.player);
+        int leaves = Paper.countLeaves(mc.player);
+        // Show leaves in place of paper once the paper runs out, since that's what will be used next.
+        boolean usingLeaves = paper == 0 && leaves > 0;
+        graphics.renderItem(usingLeaves ? LEAVES : PAPER, x, y);
+        int shown = usingLeaves ? leaves : paper;
+        graphics.drawString(mc.font, String.valueOf(shown), x + 18, y + 5,
+                shown > 0 ? (usingLeaves ? 0xFF9BE07C : 0xFFFFFFFF) : 0xFFFF6060, true);
         float cooldown = ClientShikigamiState.cooldownFraction();
         if (cooldown > 0 && !ClientShikigamiState.isWindowOpen()) {
             graphics.fill(x, y + 17, x + Math.round(16 * cooldown), y + 19, 0xFFB0B0B0);

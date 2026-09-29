@@ -89,7 +89,8 @@ public final class Barrier {
     /** Runs once per tick, on the leading anchor, while the barrier is up. */
     static void tick(ServerPlayer owner, BarrierAnchorEntity leader) {
         List<BarrierAnchorEntity> anchors = anchors(owner);
-        if (anchors.size() < 3 || leader.activeTicks > Config.BARRIER_DURATION_TICKS.get()) {
+        double potency = anchors.stream().mapToDouble(BarrierAnchorEntity::getPotency).average().orElse(1);
+        if (anchors.size() < 3 || leader.activeTicks > Config.BARRIER_DURATION_TICKS.get() * potency) {
             dispel(owner);
             return;
         }

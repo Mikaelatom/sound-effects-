@@ -89,9 +89,9 @@ public final class ShikigamiControl {
             existing.get(i).revert(); // oldest first
         }
 
-        Paper.consume(player);
+        Paper.Talisman paper = Paper.consume(player);
         level.removeBlock(pos, false);
-        ShikigamiEntity shikigami = ShikigamiEntity.create(player, state, hardness, pos);
+        ShikigamiEntity shikigami = ShikigamiEntity.create(player, state, hardness, pos, paper.potency());
         level.addFreshEntity(shikigami);
         TensuraParticleHelper.spawnServerParticles(level, TensuraParticleUtils.getColorlessReversedWave(0.6F, 1.5F),
                 pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
@@ -124,8 +124,7 @@ public final class ShikigamiControl {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
-        Paper.consume(player);
-        TalismanEntity talisman = TalismanEntity.create(player);
+        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player));
         talisman.setDeltaMovement(player.getLookAngle().scale(Config.TALISMAN_SPEED.get()).add(momentum));
         player.level().addFreshEntity(talisman);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,
@@ -160,12 +159,12 @@ public final class ShikigamiControl {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
-        Paper.consume(player);
+        Paper.Talisman paper = Paper.consume(player);
         // Anchors always stand on top of the block you point at.
         BlockPos ground = hit.getBlockPos();
         Vec3 pos = new Vec3(hit.getLocation().x, ground.getY() + 1.0, hit.getLocation().z);
         int order = anchors.isEmpty() ? 0 : anchors.get(anchors.size() - 1).getOrder() + 1;
-        player.level().addFreshEntity(BarrierAnchorEntity.create(player, pos, order));
+        player.level().addFreshEntity(BarrierAnchorEntity.create(player, pos, order, paper));
         player.level().playSound(null, pos.x, pos.y, pos.z, SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 0.8F);
         if (anchors.size() + 1 >= max) {
             Barrier.raise(player);
@@ -206,34 +205,36 @@ public final class ShikigamiControl {
     }
 
     /**
-     * Called when the player is about to take damage. Returns true if a paper doll took the hit instead.
+     * Called when the player is about to take damage. If a doll takes the hit, returns how much of the damage
+     * still gets through: 0 for a paper doll, more for a leaf doll. Returns 1 if nothing happened.
      */
-    public static boolean trySubstitute(ServerPlayer player, DamageSource source) {
+    public static float trySubstitute(ServerPlayer player, DamageSource source) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || !hasSkill(player) || !Paper.has(player)) {
-            return false;
+            return 1;
         }
         long now = player.level().getGameTime();
         UUID id = player.getUUID();
         boolean windowOpen = now <= SUBSTITUTION_WINDOW.getOrDefault(id, -1L);
         boolean auto = Config.AUTO_SUBSTITUTION.get() && now >= SUBSTITUTION_COOLDOWN.getOrDefault(id, 0L);
         if (!windowOpen && !auto) {
-            return false;
+            return 1;
         }
 
-        Paper.consume(player);
+        Paper.Talisman doll = Paper.consume(player);
         SUBSTITUTION_WINDOW.remove(id);
         SUBSTITUTION_COOLDOWN.put(id, auto && !windowOpen ? now + Config.AUTO_SUBSTITUTION_COOLDOWN_TICKS.get() : now);
 
         ServerLevel level = player.serverLevel();
         Vec3 from = player.position();
-        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.PAPER)),
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, doll.item()),
                 from.x, from.y + 1, from.z, 25, 0.3, 0.6, 0.3, 0.1);
         level.sendParticles(ParticleTypes.POOF, from.x, from.y + 1, from.z, 10, 0.3, 0.5, 0.3, 0.02);
         blinkAway(player, source);
-        level.playSound(null, from.x, from.y, from.z, SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 0.6F);
+        level.playSound(null, from.x, from.y, from.z, doll.isLeaf() ? SoundEvents.AZALEA_LEAVES_BREAK : SoundEvents.BOOK_PAGE_TURN,
+                SoundSource.PLAYERS, 1.0F, 0.6F);
         player.invulnerableTime = 20;
         sync(player);
-        return true;
+        return 1 - doll.potency();
     }
 
     private static void blinkAway(ServerPlayer player, DamageSource source) {

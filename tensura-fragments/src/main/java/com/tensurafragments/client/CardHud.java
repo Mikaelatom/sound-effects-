@@ -1,6 +1,8 @@
 package com.tensurafragments.client;
 
 import com.tensurafragments.card.CardEntity;
+import com.tensurafragments.skill.EquippedSkills;
+import com.tensurafragments.skill.ModSkills;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -10,7 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.Entity;
 
 /**
- * Bottom-right HUD: the deck (filled = ready, outline = spent, with a bar for the next draw) and a row of timers
+ * Bottom-right HUD, shown while Gambit Cards is on the active skill preset: the deck (filled = ready, outline = spent, with a bar for the next draw) and a row of timers
  * for the cards currently out. A timer turns gold when its card is fully charged.
  */
 public final class CardHud {
@@ -23,7 +25,8 @@ public final class CardHud {
 
     public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()) {
+        if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()
+                || !EquippedSkills.isEquipped(mc.player, ModSkills.GAMBIT_CARDS.get())) {
             return;
         }
         int size = ClientDeckState.deckSize();

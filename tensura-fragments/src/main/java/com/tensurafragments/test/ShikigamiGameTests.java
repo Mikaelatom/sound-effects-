@@ -6,7 +6,9 @@ import com.tensurafragments.shikigami.BarrierAnchorEntity;
 import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.shikigami.ShikigamiEntity;
+import com.tensurafragments.skill.EquippedSkills;
 import com.tensurafragments.skill.ModSkills;
+import io.github.manasmods.tensura.storage.TensuraStorages;
 import io.github.manasmods.tensura.ability.SkillHelper;
 import java.util.List;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -172,8 +174,59 @@ public final class ShikigamiGameTests {
         });
     }
 
+    @GameTest(template = "platform")
+    public static void paperIsUsedBeforeLeaves(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 1);
+        player.getInventory().add(new ItemStack(Items.OAK_LEAVES, 3));
+
+        helper.assertTrue(Paper.consume(player).potency() == 1.0F, "first talisman is paper");
+        Paper.Talisman second = Paper.consume(player);
+        helper.assertTrue(second.isLeaf() && second.potency() < 1.0F, "then leaves, at reduced strength");
+        helper.assertTrue(Paper.count(player) == 0 && Paper.countLeaves(player) == 2, "one of each used");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void leafShikigamiAreWeaker(GameTestHelper helper) {
+        ServerPlayer paperCaster = caster(helper, 2.5, 1.5, 1);
+        ShikigamiEntity paper = summonFrom(helper, paperCaster, new BlockPos(2, GROUND, 5), Blocks.STONE);
+        ServerPlayer leafCaster = caster(helper, 6.5, 1.5, 0);
+        leafCaster.getInventory().add(new ItemStack(Items.BIRCH_LEAVES, 1));
+        ShikigamiEntity leaf = summonFrom(helper, leafCaster, new BlockPos(6, GROUND, 5), Blocks.STONE);
+
+        helper.assertTrue(leaf.isLeaf() && !paper.isLeaf(), "leaf flag set");
+        helper.assertTrue(leaf.getMaxHealth() < paper.getMaxHealth(), "leaf shikigami has less health");
+        helper.assertTrue(leaf.getLifetime() < paper.getLifetime(), "leaf shikigami doesn't last as long");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void leafDollOnlyBlocksPartOfTheHit(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 0);
+        player.getInventory().add(new ItemStack(Items.OAK_LEAVES, 1));
+        helper.assertTrue(ShikigamiControl.readySubstitution(player), "leaf doll readied");
+        player.hurt(player.damageSources().generic(), 8.0F);
+
+        float taken = player.getMaxHealth() - player.getHealth();
+        helper.assertTrue(taken > 0 && taken < 8.0F, "leaf doll should block some but not all of the hit, took " + taken);
+        helper.assertTrue(Paper.countLeaves(player) == 0, "leaf used");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void hudFollowsTheEquippedSkill(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 0);
+        helper.assertFalse(EquippedSkills.isEquipped(player, ModSkills.SHIKIGAMI_CONTROL.get()), "learned but not equipped");
+
+        TensuraStorages.getAbilityFrom(player).setAbilitySlot(0, ModSkills.SHIKIGAMI_CONTROL.get(), 0);
+        helper.assertTrue(EquippedSkills.isEquipped(player, ModSkills.SHIKIGAMI_CONTROL.get()), "equipped in a slot");
+        helper.assertFalse(EquippedSkills.isEquipped(player, ModSkills.GAMBIT_CARDS.get()), "cards not equipped");
+        helper.succeed();
+    }
+
     private static void anchor(GameTestHelper helper, ServerPlayer owner, double x, double z, int order) {
         Vec3 pos = helper.absoluteVec(new Vec3(x, GROUND, z));
-        helper.getLevel().addFreshEntity(BarrierAnchorEntity.create(owner, pos, order));
+        helper.getLevel().addFreshEntity(BarrierAnchorEntity.create(owner, pos, order,
+                new Paper.Talisman(new ItemStack(Items.PAPER), 1.0F)));
     }
 }

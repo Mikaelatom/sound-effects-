@@ -41,7 +41,7 @@ public class BarrierAnchorRenderer extends EntityRenderer<BarrierAnchorEntity> {
         PoseStack.Pose pose = poseStack.last();
         VertexConsumer paper = buffers.getBuffer(RenderType.entityCutoutNoCull(ShikigamiRenderer.TALISMAN));
         int glow = anchor.isActive() ? LightTexture.FULL_BRIGHT : light;
-        quad(paper, pose, -0.14F, -0.3F, 0.14F, 0.3F, 0, glow, 255);
+        quad(paper, pose, -0.14F, -0.3F, 0.14F, 0.3F, 0, glow, anchor.isLeaf() ? 0xFF96FF78 : 0xFFFFFFFF);
         poseStack.popPose();
 
         BarrierAnchorEntity next = anchor.isActive() ? anchor.getNext() : null;
@@ -69,11 +69,11 @@ public class BarrierAnchorRenderer extends EntityRenderer<BarrierAnchorEntity> {
     }
 
     private static void quad(VertexConsumer consumer, PoseStack.Pose pose, float x0, float y0, float x1, float y1, float z,
-                             int light, int alpha) {
-        consumer.addVertex(pose, x0, y0, z).setColor(255, 255, 255, alpha).setUv(0, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, x1, y0, z).setColor(255, 255, 255, alpha).setUv(1, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, x1, y1, z).setColor(255, 255, 255, alpha).setUv(1, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, x0, y1, z).setColor(255, 255, 255, alpha).setUv(0, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
+                             int light, int argb) {
+        consumer.addVertex(pose, x0, y0, z).setColor(argb).setUv(0, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, x1, y0, z).setColor(argb).setUv(1, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, x1, y1, z).setColor(argb).setUv(1, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, x0, y1, z).setColor(argb).setUv(0, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 0, 1);
     }
 
     @Override

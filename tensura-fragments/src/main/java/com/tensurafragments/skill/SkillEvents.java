@@ -31,8 +31,13 @@ public final class SkillEvents {
     /** A readied paper doll (Shikigami Control's Substitution) takes the hit instead of you. */
     @SubscribeEvent
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && ShikigamiControl.trySubstitute(player, event.getSource())) {
-            event.setCanceled(true);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            float getsThrough = ShikigamiControl.trySubstitute(player, event.getSource());
+            if (getsThrough <= 0) {
+                event.setCanceled(true);
+            } else if (getsThrough < 1) {
+                event.setAmount(event.getAmount() * getsThrough);
+            }
         }
     }
 

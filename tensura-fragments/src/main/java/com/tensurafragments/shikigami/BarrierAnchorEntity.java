@@ -33,6 +33,9 @@ public class BarrierAnchorEntity extends Entity {
             SynchedEntityData.defineId(BarrierAnchorEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HEIGHT =
             SynchedEntityData.defineId(BarrierAnchorEntity.class, EntityDataSerializers.INT);
+    /** How strong the talisman is (1 for paper, less for leaves). The barrier lasts for the average. */
+    private static final EntityDataAccessor<Float> POTENCY =
+            SynchedEntityData.defineId(BarrierAnchorEntity.class, EntityDataSerializers.FLOAT);
 
     /** An anchor that's never linked into a barrier crumbles after this long. */
     private static final int UNLINKED_LIFETIME = 1200;
@@ -44,12 +47,13 @@ public class BarrierAnchorEntity extends Entity {
         noPhysics = true;
     }
 
-    public static BarrierAnchorEntity create(ServerPlayer owner, Vec3 pos, int order) {
+    public static BarrierAnchorEntity create(ServerPlayer owner, Vec3 pos, int order, Paper.Talisman material) {
         BarrierAnchorEntity anchor = new BarrierAnchorEntity(ModRegistries.BARRIER_ANCHOR.get(), owner.level());
         anchor.setPos(pos);
         anchor.entityData.set(OWNER, Optional.of(owner.getUUID()));
         anchor.entityData.set(ORDER, order);
         anchor.entityData.set(HEIGHT, Config.BARRIER_HEIGHT.get());
+        anchor.entityData.set(POTENCY, material.potency());
         anchor.setYRot(owner.getYRot());
         return anchor;
     }
@@ -61,6 +65,7 @@ public class BarrierAnchorEntity extends Entity {
         builder.define(ACTIVE, false);
         builder.define(NEXT, -1);
         builder.define(HEIGHT, 5);
+        builder.define(POTENCY, 1.0F);
     }
 
     @Nullable
@@ -78,6 +83,14 @@ public class BarrierAnchorEntity extends Entity {
 
     public boolean isActive() {
         return entityData.get(ACTIVE);
+    }
+
+    public float getPotency() {
+        return entityData.get(POTENCY);
+    }
+
+    public boolean isLeaf() {
+        return getPotency() < 1;
     }
 
     public int getWallHeight() {

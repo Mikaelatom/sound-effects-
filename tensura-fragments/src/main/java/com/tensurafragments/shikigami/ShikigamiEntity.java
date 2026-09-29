@@ -51,6 +51,9 @@ public class ShikigamiEntity extends TamableAnimal {
             SynchedEntityData.defineId(ShikigamiEntity.class, EntityDataSerializers.BLOCK_STATE);
     private static final EntityDataAccessor<Integer> LIFETIME =
             SynchedEntityData.defineId(ShikigamiEntity.class, EntityDataSerializers.INT);
+    /** Made with a leaf instead of paper (weaker; the talisman on it is drawn green). */
+    private static final EntityDataAccessor<Boolean> LEAF =
+            SynchedEntityData.defineId(ShikigamiEntity.class, EntityDataSerializers.BOOLEAN);
 
     private boolean reverted;
 
@@ -73,17 +76,19 @@ public class ShikigamiEntity extends TamableAnimal {
         return Mth.clamp(destroySpeed, 0.3F, 10.0F);
     }
 
-    public static ShikigamiEntity create(ServerPlayer owner, BlockState state, float hardness, BlockPos at) {
+    /** @param potency 1 for a paper talisman, less for leaves: scales health, damage and lifetime */
+    public static ShikigamiEntity create(ServerPlayer owner, BlockState state, float hardness, BlockPos at, float potency) {
         ShikigamiEntity shikigami = new ShikigamiEntity(ModRegistries.SHIKIGAMI.get(), owner.level());
         shikigami.entityData.set(BLOCK, state);
-        shikigami.entityData.set(LIFETIME, Config.SHIKIGAMI_LIFETIME_TICKS.get());
+        shikigami.entityData.set(LIFETIME, Math.max(20, Math.round(Config.SHIKIGAMI_LIFETIME_TICKS.get() * potency)));
+        shikigami.entityData.set(LEAF, potency < 1);
         shikigami.setTame(true, false);
         shikigami.setOwnerUUID(owner.getUUID());
         shikigami.moveTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, owner.getYRot() + 180, 0);
 
         float h = effectiveHardness(hardness);
-        double strength = Config.SHIKIGAMI_STRENGTH.get();
-        shikigami.getAttribute(Attributes.MAX_HEALTH).setBaseValue((10 + 6 * h) * strength);
+        double strength = Config.SHIKIGAMI_STRENGTH.get() * potency;
+        shikigami.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Math.max(2, (10 + 6 * h) * strength));
         shikigami.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((2 + 1.2 * h) * strength);
         shikigami.getAttribute(Attributes.ARMOR).setBaseValue(Math.min(20, 2 * h));
         shikigami.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Mth.clamp(0.38 - 0.02 * h, 0.18, 0.38));
@@ -97,6 +102,7 @@ public class ShikigamiEntity extends TamableAnimal {
         super.defineSynchedData(builder);
         builder.define(BLOCK, Blocks.STONE.defaultBlockState());
         builder.define(LIFETIME, 2400);
+        builder.define(LEAF, false);
     }
 
     @Override
@@ -119,6 +125,10 @@ public class ShikigamiEntity extends TamableAnimal {
 
     public int getTicksLeft() {
         return Math.max(0, entityData.get(LIFETIME) - tickCount);
+    }
+
+    public boolean isLeaf() {
+        return entityData.get(LEAF);
     }
 
     public int getLifetime() {
@@ -211,6 +221,7 @@ public class ShikigamiEntity extends TamableAnimal {
         super.addAdditionalSaveData(tag);
         tag.put("Block", NbtUtils.writeBlockState(getBlock()));
         tag.putInt("Lifetime", getLifetime());
+        tag.putBoolean("Leaf", isLeaf());
         tag.putInt("Age", tickCount);
     }
 
@@ -223,6 +234,7 @@ public class ShikigamiEntity extends TamableAnimal {
         if (tag.contains("Lifetime")) {
             entityData.set(LIFETIME, tag.getInt("Lifetime"));
         }
+        entityData.set(LEAF, tag.getBoolean("Leaf"));
         tickCount = tag.getInt("Age");
     }
 }

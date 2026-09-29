@@ -59,10 +59,13 @@ public class ShikigamiRenderer extends EntityRenderer<ShikigamiEntity> {
         float w = 0.12F;
         float h = 0.26F;
         int overlay = LivingEntityRenderer.getOverlayCoords(entity, 0);
-        consumer.addVertex(pose, -w, -h, 0).setColor(255, 255, 255, 255).setUv(0, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, w, -h, 0).setColor(255, 255, 255, 255).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, w, h, 0).setColor(255, 255, 255, 255).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        consumer.addVertex(pose, -w, h, 0).setColor(255, 255, 255, 255).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+        // Leaf talismans are tinted green.
+        int r = entity.isLeaf() ? 150 : 255;
+        int b = entity.isLeaf() ? 120 : 255;
+        consumer.addVertex(pose, -w, -h, 0).setColor(r, 255, b, 255).setUv(0, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, w, -h, 0).setColor(r, 255, b, 255).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, w, h, 0).setColor(r, 255, b, 255).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+        consumer.addVertex(pose, -w, h, 0).setColor(r, 255, b, 255).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
         poseStack.popPose();
 
         super.render(entity, yaw, partialTick, poseStack, buffers, light);

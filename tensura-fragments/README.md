@@ -26,12 +26,17 @@ and you switch between its three modes the same way as any Tensura skill. Every 
 
 Uses Tensura's shockwave particle for the blast and teleport. Everything above is tunable in `serverconfig/tensurafragments-server.toml`.
 
-The HUD (bottom right) shows your deck, the next draw, and a timer bar per active card (gold = fully charged).
+The HUD (bottom right, only while Gambit Cards is on your active skill preset) shows your deck, the next draw, and a timer bar per active card (gold = fully charged).
 
 ## Skill 2: Shikigami Control
 
 Based on Seika from *The Reincarnation of the Strongest Exorcist*. A Unique skill, given to every player. **Paper**
 (vanilla `minecraft:paper`) in your inventory is the ammo; creative players don't use any.
+
+**Leaves** (any kind) work as a weaker stand-in once you're out of paper, at half strength by default
+(`leafPotency`): leaf shikigami have half the health, damage and lifetime; leaf talismans make a smaller, weaker
+blast; a barrier lasts for the average strength of its anchors; and a leaf doll blocks only half of the hit. Paper is
+always used first. Things made from leaves have a green talisman.
 
 | Mode | What it does | Cost |
 |---|---|---|
@@ -40,7 +45,8 @@ Based on Seika from *The Reincarnation of the Strongest Exorcist*. A Unique skil
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up, the wall pushes hostile mobs out and burns them, and destroys projectiles that aren't yours. Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Substitution** | Ready a paper doll for half a second. If you're hit in that window, the doll takes the hit: no damage, you lose 1 paper and blink 3 blocks away from the attacker. A good dodge is ready again at once; a mistimed one goes on a 2 second cooldown. | 1 paper when it triggers |
 
-The HUD (bottom left) shows your paper, the Substitution doll (glows while ready, grey bar on cooldown), a health and
+The HUD (bottom left, only while Shikigami Control is on your active skill preset) shows your paper (or leaves once
+the paper is gone), the Substitution doll (glows while ready, grey bar on cooldown), a health and
 time bar per shikigami, and your barrier anchors (◇ placed, ◆ barrier up). Server owners who prefer a passive dodge
 can set `autoSubstitution = true`. All numbers are in the `[shikigami]` section of the server config.
 
