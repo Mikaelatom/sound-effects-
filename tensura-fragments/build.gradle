@@ -73,7 +73,13 @@ runs {
         modSource project.sourceSets.main
     }
 
-    client {}
+    client {
+        // ./gradlew runClient -PvisualCheck : opens the "visualtest" world, casts spells and takes screenshots.
+        if (project.hasProperty('visualCheck')) {
+            systemProperty 'tensurafragments.visualCheck', 'true'
+            arguments.addAll '--quickPlaySingleplayer', 'visualtest', '--width', '960', '--height', '540'
+        }
+    }
 
     server {
         argument '--nogui'

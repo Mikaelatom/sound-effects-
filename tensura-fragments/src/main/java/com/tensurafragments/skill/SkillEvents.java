@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.flame.FlameEmperor;
 import com.tensurafragments.grimoire.SealingGrimoire;
 import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.ShikigamiControl;
@@ -29,6 +30,7 @@ public final class SkillEvents {
             ShikigamiControl.grantSkill(player);
             SealingGrimoire.grantSkill(player);
             RainbowMagic.grantSkill(player);
+            FlameEmperor.grantSkill(player);
         }
     }
 
@@ -53,6 +55,7 @@ public final class SkillEvents {
             ShikigamiControl.grantSkill(player);
             SealingGrimoire.grantSkill(player);
             RainbowMagic.grantSkill(player);
+            FlameEmperor.grantSkill(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
         }

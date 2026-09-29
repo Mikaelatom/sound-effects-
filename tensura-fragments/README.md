@@ -106,6 +106,35 @@ Magicules are the spell's base cost times `rainbowCostMultiplier` (2). No paper 
 it's on your active preset) shows the selected spell in rainbow letters. Only spells cast through Rainbow Magic are
 recoloured; Tensura's spells cast any other way look and hit as normal.
 
+## Skill 5: Flame Emperor (Ultimate)
+
+An Ultimate skill, given to every player, with two modes.
+
+**Fire Magic.** Cast any of Tensura's own fire spells. **Sneak** to switch; the HUD (bottom right, while it's on
+your active preset) shows the selected one.
+
+| Spell | Damage | Burns | Magicules |
+|---|---|---|---|
+| Fire Bolt | 5 | 4s | 20 |
+| Fire Ball | 8 | 5s | 35 |
+| Magma Shot | 9 | 6s | 40 |
+| Fire Lance | 12 | 6s | 55 |
+| Flame Orb | 10 | 8s | 60 |
+| Flame Sphere | 14 | 8s | 80 |
+| Heat Sphere | 16 | 10s | 100 |
+| Plasma Ball | 20 | 10s | 140 |
+| Black Flame Ball | 24 | 12s | 180 |
+| Hell Flare | 30 | 15s | 250 |
+
+**Draconic Hell Storm.** Tensura's flame magic circle opens on your hand and charges for 1.5 seconds, then
+Gluttony's mist (Tensura's own model and animation) pours out of it as hellfire, 18 blocks long, for 3 seconds. It
+follows where you look, so you can sweep it across a crowd, and stops at walls. Anything in it takes **20 black-flame
+damage four times a second** and gets **Draconic Hellfire**: a burn that **never goes out**. Water relights it, milk
+and totems don't cure it, fire resistance doesn't stop it; it deals 3 damage every second until the target dies. It
+never touches you, your shikigami, pets or released grimoire creatures. 800 magicules, 30 second cooldown.
+
+All numbers are in the `[flame]` section of the server config.
+
 ## Original skills
 
 By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).
@@ -128,7 +157,11 @@ The in-world tests in `src/main/java/com/tensurafragments/test/` cover both skil
 chaining), teleporting, the skill icons, turning blocks into shikigami (and needing paper), block hardness scaling,
 dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
 grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching
-and re-firing magic, bosses being unsealable).
+and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura spells, all ten Flame Emperor fire
+spells, and Draconic Hell Storm (charge, damage, and a burn that can't be cured).
+
+`./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
+casts Draconic Hell Storm and a Rainbow Magic spell, saves screenshots to `run/client/screenshots/`, and quits.
 
 Tensura: Reincarnated, ManasCore, Architectury, GeckoLib, SmartBrainLib and TerraBlender (runtime only) are pulled from CurseForge via
 CurseMaven (versions in `build.gradle`). If you update Tensura, bump the file id in `tensuraDep`.

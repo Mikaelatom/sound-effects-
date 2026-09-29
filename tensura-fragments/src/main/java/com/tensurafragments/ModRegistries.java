@@ -2,6 +2,9 @@ package com.tensurafragments;
 
 import com.mojang.serialization.Codec;
 import com.tensurafragments.card.CardEntity;
+import com.tensurafragments.flame.DraconicHellfireEffect;
+import com.tensurafragments.flame.HellCircleEntity;
+import com.tensurafragments.flame.HellStormEntity;
 import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.grimoire.GrimoireContents;
 import com.tensurafragments.grimoire.SealingGrimoireItem;
@@ -11,6 +14,7 @@ import com.tensurafragments.shikigami.TalismanEntity;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
@@ -30,6 +34,8 @@ public final class ModRegistries {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(TensuraFragments.MODID);
     private static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, TensuraFragments.MODID);
+    private static final DeferredRegister<MobEffect> MOB_EFFECTS =
+            DeferredRegister.create(Registries.MOB_EFFECT, TensuraFragments.MODID);
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, TensuraFragments.MODID);
 
@@ -67,6 +73,18 @@ public final class ModRegistries {
     public static final DeferredItem<SealingGrimoireItem> SEALING_GRIMOIRE = ITEMS.registerItem("sealing_grimoire",
             SealingGrimoireItem::new, new Item.Properties().stacksTo(1));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<HellCircleEntity>> HELL_CIRCLE = ENTITY_TYPES.register("hell_circle",
+            () -> EntityType.Builder.<HellCircleEntity>of(HellCircleEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(1).noSave().build("hell_circle"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<HellStormEntity>> HELL_STORM = ENTITY_TYPES.register("hell_storm",
+            () -> EntityType.Builder.<HellStormEntity>of(HellStormEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(1).noSave().build("hell_storm"));
+
+    /** Draconic Hellfire: Hell Storm's burn that never goes out. */
+    public static final DeferredHolder<MobEffect, DraconicHellfireEffect> DRACONIC_HELLFIRE =
+            MOB_EFFECTS.register("draconic_hellfire", DraconicHellfireEffect::new);
+
     public static final DeferredHolder<SoundEvent, SoundEvent> CARD_PLACE = SOUNDS.register("card_place",
             () -> SoundEvent.createVariableRangeEvent(TensuraFragments.id("card_place")));
 
@@ -90,6 +108,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> RAINBOW_SPELL = ATTACHMENTS.register(
             "rainbow_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
+    /** Which fire spell Flame Emperor casts (index into FireSpell). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> FIRE_SPELL = ATTACHMENTS.register(
+            "fire_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
@@ -100,6 +122,7 @@ public final class ModRegistries {
     static void register(IEventBus modEventBus) {
         ENTITY_TYPES.register(modEventBus);
         ITEMS.register(modEventBus);
+        MOB_EFFECTS.register(modEventBus);
         COMPONENTS.register(modEventBus);
         modEventBus.addListener((EntityAttributeCreationEvent event) ->
                 event.put(SHIKIGAMI.get(), ShikigamiEntity.createAttributes().build()));

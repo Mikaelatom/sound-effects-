@@ -1,5 +1,6 @@
 package com.tensurafragments.client;
 
+import com.tensurafragments.flame.FireSpell;
 import com.tensurafragments.network.SyncShikigamiPayload;
 import com.tensurafragments.rainbow.RainbowSpell;
 import com.tensurafragments.shikigami.Spell;
@@ -11,6 +12,7 @@ public final class ClientShikigamiState {
     private static int cooldownTotal = 1;
     private static Spell spell = Spell.EXPLOSIVE;
     private static RainbowSpell rainbowSpell = RainbowSpell.FIRE_BALL;
+    private static FireSpell fireSpell = FireSpell.FIRE_BOLT;
 
     private ClientShikigamiState() {
     }
@@ -21,6 +23,7 @@ public final class ClientShikigamiState {
         cooldownTotal = Math.max(1, payload.cooldownTicks());
         spell = Spell.byIndex(payload.spell());
         rainbowSpell = RainbowSpell.byIndex(payload.rainbowSpell());
+        fireSpell = FireSpell.byIndex(payload.fireSpell());
     }
 
     static void tick() {
@@ -31,6 +34,10 @@ public final class ClientShikigamiState {
 
     public static Spell spell() {
         return spell;
+    }
+
+    public static FireSpell fireSpell() {
+        return fireSpell;
     }
 
     public static RainbowSpell rainbowSpell() {

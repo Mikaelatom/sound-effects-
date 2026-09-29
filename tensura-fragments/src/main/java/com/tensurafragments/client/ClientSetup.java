@@ -19,6 +19,8 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModRegistries.SHIKIGAMI.get(), ShikigamiRenderer::new);
         event.registerEntityRenderer(ModRegistries.TALISMAN.get(), TalismanRenderer::new);
         event.registerEntityRenderer(ModRegistries.BARRIER_ANCHOR.get(), BarrierAnchorRenderer::new);
+        event.registerEntityRenderer(ModRegistries.HELL_CIRCLE.get(), HellCircleRenderer::new);
+        event.registerEntityRenderer(ModRegistries.HELL_STORM.get(), HellStormRenderer::new);
     }
 
     @SubscribeEvent
@@ -27,5 +29,6 @@ public final class ClientSetup {
         event.registerAboveAll(TensuraFragments.id("shikigami_hud"), ShikigamiHud::render);
         event.registerAboveAll(TensuraFragments.id("grimoire_hud"), GrimoireHud::render);
         event.registerAboveAll(TensuraFragments.id("rainbow_hud"), RainbowHud::render);
+        event.registerAboveAll(TensuraFragments.id("flame_hud"), FlameHud::render);
     }
 }

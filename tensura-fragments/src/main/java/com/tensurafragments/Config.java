@@ -187,6 +187,39 @@ public final class Config {
             .defineInRange("boundDurationTicks", 1200, 20, 720000);
 
     static {
+        BUILDER.pop().comment("Flame Emperor: Tensura's fire magic, and Draconic Hell Storm").push("flame");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_FLAME_EMPEROR = BUILDER
+            .comment("Give every player the Flame Emperor skill.")
+            .define("grantFlameEmperor", true);
+    public static final ModConfigSpec.DoubleValue FIRE_MAGIC_COST_MULTIPLIER = BUILDER
+            .comment("Multiplier on every Flame Emperor fire spell's magicules (Fire Bolt 20 up to Hell Flare 250).")
+            .defineInRange("fireMagicCostMultiplier", 1.0, 0.0, 1000.0);
+    public static final ModConfigSpec.DoubleValue HELL_STORM_MAGICULE_COST = BUILDER
+            .defineInRange("hellStormMagiculeCost", 800.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.IntValue HELL_STORM_COOLDOWN_SECONDS = BUILDER
+            .defineInRange("hellStormCooldownSeconds", 30, 0, 3600);
+    public static final ModConfigSpec.IntValue HELL_STORM_CHARGE_TICKS = BUILDER
+            .comment("How long the magic circle on your hand charges before the storm is released.")
+            .defineInRange("hellStormChargeTicks", 30, 0, 200);
+    public static final ModConfigSpec.IntValue HELL_STORM_DURATION_TICKS = BUILDER
+            .comment("How long the storm pours out. It follows where you look, so you can sweep it.")
+            .defineInRange("hellStormDurationTicks", 60, 1, 1200);
+    public static final ModConfigSpec.DoubleValue HELL_STORM_RANGE = BUILDER
+            .defineInRange("hellStormRange", 18.0, 1.0, 64.0);
+    public static final ModConfigSpec.DoubleValue HELL_STORM_WIDTH = BUILDER
+            .comment("Radius of the storm around its centre line.")
+            .defineInRange("hellStormWidth", 2.5, 0.5, 16.0);
+    public static final ModConfigSpec.DoubleValue HELL_STORM_DAMAGE = BUILDER
+            .comment("Fire damage per hit. Anything in the storm is hit 4 times a second.")
+            .defineInRange("hellStormDamage", 20.0, 0.0, 10000.0);
+    public static final ModConfigSpec.DoubleValue HELLFIRE_DAMAGE_PER_SECOND = BUILDER
+            .comment("Draconic Hellfire: the burn Hell Storm leaves never goes out, dealing this much every second until",
+                    "the target dies.")
+            .defineInRange("hellfireDamagePerSecond", 3.0, 0.0, 10000.0);
+
+    static {
         BUILDER.pop();
     }
 

@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.flame.FlameEmperorSkill;
 import com.tensurafragments.grimoire.SealingGrimoireSkill;
 import com.tensurafragments.rainbow.RainbowMagicSkill;
 import com.tensurafragments.shikigami.ShikigamiControlSkill;
@@ -19,6 +20,7 @@ public final class ModSkills {
     // Registered as "rainbow_talismans" so worlds that already have it keep it.
     public static final RegistrySupplier<RainbowMagicSkill> RAINBOW_MAGIC =
             register("rainbow_talismans", RainbowMagicSkill::new);
+    public static final RegistrySupplier<FlameEmperorSkill> FLAME_EMPEROR = register("flame_emperor", FlameEmperorSkill::new);
 
     private ModSkills() {
     }

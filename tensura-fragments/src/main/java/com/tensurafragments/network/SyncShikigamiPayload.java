@@ -9,13 +9,14 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /** Server tells the client the Shikigami Control state for the HUD: Substitution on/off, its cooldown, the selected spell and rainbow spell. */
-public record SyncShikigamiPayload(boolean enabled, int cooldownTicks, int spell, int rainbowSpell) implements CustomPacketPayload {
+public record SyncShikigamiPayload(boolean enabled, int cooldownTicks, int spell, int rainbowSpell, int fireSpell) implements CustomPacketPayload {
     public static final Type<SyncShikigamiPayload> TYPE = new Type<>(TensuraFragments.id("sync_shikigami"));
     public static final StreamCodec<ByteBuf, SyncShikigamiPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, SyncShikigamiPayload::enabled,
             ByteBufCodecs.VAR_INT, SyncShikigamiPayload::cooldownTicks,
             ByteBufCodecs.VAR_INT, SyncShikigamiPayload::spell,
             ByteBufCodecs.VAR_INT, SyncShikigamiPayload::rainbowSpell,
+            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::fireSpell,
             SyncShikigamiPayload::new);
 
     @Override

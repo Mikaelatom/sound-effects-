@@ -374,7 +374,7 @@ public enum Spell {
         level.playSound(null, at.x, at.y, at.z, sound, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
-    static boolean isAlly(Entity entity, @Nullable Entity owner) {
+    public static boolean isAlly(Entity entity, @Nullable Entity owner) {
         return owner != null && (entity == owner
                 || (entity instanceof OwnableEntity ownable && owner.getUUID().equals(ownable.getOwnerUUID()))
                 || Binding.isBoundTo(entity, owner));
