@@ -3,7 +3,6 @@ package com.tensurafragments.flame;
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.shikigami.Spell;
-import io.github.manasmods.tensura.damage.TensuraDamageTypes;
 import io.github.manasmods.tensura.registry.particle.TensuraParticleTypes;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -129,7 +128,7 @@ public class HellStormEntity extends Entity implements GeoEntity {
         double length = from.distanceTo(to);
         Vec3 direction = to.subtract(from).normalize();
         AABB box = new AABB(from, to).inflate(endRadius);
-        DamageSource source = level.damageSources().source(TensuraDamageTypes.BLACK_FLAME, this, caster);
+        DamageSource source = HellfireDamage.storm(this, caster);
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, box,
                 e -> e.isAlive() && !e.isSpectator() && !Spell.isAlly(e, caster))) {
             if (!insideCone(target, from, direction, length, endRadius)) {
@@ -137,6 +136,7 @@ public class HellStormEntity extends Entity implements GeoEntity {
             }
             target.invulnerableTime = 0;
             target.hurt(source, Config.HELL_STORM_DAMAGE.get().floatValue());
+            target.setRemainingFireTicks(Math.max(target.getRemainingFireTicks(), 100));
             target.addEffect(new MobEffectInstance(ModRegistries.DRACONIC_HELLFIRE, MobEffectInstance.INFINITE_DURATION, 0,
                     false, true, true), caster);
         }

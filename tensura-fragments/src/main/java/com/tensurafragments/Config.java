@@ -213,12 +213,13 @@ public final class Config {
                     "The mist is drawn to match, so what you see is what burns.")
             .defineInRange("hellStormEndRadius", 5.0, 0.5, 16.0);
     public static final ModConfigSpec.DoubleValue HELL_STORM_DAMAGE = BUILDER
-            .comment("Fire damage per hit. Anything in the storm is hit 4 times a second.")
-            .defineInRange("hellStormDamage", 20.0, 0.0, 10000.0);
+            .comment("Hellfire damage per hit. Anything in the storm is hit 4 times a second. It ignores armour, shields,",
+                    "Resistance, Fire Resistance, fire immunity and Tensura's dodges and barriers.")
+            .defineInRange("hellStormDamagePerHit", 50.0, 0.0, 100000.0);
     public static final ModConfigSpec.DoubleValue HELLFIRE_DAMAGE_PER_SECOND = BUILDER
             .comment("Draconic Hellfire: the burn Hell Storm leaves never goes out, dealing this much every second until",
                     "the target dies.")
-            .defineInRange("hellfireDamagePerSecond", 3.0, 0.0, 10000.0);
+            .defineInRange("hellfireBurnPerSecond", 8.0, 0.0, 100000.0);
 
     static {
         BUILDER.pop();

@@ -14,8 +14,10 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -68,7 +70,7 @@ public final class FlameGameTests {
         helper.runAfterDelay(45, () -> {
             helper.assertFalse(helper.getLevel().getEntitiesOfClass(HellStormEntity.class,
                     new AABB(player.blockPosition()).inflate(4)).isEmpty(), "storm pouring out");
-            helper.assertTrue(husk.getHealth() < 1000 - 40, "huge fire damage, husk at " + husk.getHealth());
+            helper.assertTrue(husk.getHealth() < 1000 - 100, "huge fire damage, husk at " + husk.getHealth());
             helper.assertTrue(husk.hasEffect(ModRegistries.DRACONIC_HELLFIRE), "Draconic Hellfire applied");
             helper.assertTrue(player.getHealth() == player.getMaxHealth(), "the caster isn't burned");
         });
@@ -112,6 +114,32 @@ public final class FlameGameTests {
                     "nothing behind the caster burns");
             helper.assertTrue(besideTheHand.getHealth() == 1000 && !besideTheHand.hasEffect(ModRegistries.DRACONIC_HELLFIRE),
                     "the mist is thin at the hand, so beside it is safe");
+            helper.succeed();
+        });
+    }
+
+    /** Hellfire is its own damage: fire-immune mobs with Fire Resistance, in armour, still burn. */
+    @GameTest(template = "platform", timeoutTicks = 160)
+    public static void hellStormBurnsTheFireproof(GameTestHelper helper) {
+        ServerPlayer player = emperor(helper, 4.5, 0.5);
+        Blaze blaze = helper.spawnWithNoFreeWill(EntityType.BLAZE, new Vec3(4.5, GROUND, 5.5));
+        blaze.setNoGravity(true);
+        blaze.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+        blaze.setHealth(1000);
+        blaze.getAttribute(Attributes.ARMOR).setBaseValue(30);
+        blaze.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, MobEffectInstance.INFINITE_DURATION));
+        blaze.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, MobEffectInstance.INFINITE_DURATION, 3));
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, blaze.position().add(0, 1, 0));
+        helper.assertTrue(FlameEmperor.hellStorm(player), "hell storm cast");
+        helper.runAfterDelay(45, () -> {
+            helper.assertTrue(blaze.getHealth() <= 1000 - 100, "fireproof, armoured blaze still burns, at " + blaze.getHealth());
+            helper.assertTrue(blaze.hasEffect(ModRegistries.DRACONIC_HELLFIRE), "Draconic Hellfire applied");
+        });
+        float[] afterStorm = new float[1];
+        helper.runAfterDelay(100, () -> afterStorm[0] = blaze.getHealth());
+        helper.runAfterDelay(145, () -> {
+            helper.assertTrue(blaze.hasEffect(ModRegistries.DRACONIC_HELLFIRE), "the burn doesn't end");
+            helper.assertTrue(blaze.getHealth() < afterStorm[0], "and keeps hurting the fireproof blaze after the storm");
             helper.succeed();
         });
     }

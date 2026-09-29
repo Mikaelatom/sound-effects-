@@ -127,12 +127,14 @@ your active preset) shows the selected one.
 | Hell Flare | 30 | 15s | 250 |
 
 **Draconic Hell Storm.** Tensura's flame magic circle opens on your hand and charges for 1.5 seconds, then
-Gluttony's mist (Tensura's own model and animation) pours out of it as hellfire for 3 seconds: a cone straight ahead of you, thin at your hand and 5 blocks wide (radius) at
-its far end, 18 blocks out. What burns is exactly the mist you see. It
-follows where you look, so you can sweep it across a crowd, and stops at walls. Anything in it takes **20 black-flame
-damage four times a second** and gets **Draconic Hellfire**: a burn that **never goes out**. Water relights it, milk
-and totems don't cure it, fire resistance doesn't stop it; it deals 3 damage every second until the target dies. It
-never touches you, your shikigami, pets or released grimoire creatures. 800 magicules, 30 second cooldown.
+Gluttony's mist (Tensura's own model and animation) pours out of it as hellfire for 3 seconds: a cone straight ahead
+of you, thin at your hand and 5 blocks wide (radius) at its far end, 18 blocks out. What burns is exactly the mist you
+see. It follows where you look, so you can sweep it across a crowd, and stops at walls. Anything in it takes **50
+hellfire damage four times a second** (200 a second) and gets **Draconic Hellfire**: a burn that **never goes out**,
+dealing 8 damage every second until the target dies. Hellfire is its own damage type: armour, shields, Resistance,
+Fire Resistance, fire immunity (blazes, fire races) and Tensura's dodges and barriers don't stop it, and water, milk
+and totems don't put it out. It never touches you, your shikigami, pets or released grimoire creatures. 800
+magicules, 30 second cooldown.
 
 All numbers are in the `[flame]` section of the server config.
 

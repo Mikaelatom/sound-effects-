@@ -82,6 +82,10 @@
   "tensurafragments.flame.spell.black_flame_ball": "Black Flame Ball",
   "tensurafragments.flame.spell.hell_flare": "Hell Flare",
   "effect.tensurafragments.draconic_hellfire": "Draconic Hellfire",
+  "death.attack.tensurafragments.draconic_inferno": "%1$s was incinerated by Draconic Hell Storm",
+  "death.attack.tensurafragments.draconic_inferno.player": "%1$s was incinerated by %2$s's Draconic Hell Storm",
+  "death.attack.tensurafragments.inferno_curse": "%1$s burned away in Draconic Hellfire",
+  "death.attack.tensurafragments.inferno_curse.player": "%1$s burned away in Draconic Hellfire while fighting %2$s",
   "entity.tensurafragments.hell_circle": "Hell Storm Circle",
   "entity.tensurafragments.hell_storm": "Draconic Hell Storm"
 }

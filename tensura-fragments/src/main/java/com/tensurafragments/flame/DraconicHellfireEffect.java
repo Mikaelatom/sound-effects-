@@ -1,7 +1,6 @@
 package com.tensurafragments.flame;
 
 import com.tensurafragments.Config;
-import io.github.manasmods.tensura.damage.TensuraDamageTypes;
 import java.util.Set;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -31,7 +30,7 @@ public class DraconicHellfireEffect extends MobEffect {
         entity.setRemainingFireTicks(Math.max(entity.getRemainingFireTicks(), 40));
         if (entity.tickCount % 20 == 0) {
             entity.invulnerableTime = 0;
-            entity.hurt(entity.damageSources().source(TensuraDamageTypes.BURN),
+            entity.hurt(HellfireDamage.burn(entity),
                     Config.HELLFIRE_DAMAGE_PER_SECOND.get().floatValue() * (amplifier + 1));
         }
         if (entity.level() instanceof ServerLevel level && entity.tickCount % 4 == 0) {
