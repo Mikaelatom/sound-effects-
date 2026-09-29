@@ -10,7 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Flame Emperor as a Tensura Ultimate skill. Modes:
+ * Flame Emperor as a Tensura skill (listed with the Unique skills, like the rest of this addon). Modes:
  * <ol start="0">
  *   <li>Fire Magic: cast the selected Tensura fire spell (sneak: switch spell)</li>
  *   <li>Draconic Hell Storm: a magic circle on your hand, then Gluttony's mist as hellfire (long cooldown)</li>
@@ -21,7 +21,7 @@ public class FlameEmperorSkill extends Skill {
     public static final int MODE_HELL_STORM = 1;
 
     public FlameEmperorSkill() {
-        super(SkillType.ULTIMATE);
+        super(SkillType.UNIQUE);
     }
 
     /** Tensura's default icon lookup always uses the "tensura" namespace, so point it at our own texture. */

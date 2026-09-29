@@ -106,9 +106,9 @@ Magicules are the spell's base cost times `rainbowCostMultiplier` (2). No paper 
 it's on your active preset) shows the selected spell in rainbow letters. Only spells cast through Rainbow Magic are
 recoloured; Tensura's spells cast any other way look and hit as normal.
 
-## Skill 5: Flame Emperor (Ultimate)
+## Skill 5: Flame Emperor
 
-An Ultimate skill, given to every player, with two modes.
+A Unique skill, given to every player, with two modes.
 
 **Fire Magic.** Cast any of Tensura's own fire spells. **Sneak** to switch; the HUD (bottom right, while it's on
 your active preset) shows the selected one.
