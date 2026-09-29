@@ -135,6 +135,48 @@ public final class Config {
             .defineInRange("substitutionBlinkDistance", 3.0, 0.0, 16.0);
 
     static {
+        BUILDER.pop().comment("Sealing Grimoire: seal creatures and magic in a book with paper, then release them").push("grimoire");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_SEALING_GRIMOIRE = BUILDER
+            .comment("Give every player the Sealing Grimoire skill. The first use turns one ordinary book into the grimoire.")
+            .define("grantSealingGrimoire", true);
+    public static final ModConfigSpec.IntValue GRIMOIRE_PAGES = BUILDER
+            .comment("How many things one grimoire can hold.")
+            .defineInRange("grimoirePages", 9, 1, 64);
+    public static final ModConfigSpec.DoubleValue SEAL_REACH = BUILDER
+            .defineInRange("sealReach", 8.0, 1.0, 64.0);
+    public static final ModConfigSpec.DoubleValue SEAL_HEALTH_THRESHOLD = BUILDER
+            .comment("A creature can only be sealed at or below this fraction of its health (paper; leaves multiply it by",
+                    "leafPotency). A failed attempt still burns the talisman.")
+            .defineInRange("sealHealthThreshold", 0.35, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue SEAL_MAX_HEALTH = BUILDER
+            .comment("Creatures with more max health than this can't be sealed at all. Bosses never can",
+                    "(entity tag tensurafragments:unsealable).")
+            .defineInRange("sealMaxHealth", 300.0, 1.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue SEAL_BASE_MAGICULE_COST = BUILDER
+            .defineInRange("sealBaseMagiculeCost", 30.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue SEAL_MAGICULE_COST_PER_HEALTH = BUILDER
+            .comment("Extra magicules per point of the creature's max health.")
+            .defineInRange("sealMagiculeCostPerHealth", 2.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.IntValue CATCH_WINDOW_TICKS = BUILDER
+            .comment("How long the book stays open to catch magic after using Seal Magic.")
+            .defineInRange("catchWindowTicks", 10, 1, 200);
+    public static final ModConfigSpec.DoubleValue CATCH_RADIUS = BUILDER
+            .comment("How close a spell or projectile has to come to be caught.")
+            .defineInRange("catchRadius", 3.0, 0.5, 16.0);
+    public static final ModConfigSpec.IntValue CATCH_WHIFF_COOLDOWN_TICKS = BUILDER
+            .comment("Cooldown if nothing is caught in the window.")
+            .defineInRange("catchWhiffCooldownTicks", 40, 0, 1200);
+    public static final ModConfigSpec.DoubleValue RELEASE_CREATURE_MAGICULE_COST = BUILDER
+            .defineInRange("releaseCreatureMagiculeCost", 40.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue RELEASE_MAGIC_MAGICULE_COST = BUILDER
+            .defineInRange("releaseMagicMagiculeCost", 20.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.IntValue BOUND_DURATION_TICKS = BUILDER
+            .comment("How long a released creature fights for you before returning to the book.")
+            .defineInRange("boundDurationTicks", 1200, 20, 720000);
+
+    static {
         BUILDER.pop();
     }
 

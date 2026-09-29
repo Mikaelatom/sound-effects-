@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.grimoire.SealingGrimoire;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -25,6 +26,7 @@ public final class SkillEvents {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
             ShikigamiControl.grantSkill(player);
+            SealingGrimoire.grantSkill(player);
         }
     }
 
@@ -47,6 +49,7 @@ public final class SkillEvents {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
             ShikigamiControl.grantSkill(player);
+            SealingGrimoire.grantSkill(player);
             GambitCards.sync(player);
         }
     }

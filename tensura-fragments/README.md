@@ -52,6 +52,23 @@ can set `autoSubstitution = true`. All numbers are in the `[shikigami]` section 
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 
+## Skill 3: Sealing Grimoire
+
+An empty book that seals creatures and magic with paper talismans, so you can call them back out later. A Unique
+skill, given to every player. The first time you use it, one ordinary **book** in your inventory becomes the
+**Sealing Grimoire** item. Everything sealed lives in that book (9 pages by default), so if you lose the book, you
+lose what's in it. Paper is the ammo, and leaves work at reduced strength as with Shikigami Control.
+
+| Mode | What it does | Cost |
+|---|---|---|
+| **Seal Creature** | Seal the creature you're looking at. It only works once you've weakened it to **35% health or less** (less with leaves). A failed attempt burns the talisman. Bosses (the `tensurafragments:unsealable` tag, which includes `#c:bosses`) and creatures over 300 max health can't be sealed, nor can other people's pets. Using it on one of your own released creatures sends it back to the book for free. | 1 paper + 30 magicules + 2 per point of the creature's max health (only charged on success) |
+| **Seal Magic** | Open the book for half a second. The first spell or projectile that comes within 3 blocks is caught, including Tensura's spell projectiles. A good catch is ready again straight away; a mistimed one goes on a 2 second cooldown. | 1 paper per catch |
+| **Release** | Release the selected page. A **creature** comes out at full health and fights for you for 60 seconds, attacking whatever you hit or whatever hits you. It never targets you or your other creatures, and it goes back into the book when its time is up; if it dies, the page is gone. **Magic** is fired where you're looking, as your own. **Sneak** to turn to the next page. | 40 magicules (creature) / 20 (magic) |
+
+The HUD (right side, only while the skill is on your active preset) lists the pages (green for creatures, blue for
+magic) and marks the selected one; the item tooltip shows the same. All numbers are in the `[grimoire]` section of
+the server config.
+
 ## Original skills
 
 By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).
@@ -72,7 +89,9 @@ Requires JDK 21.
 
 The in-world tests in `src/main/java/com/tensurafragments/test/` cover both skills: card blasts (range, self damage,
 chaining), teleporting, the skill icons, turning blocks into shikigami (and needing paper), block hardness scaling,
-dismissing, substitution (timed and mistimed), talisman blasts, and the barrier keeping out mobs and arrows.
+dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
+grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching
+and re-firing magic, bosses being unsealable).
 
 Tensura: Reincarnated, ManasCore, Architectury, GeckoLib, SmartBrainLib and TerraBlender (runtime only) are pulled from CurseForge via
 CurseMaven (versions in `build.gradle`). If you update Tensura, bump the file id in `tensuraDep`.
