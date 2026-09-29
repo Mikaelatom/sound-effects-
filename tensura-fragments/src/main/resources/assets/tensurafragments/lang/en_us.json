@@ -52,5 +52,11 @@
   "tensurafragments.spell.water": "Water 水",
   "tensurafragments.spell.wood": "Wood 木",
   "tensurafragments.spell.lightning": "Lightning 金",
-  "tensurafragments.spell.earth": "Earth 土"
+  "tensurafragments.spell.earth": "Earth 土",
+  "tensurafragments.spell.ice": "Ice 氷",
+  "tensurafragments.spell.wind": "Wind 風",
+  "tensurafragments.spell.rainbow": "Rainbow %s",
+  "tensurafragments.skill.mode.shikigami_control.rainbow": "Rainbow Talismans: on / off",
+  "tensurafragments.shikigami.rainbow_on": "Rainbow talismans: every spell strikes with all elements at once",
+  "tensurafragments.shikigami.rainbow_off": "Rainbow talismans off"
 }

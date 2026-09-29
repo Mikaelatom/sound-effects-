@@ -74,7 +74,8 @@ public final class Config {
                     "leaf doll blocks.")
             .defineInRange("leafPotency", 0.5, 0.0, 1.0);
     public static final ModConfigSpec.IntValue MAX_SHIKIGAMI = BUILDER
-            .defineInRange("maxShikigami", 3, 1, 32);
+            .comment("Most shikigami you can have out at once (a new one replaces the oldest). 0 means no limit.")
+            .defineInRange("shikigamiLimit", 0, 0, 100000);
     public static final ModConfigSpec.IntValue SHIKIGAMI_LIFETIME_TICKS = BUILDER
             .comment("How long a shikigami lasts before it turns back into its block.")
             .defineInRange("shikigamiLifetimeTicks", 2400, 20, 720000);
@@ -93,8 +94,15 @@ public final class Config {
             .defineInRange("talismanSpeed", 1.5, 0.1, 10.0);
     public static final ModConfigSpec.DoubleValue SPELL_COST_MULTIPLIER = BUILDER
             .comment("Multiplier on every spell talisman's magicule cost (Explosive 20, Fire 25, Water 20, Wood 25,",
-                    "Lightning 35, Earth 30).")
+                    "Lightning 35, Earth 30, Ice 25, Wind 20).")
             .defineInRange("spellCostMultiplier", 1.0, 0.0, 1000.0);
+    public static final ModConfigSpec.DoubleValue RAINBOW_COST_MULTIPLIER = BUILDER
+            .comment("A rainbow talisman costs this many times the normal spell's magicules.")
+            .defineInRange("rainbowCostMultiplier", 2.0, 0.0, 1000.0);
+    public static final ModConfigSpec.DoubleValue RAINBOW_DAMAGE_MULTIPLIER = BUILDER
+            .comment("A rainbow talisman adds every element's damage at once (Fire 4 + Water 2 + Lightning 8 + Earth 5 +",
+                    "Ice 3 + Wind 2 = 24) on top of the spell itself, multiplied by this.")
+            .defineInRange("rainbowDamageMultiplier", 0.5, 0.0, 100.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_RADIUS = BUILDER
             .defineInRange("talismanBlastRadius", 3.0, 0.5, 32.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_DAMAGE = BUILDER

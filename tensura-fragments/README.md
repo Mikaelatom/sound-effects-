@@ -40,10 +40,11 @@ always used first. Things made from leaves have a green talisman.
 
 | Mode | What it does | Cost |
 |---|---|---|
-| **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). Up to 3; a 4th replaces the oldest. **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
+| **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
 | **Spell Talisman** | Throw your selected spell talisman. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
+| **Rainbow** | Turn rainbow talismans on or off (see below). | – |
 
 **Spell talismans** (after Seika's five-phase onmyōdō). Only Explosive can hurt you; the elemental ones spare you, your
 shikigami, your pets and your released grimoire creatures. Leaves make every spell weaker.
@@ -56,6 +57,13 @@ shikigami, your pets and your released grimoire creatures. Leaves make every spe
 | **Wood 木** (green) | Roots: enemies within 3 blocks are held in place and weakened for 3 seconds; you and your allies there heal 4 and get Regeneration | 25 |
 | **Lightning 金** (yellow) | Lightning strikes the nearest enemy within 4 blocks for 8, then chains to up to 2 more, weaker each jump | 35 |
 | **Earth 土** (brown) | Stone eruption: enemies within 3 blocks take 5 and are launched into the air | 30 |
+| **Ice 氷** (pale blue) | Frost: enemies within 3 blocks take 3, are frozen solid (like powder snow) and slowed; nearby water freezes over for a few seconds and fires go out | 25 |
+| **Wind 風** (pale green) | Gust: enemies within 4 blocks take 2 and are blown away; projectiles that aren't yours are thrown back; if you're caught in it you're launched upward (throw it at your feet for a wind jump) | 20 |
+
+**Rainbow talismans.** Turn on the **Rainbow** mode and every talisman you throw becomes the rainbow version of its
+spell: same shape and effect, drawn in rainbow colours, and every enemy it reaches also takes every element's damage
+at once (burning, freezing and slowed together). Rainbow talismans cost twice the magicules (`rainbowCostMultiplier`);
+the extra damage is half the sum of all the elements (`rainbowDamageMultiplier`, 12 by default).
 
 Costs scale with `spellCostMultiplier`.
 

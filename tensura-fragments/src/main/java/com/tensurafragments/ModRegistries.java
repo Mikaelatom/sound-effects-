@@ -86,6 +86,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SELECTED_SPELL = ATTACHMENTS.register(
             "selected_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
+    /** Whether Shikigami Control throws rainbow talismans. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> RAINBOW_ENABLED = ATTACHMENTS.register(
+            "rainbow_enabled", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());

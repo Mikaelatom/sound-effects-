@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
  *   <li>Talisman: throw the selected spell talisman (sneak: switch spell)</li>
  *   <li>Barrier: plant a talisman anchor (sneak: raise or dispel the barrier)</li>
  *   <li>Substitution: turn the automatic paper-doll dodge on or off (on by default)</li>
+ *   <li>Rainbow: turn rainbow talismans on or off (every spell deals all elements at once)</li>
  * </ol>
  * Magicules are charged by {@link ShikigamiControl} only when an action actually happens.
  */
@@ -24,7 +25,8 @@ public class ShikigamiControlSkill extends Skill {
     public static final int MODE_TALISMAN = 1;
     public static final int MODE_BARRIER = 2;
     public static final int MODE_SUBSTITUTION = 3;
-    private static final String[] MODE_IDS = {"shikigami", "talisman", "barrier", "substitution"};
+    public static final int MODE_RAINBOW = 4;
+    private static final String[] MODE_IDS = {"shikigami", "talisman", "barrier", "substitution", "rainbow"};
 
     public ShikigamiControlSkill() {
         super(SkillType.UNIQUE);
@@ -80,6 +82,10 @@ public class ShikigamiControlSkill extends Skill {
                 yield ShikigamiControl.placeAnchor(player);
             }
             case MODE_SUBSTITUTION -> ShikigamiControl.toggleSubstitution(player);
+            case MODE_RAINBOW -> {
+                ShikigamiControl.toggleRainbow(player);
+                yield false;
+            }
             default -> false;
         };
         if (used) {

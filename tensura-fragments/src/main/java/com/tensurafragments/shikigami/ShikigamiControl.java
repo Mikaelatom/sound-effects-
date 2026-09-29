@@ -81,10 +81,12 @@ public final class ShikigamiControl {
             return false;
         }
 
-        List<ShikigamiEntity> existing = shikigami(player);
-        int overflow = existing.size() - Config.MAX_SHIKIGAMI.get() + 1;
-        for (int i = 0; i < overflow; i++) {
-            existing.get(i).revert(); // oldest first
+        int max = Config.MAX_SHIKIGAMI.get();
+        if (max > 0) {
+            List<ShikigamiEntity> existing = shikigami(player);
+            for (int i = 0; i < existing.size() - max + 1; i++) {
+                existing.get(i).revert(); // oldest first
+            }
         }
 
         Paper.Talisman paper = Paper.consume(player);
@@ -128,6 +130,18 @@ public final class ShikigamiControl {
         sync(player);
     }
 
+    /** Turns rainbow talismans on or off: every spell becomes its rainbow version, dealing all elements at once. */
+    public static void toggleRainbow(ServerPlayer player) {
+        boolean enabled = !player.getData(ModRegistries.RAINBOW_ENABLED);
+        player.setData(ModRegistries.RAINBOW_ENABLED, enabled);
+        player.displayClientMessage(Component.translatable(enabled
+                ? "tensurafragments.shikigami.rainbow_on" : "tensurafragments.shikigami.rainbow_off"), true);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                enabled ? TensuraSoundEvents.CAST_LIGHT.get() : TensuraSoundEvents.GENERIC_UNCAST.get(),
+                SoundSource.PLAYERS, 0.7F, 1.2F);
+        sync(player);
+    }
+
     /** Throws the selected spell talisman. It goes off on contact with the ground or a creature. */
     public static boolean throwTalisman(ServerPlayer player, Vec3 momentum) {
         if (!Paper.has(player)) {
@@ -135,11 +149,12 @@ public final class ShikigamiControl {
             return false;
         }
         Spell spell = selectedSpell(player);
-        if (!Magicules.trySpend(player, spell.magiculeCost())) {
+        boolean rainbow = player.getData(ModRegistries.RAINBOW_ENABLED);
+        if (!Magicules.trySpend(player, spell.magiculeCost(rainbow))) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
-        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player), spell);
+        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player), spell, rainbow);
         talisman.setDeltaMovement(player.getLookAngle().scale(Config.TALISMAN_SPEED.get()).add(momentum));
         player.level().addFreshEntity(talisman);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,
@@ -270,7 +285,7 @@ public final class ShikigamiControl {
     public static void sync(ServerPlayer player) {
         int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - player.level().getGameTime());
         PacketDistributor.sendToPlayer(player, new SyncShikigamiPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED),
-                cooldown, player.getData(ModRegistries.SELECTED_SPELL)));
+                cooldown, player.getData(ModRegistries.SELECTED_SPELL), player.getData(ModRegistries.RAINBOW_ENABLED)));
     }
 
     // ---- Shared ------------------------------------------------------------------------------------------------

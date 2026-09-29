@@ -8,6 +8,7 @@ import com.tensurafragments.skill.ModSkills;
 import io.github.manasmods.tensura.ability.SkillHelper;
 import java.util.List;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,8 +16,10 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
@@ -134,5 +137,60 @@ public final class SpellGameTests {
 
         helper.assertTrue(ShikigamiControl.throwTalisman(player, Vec3.ZERO), "thrown");
         helper.succeedWhen(() -> helper.assertTrue(pig.isOnFire(), "the Fire talisman set the pig alight on contact"));
+    }
+
+    @GameTest(template = "platform")
+    public static void iceFreezesEnemiesAndWater(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 0.5, 0.5);
+        Pig pig = pig(helper, 5.5, 4.5);
+        BlockPos water = new BlockPos(4, GROUND - 1, 4);
+        helper.setBlock(water, Blocks.WATER);
+        Spell.ICE.cast(helper.getLevel(), player, player, at(helper, 4.5, 4.5), 1.0F);
+
+        helper.assertTrue(pig.isFullyFrozen(), "pig frozen solid");
+        helper.assertTrue(pig.getHealth() < pig.getMaxHealth(), "and hurt");
+        helper.assertBlockPresent(Blocks.FROSTED_ICE, water);
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void windBlowsEnemiesAwayAndLiftsTheCaster(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5);
+        Pig pig = pig(helper, 6.5, 4.5);
+        Arrow arrow = helper.spawn(EntityType.ARROW, new Vec3(4.5, GROUND + 1, 6.5));
+        arrow.setDeltaMovement(0, 0, -1);
+        Spell.WIND.cast(helper.getLevel(), player, player, at(helper, 4.5, 4.5), 1.0F);
+
+        helper.assertTrue(pig.getDeltaMovement().x > 1.0, "pig blown away");
+        helper.assertTrue(player.getDeltaMovement().y > 0.8, "caster launched up for a wind jump");
+        helper.assertTrue(player.getHealth() == player.getMaxHealth(), "without being hurt");
+        helper.assertTrue(arrow.getDeltaMovement().z > 0, "a stranger's arrow is thrown back");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void rainbowDealsEveryElementAtOnce(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 0.5, 0.5);
+        Zombie plain = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new Vec3(2.5, GROUND, 6.5));
+        Zombie prism = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new Vec3(6.5, GROUND, 6.5));
+        Spell.WOOD.cast(helper.getLevel(), player, player, at(helper, 2.5, 6.5), 1.0F);
+        Spell.WOOD.castRainbow(helper.getLevel(), player, player, at(helper, 6.5, 6.5), 1.0F);
+
+        helper.assertTrue(plain.getHealth() == plain.getMaxHealth(), "plain Wood only roots");
+        helper.assertTrue(prism.getHealth() < prism.getMaxHealth(), "rainbow Wood also deals elemental damage");
+        helper.assertTrue(prism.isOnFire() && prism.getTicksFrozen() > 0, "burning and freezing at once");
+        helper.assertTrue(prism.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)
+                && prism.getEffect(MobEffects.MOVEMENT_SLOWDOWN).getAmplifier() >= 5, "and still rooted like Wood");
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
+    public static void rainbowToggleMakesRainbowTalismans(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 1.5);
+        ShikigamiControl.toggleRainbow(player);
+        helper.assertTrue(ShikigamiControl.throwTalisman(player, Vec3.ZERO), "thrown");
+        List<TalismanEntity> thrown = helper.getLevel().getEntitiesOfClass(TalismanEntity.class, new AABB(player.blockPosition()).inflate(4));
+        helper.assertTrue(thrown.size() == 1 && thrown.get(0).isRainbow(), "a rainbow talisman flies");
+        helper.succeed();
     }
 }

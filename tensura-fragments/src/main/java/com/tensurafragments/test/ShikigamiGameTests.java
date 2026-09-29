@@ -91,6 +91,18 @@ public final class ShikigamiGameTests {
     }
 
     @GameTest(template = "platform")
+    public static void noLimitOnShikigami(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 0.5, 8);
+        for (int x = 1; x <= 7; x += 2) {
+            summonFrom(helper, player, new BlockPos(x, GROUND, 4), Blocks.STONE);
+            summonFrom(helper, player, new BlockPos(x, GROUND, 6), Blocks.STONE);
+        }
+        helper.assertTrue(ShikigamiControl.shikigami(player).size() == 8,
+                "all 8 shikigami stay out, have " + ShikigamiControl.shikigami(player).size());
+        helper.succeed();
+    }
+
+    @GameTest(template = "platform")
     public static void summonNeedsPaper(GameTestHelper helper) {
         ServerPlayer player = caster(helper, 4.5, 1.5, 0);
         BlockPos pos = new BlockPos(4, GROUND, 5);
