@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.shikigami.ShikigamiControlSkill;
 import dev.architectury.registry.registries.RegistrySupplier;
 import io.github.manasmods.manascore.skill.api.ManasSkill;
 import io.github.manasmods.manascore.skill.impl.SkillRegistry;
@@ -9,6 +10,8 @@ import java.util.function.Supplier;
 /** Skills registered into Tensura's (ManasCore's) skill registry, so they show up in Tensura's skill menu and keys. */
 public final class ModSkills {
     public static final RegistrySupplier<GambitCardsSkill> GAMBIT_CARDS = register("gambit_cards", GambitCardsSkill::new);
+    public static final RegistrySupplier<ShikigamiControlSkill> SHIKIGAMI_CONTROL =
+            register("shikigami_control", ShikigamiControlSkill::new);
 
     private ModSkills() {
     }

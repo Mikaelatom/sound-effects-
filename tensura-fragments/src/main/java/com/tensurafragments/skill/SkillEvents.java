@@ -1,9 +1,11 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.shikigami.ShikigamiControl;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -22,6 +24,15 @@ public final class SkillEvents {
         if (player.tickCount % 40 == 0) {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
+            ShikigamiControl.grantSkill(player);
+        }
+    }
+
+    /** A readied paper doll (Shikigami Control's Substitution) takes the hit instead of you. */
+    @SubscribeEvent
+    public static void onIncomingDamage(LivingIncomingDamageEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player && ShikigamiControl.trySubstitute(player, event.getSource())) {
+            event.setCanceled(true);
         }
     }
 
@@ -30,6 +41,7 @@ public final class SkillEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
+            ShikigamiControl.grantSkill(player);
             GambitCards.sync(player);
         }
     }

@@ -16,6 +16,7 @@ public final class ClientEvents {
     public static void onClientTick(ClientTickEvent.Post event) {
         if (Minecraft.getInstance().player != null) {
             ClientDeckState.tick();
+            ClientShikigamiState.tick();
         }
     }
 }

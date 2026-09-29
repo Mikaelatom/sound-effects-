@@ -2,8 +2,7 @@ package com.tensurafragments.card;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
-import io.github.manasmods.tensura.particle.TensuraParticleHelper;
-import io.github.manasmods.tensura.particle.TensuraParticleUtils;
+import com.tensurafragments.magic.Blast;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -12,13 +11,10 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -213,53 +209,9 @@ public class CardEntity extends Projectile {
         }
         exploded = true;
 
-        Entity owner = getOwner();
-        Vec3 centre = position();
-        double radius = Config.BLAST_RADIUS.get();
-        float damage = (float) (Config.BLAST_DAMAGE.get() * getCharge());
-        DamageSource source = damageSources().explosion(this, owner);
-        DamageSource selfSource = damageSources().explosion(this, null);
-
-        for (LivingEntity victim : level().getEntitiesOfClass(LivingEntity.class, new AABB(centre, centre).inflate(radius))) {
-            Vec3 body = victim.position().add(0, victim.getBbHeight() / 2.0, 0);
-            double distance = body.distanceTo(centre);
-            if (distance > radius) {
-                continue;
-            }
-            float falloff = (float) (1.0 - distance / radius);
-            float amount = damage * falloff;
-            if (victim == owner) {
-                // Too close to your own card and you eat the blast too.
-                amount *= Config.SELF_DAMAGE_MULTIPLIER.get().floatValue();
-            }
-            if (amount > 0) {
-                // Self damage has no attacker, so it still applies on servers with PvP turned off.
-                victim.hurt(victim == owner ? selfSource : source, amount);
-            }
-
-            Vec3 push = body.subtract(centre);
-            push = push.lengthSqr() < 1.0E-4 ? new Vec3(0, 1, 0) : push.normalize();
-            push = push.scale(Config.BLAST_KNOCKBACK.get() * falloff * getCharge());
-            victim.push(push.x, push.y + 0.2 * falloff, push.z);
-            if (victim instanceof ServerPlayer player) {
-                player.hurtMarked = true;
-            }
-        }
-
-        // Other cards in the blast go off a few ticks later.
-        for (CardEntity other : level().getEntitiesOfClass(CardEntity.class, new AABB(centre, centre).inflate(radius))) {
-            if (other != this && other.distanceTo(this) <= radius) {
-                other.prime(4);
-            }
-        }
-
-        serverLevel.sendParticles(ParticleTypes.EXPLOSION, getX(), getY(), getZ(), 1 + Math.round(getCharge() * 2), 0.5, 0.5, 0.5, 0);
-        // Tensura's shockwave ring, sized to the blast.
-        TensuraParticleHelper.spawnServerParticles(serverLevel,
-                TensuraParticleUtils.getColorlessReversedWave(0.9F, (float) radius), getX(), getY(), getZ());
-        serverLevel.sendParticles(ParticleTypes.ENCHANTED_HIT, getX(), getY(), getZ(), 30, 0.3, 0.3, 0.3, 0.6);
-        level().playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS,
-                1.0F + getCharge() * 0.5F, 1.2F);
+        Blast.explode(serverLevel, this, getOwner(), position(), Config.BLAST_RADIUS.get(),
+                Config.BLAST_DAMAGE.get().floatValue(), Config.BLAST_KNOCKBACK.get(),
+                Config.SELF_DAMAGE_MULTIPLIER.get().floatValue(), getCharge());
         discard();
     }
 

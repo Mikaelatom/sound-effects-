@@ -2,12 +2,16 @@ package com.tensurafragments;
 
 import com.mojang.serialization.Codec;
 import com.tensurafragments.card.CardEntity;
+import com.tensurafragments.shikigami.BarrierAnchorEntity;
+import com.tensurafragments.shikigami.ShikigamiEntity;
+import com.tensurafragments.shikigami.TalismanEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -27,6 +31,26 @@ public final class ModRegistries {
                     .updateInterval(1)
                     .build("card"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<ShikigamiEntity>> SHIKIGAMI = ENTITY_TYPES.register("shikigami",
+            () -> EntityType.Builder.<ShikigamiEntity>of(ShikigamiEntity::new, MobCategory.MISC)
+                    .sized(0.9F, 0.9F)
+                    .clientTrackingRange(10)
+                    .build("shikigami"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<TalismanEntity>> TALISMAN = ENTITY_TYPES.register("talisman",
+            () -> EntityType.Builder.<TalismanEntity>of(TalismanEntity::new, MobCategory.MISC)
+                    .sized(0.3F, 0.3F)
+                    .clientTrackingRange(8)
+                    .updateInterval(1)
+                    .build("talisman"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<BarrierAnchorEntity>> BARRIER_ANCHOR = ENTITY_TYPES.register("barrier_anchor",
+            () -> EntityType.Builder.<BarrierAnchorEntity>of(BarrierAnchorEntity::new, MobCategory.MISC)
+                    .sized(0.3F, 0.6F)
+                    .clientTrackingRange(10)
+                    .updateInterval(20)
+                    .build("barrier_anchor"));
+
     public static final DeferredHolder<SoundEvent, SoundEvent> CARD_PLACE = SOUNDS.register("card_place",
             () -> SoundEvent.createVariableRangeEvent(TensuraFragments.id("card_place")));
 
@@ -43,6 +67,8 @@ public final class ModRegistries {
 
     static void register(IEventBus modEventBus) {
         ENTITY_TYPES.register(modEventBus);
+        modEventBus.addListener((EntityAttributeCreationEvent event) ->
+                event.put(SHIKIGAMI.get(), ShikigamiEntity.createAttributes().build()));
         SOUNDS.register(modEventBus);
         ATTACHMENTS.register(modEventBus);
     }

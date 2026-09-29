@@ -62,6 +62,67 @@ public final class Config {
             .defineInRange("maxCarriedSpeed", 3.0, 0.0, 10.0);
 
     static {
+        BUILDER.pop().comment("Shikigami Control: paper talismans, block shikigami, barriers and substitution").push("shikigami");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_SHIKIGAMI_CONTROL = BUILDER
+            .comment("Give every player the Shikigami Control skill.")
+            .define("grantShikigamiControl", true);
+    public static final ModConfigSpec.IntValue MAX_SHIKIGAMI = BUILDER
+            .defineInRange("maxShikigami", 3, 1, 32);
+    public static final ModConfigSpec.IntValue SHIKIGAMI_LIFETIME_TICKS = BUILDER
+            .comment("How long a shikigami lasts before it turns back into its block.")
+            .defineInRange("shikigamiLifetimeTicks", 2400, 20, 720000);
+    public static final ModConfigSpec.DoubleValue SHIKIGAMI_REACH = BUILDER
+            .comment("How far away a block can be turned into a shikigami.")
+            .defineInRange("shikigamiReach", 8.0, 1.0, 64.0);
+    public static final ModConfigSpec.DoubleValue SHIKIGAMI_BASE_MAGICULE_COST = BUILDER
+            .defineInRange("shikigamiBaseMagiculeCost", 50.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue SHIKIGAMI_HARDNESS_MAGICULE_COST = BUILDER
+            .comment("Extra magicules per point of block hardness (stone 1.5, iron block 5, obsidian 50 -> capped at 10).")
+            .defineInRange("shikigamiHardnessMagiculeCost", 20.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue SHIKIGAMI_STRENGTH = BUILDER
+            .comment("Multiplier on shikigami health and damage.")
+            .defineInRange("shikigamiStrength", 1.0, 0.1, 100.0);
+    public static final ModConfigSpec.DoubleValue TALISMAN_SPEED = BUILDER
+            .defineInRange("talismanSpeed", 1.5, 0.1, 10.0);
+    public static final ModConfigSpec.DoubleValue TALISMAN_MAGICULE_COST = BUILDER
+            .defineInRange("talismanMagiculeCost", 20.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_RADIUS = BUILDER
+            .defineInRange("talismanBlastRadius", 3.0, 0.5, 32.0);
+    public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_DAMAGE = BUILDER
+            .defineInRange("talismanBlastDamage", 7.0, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue MAX_BARRIER_ANCHORS = BUILDER
+            .comment("Talisman anchors a barrier can have. Placing the last one raises the barrier automatically.")
+            .defineInRange("maxBarrierAnchors", 6, 3, 16);
+    public static final ModConfigSpec.DoubleValue BARRIER_ANCHOR_MAGICULE_COST = BUILDER
+            .defineInRange("barrierAnchorMagiculeCost", 15.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue BARRIER_UPKEEP_PER_SECOND = BUILDER
+            .comment("Magicules drained every second while a barrier is up. It collapses when you run out.")
+            .defineInRange("barrierUpkeepPerSecond", 8.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.IntValue BARRIER_DURATION_TICKS = BUILDER
+            .defineInRange("barrierDurationTicks", 600, 20, 720000);
+    public static final ModConfigSpec.IntValue BARRIER_HEIGHT = BUILDER
+            .defineInRange("barrierHeight", 5, 1, 64);
+    public static final ModConfigSpec.DoubleValue BARRIER_DAMAGE_PER_SECOND = BUILDER
+            .comment("Damage per second to hostile mobs caught inside the barrier while being pushed out.")
+            .defineInRange("barrierDamagePerSecond", 2.0, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue SUBSTITUTION_WINDOW_TICKS = BUILDER
+            .comment("How long the paper doll is ready after you use Substitution. Get hit in this window and it takes the hit.")
+            .defineInRange("substitutionWindowTicks", 10, 1, 200);
+    public static final ModConfigSpec.IntValue SUBSTITUTION_WHIFF_COOLDOWN_TICKS = BUILDER
+            .comment("Cooldown if the window passes without a hit.")
+            .defineInRange("substitutionWhiffCooldownTicks", 40, 0, 1200);
+    public static final ModConfigSpec.BooleanValue AUTO_SUBSTITUTION = BUILDER
+            .comment("If true, any paper in your inventory blocks hits automatically (no timing needed), with the cooldown below.")
+            .define("autoSubstitution", false);
+    public static final ModConfigSpec.IntValue AUTO_SUBSTITUTION_COOLDOWN_TICKS = BUILDER
+            .defineInRange("autoSubstitutionCooldownTicks", 60, 0, 1200);
+    public static final ModConfigSpec.DoubleValue SUBSTITUTION_BLINK_DISTANCE = BUILDER
+            .comment("How far you blink away from the attacker when the paper doll takes the hit.")
+            .defineInRange("substitutionBlinkDistance", 3.0, 0.0, 16.0);
+
+    static {
         BUILDER.pop();
     }
 
