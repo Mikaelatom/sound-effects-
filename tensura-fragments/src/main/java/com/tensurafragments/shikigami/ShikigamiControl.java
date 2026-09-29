@@ -2,7 +2,7 @@ package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
-import com.tensurafragments.network.SyncSubstitutionPayload;
+import com.tensurafragments.network.SyncShikigamiPayload;
 import com.tensurafragments.skill.Magicules;
 import com.tensurafragments.skill.ModSkills;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
@@ -113,16 +113,33 @@ public final class ShikigamiControl {
 
     // ---- Talisman ----------------------------------------------------------------------------------------------
 
+    public static Spell selectedSpell(ServerPlayer player) {
+        return Spell.byIndex(player.getData(ModRegistries.SELECTED_SPELL));
+    }
+
+    /** Switches to the next spell talisman. */
+    public static void cycleSpell(ServerPlayer player) {
+        Spell spell = selectedSpell(player).next();
+        player.setData(ModRegistries.SELECTED_SPELL, spell.ordinal());
+        player.displayClientMessage(Component.translatable("tensurafragments.shikigami.spell_selected",
+                Component.translatable("tensurafragments.spell." + spell.id())).withColor(spell.colour() & 0xFFFFFF), true);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,
+                SoundSource.PLAYERS, 0.5F, 1.6F);
+        sync(player);
+    }
+
+    /** Throws the selected spell talisman. It goes off on contact with the ground or a creature. */
     public static boolean throwTalisman(ServerPlayer player, Vec3 momentum) {
         if (!Paper.has(player)) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_paper"), true);
             return false;
         }
-        if (!Magicules.trySpend(player, Config.TALISMAN_MAGICULE_COST.get())) {
+        Spell spell = selectedSpell(player);
+        if (!Magicules.trySpend(player, spell.magiculeCost())) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
-        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player));
+        TalismanEntity talisman = TalismanEntity.create(player, Paper.consume(player), spell);
         talisman.setDeltaMovement(player.getLookAngle().scale(Config.TALISMAN_SPEED.get()).add(momentum));
         player.level().addFreshEntity(talisman);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.BOOK_PAGE_TURN,
@@ -249,11 +266,11 @@ public final class ShikigamiControl {
         }
     }
 
-    /** Sends the Substitution state to the client for the HUD. */
+    /** Sends the Substitution state and selected spell to the client for the HUD. */
     public static void sync(ServerPlayer player) {
         int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - player.level().getGameTime());
-        PacketDistributor.sendToPlayer(player,
-                new SyncSubstitutionPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED), cooldown));
+        PacketDistributor.sendToPlayer(player, new SyncShikigamiPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED),
+                cooldown, player.getData(ModRegistries.SELECTED_SPELL)));
     }
 
     // ---- Shared ------------------------------------------------------------------------------------------------

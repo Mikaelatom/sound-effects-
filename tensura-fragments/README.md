@@ -41,13 +41,27 @@ always used first. Things made from leaves have a green talisman.
 | Mode | What it does | Cost |
 |---|---|---|
 | **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). Up to 3; a 4th replaces the oldest. **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
-| **Talisman** | Throw a paper talisman that explodes on impact (3-block radius). Same blast rules as the cards: it hurts you if you're close, and it sets off cards. | 1 paper + 20 magicules |
+| **Spell Talisman** | Throw your selected spell talisman. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
 
+**Spell talismans** (after Seika's five-phase onmyōdō). Only Explosive can hurt you; the elemental ones spare you, your
+shikigami, your pets and your released grimoire creatures. Leaves make every spell weaker.
+
+| Talisman | On contact | Magicules |
+|---|---|---|
+| **Explosive** (red) | The blast: damage and knockback in 3 blocks, hurts you too if you're close, sets off cards | 20 |
+| **Fire 火** (orange) | Flame burst: 4 damage and 5 seconds of burning to enemies within 3 blocks | 25 |
+| **Water 水** (blue) | Water surge: strong knockback, 2 damage and Slowness II to enemies within 4 blocks; puts out burning creatures and fire blocks | 20 |
+| **Wood 木** (green) | Roots: enemies within 3 blocks are held in place and weakened for 3 seconds; you and your allies there heal 4 and get Regeneration | 25 |
+| **Lightning 金** (yellow) | Lightning strikes the nearest enemy within 4 blocks for 8, then chains to up to 2 more, weaker each jump | 35 |
+| **Earth 土** (brown) | Stone eruption: enemies within 3 blocks take 5 and are launched into the air | 30 |
+
+Costs scale with `spellCostMultiplier`.
+
 The HUD (bottom left, only while Shikigami Control is on your active skill preset) shows your paper (or leaves once
 the paper is gone), the Substitution doll (glows while it's on), a health and
-time bar per shikigami, and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
+time bar per shikigami, the selected spell talisman, and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 

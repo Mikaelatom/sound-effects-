@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
  * Shikigami Control as a Tensura skill. Modes:
  * <ol start="0">
  *   <li>Shikigami: turn the block you look at into a helper (sneak: dismiss all)</li>
- *   <li>Talisman: throw an exploding paper talisman</li>
+ *   <li>Talisman: throw the selected spell talisman (sneak: switch spell)</li>
  *   <li>Barrier: plant a talisman anchor (sneak: raise or dispel the barrier)</li>
  *   <li>Substitution: turn the automatic paper-doll dodge on or off (on by default)</li>
  * </ol>
@@ -65,7 +65,13 @@ public class ShikigamiControlSkill extends Skill {
                 }
                 yield ShikigamiControl.summon(player);
             }
-            case MODE_TALISMAN -> ShikigamiControl.throwTalisman(player, MomentumTracker.velocity(player));
+            case MODE_TALISMAN -> {
+                if (sneaking) {
+                    ShikigamiControl.cycleSpell(player);
+                    yield false;
+                }
+                yield ShikigamiControl.throwTalisman(player, MomentumTracker.velocity(player));
+            }
             case MODE_BARRIER -> {
                 if (sneaking) {
                     ShikigamiControl.toggleBarrier(player);

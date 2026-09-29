@@ -10,12 +10,12 @@
   "tensurafragments.skill.mode.gambit_cards.teleport": "Teleport",
   "tensurafragments.skill.mode.gambit_cards.detonate": "Detonate (sneak: aimed card only)",
   "entity.tensurafragments.shikigami": "Shikigami",
-  "entity.tensurafragments.talisman": "Paper Talisman",
+  "entity.tensurafragments.talisman": "Spell Talisman",
   "entity.tensurafragments.barrier_anchor": "Barrier Talisman",
   "tensurafragments.skill.shikigami_control": "Shikigami Control",
   "tensurafragments.skill.shikigami_control.description": "§oPaper and a little magic. Breathe life into stone, bind a barrier, and let a paper doll take the blow meant for you.",
   "tensurafragments.skill.mode.shikigami_control.shikigami": "Shikigami (sneak: dismiss all)",
-  "tensurafragments.skill.mode.shikigami_control.talisman": "Explosive Talisman",
+  "tensurafragments.skill.mode.shikigami_control.talisman": "Spell Talisman (sneak: switch spell)",
   "tensurafragments.skill.mode.shikigami_control.barrier": "Barrier Talisman (sneak: raise / dispel)",
   "tensurafragments.skill.mode.shikigami_control.substitution": "Substitution: on / off",
   "tensurafragments.shikigami.no_block": "Look at a block",
@@ -45,5 +45,12 @@
   "tensurafragments.grimoire.faded": "%s faded away: no room in the grimoire",
   "tensurafragments.grimoire.catch_cooldown": "The grimoire isn't ready yet",
   "tensurafragments.shikigami.substitution_on": "Substitution on: paper dolls will take hits for you",
-  "tensurafragments.shikigami.substitution_off": "Substitution off: saving your paper"
+  "tensurafragments.shikigami.substitution_off": "Substitution off: saving your paper",
+  "tensurafragments.shikigami.spell_selected": "Talisman: %s",
+  "tensurafragments.spell.explosive": "Explosive",
+  "tensurafragments.spell.fire": "Fire 火",
+  "tensurafragments.spell.water": "Water 水",
+  "tensurafragments.spell.wood": "Wood 木",
+  "tensurafragments.spell.lightning": "Lightning 金",
+  "tensurafragments.spell.earth": "Earth 土"
 }

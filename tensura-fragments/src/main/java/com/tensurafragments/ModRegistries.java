@@ -82,6 +82,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SUBSTITUTION_ENABLED = ATTACHMENTS.register(
             "substitution_enabled", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());
 
+    /** Which spell talisman Shikigami Control throws (index into Spell). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SELECTED_SPELL = ATTACHMENTS.register(
+            "selected_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());

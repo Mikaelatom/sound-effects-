@@ -2,12 +2,14 @@ package com.tensurafragments.client;
 
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
 import com.tensurafragments.shikigami.Paper;
+import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.skill.EquippedSkills;
 import com.tensurafragments.skill.ModSkills;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -50,6 +52,13 @@ public final class ShikigamiHud {
             graphics.fill(x, y + 17, x + Math.round(16 * cooldown), y + 19, 0xFFB0B0B0);
         }
 
+        // The selected spell talisman, next to the paper count.
+        Spell spell = ClientShikigamiState.spell();
+        int sx = x + 30;
+        graphics.blit(TalismanRenderer.texture(spell), sx, y, 0, 0, 8, 16, 8, 16);
+        graphics.drawString(mc.font, Component.translatable("tensurafragments.spell." + spell.id()), sx + 11, y + 5,
+                spell.colour(), true);
+
         int anchors = 0;
         boolean barrierUp = false;
         int row = 0;
@@ -69,7 +78,7 @@ public final class ShikigamiHud {
         }
         if (anchors > 0) {
             String text = (barrierUp ? "◆ " : "◇ ") + anchors;
-            graphics.drawString(mc.font, text, x + 44, y + 5, barrierUp ? 0xFFFFE08A : 0xFFCCCCCC, true);
+            graphics.drawString(mc.font, text, x + 44, y - 8 - row * 6 - 4, barrierUp ? 0xFFFFE08A : 0xFFCCCCCC, true);
         }
     }
 }

@@ -2,7 +2,6 @@ package com.tensurafragments.client;
 
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
-import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,7 +17,7 @@ public final class ClientSetup {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModRegistries.CARD.get(), CardRenderer::new);
         event.registerEntityRenderer(ModRegistries.SHIKIGAMI.get(), ShikigamiRenderer::new);
-        event.registerEntityRenderer(ModRegistries.TALISMAN.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(ModRegistries.TALISMAN.get(), TalismanRenderer::new);
         event.registerEntityRenderer(ModRegistries.BARRIER_ANCHOR.get(), BarrierAnchorRenderer::new);
     }
 

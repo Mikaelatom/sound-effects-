@@ -9,8 +9,8 @@ public final class ModNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("4");
+        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("5");
         registrar.playToClient(SyncDeckPayload.TYPE, SyncDeckPayload.STREAM_CODEC, SyncDeckPayload::handle);
-        registrar.playToClient(SyncSubstitutionPayload.TYPE, SyncSubstitutionPayload.STREAM_CODEC, SyncSubstitutionPayload::handle);
+        registrar.playToClient(SyncShikigamiPayload.TYPE, SyncShikigamiPayload.STREAM_CODEC, SyncShikigamiPayload::handle);
     }
 }

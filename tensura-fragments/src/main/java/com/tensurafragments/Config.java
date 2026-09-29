@@ -91,8 +91,10 @@ public final class Config {
             .defineInRange("shikigamiStrength", 1.0, 0.1, 100.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_SPEED = BUILDER
             .defineInRange("talismanSpeed", 1.5, 0.1, 10.0);
-    public static final ModConfigSpec.DoubleValue TALISMAN_MAGICULE_COST = BUILDER
-            .defineInRange("talismanMagiculeCost", 20.0, 0.0, 1.0E9);
+    public static final ModConfigSpec.DoubleValue SPELL_COST_MULTIPLIER = BUILDER
+            .comment("Multiplier on every spell talisman's magicule cost (Explosive 20, Fire 25, Water 20, Wood 25,",
+                    "Lightning 35, Earth 30).")
+            .defineInRange("spellCostMultiplier", 1.0, 0.0, 1000.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_RADIUS = BUILDER
             .defineInRange("talismanBlastRadius", 3.0, 0.5, 32.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_BLAST_DAMAGE = BUILDER
