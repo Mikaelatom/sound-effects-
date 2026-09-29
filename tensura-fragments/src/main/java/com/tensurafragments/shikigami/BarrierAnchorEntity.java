@@ -2,6 +2,8 @@ package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
@@ -41,6 +43,8 @@ public class BarrierAnchorEntity extends Entity {
     private static final int UNLINKED_LIFETIME = 1200;
 
     int activeTicks;
+    /** Where each nearby entity was last tick, so the leader can tell when something walks into the wall. */
+    final Map<Integer, Vec3> lastSeen = new HashMap<>();
 
     public BarrierAnchorEntity(EntityType<? extends BarrierAnchorEntity> type, Level level) {
         super(type, level);

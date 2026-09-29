@@ -7,8 +7,10 @@ import io.github.manasmods.tensura.registry.sound.TensuraSoundEvents;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -20,13 +22,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A talisman barrier: a wall running around three or more anchors. While it's up it pushes hostile mobs out
- * (burning them a little), destroys projectiles that aren't yours, and drains magicules every second.
+ * A talisman barrier: a solid wall running around three or more anchors. While it's up, mobs can't walk through
+ * it (anything already inside is pushed out, and hostile mobs caught inside burn), projectiles that aren't yours
+ * are destroyed even if they'd pass straight through, and it drains magicules every second.
  */
 public final class Barrier {
     private static final Map<UUID, long[]> LEADER_CACHE = new HashMap<>();
@@ -110,41 +114,127 @@ public final class Barrier {
 
         double minY = anchors.stream().mapToDouble(Entity::getY).min().orElse(leader.getY()) - 0.5;
         double maxY = anchors.stream().mapToDouble(Entity::getY).max().orElse(leader.getY()) + leader.getWallHeight();
-        AABB box = bounds(polygon, minY, maxY);
+        // Look a little past the wall so things about to cross it are tracked too.
+        AABB box = bounds(polygon, minY, maxY).inflate(4);
         Vec3 centre = centroid(anchors);
         ServerLevel level = owner.serverLevel();
         boolean damageTick = leader.activeTicks % 20 == 0;
+        Map<Integer, Vec3> seen = leader.lastSeen;
+        Set<Integer> present = new HashSet<>();
 
         for (Entity entity : level.getEntities((Entity) null, box, e -> e.isAlive() && !(e instanceof BarrierAnchorEntity))) {
-            if (!contains(polygon, entity.getX(), entity.getZ()) || entity.getY() > maxY || entity.getY() + entity.getBbHeight() < minY) {
-                continue;
-            }
+            Vec3 now = entity.position();
+            Vec3 before = seen.get(entity.getId());
+            present.add(entity.getId());
+
             if (entity instanceof Projectile projectile) {
-                if (!isFriendly(projectile.getOwner(), owner)) {
-                    level.sendParticles(ParticleTypes.ENCHANTED_HIT, entity.getX(), entity.getY(), entity.getZ(), 6, 0.1, 0.1, 0.1, 0.1);
+                if (!isFriendly(projectile.getOwner(), owner)
+                        && (isInside(polygon, now, 0, 0, minY, maxY) || (before != null && crossesWall(polygon, before, now, minY, maxY)))) {
+                    level.sendParticles(ParticleTypes.ENCHANTED_HIT, now.x, now.y, now.z, 6, 0.1, 0.1, 0.1, 0.1);
                     entity.discard();
+                    continue;
                 }
-            } else if (entity instanceof LivingEntity living && isHostile(living, owner)) {
-                Vec3 away = new Vec3(entity.getX() - centre.x, 0, entity.getZ() - centre.z);
-                away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
-                entity.setDeltaMovement(away.x * 0.6, 0.25, away.z * 0.6);
-                entity.hurtMarked = true;
-                if (damageTick && Config.BARRIER_DAMAGE_PER_SECOND.get() > 0) {
+            } else if (entity instanceof LivingEntity living && isBlocked(living, owner)) {
+                double halfWidth = entity.getBbWidth() / 2;
+                boolean inside = isInside(polygon, now, halfWidth, entity.getBbHeight(), minY, maxY);
+                if (inside && before != null && !isInside(polygon, before, halfWidth, entity.getBbHeight(), minY, maxY)) {
+                    // Walked into the wall this tick: put it back where it was and bounce it off.
+                    Vec3 bounce = before.subtract(now).multiply(1, 0, 1);
+                    bounce = bounce.lengthSqr() < 1.0E-6 ? Vec3.ZERO : bounce.normalize().scale(0.2);
+                    if (entity instanceof ServerPlayer player) {
+                        player.teleportTo(before.x, now.y, before.z);
+                    } else {
+                        entity.setPos(before.x, now.y, before.z);
+                    }
+                    entity.setDeltaMovement(bounce.x, Math.min(entity.getDeltaMovement().y, 0), bounce.z);
+                    entity.hurtMarked = true;
+                    if (level.getGameTime() % 4 == 0) {
+                        level.sendParticles(ParticleTypes.ENCHANT, now.x, now.y + entity.getBbHeight() / 2, now.z, 4, 0.2, 0.3, 0.2, 0.05);
+                    }
+                } else if (inside) {
+                    // Was already inside when the barrier went up: push it out.
+                    Vec3 away = new Vec3(now.x - centre.x, 0, now.z - centre.z);
+                    away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
+                    entity.setDeltaMovement(away.x * 0.6, 0.25, away.z * 0.6);
+                    entity.hurtMarked = true;
+                }
+                if (inside && damageTick && living instanceof Enemy && Config.BARRIER_DAMAGE_PER_SECOND.get() > 0) {
                     living.hurt(level.damageSources().indirectMagic(leader, owner), Config.BARRIER_DAMAGE_PER_SECOND.get().floatValue());
                 }
             }
+            seen.put(entity.getId(), entity.position());
         }
+        seen.keySet().retainAll(present);
+    }
+
+    /**
+     * Inside the barrier, counting anything whose body overlaps the wall as inside, so mobs are held back at the
+     * wall rather than standing half through it.
+     */
+    private static boolean isInside(List<Vec3> polygon, Vec3 pos, double halfWidth, double height, double minY, double maxY) {
+        if (pos.y > maxY || pos.y + height < minY) {
+            return false;
+        }
+        if (contains(polygon, pos.x, pos.z)) {
+            return true;
+        }
+        for (int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+            if (distanceToSegment(pos.x, pos.z, polygon.get(j), polygon.get(i)) < halfWidth) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Whether moving from {@code from} to {@code to} passes through any wall (for fast projectiles). */
+    private static boolean crossesWall(List<Vec3> polygon, Vec3 from, Vec3 to, double minY, double maxY) {
+        if (Math.max(from.y, to.y) < minY || Math.min(from.y, to.y) > maxY) {
+            return false;
+        }
+        for (int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+            if (segmentsIntersect(from.x, from.z, to.x, to.z, polygon.get(j).x, polygon.get(j).z, polygon.get(i).x, polygon.get(i).z)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean segmentsIntersect(double ax, double az, double bx, double bz, double cx, double cz, double dx, double dz) {
+        double d1 = cross(cx, cz, dx, dz, ax, az);
+        double d2 = cross(cx, cz, dx, dz, bx, bz);
+        double d3 = cross(ax, az, bx, bz, cx, cz);
+        double d4 = cross(ax, az, bx, bz, dx, dz);
+        return ((d1 > 0) != (d2 > 0)) && ((d3 > 0) != (d4 > 0));
+    }
+
+    private static double cross(double ox, double oz, double ax, double az, double bx, double bz) {
+        return (ax - ox) * (bz - oz) - (az - oz) * (bx - ox);
+    }
+
+    private static double distanceToSegment(double px, double pz, Vec3 a, Vec3 b) {
+        double dx = b.x - a.x;
+        double dz = b.z - a.z;
+        double lengthSqr = dx * dx + dz * dz;
+        double t = lengthSqr < 1.0E-9 ? 0 : Math.max(0, Math.min(1, ((px - a.x) * dx + (pz - a.z) * dz) / lengthSqr));
+        double ex = a.x + t * dx - px;
+        double ez = a.z + t * dz - pz;
+        return Math.sqrt(ex * ex + ez * ez);
     }
 
     private static boolean isFriendly(Entity entity, ServerPlayer owner) {
         return entity == owner || (entity instanceof OwnableEntity ownable && owner.getUUID().equals(ownable.getOwnerUUID()));
     }
 
-    private static boolean isHostile(LivingEntity living, ServerPlayer owner) {
-        if (isFriendly(living, owner)) {
+    /** What the wall keeps out: never you or your own shikigami/pets; other players and non-hostile mobs by config. */
+    private static boolean isBlocked(LivingEntity living, ServerPlayer owner) {
+        if (isFriendly(living, owner) || living.isSpectator()) {
             return false;
         }
-        return living instanceof Enemy || (living instanceof Mob mob && mob.getTarget() == owner);
+        if (living instanceof Player) {
+            return Config.BARRIER_BLOCKS_PLAYERS.get();
+        }
+        return Config.BARRIER_BLOCKS_ALL_MOBS.get() || living instanceof Enemy
+                || (living instanceof Mob mob && mob.getTarget() == owner);
     }
 
     /** Ray casting point-in-polygon test on the XZ plane. */

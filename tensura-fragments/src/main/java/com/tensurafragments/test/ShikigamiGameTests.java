@@ -16,9 +16,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
@@ -222,6 +225,61 @@ public final class ShikigamiGameTests {
         helper.assertTrue(EquippedSkills.isEquipped(player, ModSkills.SHIKIGAMI_CONTROL.get()), "equipped in a slot");
         helper.assertFalse(EquippedSkills.isEquipped(player, ModSkills.GAMBIT_CARDS.get()), "cards not equipped");
         helper.succeed();
+    }
+
+    /** Four anchors in a square from (1.5, 1.5) to (7.5, 7.5), raised. */
+    private static void squareBarrier(GameTestHelper helper, ServerPlayer owner) {
+        anchor(helper, owner, 1.5, 1.5, 0);
+        anchor(helper, owner, 7.5, 1.5, 1);
+        anchor(helper, owner, 7.5, 7.5, 2);
+        anchor(helper, owner, 1.5, 7.5, 3);
+        helper.assertTrue(Barrier.raise(owner), "barrier raised");
+    }
+
+    private static boolean insideSquare(GameTestHelper helper, Entity entity) {
+        Vec3 rel = helper.relativeVec(entity.position());
+        return rel.x > 1.5 && rel.x < 7.5 && rel.z > 1.5 && rel.z < 7.5;
+    }
+
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void barrierStopsMobsWalkingIn(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 0);
+        squareBarrier(helper, player);
+        // A passive mob, to check the wall isn't only for hostiles.
+        Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, new Vec3(0.6, GROUND, 4.5));
+        helper.runAfterDelay(5, () -> {
+            Vec3 in = helper.absoluteVec(new Vec3(2.6, GROUND, 4.5));
+            cow.setPos(in.x, in.y, in.z); // steps through the wall between two ticks
+        });
+        helper.runAfterDelay(10, () -> {
+            helper.assertFalse(insideSquare(helper, cow), "cow should be stopped at the wall, is at " + helper.relativeVec(cow.position()));
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "platform", timeoutTicks = 140)
+    public static void huskCantReachOwnerInsideBarrier(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5, 0);
+        squareBarrier(helper, player);
+        Husk husk = helper.spawn(EntityType.HUSK, new Vec3(0.5, GROUND, 4.5));
+        husk.setTarget(player);
+        helper.onEachTick(() -> {
+            if (!husk.isRemoved()) {
+                helper.assertFalse(insideSquare(helper, husk), "husk got inside at " + helper.relativeVec(husk.position()));
+            }
+        });
+        helper.runAfterDelay(120, helper::succeed);
+    }
+
+    @GameTest(template = "platform", timeoutTicks = 40)
+    public static void barrierStopsFastProjectilesPassingThrough(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 0.5, 0.5, 0);
+        squareBarrier(helper, player);
+        helper.runAfterDelay(2, () -> {
+            Arrow arrow = helper.spawn(EntityType.ARROW, new Vec3(0.5, GROUND + 1.5, 4.5));
+            arrow.setDeltaMovement(14, 0, 0); // fast enough to be on the far side after one tick
+            helper.succeedWhen(() -> helper.assertTrue(arrow.isRemoved(), "arrow should be stopped by the wall"));
+        });
     }
 
     private static void anchor(GameTestHelper helper, ServerPlayer owner, double x, double z, int order) {

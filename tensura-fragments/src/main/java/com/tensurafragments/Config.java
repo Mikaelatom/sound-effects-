@@ -109,6 +109,13 @@ public final class Config {
             .defineInRange("barrierDurationTicks", 600, 20, 720000);
     public static final ModConfigSpec.IntValue BARRIER_HEIGHT = BUILDER
             .defineInRange("barrierHeight", 5, 1, 64);
+    public static final ModConfigSpec.BooleanValue BARRIER_BLOCKS_ALL_MOBS = BUILDER
+            .comment("If true the barrier keeps out every mob except your own shikigami and pets. If false, only hostile",
+                    "mobs and mobs targeting you.")
+            .define("barrierBlocksAllMobs", true);
+    public static final ModConfigSpec.BooleanValue BARRIER_BLOCKS_PLAYERS = BUILDER
+            .comment("Whether other players are kept out too.")
+            .define("barrierBlocksPlayers", false);
     public static final ModConfigSpec.DoubleValue BARRIER_DAMAGE_PER_SECOND = BUILDER
             .comment("Damage per second to hostile mobs caught inside the barrier while being pushed out.")
             .defineInRange("barrierDamagePerSecond", 2.0, 0.0, 1000.0);
