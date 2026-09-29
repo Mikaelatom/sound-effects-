@@ -10,7 +10,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -57,14 +56,8 @@ public final class ShikigamiHud {
         Spell spell = ClientShikigamiState.spell();
         int sx = x + 30;
         graphics.blit(TalismanRenderer.texture(spell), sx, y, 0, 0, 8, 16, 8, 16);
-        if (ClientShikigamiState.isRainbow()) {
-            float hue = (mc.level.getGameTime() % 60) / 60F;
-            graphics.drawString(mc.font, Component.translatable("tensurafragments.spell.rainbow", Component.translatable(
-                    "tensurafragments.spell." + spell.id())), sx + 11, y + 5, 0xFF000000 | Mth.hsvToRgb(hue, 0.6F, 1.0F), true);
-        } else {
-            graphics.drawString(mc.font, Component.translatable("tensurafragments.spell." + spell.id()), sx + 11, y + 5,
-                    spell.colour(), true);
-        }
+        graphics.drawString(mc.font, Component.translatable("tensurafragments.spell." + spell.id()), sx + 11, y + 5,
+                spell.colour(), true);
 
         int anchors = 0;
         boolean barrierUp = false;

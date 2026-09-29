@@ -26,5 +26,6 @@ public final class ClientSetup {
         event.registerAboveAll(TensuraFragments.id("card_hud"), CardHud::render);
         event.registerAboveAll(TensuraFragments.id("shikigami_hud"), ShikigamiHud::render);
         event.registerAboveAll(TensuraFragments.id("grimoire_hud"), GrimoireHud::render);
+        event.registerAboveAll(TensuraFragments.id("rainbow_hud"), RainbowHud::render);
     }
 }

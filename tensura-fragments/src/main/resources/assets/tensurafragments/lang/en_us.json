@@ -56,7 +56,8 @@
   "tensurafragments.spell.ice": "Ice 氷",
   "tensurafragments.spell.wind": "Wind 風",
   "tensurafragments.spell.rainbow": "Rainbow %s",
-  "tensurafragments.skill.mode.shikigami_control.rainbow": "Rainbow Talismans: on / off",
-  "tensurafragments.shikigami.rainbow_on": "Rainbow talismans: every spell strikes with all elements at once",
-  "tensurafragments.shikigami.rainbow_off": "Rainbow talismans off"
+  "tensurafragments.spell.teleport": "Teleport 転",
+  "tensurafragments.skill.rainbow_talismans": "Rainbow Talismans",
+  "tensurafragments.skill.rainbow_talismans.description": "§oEvery phase at once. Each talisman carries fire, water, wood, metal, earth, ice and wind in a single rainbow seal.",
+  "tensurafragments.skill.mode.rainbow_talismans.throw": "Rainbow Talisman (sneak: switch spell)"
 }

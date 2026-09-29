@@ -130,26 +130,17 @@ public final class ShikigamiControl {
         sync(player);
     }
 
-    /** Turns rainbow talismans on or off: every spell becomes its rainbow version, dealing all elements at once. */
-    public static void toggleRainbow(ServerPlayer player) {
-        boolean enabled = !player.getData(ModRegistries.RAINBOW_ENABLED);
-        player.setData(ModRegistries.RAINBOW_ENABLED, enabled);
-        player.displayClientMessage(Component.translatable(enabled
-                ? "tensurafragments.shikigami.rainbow_on" : "tensurafragments.shikigami.rainbow_off"), true);
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                enabled ? TensuraSoundEvents.CAST_LIGHT.get() : TensuraSoundEvents.GENERIC_UNCAST.get(),
-                SoundSource.PLAYERS, 0.7F, 1.2F);
-        sync(player);
-    }
-
     /** Throws the selected spell talisman. It goes off on contact with the ground or a creature. */
     public static boolean throwTalisman(ServerPlayer player, Vec3 momentum) {
+        return throwTalisman(player, momentum, selectedSpell(player), false);
+    }
+
+    /** Throws a talisman carrying {@code spell}, or its rainbow version. Shared with the Rainbow Talismans skill. */
+    public static boolean throwTalisman(ServerPlayer player, Vec3 momentum, Spell spell, boolean rainbow) {
         if (!Paper.has(player)) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_paper"), true);
             return false;
         }
-        Spell spell = selectedSpell(player);
-        boolean rainbow = player.getData(ModRegistries.RAINBOW_ENABLED);
         if (!Magicules.trySpend(player, spell.magiculeCost(rainbow))) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
@@ -281,11 +272,11 @@ public final class ShikigamiControl {
         }
     }
 
-    /** Sends the Substitution state and selected spell to the client for the HUD. */
+    /** Sends the Substitution state and selected spells (normal and rainbow) to the client for the HUD. */
     public static void sync(ServerPlayer player) {
         int cooldown = (int) Math.max(0, SUBSTITUTION_COOLDOWN.getOrDefault(player.getUUID(), 0L) - player.level().getGameTime());
         PacketDistributor.sendToPlayer(player, new SyncShikigamiPayload(player.getData(ModRegistries.SUBSTITUTION_ENABLED),
-                cooldown, player.getData(ModRegistries.SELECTED_SPELL), player.getData(ModRegistries.RAINBOW_ENABLED)));
+                cooldown, player.getData(ModRegistries.SELECTED_SPELL), player.getData(ModRegistries.RAINBOW_SPELL)));
     }
 
     // ---- Shared ------------------------------------------------------------------------------------------------

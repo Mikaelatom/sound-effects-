@@ -44,7 +44,6 @@ always used first. Things made from leaves have a green talisman.
 | **Spell Talisman** | Throw your selected spell talisman. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
-| **Rainbow** | Turn rainbow talismans on or off (see below). | – |
 
 **Spell talismans** (after Seika's five-phase onmyōdō). Only Explosive can hurt you; the elemental ones spare you, your
 shikigami, your pets and your released grimoire creatures. Leaves make every spell weaker.
@@ -59,11 +58,7 @@ shikigami, your pets and your released grimoire creatures. Leaves make every spe
 | **Earth 土** (brown) | Stone eruption: enemies within 3 blocks take 5 and are launched into the air | 30 |
 | **Ice 氷** (pale blue) | Frost: enemies within 3 blocks take 3, are frozen solid (like powder snow) and slowed; nearby water freezes over for a few seconds and fires go out | 25 |
 | **Wind 風** (pale green) | Gust: enemies within 4 blocks take 2 and are blown away; projectiles that aren't yours are thrown back; if you're caught in it you're launched upward (throw it at your feet for a wind jump) | 20 |
-
-**Rainbow talismans.** Turn on the **Rainbow** mode and every talisman you throw becomes the rainbow version of its
-spell: same shape and effect, drawn in rainbow colours, and every enemy it reaches also takes every element's damage
-at once (burning, freezing and slowed together). Rainbow talismans cost twice the magicules (`rainbowCostMultiplier`);
-the extra damage is half the sum of all the elements (`rainbowDamageMultiplier`, 12 by default).
+| **Teleport 転** (purple) | Phase transfer: you appear where the talisman landed (up to 48 blocks away, half with leaves). Hurts no one. | 30 |
 
 Costs scale with `spellCostMultiplier`.
 
@@ -89,6 +84,18 @@ lose what's in it. Paper is the ammo, and leaves work at reduced strength as wit
 The HUD (right side, only while the skill is on your active preset) lists the pages (green for creatures, blue for
 magic) and marks the selected one; the item tooltip shows the same. All numbers are in the `[grimoire]` section of
 the server config.
+
+## Skill 4: Rainbow Talismans
+
+A Unique skill of its own, given to every player, and it doesn't need Shikigami Control. Throw the **rainbow version**
+of any talisman spell (Explosive, Fire, Water, Wood, Lightning, Earth, Ice, Wind, Teleport). It has the same shape and
+effect as the normal spell (rainbow Wood still roots, rainbow Wind still launches you, rainbow Teleport still moves
+you), is drawn in rainbow colours, and every enemy it reaches also takes **every element's damage at once**: set on
+fire, frozen and slowed together, plus 12 extra damage (half the elements' combined damage,
+`rainbowDamageMultiplier`). **Sneak** to switch spell; it keeps its own selection, separate from Shikigami Control's.
+
+Each throw uses 1 paper (or leaf) and twice the spell's magicules (`rainbowCostMultiplier`). The HUD (bottom left,
+while it's on your active preset) shows the selected rainbow talisman.
 
 ## Original skills
 

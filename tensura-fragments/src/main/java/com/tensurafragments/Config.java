@@ -94,8 +94,14 @@ public final class Config {
             .defineInRange("talismanSpeed", 1.5, 0.1, 10.0);
     public static final ModConfigSpec.DoubleValue SPELL_COST_MULTIPLIER = BUILDER
             .comment("Multiplier on every spell talisman's magicule cost (Explosive 20, Fire 25, Water 20, Wood 25,",
-                    "Lightning 35, Earth 30, Ice 25, Wind 20).")
+                    "Lightning 35, Earth 30, Ice 25, Wind 20, Teleport 30).")
             .defineInRange("spellCostMultiplier", 1.0, 0.0, 1000.0);
+    public static final ModConfigSpec.DoubleValue TELEPORT_RANGE = BUILDER
+            .comment("Farthest a Teleport talisman can take you (halved for leaves).")
+            .defineInRange("teleportTalismanRange", 48.0, 1.0, 1000.0);
+    public static final ModConfigSpec.BooleanValue GRANT_RAINBOW_TALISMANS = BUILDER
+            .comment("Give every player the Rainbow Talismans skill (rainbow versions of the talisman spells).")
+            .define("grantRainbowTalismans", true);
     public static final ModConfigSpec.DoubleValue RAINBOW_COST_MULTIPLIER = BUILDER
             .comment("A rainbow talisman costs this many times the normal spell's magicules.")
             .defineInRange("rainbowCostMultiplier", 2.0, 0.0, 1000.0);

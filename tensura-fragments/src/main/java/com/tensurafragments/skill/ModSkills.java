@@ -2,6 +2,7 @@ package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.grimoire.SealingGrimoireSkill;
+import com.tensurafragments.rainbow.RainbowTalismansSkill;
 import com.tensurafragments.shikigami.ShikigamiControlSkill;
 import dev.architectury.registry.registries.RegistrySupplier;
 import io.github.manasmods.manascore.skill.api.ManasSkill;
@@ -15,6 +16,8 @@ public final class ModSkills {
             register("shikigami_control", ShikigamiControlSkill::new);
     public static final RegistrySupplier<SealingGrimoireSkill> SEALING_GRIMOIRE =
             register("sealing_grimoire", SealingGrimoireSkill::new);
+    public static final RegistrySupplier<RainbowTalismansSkill> RAINBOW_TALISMANS =
+            register("rainbow_talismans", RainbowTalismansSkill::new);
 
     private ModSkills() {
     }

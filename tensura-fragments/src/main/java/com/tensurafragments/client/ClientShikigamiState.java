@@ -9,7 +9,7 @@ public final class ClientShikigamiState {
     private static int cooldownTicks;
     private static int cooldownTotal = 1;
     private static Spell spell = Spell.EXPLOSIVE;
-    private static boolean rainbow;
+    private static Spell rainbowSpell = Spell.EXPLOSIVE;
 
     private ClientShikigamiState() {
     }
@@ -19,7 +19,7 @@ public final class ClientShikigamiState {
         cooldownTicks = payload.cooldownTicks();
         cooldownTotal = Math.max(1, payload.cooldownTicks());
         spell = Spell.byIndex(payload.spell());
-        rainbow = payload.rainbow();
+        rainbowSpell = Spell.byIndex(payload.rainbowSpell());
     }
 
     static void tick() {
@@ -32,8 +32,8 @@ public final class ClientShikigamiState {
         return spell;
     }
 
-    public static boolean isRainbow() {
-        return rainbow;
+    public static Spell rainbowSpell() {
+        return rainbowSpell;
     }
 
     public static boolean isEnabled() {

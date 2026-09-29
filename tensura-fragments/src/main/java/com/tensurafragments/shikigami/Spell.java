@@ -236,6 +236,35 @@ public enum Spell {
             level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.3, at.z, 30, 1.6, 0.4, 1.6, 0.15);
             sound(level, at, TensuraSoundEvents.CAST_WIND.get());
         }
+    },
+    TELEPORT("teleport", 0xFFB070FF, 30, 3.0, 0) {
+        @Override
+        void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
+            // Seika's phase transfer: the caster appears where the talisman landed. The talisman's own position is
+            // just short of what it hit, so it's on the caster's side of any wall.
+            if (!(owner instanceof ServerPlayer player) || player.level() != level || !player.isAlive()
+                    || player.position().distanceTo(at) > Config.TELEPORT_RANGE.get() * (0.5 + 0.5 * potency)) {
+                return;
+            }
+            Vec3 from = player.position();
+            Vec3 target = talisman.position().subtract(0, player.getBbHeight() / 2, 0);
+            for (int i = 0; i < 6; i++) {
+                if (level.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
+                    level.sendParticles(ParticleTypes.PORTAL, from.x, from.y + 1, from.z, 30, 0.3, 0.6, 0.3, 0.3);
+                    player.teleportTo(target.x, target.y, target.z);
+                    player.resetFallDistance();
+                    return;
+                }
+                target = target.add(0, 0.5, 0);
+            }
+        }
+
+        @Override
+        void visuals(ServerLevel level, Vec3 at) {
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL, at.x, at.y + 1, at.z, 40, 0.4, 0.8, 0.4, 0.05);
+            TensuraParticleHelper.spawnServerParticles(level, TensuraParticleUtils.getColorlessReversedWave(0.6F, 2.0F), at.x, at.y + 0.5, at.z);
+            sound(level, at, TensuraSoundEvents.CAST_SPACE.get());
+        }
     };
 
     /** Spells that count as an element for a rainbow talisman's combined damage. */

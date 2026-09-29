@@ -1,6 +1,7 @@
 package com.tensurafragments.test;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.rainbow.RainbowTalismans;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.shikigami.TalismanEntity;
@@ -185,12 +186,34 @@ public final class SpellGameTests {
     }
 
     @GameTest(template = "platform")
-    public static void rainbowToggleMakesRainbowTalismans(GameTestHelper helper) {
-        ServerPlayer player = caster(helper, 4.5, 1.5);
-        ShikigamiControl.toggleRainbow(player);
-        helper.assertTrue(ShikigamiControl.throwTalisman(player, Vec3.ZERO), "thrown");
+    public static void rainbowSkillThrowsRainbowTalismansOnItsOwn(GameTestHelper helper) {
+        ServerPlayer player = TestPlayers.spawn(helper, 4.5, 1.5);
+        TestPlayers.giveMagicules(player, 100_000);
+        player.getInventory().add(new ItemStack(Items.PAPER, 4));
+        SkillHelper.learnSkill(player, ModSkills.RAINBOW_TALISMANS.get()); // no Shikigami Control needed
+
+        RainbowTalismans.cycleSpell(player);
+        helper.assertTrue(RainbowTalismans.selectedSpell(player) == Spell.FIRE, "its own spell selection");
+        helper.assertTrue(ShikigamiControl.selectedSpell(player) == Spell.EXPLOSIVE, "separate from Shikigami Control's");
+        helper.assertTrue(RainbowTalismans.throwTalisman(player, Vec3.ZERO), "thrown");
         List<TalismanEntity> thrown = helper.getLevel().getEntitiesOfClass(TalismanEntity.class, new AABB(player.blockPosition()).inflate(4));
-        helper.assertTrue(thrown.size() == 1 && thrown.get(0).isRainbow(), "a rainbow talisman flies");
+        helper.assertTrue(thrown.size() == 1 && thrown.get(0).isRainbow() && thrown.get(0).getSpell() == Spell.FIRE,
+                "a rainbow Fire talisman flies");
         helper.succeed();
+    }
+
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void teleportTalismanMovesTheCaster(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 0.5);
+        while (ShikigamiControl.selectedSpell(player) != Spell.TELEPORT) {
+            ShikigamiControl.cycleSpell(player);
+        }
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, at(helper, 4.5, 7.5));
+        helper.assertTrue(ShikigamiControl.throwTalisman(player, Vec3.ZERO), "thrown");
+        helper.succeedWhen(() -> {
+            Vec3 rel = helper.relativeVec(player.position());
+            helper.assertTrue(rel.z > 5.5, "caster should appear where the talisman landed, is at " + rel);
+            helper.assertTrue(rel.y >= GROUND - 0.01, "standing on the floor, not in it");
+        });
     }
 }
