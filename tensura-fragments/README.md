@@ -179,6 +179,50 @@ spirits. Spirits never hurt you, your shikigami, pets or released grimoire creat
 30 magicules per spirit, at most one every half second (so fast clicking doesn't flood the field). All numbers are in
 the `[spirits]` section of the server config.
 
+## Skill 7: Spirit Communion (Yifa)
+
+After Yifa, Seika's elf companion: she has little magic of her own, but her elf blood lets her see elemental spirits
+and command them, casting far beyond her own power (fire and wind are her affinity). A Unique skill, given to every
+player. Spirits are found **in the world, near their element**, so where you fight decides what you can cast:
+
+| Spirit | Gathers |
+|---|---|
+| **Fire** | by fires, campfires, torches, lanterns, lava, magma, and everywhere in the Nether |
+| **Water** | by water |
+| **Wind** | high up (y 100+), and under open sky |
+| **Earth** | deep underground (below y 50, no sky) |
+
+Up to 6 wild spirits gather around you at a time; they wander off after a minute.
+
+| Mode | What it does | Cost |
+|---|---|---|
+| **Spirit Sight** | On/off. Only with it on can you see wild spirits (drifting glowing orbs); it also shows anything invisible nearby as soul sparks. | 1 magicule/second |
+| **Call Spirit** | Bind the spirit you're looking at (within 16 blocks). **Sneak** to gather every spirit within 8 blocks. They orbit you for 3 minutes; up to 5 at once. | none |
+| **Spirit Magic** | Release every bound spirit as one spell at what you aim at. The mix decides the spell (below), and more spirits make it bigger. | 5 magicules per spirit |
+| **Spirit Jutsu** | The weak fallback with no spirits: a small fire bolt or wind blade from your own magicules. **Sneak** to switch fire / wind. | 15 magicules |
+
+| Spirits released | Spell |
+|---|---|
+| **Fire + Wind** | **Fire Whirl**: Tensura's magic tornado, burning orange, travels the way you looked for 4+ seconds, dragging enemies in, lifting and burning them (3 per spirit, twice a second) |
+| **Fire** | **Flame Burst** where you aim: 5 per spirit, sets everything alight; wider with more spirits |
+| **Wind** | **Gale** where you aim: 2 per spirit, blows everything up and away, and throws back projectiles that aren't yours |
+| **Water** | **Healing Spring**: heals you and your allies within 6 blocks (4 per spirit) with Regeneration, and puts out fires |
+| **Earth** | **Earth Bind** where you aim: 2 per spirit, and enemies are held in place and weakened for 3 seconds |
+
+Water in a fire or wind mix also heals you (2 per water spirit); earth in a mix slows everything it hits.
+
+The HUD (middle of the left edge, while it's on your active preset) shows an eye while Spirit Sight is on, your bound
+spirits (with a bar for their time left), and your jutsu element.
+
+**Magisteel items** that draw spirits to you (both in the Tools & Utilities creative tab):
+
+| Item | Recipe | What it does |
+|---|---|---|
+| **Magisteel Spirit Bell** | string on top, 3 low magisteel ingots across the middle, low magisteel / amethyst shard / low magisteel on the bottom | Ring it (use): every wild spirit within 32 blocks comes flying and binds itself to you (while you have room). If there are hardly any, the ringing calls a couple out of their element nearby first. 10 second cooldown. |
+| **Magisteel Spirit Lantern** | high magisteel ingot above and below a soul lantern, with low magisteel ingots either side | Carry it anywhere in your inventory: twice as many spirits gather around you, and wild ones within 16 blocks drift in to wait at your side, ready to call. |
+
+All numbers are in the `[yifa]` section of the server config.
+
 ## Original skills
 
 By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).

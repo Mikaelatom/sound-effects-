@@ -32,10 +32,12 @@ public final class ModeGameTests {
         IAbility ability = TensuraStorages.getAbilityFrom(player);
         helper.assertTrue(ability != null, "player has Tensura ability data");
         List<RegistrySupplier<? extends ManasSkill>> skills = List.of(ModSkills.SHIKIGAMI_CONTROL, ModSkills.RAINBOW_MAGIC,
-                ModSkills.FLAME_EMPEROR);
+                ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_COMMUNION);
         StringBuilder problems = new StringBuilder();
-        for (int slot = 0; slot < skills.size(); slot++) {
-            ManasSkill skill = skills.get(slot).get();
+        // Each skill in turn goes in the first slot (a preset only has three).
+        int slot = 0;
+        for (RegistrySupplier<? extends ManasSkill> entry : skills) {
+            ManasSkill skill = entry.get();
             SkillHelper.learnSkill(player, skill);
             ability.getAbilitySlot(slot).setSkillAndMode(skill, 0);
             var instance = io.github.manasmods.manascore.skill.api.SkillAPI.getSkillsFrom(player).getSkill(skill).orElseThrow();
@@ -46,7 +48,7 @@ public final class ModeGameTests {
                 int mode = ability.getAbilitySlot(slot).getMode();
                 seen.append(",").append(mode);
                 if (mode != press) {
-                    problems.append(skills.get(slot).getId()).append(" went ").append(seen).append("; ");
+                    problems.append(entry.getId()).append(" went ").append(seen).append("; ");
                     break;
                 }
             }

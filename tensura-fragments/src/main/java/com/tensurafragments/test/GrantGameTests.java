@@ -24,7 +24,7 @@ public final class GrantGameTests {
     public static void everySkillCanBeLearned(GameTestHelper helper) {
         ServerPlayer player = TestPlayers.spawn(helper, 4.5, 4.5);
         List<RegistrySupplier<? extends ManasSkill>> skills = List.of(ModSkills.GAMBIT_CARDS, ModSkills.SHIKIGAMI_CONTROL,
-                ModSkills.SEALING_GRIMOIRE, ModSkills.RAINBOW_MAGIC, ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_CONTROL);
+                ModSkills.SEALING_GRIMOIRE, ModSkills.RAINBOW_MAGIC, ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_CONTROL, ModSkills.SPIRIT_COMMUNION);
         StringBuilder missing = new StringBuilder();
         for (RegistrySupplier<? extends ManasSkill> skill : skills) {
             boolean learned = SkillHelper.learnSkill(player, skill.get());

@@ -257,6 +257,41 @@ public final class Config {
             .defineInRange("spiritRange", 32.0, 4.0, 128.0);
 
     static {
+        BUILDER.pop().comment("Spirit Communion (Yifa): see elemental spirits, bind them, and cast through them").push("yifa");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_SPIRIT_COMMUNION = BUILDER
+            .comment("Give every player the Spirit Communion skill.")
+            .define("grantSpiritCommunion", true);
+    public static final ModConfigSpec.DoubleValue SPIRIT_SIGHT_MAGICULES_PER_SECOND = BUILDER
+            .comment("Magicules per second while Spirit Sight is on.")
+            .defineInRange("spiritSightMagiculesPerSecond", 1.0, 0.0, 1.0E6);
+    public static final ModConfigSpec.IntValue YIFA_MAX_BOUND = BUILDER
+            .comment("How many spirits you can have bound (orbiting you) at once.")
+            .defineInRange("maxBoundSpirits", 5, 1, 32);
+    public static final ModConfigSpec.IntValue YIFA_BOUND_SECONDS = BUILDER
+            .comment("How long a bound spirit stays with you before it drifts off.")
+            .defineInRange("boundSpiritSeconds", 180, 5, 3600);
+    public static final ModConfigSpec.IntValue YIFA_WILD_CAP = BUILDER
+            .comment("Most wild spirits around you at once (twice that while you carry a Magisteel Spirit Lantern).")
+            .defineInRange("wildSpiritCap", 6, 0, 64);
+    public static final ModConfigSpec.DoubleValue YIFA_MAGIC_POWER = BUILDER
+            .comment("Multiplier on all Spirit Magic damage, healing and size.")
+            .defineInRange("spiritMagicPower", 1.0, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue YIFA_MAGICULES_PER_SPIRIT = BUILDER
+            .comment("Magicules per spirit released in Spirit Magic (the spirits carry the real power).")
+            .defineInRange("magiculesPerSpirit", 5.0, 0.0, 1.0E6);
+    public static final ModConfigSpec.DoubleValue YIFA_JUTSU_COST = BUILDER
+            .comment("Magicules for a Spirit Jutsu (the weak fallback with no spirits).")
+            .defineInRange("jutsuMagiculeCost", 15.0, 0.0, 1.0E6);
+    public static final ModConfigSpec.IntValue SPIRIT_BELL_COOLDOWN_TICKS = BUILDER
+            .comment("Magisteel Spirit Bell: how long before it can be rung again.")
+            .defineInRange("spiritBellCooldownTicks", 200, 0, 12000);
+    public static final ModConfigSpec.DoubleValue SPIRIT_BELL_RANGE = BUILDER
+            .comment("Magisteel Spirit Bell: how far away wild spirits hear it.")
+            .defineInRange("spiritBellRange", 32.0, 1.0, 128.0);
+
+    static {
         BUILDER.pop();
     }
 

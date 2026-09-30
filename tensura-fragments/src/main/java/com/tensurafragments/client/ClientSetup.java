@@ -26,6 +26,8 @@ public final class ClientSetup {
             event.registerEntityRenderer(kind.type(), context -> new PaperBeastRenderer(context, kind));
         }
         event.registerEntityRenderer(ModRegistries.SPIRIT.get(), SpiritRenderer::new);
+        event.registerEntityRenderer(ModRegistries.WISP.get(), WispRenderer::new);
+        event.registerEntityRenderer(ModRegistries.FIRE_WHIRL.get(), FireWhirlRenderer::new);
     }
 
     @SubscribeEvent
@@ -36,5 +38,6 @@ public final class ClientSetup {
         event.registerAboveAll(TensuraFragments.id("rainbow_hud"), RainbowHud::render);
         event.registerAboveAll(TensuraFragments.id("flame_hud"), FlameHud::render);
         event.registerAboveAll(TensuraFragments.id("possession_hud"), ClientPossession::renderHud);
+        event.registerAboveAll(TensuraFragments.id("spirit_hud"), SpiritHud::render);
     }
 }

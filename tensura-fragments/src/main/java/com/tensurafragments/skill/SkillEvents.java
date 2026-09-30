@@ -7,6 +7,7 @@ import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.PaperBeasts;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.spirit.SpiritControl;
+import com.tensurafragments.yifa.SpiritCommunion;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -28,6 +29,7 @@ public final class SkillEvents {
         MomentumTracker.tick(player);
         GambitCards.tickDeck(player);
         PaperBeasts.tick(player);
+        SpiritCommunion.tick(player);
         if (player.tickCount % 40 == 0) {
             OriginalSkillStripper.strip(player);
             GambitCards.grantSkill(player);
@@ -36,6 +38,7 @@ public final class SkillEvents {
             RainbowMagic.grantSkill(player);
             FlameEmperor.grantSkill(player);
             SpiritControl.grantSkill(player);
+            SpiritCommunion.grantSkill(player);
         }
     }
 
@@ -77,8 +80,10 @@ public final class SkillEvents {
             RainbowMagic.grantSkill(player);
             FlameEmperor.grantSkill(player);
             SpiritControl.grantSkill(player);
+            SpiritCommunion.grantSkill(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
+            SpiritCommunion.sync(player);
         }
     }
 

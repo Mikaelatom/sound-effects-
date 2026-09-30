@@ -14,15 +14,21 @@ import com.tensurafragments.shikigami.PaperBeastEntity;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.shikigami.TalismanEntity;
 import com.tensurafragments.spirit.SpiritEntity;
+import com.tensurafragments.yifa.FireWhirlEntity;
+import com.tensurafragments.yifa.SpiritBellItem;
+import com.tensurafragments.yifa.SpiritLanternItem;
+import com.tensurafragments.yifa.WispEntity;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -93,6 +99,22 @@ public final class ModRegistries {
             () -> EntityType.Builder.<SpiritEntity>of(SpiritEntity::new, MobCategory.MISC)
                     .sized(0.8F, 1.8F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("spirit"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<WispEntity>> WISP = ENTITY_TYPES.register("spirit_wisp",
+            () -> EntityType.Builder.<WispEntity>of(WispEntity::new, MobCategory.MISC)
+                    .sized(0.35F, 0.35F).clientTrackingRange(8).updateInterval(1).noSave().fireImmune().build("spirit_wisp"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<FireWhirlEntity>> FIRE_WHIRL = ENTITY_TYPES.register("fire_whirl",
+            () -> EntityType.Builder.<FireWhirlEntity>of(FireWhirlEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 3.0F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("fire_whirl"));
+
+    /** Magisteel Spirit Bell: ring to make wild spirits come and bind themselves to you. */
+    public static final DeferredItem<SpiritBellItem> SPIRIT_BELL = ITEMS.registerItem("spirit_bell", SpiritBellItem::new,
+            new Item.Properties().stacksTo(1));
+
+    /** Magisteel Spirit Lantern: carried, it draws spirits in and makes more gather. */
+    public static final DeferredItem<SpiritLanternItem> SPIRIT_LANTERN = ITEMS.registerItem("spirit_lantern",
+            SpiritLanternItem::new, new Item.Properties().stacksTo(1));
+
     /** Draconic Hellfire: Hell Storm's burn that never goes out. */
     public static final DeferredHolder<MobEffect, DraconicHellfireEffect> DRACONIC_HELLFIRE =
             MOB_EFFECTS.register("draconic_hellfire", DraconicHellfireEffect::new);
@@ -136,6 +158,14 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> RAINBOW_SPIRIT_INDEX = ATTACHMENTS.register(
             "rainbow_spirit_index", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
+    /** Whether Spirit Communion's Spirit Sight is on. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_SIGHT = ATTACHMENTS.register(
+            "spirit_sight", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
+
+    /** Spirit Jutsu element: 0 fire, 1 wind. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> YIFA_JUTSU = ATTACHMENTS.register(
+            "yifa_jutsu", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Whether your attacks call spirits (Spirit Link). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_LINK = ATTACHMENTS.register(
             "spirit_link", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());
@@ -164,6 +194,12 @@ public final class ModRegistries {
             }
         });
         SOUNDS.register(modEventBus);
+        modEventBus.addListener((BuildCreativeModeTabContentsEvent event) -> {
+            if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                event.accept(SPIRIT_BELL.get());
+                event.accept(SPIRIT_LANTERN.get());
+            }
+        });
         ATTACHMENTS.register(modEventBus);
     }
 }

@@ -18,6 +18,7 @@ public final class ClientEvents {
             ClientDeckState.tick();
             ClientShikigamiState.tick();
             ClientRainbow.tick();
+            ClientSpiritSight.tick();
         }
     }
 }
