@@ -1,6 +1,6 @@
 package com.tensurafragments.client;
 
-import com.tensurafragments.rainbow.RainbowSpell;
+import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.skill.EquippedSkills;
 import com.tensurafragments.skill.ModSkills;
 import net.minecraft.client.DeltaTracker;
@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 /**
- * Bottom-left HUD for Rainbow Magic, shown while it's on the active skill preset: the selected spell, colour-cycling.
+ * Bottom-left HUD for Rainbow Magic, shown while it's on the active skill preset: the selected spell (or Rainbow Spirit), colour-cycling.
  * Sits above the Shikigami Control HUD if both are equipped.
  */
 public final class RainbowHud {
@@ -26,9 +26,8 @@ public final class RainbowHud {
         boolean shikigamiToo = EquippedSkills.isEquipped(mc.player, ModSkills.SHIKIGAMI_CONTROL.get());
         int x = 8;
         int y = graphics.guiHeight() - (shikigamiToo ? 90 : 40);
-        RainbowSpell spell = ClientShikigamiState.rainbowSpell();
         float time = mc.level.getGameTime() + deltaTracker.getGameTimeDeltaPartialTick(false);
-        Component name = Component.translatable("tensurafragments.rainbow.spell." + spell.id());
+        Component name = Component.translatable(RainbowMagic.choiceKey(ClientShikigamiState.rainbowChoice()));
         // Each letter a different colour, shifting over time.
         String text = "\u2726 " + name.getString();
         int dx = x;

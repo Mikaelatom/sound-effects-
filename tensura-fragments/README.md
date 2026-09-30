@@ -120,7 +120,7 @@ Magicules are the spell's base cost times `rainbowCostMultiplier` (2). No paper 
 it's on your active preset) shows the selected spell in rainbow letters. Only spells cast through Rainbow Magic are
 recoloured; Tensura's spells cast any other way look and hit as normal.
 
-**Rainbow Spirit** (second mode): summons the next spirit from Spirit Control's line-up (Ifrit, Sylphide, Undine, War
+**Rainbow Spirit** (the second mode, and also the last choice when you **sneak** to switch spell, after Ice Lance): summons the next spirit from Spirit Control's line-up (Ifrit, Sylphide, Undine, War
 Gnome, Blade Tiger) at whatever you're aiming at, recoloured in rainbow. It does its one attack and vanishes like a
 normal spirit, but its attack (and any spell it throws) strikes with every element at once, just like a rainbow spell.
 Rainbow spirits have their own turn order, separate from Spirit Control's, and cost the spirit's 30 magicules times

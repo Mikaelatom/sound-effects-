@@ -10,8 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Rainbow Magic as a Tensura skill. Modes: cast the selected rainbow spell (sneak: switch spell), and summon the next
- * spirit recoloured in rainbow at your aim.
+ * Rainbow Magic as a Tensura skill. Modes: cast the selected rainbow spell (sneak: switch; the last choice is Rainbow
+ * Spirit), and summon the next spirit recoloured in rainbow at your aim.
  */
 public class RainbowMagicSkill extends Skill {
     public RainbowMagicSkill() {

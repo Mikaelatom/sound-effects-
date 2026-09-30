@@ -198,15 +198,16 @@ public final class SpellGameTests {
         TalismanEntity talisman = helper.getLevel().getEntitiesOfClass(TalismanEntity.class,
                 new AABB(player.blockPosition()).inflate(4)).get(0);
         Vec3 from = talisman.position();
-        // Measured by the talisman's own age: the test world only ticks it while it's near the tests (about 40
-        // blocks), so check the first 12 ticks and that it's still going at nearly full speed.
-        helper.succeedWhen(() -> {
-            helper.assertTrue(talisman.isAlive() && talisman.tickCount >= 12, "still flying after 12 ticks");
-            Vec3 moved = talisman.position().subtract(from);
-            helper.assertTrue(moved.z > 32, "flew far, " + moved.z + " blocks");
-            helper.assertTrue(moved.y > -0.5, "and nearly straight, dropped " + -moved.y);
-            helper.assertTrue(talisman.getDeltaMovement().z > 2.5, "still fast: " + talisman.getDeltaMovement().z);
-        });
+        // Flown by hand for 12 ticks: the test world stops ticking entities that leave the area near the tests.
+        for (int i = 0; i < 12; i++) {
+            talisman.tick();
+        }
+        helper.assertTrue(talisman.isAlive(), "still flying after 12 ticks");
+        Vec3 moved = talisman.position().subtract(from);
+        helper.assertTrue(moved.z > 32, "flew far, " + moved.z + " blocks");
+        helper.assertTrue(moved.y > -0.5, "and nearly straight, dropped " + -moved.y);
+        helper.assertTrue(talisman.getDeltaMovement().z > 2.5, "still fast: " + talisman.getDeltaMovement().z);
+        helper.succeed();
     }
 
     /** The Teleport talisman takes you where it lands, even 150 blocks away. */

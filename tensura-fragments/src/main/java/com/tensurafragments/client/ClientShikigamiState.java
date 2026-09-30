@@ -15,6 +15,8 @@ public final class ClientShikigamiState {
     private static RainbowSpell rainbowSpell = RainbowSpell.FIRE_BALL;
     private static FireSpell fireSpell = FireSpell.FIRE_BOLT;
     private static BeastKind beast = BeastKind.OWL;
+    /** Raw Rainbow Magic choice: a spell index, or the Rainbow Spirit slot after them. */
+    private static int rainbowChoice;
 
     private ClientShikigamiState() {
     }
@@ -25,6 +27,7 @@ public final class ClientShikigamiState {
         cooldownTotal = Math.max(1, payload.cooldownTicks());
         spell = Spell.byIndex(payload.spell());
         rainbowSpell = RainbowSpell.byIndex(payload.rainbowSpell());
+        rainbowChoice = payload.rainbowSpell();
         fireSpell = FireSpell.byIndex(payload.fireSpell());
         beast = BeastKind.byIndex(payload.beast());
     }
@@ -45,6 +48,10 @@ public final class ClientShikigamiState {
 
     public static RainbowSpell rainbowSpell() {
         return rainbowSpell;
+    }
+
+    public static int rainbowChoice() {
+        return rainbowChoice;
     }
 
     public static BeastKind beast() {

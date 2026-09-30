@@ -7,6 +7,7 @@ import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.skill.Magicules;
 import com.tensurafragments.skill.ModSkills;
+import com.tensurafragments.spirit.SpiritControl;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
 import io.github.manasmods.tensura.ability.SkillHelper;
 import io.github.manasmods.tensura.entity.projectile.TensuraFlyingProjectile;
@@ -21,6 +22,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Rainbow Magic: cast Tensura's own spells (Fire Ball, Water Blade, Wind Blade, Lightning Lance, Stone Shot, Ice
@@ -34,8 +36,22 @@ public final class RainbowMagic {
     private RainbowMagic() {
     }
 
+    /** Choices the switch goes through: every rainbow spell, then Rainbow Spirit. */
+    private static final int CHOICES = RainbowSpell.values().length + 1;
+
+    /** The selected rainbow spell, or null when Rainbow Spirit is selected. */
+    @Nullable
     public static RainbowSpell selectedSpell(ServerPlayer player) {
-        return RainbowSpell.byIndex(player.getData(ModRegistries.RAINBOW_SPELL));
+        return spiritSelected(player) ? null : RainbowSpell.byIndex(player.getData(ModRegistries.RAINBOW_SPELL));
+    }
+
+    /** Whether the last choice in the switch, Rainbow Spirit, is selected. */
+    public static boolean spiritSelected(ServerPlayer player) {
+        return isSpiritIndex(player.getData(ModRegistries.RAINBOW_SPELL));
+    }
+
+    public static boolean isSpiritIndex(int index) {
+        return Math.floorMod(index, CHOICES) == RainbowSpell.values().length;
     }
 
     public static double magiculeCost(RainbowSpell spell) {
@@ -44,6 +60,9 @@ public final class RainbowMagic {
 
     public static boolean cast(ServerPlayer player) {
         RainbowSpell spell = selectedSpell(player);
+        if (spell == null) {
+            return SpiritControl.callRainbowAtAim(player);
+        }
         if (!Magicules.trySpend(player, magiculeCost(spell))) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
@@ -66,14 +85,20 @@ public final class RainbowMagic {
     }
 
     public static void cycleSpell(ServerPlayer player) {
-        RainbowSpell spell = selectedSpell(player).next();
-        player.setData(ModRegistries.RAINBOW_SPELL, spell.ordinal());
-        int colour = Mth.hsvToRgb(spell.ordinal() / (float) RainbowSpell.values().length, 0.6F, 1.0F);
+        int next = Math.floorMod(player.getData(ModRegistries.RAINBOW_SPELL) + 1, CHOICES);
+        player.setData(ModRegistries.RAINBOW_SPELL, next);
+        int colour = Mth.hsvToRgb(next / (float) CHOICES, 0.6F, 1.0F);
         player.displayClientMessage(Component.translatable("tensurafragments.rainbow.selected",
-                Component.translatable("tensurafragments.rainbow.spell." + spell.id())).withColor(colour), true);
+                Component.translatable(choiceKey(next))).withColor(colour), true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME,
                 SoundSource.PLAYERS, 0.8F, 1.4F);
         ShikigamiControl.sync(player);
+    }
+
+    /** Translation key for a choice in the switch (a spell's name, or Rainbow Spirit). */
+    public static String choiceKey(int index) {
+        return isSpiritIndex(index) ? "tensurafragments.rainbow.spell.spirit"
+                : "tensurafragments.rainbow.spell." + RainbowSpell.byIndex(index).id();
     }
 
     /** Extra damage a rainbow spell adds to each hit: every element's damage at once. */
