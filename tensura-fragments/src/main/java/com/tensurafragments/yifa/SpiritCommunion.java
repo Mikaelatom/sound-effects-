@@ -9,6 +9,7 @@ import com.tensurafragments.skill.ModSkills;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
 import io.github.manasmods.tensura.ability.SkillHelper;
 import io.github.manasmods.tensura.entity.projectile.TensuraFlyingProjectile;
+import io.github.manasmods.tensura.entity.projectile.magic.FireBallProjectile;
 import io.github.manasmods.tensura.entity.projectile.magic.FireBoltProjectile;
 import io.github.manasmods.tensura.entity.projectile.magic.WindBladeProjectile;
 import io.github.manasmods.tensura.particle.TensuraParticleHelper;
@@ -274,9 +275,15 @@ public final class SpiritCommunion {
             sound(level, player.position(), TensuraSoundEvents.CAST_FIRE.get());
             sound(level, player.position(), TensuraSoundEvents.CAST_WIND.get());
         } else if (fire > 0) {
-            flameBurst(level, player, aim.point(), fire, earth > 0, power);
+            // A Tensura fire ball carries it; the flame burst goes off where it lands.
+            FireBallProjectile ball = new FireBallProjectile(level, player);
+            ball.setBurnTicks(60);
+            launch(player, ball, SpiritElement.FIRE, fire, earth > 0, power, 1.6F);
+            sound(level, player.position(), TensuraSoundEvents.CAST_FIRE.get());
         } else if (wind > 0) {
-            gale(level, player, aim.point(), wind, earth > 0, power);
+            // A Tensura wind blade carries it; the gale bursts where it lands.
+            launch(player, new WindBladeProjectile(level, player), SpiritElement.WIND, wind, earth > 0, power, 2.0F);
+            sound(level, player.position(), TensuraSoundEvents.CAST_WIND.get());
         } else if (water > 0) {
             spring(level, player, water, power);
         } else {
@@ -289,7 +296,57 @@ public final class SpiritCommunion {
         return true;
     }
 
-    private static void flameBurst(ServerLevel level, ServerPlayer player, Vec3 at, int fire, boolean earth, float power) {
+    /** What a carrier projectile holds: released spirits whose spell goes off where it ends. */
+    private record Carried(UUID owner, SpiritElement element, int spirits, boolean earth, float power) {
+    }
+
+    /**
+     * Carrier projectiles in flight. Kept here rather than on the projectile, because some Tensura projectiles copy
+     * themselves (with all their data), which must not set the spell off twice.
+     */
+    private static final Map<UUID, Carried> CARRIERS = new HashMap<>();
+    /** Bursts waiting for the end of the tick (they can't safely go off while an entity is being removed). */
+    private static final List<Runnable> PENDING_BURSTS = new java.util.ArrayList<>();
+
+    private static void launch(ServerPlayer player, TensuraFlyingProjectile projectile, SpiritElement element, int spirits,
+                               boolean earth, float power, float speed) {
+        projectile.setDamage(2);
+        projectile.setSpeed(speed);
+        projectile.setPosAndShoot(player);
+        CARRIERS.put(projectile.getUUID(), new Carried(player.getUUID(), element, spirits, earth, power));
+        player.level().addFreshEntity(projectile);
+    }
+
+    /**
+     * A carrier projectile hit something (or ran out): its flame burst or gale goes off right there, at the end of
+     * this tick. Only the first time; anything else leaving with the same id is ignored.
+     */
+    public static void onCarrierEnds(ServerLevel level, Entity projectile) {
+        Carried carried = CARRIERS.remove(projectile.getUUID());
+        if (carried == null || !(level.getPlayerByUUID(carried.owner()) instanceof ServerPlayer player)) {
+            return;
+        }
+        Vec3 at = projectile.position();
+        PENDING_BURSTS.add(() -> {
+            if (carried.element() == SpiritElement.FIRE) {
+                flameBurst(level, player, at, carried.spirits(), carried.earth(), carried.power());
+            } else {
+                gale(level, player, at, carried.spirits(), carried.earth(), carried.power());
+            }
+        });
+    }
+
+    /** Sets off the bursts whose carriers ended this tick. */
+    public static void runPendingBursts() {
+        if (PENDING_BURSTS.isEmpty()) {
+            return;
+        }
+        List<Runnable> bursts = List.copyOf(PENDING_BURSTS);
+        PENDING_BURSTS.clear();
+        bursts.forEach(Runnable::run);
+    }
+
+    static void flameBurst(ServerLevel level, ServerPlayer player, Vec3 at, int fire, boolean earth, float power) {
         double radius = (2 + 0.6 * fire) * Math.sqrt(power);
         float damage = 5 * fire * power;
         level.sendParticles(ParticleTypes.FLAME, at.x, at.y, at.z, 40 + 20 * fire, radius / 2, radius / 3, radius / 2, 0.08);
@@ -303,7 +360,7 @@ public final class SpiritCommunion {
         }
     }
 
-    private static void gale(ServerLevel level, ServerPlayer player, Vec3 at, int wind, boolean earth, float power) {
+    static void gale(ServerLevel level, ServerPlayer player, Vec3 at, int wind, boolean earth, float power) {
         double radius = (3 + 0.6 * wind) * Math.sqrt(power);
         float damage = 2 * wind * power;
         level.sendParticles(ParticleTypes.GUST_EMITTER_SMALL, at.x, at.y + 0.5, at.z, 1, 0, 0, 0, 0);

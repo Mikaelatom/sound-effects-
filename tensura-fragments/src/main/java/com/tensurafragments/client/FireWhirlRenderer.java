@@ -1,6 +1,7 @@
 package com.tensurafragments.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.tensurafragments.yifa.FireWhirlEntity;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -40,6 +41,8 @@ public class FireWhirlRenderer extends GeoEntityRenderer<FireWhirlEntity> {
         poseStack.pushPose();
         float scale = (float) whirl.radius() / MODEL_RADIUS;
         poseStack.scale(scale, scale, scale);
+        // Spin the whole whirl on top of its own animation, so it's always visibly turning.
+        poseStack.mulPose(Axis.YP.rotationDegrees((whirl.tickCount + partialTick) * -24F));
         super.render(whirl, yaw, partialTick, poseStack, buffers, LightTexture.FULL_BRIGHT);
         poseStack.popPose();
     }

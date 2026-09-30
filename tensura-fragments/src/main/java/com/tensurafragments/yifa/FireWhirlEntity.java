@@ -34,13 +34,17 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
     /** Spirits that went into it; drives its size, damage and how long it lasts. */
     private static final EntityDataAccessor<Float> STRENGTH =
             SynchedEntityData.defineId(FireWhirlEntity.class, EntityDataSerializers.FLOAT);
+    /** Which way it travels, synced so your own game moves it smoothly too. */
+    private static final EntityDataAccessor<Float> DIR_X =
+            SynchedEntityData.defineId(FireWhirlEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DIR_Z =
+            SynchedEntityData.defineId(FireWhirlEntity.class, EntityDataSerializers.FLOAT);
     private static final RawAnimation ANIMATION = RawAnimation.begin()
             .thenPlay("animation.magic_tornado.start").thenLoop("animation.magic_tornado.loop");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     @Nullable
     private UUID ownerUuid;
-    private Vec3 direction = Vec3.ZERO;
     private boolean earth;
     private float power = 1;
     private int duration = 80;
@@ -54,11 +58,13 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
         FireWhirlEntity whirl = new FireWhirlEntity(ModRegistries.FIRE_WHIRL.get(), owner.level());
         whirl.entityData.set(STRENGTH, spirits * (float) Math.sqrt(power));
         whirl.ownerUuid = owner.getUUID();
-        whirl.direction = Vec3.directionFromRotation(0, owner.getYRot());
+        Vec3 direction = Vec3.directionFromRotation(0, owner.getYRot());
+        whirl.entityData.set(DIR_X, (float) direction.x);
+        whirl.entityData.set(DIR_Z, (float) direction.z);
         whirl.earth = earth;
         whirl.power = power;
         whirl.duration = 60 + 10 * spirits;
-        Vec3 start = owner.position().add(whirl.direction.scale(2.5));
+        Vec3 start = owner.position().add(direction.scale(2.5));
         whirl.setPos(start.x, owner.getY(), start.z);
         return whirl;
     }
@@ -66,6 +72,8 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STRENGTH, 2.0F);
+        builder.define(DIR_X, 0F);
+        builder.define(DIR_Z, 0F);
     }
 
     public float getStrength() {
@@ -80,6 +88,8 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
     @Override
     public void tick() {
         super.tick();
+        // Both sides move it, so it glides smoothly on screen; the server's position still wins.
+        travel(level());
         if (level().isClientSide) {
             return;
         }
@@ -90,7 +100,6 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
             discard();
             return;
         }
-        travel(level);
         double radius = radius();
         for (int i = 0; i < 6; i++) {
             double angle = (tickCount * 0.6 + i) * 1.1;
@@ -119,8 +128,9 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
     }
 
     /** Moves along the ground the way its caster looked, stopping at walls. */
-    private void travel(ServerLevel level) {
-        Vec3 next = position().add(direction.scale(0.3));
+    private void travel(Level level) {
+        Vec3 heading = new Vec3(entityData.get(DIR_X), 0, entityData.get(DIR_Z));
+        Vec3 next = position().add(heading.scale(0.3));
         Vec3 up = next.add(0, 1.2, 0);
         HitResult wall = level.clip(new ClipContext(position().add(0, 1.2, 0), up, ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE, this));
@@ -174,6 +184,6 @@ public class FireWhirlEntity extends Entity implements GeoEntity {
 
     /** For tests. */
     public Vec3 direction() {
-        return direction;
+        return new Vec3(entityData.get(DIR_X), 0, entityData.get(DIR_Z));
     }
 }

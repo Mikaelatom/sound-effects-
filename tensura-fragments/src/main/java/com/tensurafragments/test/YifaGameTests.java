@@ -110,20 +110,25 @@ public final class YifaGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "platform")
+    /** Fire spirits ride a Tensura fire ball that flies at the target; the flame burst goes off where it lands. */
+    @GameTest(template = "platform", timeoutTicks = 60)
     public static void fireSpiritsBurst(GameTestHelper helper) {
         ServerPlayer player = yifa(helper, 4.5, 0.5);
         Husk husk = castAtHusk(helper, player, SpiritElement.FIRE, SpiritElement.FIRE);
-        helper.assertTrue(husk.getHealth() <= 1000 - 9 && husk.isOnFire(), "burned, husk at " + husk.getHealth());
-        helper.succeed();
+        helper.assertTrue(husk.getHealth() == 1000, "nothing yet: the fire ball is still flying");
+        helper.assertFalse(helper.getLevel().getEntitiesOfClass(TensuraFlyingProjectile.class,
+                new AABB(player.blockPosition()).inflate(4)).isEmpty(), "a fire ball flies");
+        helper.succeedWhen(() -> helper.assertTrue(husk.getHealth() <= 1000 - 9 && husk.isOnFire(),
+                "burned, husk at " + husk.getHealth()));
     }
 
-    @GameTest(template = "platform")
+    /** Wind spirits ride a Tensura wind sphere; the gale bursts where it lands. */
+    @GameTest(template = "platform", timeoutTicks = 60)
     public static void windSpiritsGale(GameTestHelper helper) {
         ServerPlayer player = yifa(helper, 4.5, 0.5);
         Husk husk = castAtHusk(helper, player, SpiritElement.WIND, SpiritElement.WIND);
-        helper.assertTrue(husk.getHealth() < 1000 && husk.getDeltaMovement().y > 0.3, "blown into the air");
-        helper.succeed();
+        helper.succeedWhen(() -> helper.assertTrue(husk.getHealth() < 1000 && husk.getDeltaMovement().y > 0.3,
+                "blown into the air"));
     }
 
     @GameTest(template = "platform")
@@ -152,6 +157,9 @@ public final class YifaGameTests {
                 new AABB(player.blockPosition()).inflate(6));
         helper.assertTrue(whirls.size() == 1, "a fire whirl");
         helper.assertTrue(whirls.get(0).direction().z > 0.9, "heading where you looked");
+        Vec3 start = whirls.get(0).position();
+        helper.runAfterDelay(15, () -> helper.assertTrue(whirls.get(0).position().z - start.z > 3,
+                "the whirl travels forward"));
         helper.runAfterDelay(40, () -> {
             helper.assertTrue(husk.getHealth() < 1000 && husk.isOnFire(), "the whirl burned the husk");
             helper.succeed();

@@ -204,15 +204,15 @@ Up to 6 wild spirits gather around you at a time; they wander off after a minute
 | Spirits released | Spell |
 |---|---|
 | **Fire + Wind** | **Fire Whirl**: Tensura's magic tornado, burning orange, travels the way you looked for 4+ seconds, dragging enemies in, lifting and burning them (3 per spirit, twice a second) |
-| **Fire** | **Flame Burst** where you aim: 5 per spirit, sets everything alight; wider with more spirits |
-| **Wind** | **Gale** where you aim: 2 per spirit, blows everything up and away, and throws back projectiles that aren't yours |
+| **Fire** | **Flame Burst**: a Tensura fire ball flies where you aim, and where it lands everything takes 5 per spirit and is set alight; wider with more spirits |
+| **Wind** | **Gale**: a Tensura wind blade flies where you aim, and where it lands everything takes 2 per spirit and is blown up and away, and projectiles that aren't yours are thrown back |
 | **Water** | **Healing Spring**: heals you and your allies within 6 blocks (4 per spirit) with Regeneration, and puts out fires |
 | **Earth** | **Earth Bind** where you aim: 2 per spirit, and enemies are held in place and weakened for 3 seconds |
 
 Water in a fire or wind mix also heals you (2 per water spirit); earth in a mix slows everything it hits.
 
-The HUD (middle of the left edge, while it's on your active preset) shows an eye while Spirit Sight is on, your bound
-spirits (with a bar for their time left), and your jutsu element.
+A small HUD just right of the hotbar (while it's on your active preset) shows a dot that lights up while Spirit Sight
+is on, then your bound spirits with a thin bar for their time left. Switching jutsu element shows it above the hotbar.
 
 **Magisteel items** that draw spirits to you (both in the Tools & Utilities creative tab):
 
