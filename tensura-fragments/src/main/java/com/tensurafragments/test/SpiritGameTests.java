@@ -1,12 +1,15 @@
 package com.tensurafragments.test;
 
+import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.skill.ModSkills;
 import com.tensurafragments.spirit.SpiritControl;
 import com.tensurafragments.spirit.SpiritEntity;
 import com.tensurafragments.spirit.SpiritKind;
 import io.github.manasmods.tensura.ability.SkillHelper;
+import io.github.manasmods.tensura.entity.projectile.TensuraFlyingProjectile;
 import java.util.List;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -116,6 +119,42 @@ public final class SpiritGameTests {
         helper.assertFalse(SpiritControl.onMeleeHit(player, husk), "link off: no spirit on hits");
         helper.assertTrue(spirits(helper, player).isEmpty(), "none appeared");
         helper.succeed();
+    }
+
+    /** Rainbow Magic's spirits: recoloured in rainbow, and their attack carries every element on top. */
+    @GameTest(template = "platform", timeoutTicks = 100)
+    public static void rainbowSpiritStrikesWithEveryElement(GameTestHelper helper) {
+        ServerPlayer player = caller(helper);
+        SkillHelper.learnSkill(player, ModSkills.RAINBOW_MAGIC.get());
+        Husk husk = dummy(helper, 4.5, 5.5);
+        player.setData(ModRegistries.RAINBOW_SPIRIT_INDEX, SpiritKind.WAR_GNOME.ordinal());
+        helper.assertTrue(SpiritControl.callRainbow(player, husk, husk.getBoundingBox().getCenter()), "rainbow spirit called");
+        List<SpiritEntity> called = spirits(helper, player);
+        helper.assertTrue(called.size() == 1 && RainbowMagic.isRainbow(called.get(0)), "the spirit is a rainbow spirit");
+        helper.assertTrue(SpiritControl.nextRainbowKind(player) == SpiritKind.BLADE_TIGER, "rainbow spirits take turns");
+        helper.assertTrue(SpiritControl.nextKind(player) == SpiritKind.IFRIT, "without touching Spirit Control's turn");
+        float plain = Config.SPIRIT_DAMAGE.get().floatValue() * SpiritKind.WAR_GNOME.damageMultiplier();
+        helper.runAfterDelay(SpiritKind.WAR_GNOME.lifetime() + 5, () -> {
+            helper.assertTrue(husk.getHealth() < 1000 - plain - RainbowMagic.prismDamage() + 0.5F,
+                    "stomp plus every element, husk at " + husk.getHealth());
+            helper.assertTrue(husk.isOnFire(), "the fire element burns");
+            helper.succeed();
+        });
+    }
+
+    /** A rainbow Sylphide's wind blade is a rainbow spell too. */
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void rainbowSpiritMagicIsRainbow(GameTestHelper helper) {
+        ServerPlayer player = caller(helper);
+        Husk husk = dummy(helper, 4.5, 7.5);
+        player.setData(ModRegistries.RAINBOW_SPIRIT_INDEX, SpiritKind.SYLPHIDE.ordinal());
+        SpiritControl.callRainbow(player, husk, husk.getBoundingBox().getCenter());
+        helper.runAfterDelay(SpiritKind.SYLPHIDE.strikeTick() + 1, () -> {
+            List<TensuraFlyingProjectile> blades = helper.getLevel().getEntitiesOfClass(TensuraFlyingProjectile.class,
+                    new AABB(player.blockPosition()).inflate(4, 3, 8));
+            helper.assertTrue(!blades.isEmpty() && blades.stream().allMatch(RainbowMagic::isRainbow), "a rainbow wind blade");
+            helper.succeed();
+        });
     }
 
     /** The War Gnome's stomp throws enemies but spares your pets. */

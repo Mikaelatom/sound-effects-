@@ -2,6 +2,8 @@ package com.tensurafragments.spirit;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import com.tensurafragments.network.RainbowEntityPayload;
+import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.skill.Magicules;
 import com.tensurafragments.skill.ModSkills;
@@ -21,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -49,6 +52,15 @@ public final class SpiritControl {
 
     /** The skill key: a spirit at whatever you're aiming at (a creature, or the spot you point to). */
     public static boolean callAtAim(ServerPlayer player) {
+        return callAtAim(player, false);
+    }
+
+    /** Rainbow Magic's summoning: the next spirit, recoloured in rainbow, whose attack strikes with every element. */
+    public static boolean callRainbowAtAim(ServerPlayer player) {
+        return callAtAim(player, true);
+    }
+
+    private static boolean callAtAim(ServerPlayer player, boolean rainbow) {
         double range = Config.SPIRIT_RANGE.get();
         Vec3 eye = player.getEyePosition();
         Vec3 end = eye.add(player.getLookAngle().scale(range));
@@ -60,30 +72,53 @@ public final class SpiritControl {
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(player.level(), player, eye, end, area,
                 e -> e instanceof LivingEntity living && living.isAlive() && !Spell.isAlly(living, player));
         if (hit != null && hit.getEntity() instanceof LivingEntity target) {
-            return call(player, target, target.getBoundingBox().getCenter());
+            return summon(player, target, target.getBoundingBox().getCenter(), rainbow);
         }
-        return call(player, null, end);
+        return summon(player, null, end, rainbow);
     }
 
     /** Calls the next spirit to attack {@code target} or the point {@code aim}. */
     public static boolean call(ServerPlayer player, @Nullable LivingEntity target, Vec3 aim) {
+        return summon(player, target, aim, false);
+    }
+
+    /** Calls the next rainbow spirit (Rainbow Magic) to attack {@code target} or the point {@code aim}. */
+    public static boolean callRainbow(ServerPlayer player, @Nullable LivingEntity target, Vec3 aim) {
+        return summon(player, target, aim, true);
+    }
+
+    public static SpiritKind nextRainbowKind(ServerPlayer player) {
+        return SpiritKind.byIndex(player.getData(ModRegistries.RAINBOW_SPIRIT_INDEX));
+    }
+
+    private static boolean summon(ServerPlayer player, @Nullable LivingEntity target, Vec3 aim, boolean rainbow) {
         long now = player.level().getGameTime();
         if (now < NEXT_SPIRIT.getOrDefault(player.getUUID(), Long.MIN_VALUE)) {
             return false;
         }
-        if (!Magicules.trySpend(player, Config.SPIRIT_MAGICULE_COST.get())) {
+        double cost = Config.SPIRIT_MAGICULE_COST.get() * (rainbow ? Config.RAINBOW_COST_MULTIPLIER.get() : 1);
+        if (!Magicules.trySpend(player, cost)) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
             return false;
         }
         NEXT_SPIRIT.put(player.getUUID(), now + Config.SPIRIT_INTERVAL_TICKS.get());
-        SpiritKind kind = nextKind(player);
-        player.setData(ModRegistries.SPIRIT_INDEX, kind.next().ordinal());
-        player.level().addFreshEntity(SpiritEntity.create(player, kind, spawnPoint(player, kind, aim), target, aim));
+        var turn = rainbow ? ModRegistries.RAINBOW_SPIRIT_INDEX : ModRegistries.SPIRIT_INDEX;
+        SpiritKind kind = SpiritKind.byIndex(player.getData(turn));
+        boolean leftSide = player.getData(turn) % 2 == 0;
+        player.setData(turn, kind.next().ordinal());
+        SpiritEntity spirit = SpiritEntity.create(player, kind, spawnPoint(player, kind, aim, leftSide), target, aim);
+        if (rainbow) {
+            RainbowMagic.mark(spirit);
+        }
+        player.level().addFreshEntity(spirit);
+        if (rainbow) {
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(spirit, new RainbowEntityPayload(spirit.getId()));
+        }
         return true;
     }
 
     /** Melee spirits appear by the target (the tiger a few blocks off, to pounce); the others beside you. */
-    private static Vec3 spawnPoint(ServerPlayer player, SpiritKind kind, Vec3 aim) {
+    private static Vec3 spawnPoint(ServerPlayer player, SpiritKind kind, Vec3 aim, boolean leftSide) {
         Vec3 toAim = aim.subtract(player.position()).multiply(1, 0, 1);
         Vec3 dir = toAim.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0, player.getYRot()) : toAim.normalize();
         Vec3 ground = new Vec3(aim.x, groundBelow(player, aim), aim.z);
@@ -95,8 +130,7 @@ public final class SpiritControl {
             }
             default -> {
                 Vec3 side = new Vec3(-dir.z, 0, dir.x);
-                boolean left = player.getData(ModRegistries.SPIRIT_INDEX) % 2 == 0;
-                yield player.position().add(side.scale(left ? 1.5 : -1.5)).subtract(dir.scale(0.5));
+                yield player.position().add(side.scale(leftSide ? 1.5 : -1.5)).subtract(dir.scale(0.5));
             }
         };
     }

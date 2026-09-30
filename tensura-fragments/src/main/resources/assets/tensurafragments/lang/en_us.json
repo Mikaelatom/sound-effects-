@@ -57,7 +57,7 @@
   "tensurafragments.spell.wind": "Wind 風",
   "tensurafragments.spell.teleport": "Teleport 転",
   "tensurafragments.skill.rainbow_talismans": "Rainbow Magic",
-  "tensurafragments.skill.rainbow_talismans.description": "§oTensura's spells, reborn in every colour at once. Each one burns, freezes, shocks and crushes in a single rainbow strike.",
+  "tensurafragments.skill.rainbow_talismans.description": "§oTensura's spells and spirits, reborn in every colour at once. Each one burns, freezes, shocks and crushes in a single rainbow strike.",
   "tensurafragments.skill.mode.rainbow_magic.cast": "Cast Rainbow Spell (sneak: switch spell)",
   "tensurafragments.rainbow.selected": "Rainbow %s",
   "tensurafragments.rainbow.spell.fire_ball": "Fire Ball",
@@ -109,5 +109,6 @@
   "tensurafragments.skill.spirit_control.description": "§oEvery blow calls a spirit. Ifrit, Sylphide, Undine, the War Gnome and the Blade Tiger answer in turn, strike once, and are gone.",
   "tensurafragments.skill.mode.spirit_control.call": "Call Spirit at your aim (sneak: Spirit Link on / off)",
   "tensurafragments.spirit.link_on": "Spirit Link on: your attacks call spirits",
-  "tensurafragments.spirit.link_off": "Spirit Link off: only the skill key calls spirits"
+  "tensurafragments.spirit.link_off": "Spirit Link off: only the skill key calls spirits",
+  "tensurafragments.skill.mode.rainbow_magic.spirit": "Rainbow Spirit: summon the next spirit, in rainbow, at your aim"
 }

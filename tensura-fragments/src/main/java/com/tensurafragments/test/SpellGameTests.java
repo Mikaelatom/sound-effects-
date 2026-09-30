@@ -1,6 +1,7 @@
 package com.tensurafragments.test;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.ShikigamiControl;
 import com.tensurafragments.shikigami.Spell;
 import com.tensurafragments.shikigami.TalismanEntity;
@@ -181,5 +182,43 @@ public final class SpellGameTests {
             helper.assertTrue(rel.z > 5.5, "caster should appear where the talisman landed, is at " + rel);
             helper.assertTrue(rel.y >= GROUND - 0.01, "standing on the floor, not in it");
         });
+    }
+
+    /** Talismans go where you aim: far and nearly straight (up in open air, away from the other tests). */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void talismansFlyFar(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5);
+        Vec3 sky = player.position().add(0, 40, 0);
+        player.moveTo(sky.x, sky.y, sky.z, 0, 0);
+        while (ShikigamiControl.selectedSpell(player) != Spell.WIND) {
+            ShikigamiControl.cycleSpell(player);
+        }
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, player.getEyePosition().add(0, 0, 10));
+        helper.assertTrue(ShikigamiControl.throwTalisman(player, Vec3.ZERO), "thrown");
+        TalismanEntity talisman = helper.getLevel().getEntitiesOfClass(TalismanEntity.class,
+                new AABB(player.blockPosition()).inflate(4)).get(0);
+        Vec3 from = talisman.position();
+        // Measured by the talisman's own age: the test world only ticks it while it's near the tests (about 40
+        // blocks), so check the first 12 ticks and that it's still going at nearly full speed.
+        helper.succeedWhen(() -> {
+            helper.assertTrue(talisman.isAlive() && talisman.tickCount >= 12, "still flying after 12 ticks");
+            Vec3 moved = talisman.position().subtract(from);
+            helper.assertTrue(moved.z > 32, "flew far, " + moved.z + " blocks");
+            helper.assertTrue(moved.y > -0.5, "and nearly straight, dropped " + -moved.y);
+            helper.assertTrue(talisman.getDeltaMovement().z > 2.5, "still fast: " + talisman.getDeltaMovement().z);
+        });
+    }
+
+    /** The Teleport talisman takes you where it lands, even 150 blocks away. */
+    @GameTest(template = "platform")
+    public static void teleportTalismanGoesFar(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 4.5);
+        Vec3 start = player.position();
+        Vec3 far = start.add(150, 40, 0);
+        TalismanEntity talisman = TalismanEntity.create(player, new Paper.Talisman(new ItemStack(Items.PAPER), 1.0F), Spell.TELEPORT);
+        talisman.setPos(far.x, far.y, far.z);
+        Spell.TELEPORT.cast(helper.getLevel(), talisman, player, far, 1.0F);
+        helper.assertTrue(player.position().distanceTo(start) > 140, "teleported " + player.position().distanceTo(start) + " blocks");
+        helper.succeed();
     }
 }

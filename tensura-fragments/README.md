@@ -40,11 +40,11 @@ always used first. Things made from leaves have a green talisman.
 
 | Mode | What it does | Cost |
 |---|---|---|
-| **Shikigami** | Turn the block you're looking at into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
-| **Spell Talisman** | Throw your selected spell talisman. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
-| **Barrier** | Plant a talisman anchor on the block you're looking at. **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
+| **Shikigami** | Turn the block you're looking at (up to 32 blocks away) into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
+| **Spell Talisman** | Throw your selected spell talisman. Thrown fast (3 blocks a tick) and nearly flat, so it lands where you aim, up to about 290 blocks away. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
+| **Barrier** | Plant a talisman anchor on the block you're looking at (up to 64 blocks away). **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Paper Beast** | Fold paper into the selected beast, just in front of you. It follows you and fights your enemies on its own until you possess it. It's paper: fire does triple damage, falls do nothing, and it falls apart if you leave. No limit on how many. **Sneak** to switch beast (see below). | The beast's paper + 40 magicules |
-| **Possess** | See through a paper beast's eyes and control it: the one you're looking at, or your nearest. Your movement keys and mouse steer it, attack is its attack, and your body stands still (and helpless) where you left it. Press again to come back. Taking damage, going over 96 blocks away, or running out of magicules snaps you back. **Sneak** (when not possessing) to unfold all your beasts. | 2 magicules/second |
+| **Possess** | See through a paper beast's eyes and control it: the one you're looking at, or your nearest. Your movement keys and mouse steer it, attack is its attack, and your body stands still (and helpless) where you left it. Press again to come back. Taking damage, going over 128 blocks away, or running out of magicules snaps you back. **Sneak** (when not possessing) to unfold all your beasts. | 2 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
 
 **Paper beasts** are drawn with Tensura's own creature models and animations, folded from paper:
@@ -72,7 +72,7 @@ shikigami, your pets and your released grimoire creatures. Leaves make every spe
 | **Earth 土** (brown) | Stone eruption: enemies within 3 blocks take 5 and are launched into the air | 30 |
 | **Ice 氷** (pale blue) | Frost: enemies within 3 blocks take 3, are frozen solid (like powder snow) and slowed; nearby water freezes over for a few seconds and fires go out | 25 |
 | **Wind 風** (pale green) | Gust: enemies within 4 blocks take 2 and are blown away; projectiles that aren't yours are thrown back; if you're caught in it you're launched upward (throw it at your feet for a wind jump) | 20 |
-| **Teleport 転** (purple) | Phase transfer: you appear where the talisman landed (up to 48 blocks away, half with leaves). Hurts no one. | 30 |
+| **Teleport 転** (purple) | Phase transfer: you appear where the talisman landed (up to 256 blocks away, half with leaves; it flies dead straight, no drop). Hurts no one. | 30 |
 
 Costs scale with `spellCostMultiplier`.
 
@@ -119,6 +119,12 @@ rainbow rings. **Sneak** to switch spell.
 Magicules are the spell's base cost times `rainbowCostMultiplier` (2). No paper needed. The HUD (bottom left, while
 it's on your active preset) shows the selected spell in rainbow letters. Only spells cast through Rainbow Magic are
 recoloured; Tensura's spells cast any other way look and hit as normal.
+
+**Rainbow Spirit** (second mode): summons the next spirit from Spirit Control's line-up (Ifrit, Sylphide, Undine, War
+Gnome, Blade Tiger) at whatever you're aiming at, recoloured in rainbow. It does its one attack and vanishes like a
+normal spirit, but its attack (and any spell it throws) strikes with every element at once, just like a rainbow spell.
+Rainbow spirits have their own turn order, separate from Spirit Control's, and cost the spirit's 30 magicules times
+`rainbowCostMultiplier`. You don't need Spirit Control for this.
 
 ## Skill 5: Flame Emperor
 

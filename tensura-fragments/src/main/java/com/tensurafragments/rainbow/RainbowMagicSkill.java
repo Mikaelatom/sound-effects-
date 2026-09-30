@@ -1,6 +1,7 @@
 package com.tensurafragments.rainbow;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.spirit.SpiritControl;
 import io.github.manasmods.manascore.skill.api.ManasSkillInstance;
 import io.github.manasmods.tensura.ability.skill.Skill;
 import net.minecraft.resources.ResourceLocation;
@@ -8,7 +9,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-/** Rainbow Magic as a Tensura skill: cast the selected rainbow spell (sneak: switch spell). */
+/**
+ * Rainbow Magic as a Tensura skill. Modes: cast the selected rainbow spell (sneak: switch spell), and summon the next
+ * spirit recoloured in rainbow at your aim.
+ */
 public class RainbowMagicSkill extends Skill {
     public RainbowMagicSkill() {
         super(SkillType.UNIQUE);
@@ -22,12 +26,17 @@ public class RainbowMagicSkill extends Skill {
 
     @Override
     public int getModes(ManasSkillInstance instance) {
-        return 1;
+        return 2;
     }
 
     @Override
     public String getModeId(ManasSkillInstance instance, int mode) {
-        return "rainbow_magic.cast";
+        return mode == 1 ? "rainbow_magic.spirit" : "rainbow_magic.cast";
+    }
+
+    @Override
+    public int nextMode(LivingEntity entity, ManasSkillInstance instance, int mode, boolean reverse) {
+        return Math.floorMod(mode + (reverse ? -1 : 1), 2);
     }
 
     @Override
@@ -35,7 +44,11 @@ public class RainbowMagicSkill extends Skill {
         if (!(entity instanceof ServerPlayer player) || player.isSpectator()) {
             return;
         }
-        if (player.isShiftKeyDown()) {
+        if (mode == 1) {
+            if (SpiritControl.callRainbowAtAim(player)) {
+                addMasteryPoint(instance, player);
+            }
+        } else if (player.isShiftKeyDown()) {
             RainbowMagic.cycleSpell(player);
         } else if (RainbowMagic.cast(player)) {
             addMasteryPoint(instance, player);

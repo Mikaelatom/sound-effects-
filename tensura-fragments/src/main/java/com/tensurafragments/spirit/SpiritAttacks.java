@@ -1,6 +1,8 @@
 package com.tensurafragments.spirit;
 
 import com.tensurafragments.Config;
+import com.tensurafragments.network.RainbowEntityPayload;
+import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.Spell;
 import io.github.manasmods.tensura.entity.projectile.TensuraFlyingProjectile;
 import io.github.manasmods.tensura.entity.projectile.magic.FireBallProjectile;
@@ -15,10 +17,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 /** What each spirit does in the moment it strikes. */
 final class SpiritAttacks {
@@ -64,7 +68,15 @@ final class SpiritAttacks {
         projectile.setDamage(damage);
         projectile.setSpeed(speed);
         projectile.shoot(dir.x, dir.y, dir.z, speed, 0);
+        // A rainbow spirit's magic is rainbow too: every element in one hit.
+        boolean rainbow = RainbowMagic.isRainbow(spirit);
+        if (rainbow) {
+            RainbowMagic.mark(projectile);
+        }
         level.addFreshEntity(projectile);
+        if (rainbow) {
+            PacketDistributor.sendToPlayersTrackingEntity(projectile, new RainbowEntityPayload(projectile.getId()));
+        }
     }
 
     /** The ground under the target bursts and throws everything near it into the air. */
@@ -96,7 +108,8 @@ final class SpiritAttacks {
         Vec3 to = spirit.aim();
         Vec3 path = to.subtract(from);
         Vec3 end = path.lengthSqr() < 1.0E-4 ? to : to.add(path.normalize().scale(1.5));
-        DamageSource source = level.damageSources().mobAttack(owner);
+        // Dealt by the tiger (for your credit), so a rainbow tiger's cut carries every element.
+        DamageSource source = level.damageSources().source(DamageTypes.PLAYER_ATTACK, spirit, owner);
         for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, new AABB(from, end).inflate(1.5),
                 e -> e.isAlive() && !e.isSpectator() && !Spell.isAlly(e, owner))) {
             Vec3 centre = victim.getBoundingBox().getCenter();

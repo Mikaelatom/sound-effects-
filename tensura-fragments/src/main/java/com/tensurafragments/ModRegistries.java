@@ -132,6 +132,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SPIRIT_INDEX = ATTACHMENTS.register(
             "spirit_index", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
+    /** Which spirit Rainbow Magic calls next (index into SpiritKind); its own turn order, apart from Spirit Control's. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> RAINBOW_SPIRIT_INDEX = ATTACHMENTS.register(
+            "rainbow_spirit_index", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Whether your attacks call spirits (Spirit Link). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_LINK = ATTACHMENTS.register(
             "spirit_link", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());

@@ -61,7 +61,8 @@ public class TalismanEntity extends ThrowableItemProjectile {
 
     @Override
     protected double getDefaultGravity() {
-        return 0.01;
+        // Barely drops, so it goes where you aim; the Teleport talisman flies dead straight.
+        return getSpell() == Spell.TELEPORT ? 0 : 0.004;
     }
 
     @Override
@@ -69,7 +70,7 @@ public class TalismanEntity extends ThrowableItemProjectile {
         super.tick();
         if (level().isClientSide) {
             level().addParticle(ParticleTypes.ENCHANT, getX(), getY(), getZ(), 0, 0, 0);
-        } else if (tickCount > 200) {
+        } else if (tickCount > 400) {
             discard();
         }
     }

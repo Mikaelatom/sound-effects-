@@ -80,8 +80,8 @@ public final class Config {
             .comment("How long a shikigami lasts before it turns back into its block.")
             .defineInRange("shikigamiLifetimeTicks", 2400, 20, 720000);
     public static final ModConfigSpec.DoubleValue SHIKIGAMI_REACH = BUILDER
-            .comment("How far away a block can be turned into a shikigami.")
-            .defineInRange("shikigamiReach", 8.0, 1.0, 64.0);
+            .comment("How far away a block can be turned into a shikigami (barrier talismans reach twice as far).")
+            .defineInRange("shikigamiReachBlocks", 32.0, 1.0, 128.0);
     public static final ModConfigSpec.DoubleValue SHIKIGAMI_BASE_MAGICULE_COST = BUILDER
             .defineInRange("shikigamiBaseMagiculeCost", 50.0, 0.0, 1.0E9);
     public static final ModConfigSpec.DoubleValue SHIKIGAMI_HARDNESS_MAGICULE_COST = BUILDER
@@ -91,14 +91,15 @@ public final class Config {
             .comment("Multiplier on shikigami health and damage.")
             .defineInRange("shikigamiStrength", 1.0, 0.1, 100.0);
     public static final ModConfigSpec.DoubleValue TALISMAN_SPEED = BUILDER
-            .defineInRange("talismanSpeed", 1.5, 0.1, 10.0);
+            .comment("How fast talismans are thrown (blocks per tick). They fly nearly straight: about 100 blocks at 3.0.")
+            .defineInRange("talismanThrowSpeed", 3.0, 0.1, 10.0);
     public static final ModConfigSpec.DoubleValue SPELL_COST_MULTIPLIER = BUILDER
             .comment("Multiplier on every spell talisman's magicule cost (Explosive 20, Fire 25, Water 20, Wood 25,",
                     "Lightning 35, Earth 30, Ice 25, Wind 20, Teleport 30).")
             .defineInRange("spellCostMultiplier", 1.0, 0.0, 1000.0);
     public static final ModConfigSpec.DoubleValue TELEPORT_RANGE = BUILDER
-            .comment("Farthest a Teleport talisman can take you (halved for leaves).")
-            .defineInRange("teleportTalismanRange", 48.0, 1.0, 1000.0);
+            .comment("Farthest a Teleport talisman can take you (halved for leaves). It flies dead straight until it hits something.")
+            .defineInRange("teleportTalismanMaxRange", 256.0, 1.0, 1000.0);
     public static final ModConfigSpec.BooleanValue GRANT_RAINBOW_MAGIC = BUILDER
             .comment("Give every player the Rainbow Magic skill (Tensura's spells in rainbow, striking with every element).")
             .define("grantRainbowMagic", true);
@@ -154,8 +155,9 @@ public final class Config {
             .comment("Magicules per second while you see through and control a paper beast.")
             .defineInRange("possessionMagiculesPerSecond", 2.0, 0.0, 1.0E6);
     public static final ModConfigSpec.DoubleValue POSSESSION_RANGE = BUILDER
-            .comment("How far a possessed beast can go from your body before the link snaps back.")
-            .defineInRange("possessionRange", 96.0, 8.0, 256.0);
+            .comment("How far a possessed beast can go from your body before the link snaps back. Beasts farther away than",
+                    "your server's view and simulation distance stop being visible or moving, so keep it within those.")
+            .defineInRange("possessionRangeBlocks", 128.0, 8.0, 512.0);
 
     static {
         BUILDER.pop().comment("Sealing Grimoire: seal creatures and magic in a book with paper, then release them").push("grimoire");
