@@ -28,9 +28,6 @@ public abstract class EntityRenderDispatcherMixin {
                                                               float partialTicks, PoseStack poseStack,
                                                               MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         if (!(buffer instanceof EnergyBufferSource) && ClientEnergy.isEnergy(entity)) {
-            if (entity.tickCount % 10 == 0) {
-                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT energy render {} {}", entity.getId(), entity.getType());
-            }
             ci.cancel();
             render(entity, x, y, z, rotationYaw, partialTicks, poseStack, new EnergyBufferSource(buffer),
                     LightTexture.FULL_BRIGHT);

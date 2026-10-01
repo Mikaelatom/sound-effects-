@@ -4,6 +4,7 @@
   "package": "com.tensurafragments.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "EntityGlowMixin",
     "EntityRenderDispatcherMixin"
   ],
   "injectors": {

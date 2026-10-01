@@ -2,7 +2,6 @@ package com.tensurafragments.test;
 
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.skill.ModSkills;
-import com.tensurafragments.yifa.FireWhirlEntity;
 import com.tensurafragments.yifa.SpiritCommunion;
 import com.tensurafragments.yifa.SpiritElement;
 import com.tensurafragments.yifa.WispEntity;
@@ -50,33 +49,39 @@ public final class VisualCheck {
             return;
         }
         ticks++;
-        if (ticks >= 100 && ticks <= 170 && ticks % 5 == 0) {
-            for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
-                if (e instanceof FireWhirlEntity whirl) {
-                    org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT whirl tickCount={} pos={} old={}",
-                            whirl.tickCount, whirl.position(), new net.minecraft.world.phys.Vec3(whirl.xOld, whirl.yOld, whirl.zOld));
-                }
-            }
-        }
         switch (ticks) {
             case 40 -> onServer(mc, VisualCheck::buildScene);
             case 60 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
             case 95 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
+            case 99 -> {
+                mc.player.setYRot(90);
+                mc.player.setXRot(-25);
+            }
             case 100 -> onServer(mc, player -> {
                 player.setExperienceLevels(50);
                 player.setData(com.tensurafragments.ModRegistries.ENERGY_SPELL,
                         com.tensurafragments.energy.EnergySpell.FIRE_BALL.ordinal());
-                player.setYRot(0);
-                player.setXRot(4);
+                // Up into open sky, so the spell is still flying when the screenshot is taken.
+                player.setYRot(90);
+                player.setXRot(-25);
                 com.tensurafragments.energy.EnergyMagic.cast(player);
             });
-            case 104 -> shot(mc, "1_energy_fire_ball");
+            case 105 -> shot(mc, "1_energy_fire_ball");
+            case 106 -> onServer(mc, player -> {
+                for (net.minecraft.world.entity.monster.Husk husk : player.serverLevel().getEntitiesOfClass(
+                        net.minecraft.world.entity.monster.Husk.class, player.getBoundingBox().inflate(30))) {
+                    com.tensurafragments.energy.EnergyMagic.mark(husk);
+                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,
+                            new com.tensurafragments.network.EnergyEntityPayload(husk.getId()));
+                }
+            });
+            case 112 -> shot(mc, "1b_energy_husks");
             case 120 -> onServer(mc, player -> {
                 player.setData(com.tensurafragments.ModRegistries.ENERGY_SPELL,
                         com.tensurafragments.energy.EnergySpell.ICE_LANCE.ordinal());
                 com.tensurafragments.energy.EnergyMagic.cast(player);
             });
-            case 123 -> shot(mc, "2_energy_ice_lance");
+            case 122 -> shot(mc, "2_energy_ice_lance");
             case 140 -> shot(mc, "3_energy_after");
             case 180 -> mc.stop();
             default -> {

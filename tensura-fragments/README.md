@@ -229,7 +229,8 @@ All numbers are in the `[yifa]` section of the server config.
 Pour your experience into a spell. A Unique skill, given to every player. It casts **Tensura's own spells, glowing
 green and twice as powerful**, and instead of magicules it costs **experience levels** (the vanilla green XP bar).
 **Sneak** to switch spell. A small line left of the hotbar (while it's on your active preset) shows the selected
-spell and its cost, in red when you don't have the levels.
+spell and its cost, in red when you don't have the levels. Energy spells glow with a green outline, leave a green
+trail and burst into green sparks where they land.
 
 | Energy spell (Tensura's) | Damage (normal x2) | Levels |
 |---|---|---|
