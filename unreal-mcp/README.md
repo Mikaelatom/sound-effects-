@@ -1,5 +1,7 @@
 # Unreal MCP: a connector between Claude and Unreal Engine
 
+> **New here? Follow [START-HERE.md](START-HERE.md)** for the double-click setup. The rest of this page is the manual/technical version.
+
 This is an [MCP](https://modelcontextprotocol.io) server that lets Claude (Claude Desktop or Claude Code) work inside a **running Unreal Editor**. It can inspect the level, spawn and move actors, edit properties, import sounds and meshes, run console commands, take viewport screenshots, and run any Python against the editor's `unreal` API.
 
 ```
