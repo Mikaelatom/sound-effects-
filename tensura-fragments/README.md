@@ -39,7 +39,7 @@ Based on Seika from *The Reincarnation of the Strongest Exorcist*. A Unique skil
 blast; a barrier lasts for the average strength of its anchors; and a leaf doll blocks only half of the hit. Paper is
 always used first. Things made from leaves have a green talisman.
 
-| Mode | What it does | Cost |
+| Mode | What it does | Uses |
 |---|---|---|
 | **Shikigami** | Turn the block you're looking at (up to 32 blocks away) into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
 | **Spell Talisman** | Throw your selected spell talisman. Thrown fast (3 blocks a tick) and nearly flat, so it lands where you aim, up to about 290 blocks away. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
@@ -90,7 +90,7 @@ skill, given to every player. The first time you use it, one ordinary **book** i
 **Sealing Grimoire** item. Everything sealed lives in that book (9 pages by default), so if you lose the book, you
 lose what's in it. Paper is the ammo, and leaves work at reduced strength as with Shikigami Control.
 
-| Mode | What it does | Cost |
+| Mode | What it does | Uses |
 |---|---|---|
 | **Seal Creature** | Seal the creature you're looking at. It only works once you've weakened it to **35% health or less** (less with leaves). A failed attempt burns the talisman. Bosses (the `tensurafragments:unsealable` tag, which includes `#c:bosses`) and creatures over 300 max health can't be sealed, nor can other people's pets. Using it on one of your own released creatures sends it back to the book for free. | 1 paper + 30 magicules + 2 per point of the creature's max health (only charged on success) |
 | **Seal Magic** | Open the book for half a second. The first spell or projectile that comes within 3 blocks is caught, including Tensura's spell projectiles. A good catch is ready again straight away; a mistimed one goes on a 2 second cooldown. | 1 paper per catch |
@@ -195,7 +195,7 @@ player. Spirits are found **in the world, near their element**, so where you fig
 
 Up to 6 wild spirits gather around you at a time; they wander off after a minute.
 
-| Mode | What it does | Cost |
+| Mode | What it does | Uses |
 |---|---|---|
 | **Spirit Sight** | On/off. Only with it on can you see wild spirits (drifting glowing orbs); it also shows anything invisible nearby as soul sparks. | 1 magicule/second |
 | **Call Spirit** | Bind the spirit you're looking at (within 16 blocks). **Sneak** to gather every spirit within 8 blocks. They orbit you for 3 minutes; up to 5 at once. | none |
@@ -260,14 +260,17 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
   dying still costs you some. A kill gives 1 soul plus more the stronger it was (½ point per EP), and **captures its
   soul**: what it was, its name and its EP. You keep up to 27; past that the weakest is let go. Kills by your
   summoned souls and possessed creatures count as yours.
+- **Each captured soul can be used once**, by any of the modes below: using it takes it off your list and takes its
+  worth (what its kill gave you) off your soul count, in creative too. Kill ten zombies and you have ten zombie souls
+  to use.
 - **Sneak** with any mode to switch which captured soul is selected. A small line right of the hotbar (while it's on
   your active preset) shows your souls and the selected soul.
 
-| Mode | What it does | Cost |
+| Mode | What it does | Uses |
 |---|---|---|
-| Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and fights whatever you fight for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. | 1 soul + ¼ point per EP; the soul is kept |
-| Soul Absorb | You devour the selected soul and **take all its EP** (your max magicules and aura go up). | Uses up the soul |
-| Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it fights for you, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | Uses up the soul |
+| Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and fights whatever you fight for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. When its time is up it passes on. | The soul |
+| Soul Absorb | You devour the selected soul and **take all its EP** (your max magicules and aura go up). | The soul |
+| Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it fights for you, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | The soul |
 
 All the numbers are in the `[souls]` section of the server config.
 
@@ -310,7 +313,7 @@ spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), En
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
-allies) and Soul Reaper (souls from kills without being a Seed, summoning and its cost, kills by your souls counting,
+allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),

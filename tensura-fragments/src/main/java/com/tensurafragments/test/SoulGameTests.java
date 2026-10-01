@@ -76,28 +76,39 @@ public final class SoulGameTests {
         List<Mob> summons = SoulReaper.summons(player);
         helper.assertTrue(summons.size() == 1 && summons.get(0) instanceof Husk, "a husk soul came back");
         Mob ghost = summons.get(0);
-        helper.assertTrue(SoulReaper.soulPoints(player) == 5000 - SoulReaper.summonCost(SoulReaper.souls(player).get(0)),
-                "paid in souls, left " + SoulReaper.soulPoints(player));
+        int worth = SoulReaper.soulValue(new CapturedSoul("minecraft:husk", "Husk", 40));
+        helper.assertTrue(SoulReaper.soulPoints(player) == 5000 - worth, "paid in souls, left " + SoulReaper.soulPoints(player));
+        helper.assertTrue(SoulReaper.souls(player).isEmpty(), "the soul is used up");
         // It won't target its reaper.
         ghost.setTarget(player);
         helper.assertTrue(ghost.getTarget() == null, "never turns on you");
         // Its kills are yours.
         Zombie enemy = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new Vec3(1.5, GROUND, 7.5));
         enemy.hurt(ghost.damageSources().mobAttack(ghost), 10_000);
-        helper.assertTrue(SoulReaper.souls(player).size() == 2, "the zombie's soul is yours");
+        helper.assertTrue(SoulReaper.souls(player).size() == 1, "the zombie's soul is yours");
         // Killing the ghost gives no soul.
         ghost.hurt(player.damageSources().playerAttack(player), 10_000);
-        helper.assertTrue(SoulReaper.souls(player).size() == 2, "a summoned soul gives nothing");
+        helper.assertTrue(SoulReaper.souls(player).size() == 1, "a summoned soul gives nothing");
         helper.succeed();
     }
 
+    /** One kill, one summon: two husk kills give two husk summons and no more, even in creative. */
     @GameTest(template = "platform")
-    public static void summonNeedsSouls(GameTestHelper helper) {
+    public static void eachSoulSummonsOnce(GameTestHelper helper) {
         ServerPlayer player = reaper(helper, 4.5, 1.5);
-        giveSouls(player, new CapturedSoul("minecraft:husk", "Husk", 40));
-        setSoulPoints(player, 10);
-        helper.assertFalse(SoulReaper.summon(player), "not enough souls");
-        helper.assertTrue(SoulReaper.summons(player).isEmpty(), "nothing summoned");
+        player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        for (int i = 0; i < 2; i++) {
+            Husk husk = helper.spawnWithNoFreeWill(EntityType.HUSK, new Vec3(1.5 + i * 6, GROUND, 7.5));
+            husk.hurt(player.damageSources().playerAttack(player), 10_000);
+        }
+        helper.assertTrue(SoulReaper.souls(player).size() == 2, "two souls");
+        int points = SoulReaper.soulPoints(player);
+        helper.assertTrue(SoulReaper.summon(player), "first summon");
+        helper.assertTrue(SoulReaper.soulPoints(player) < points, "the count went down");
+        helper.assertTrue(SoulReaper.summon(player), "second summon");
+        helper.assertFalse(SoulReaper.summon(player), "no third: those souls are spent");
+        helper.assertTrue(SoulReaper.summons(player).size() == 2 && SoulReaper.souls(player).isEmpty(), "two ghosts, no souls left");
+        helper.assertTrue(SoulReaper.soulPoints(player) == 0, "count back to 0, at " + SoulReaper.soulPoints(player));
         helper.succeed();
     }
 
@@ -116,9 +127,12 @@ public final class SoulGameTests {
     @GameTest(template = "platform")
     public static void absorbingTakesAllItsEp(GameTestHelper helper) {
         ServerPlayer player = reaper(helper, 4.5, 4.5);
-        giveSouls(player, new CapturedSoul("minecraft:husk", "Husk", 5000));
+        CapturedSoul soul = new CapturedSoul("minecraft:husk", "Husk", 5000);
+        giveSouls(player, soul);
+        setSoulPoints(player, 10_000);
         double before = EnergyHelper.getMaxEP(player);
         helper.assertTrue(SoulReaper.absorb(player), "absorbed");
+        helper.assertTrue(SoulReaper.soulPoints(player) == 10_000 - SoulReaper.soulValue(soul), "the count went down");
         double after = EnergyHelper.getMaxEP(player);
         helper.assertTrue(after - before >= 4999, "gained its EP: " + before + " -> " + after);
         helper.assertTrue(SoulReaper.souls(player).isEmpty(), "the soul is used up");
@@ -139,7 +153,9 @@ public final class SoulGameTests {
         helper.assertFalse(SoulReaper.possess(player), "a chicken's soul is too weak (husk EP " + huskEp + ")");
         helper.assertTrue(SoulBond.get(husk) == null && SoulReaper.souls(player).size() == 3, "nothing changed");
         player.setData(ModRegistries.SELECTED_SOUL, 1);
+        setSoulPoints(player, 100_000);
         helper.assertTrue(SoulReaper.possess(player), "possessed");
+        helper.assertTrue(SoulReaper.soulPoints(player) < 100_000, "the count went down");
         SoulBond bond = SoulBond.get(husk);
         helper.assertTrue(bond != null && bond.owner().equals(player.getUUID()) && bond.stacks() == 1, "it's yours");
         helper.assertTrue(husk.getMaxHealth() >= baseHealth * 1.49, "stronger: " + husk.getMaxHealth());

@@ -59,9 +59,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Soul Reaper: every kill gives you souls (Tensura's soul points, Demon Lord Seed or not) and captures the soul of what
- * died. Spend soul points to summon a captured soul back as a ghost that fights for you, absorb a soul to take all its
- * EP, or send a soul into a creature to possess it: it becomes yours and grows stronger with every soul. Triggered
- * through {@link SoulReaperSkill}.
+ * died. Each captured soul can be used once: summon it back as a ghost that fights for you, absorb it to take all its
+ * EP, or send it into a creature to possess it (it becomes yours and grows stronger with every soul). Using a soul
+ * takes it off your list and its worth off your soul count. Triggered through {@link SoulReaperSkill}.
  */
 public final class SoulReaper {
     /** Soul blue, for messages, names and the HUD. */
@@ -144,10 +144,11 @@ public final class SoulReaper {
             return;
         }
         double ep = Math.max(0, EnergyHelper.getMaxEP(victim));
-        addSoulPoints(reaper, Config.SOUL_POINTS_PER_KILL.get() + Math.round(ep * Config.SOUL_POINTS_PER_EP.get()));
         String type = victim instanceof Player ? CapturedSoul.PLAYER : BuiltInRegistries.ENTITY_TYPE.getKey(victim.getType()).toString();
         List<CapturedSoul> souls = new ArrayList<>(souls(reaper));
-        souls.add(new CapturedSoul(type, victim.getName().getString(), ep));
+        CapturedSoul soul = new CapturedSoul(type, victim.getName().getString(), ep);
+        souls.add(soul);
+        addSoulPoints(reaper, soulValue(soul));
         while (souls.size() > Config.MAX_CAPTURED_SOULS.get()) {
             souls.remove(souls.stream().min(Comparator.comparingDouble(CapturedSoul::ep)).orElseThrow());
         }
@@ -168,7 +169,7 @@ public final class SoulReaper {
         player.setData(ModRegistries.SELECTED_SOUL, Math.floorMod(player.getData(ModRegistries.SELECTED_SOUL) + 1, souls.size()));
         CapturedSoul soul = selected(player);
         player.displayClientMessage(Component.translatable("tensurafragments.soul.selected", soul.name(), epText(soul.ep()),
-                format(summonCost(soul))).withColor(SOUL_COLOUR), true);
+                format(soulValue(soul))).withColor(SOUL_COLOUR), true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SOUL_SAND_STEP,
                 SoundSource.PLAYERS, 0.8F, 1.2F);
         sync(player);
@@ -178,12 +179,18 @@ public final class SoulReaper {
         return String.format(Locale.ROOT, "%,d", Math.round(ep));
     }
 
-    // ---- Summon ----
-
-    public static int summonCost(CapturedSoul soul) {
+    /** What a soul is worth in soul points: what its kill gave you, and what using it takes away again. */
+    public static int soulValue(CapturedSoul soul) {
         return (int) Math.min(Integer.MAX_VALUE,
-                Config.SOUL_SUMMON_BASE_COST.get() + Math.round(soul.ep() * Config.SOUL_SUMMON_COST_PER_EP.get()));
+                Config.SOUL_POINTS_PER_KILL.get() + Math.round(soul.ep() * Config.SOUL_POINTS_PER_EP.get()));
     }
+
+    /** A soul was used: it's gone from your list, and its worth comes off your soul count. */
+    private static void spend(ServerPlayer player, CapturedSoul soul) {
+        addSoulPoints(player, -Math.min(soulPoints(player), soulValue(soul)));
+    }
+
+    // ---- Summon ----
 
     /** Your summoned souls that are out right now. */
     public static List<Mob> summons(ServerPlayer player) {
@@ -197,12 +204,6 @@ public final class SoulReaper {
         CapturedSoul soul = selected(player);
         if (soul == null) {
             player.displayClientMessage(Component.translatable("tensurafragments.soul.none"), true);
-            return false;
-        }
-        int cost = summonCost(soul);
-        boolean free = player.getAbilities().instabuild;
-        if (!free && soulPoints(player) < cost) {
-            fail(player, Component.translatable("tensurafragments.soul.not_enough", format(cost), format(soulPoints(player))));
             return false;
         }
         if (summons(player).size() >= Config.MAX_SOUL_SUMMONS.get()) {
@@ -230,9 +231,9 @@ public final class SoulReaper {
                 level.getGameTime() + Config.SOUL_SUMMON_SECONDS.get() * 20L, true, 0));
         level.addFreshEntity(mob);
         announce(mob);
-        if (!free) {
-            addSoulPoints(player, -cost);
-        }
+        // The soul is spent: one kill, one summon.
+        takeSelected(player);
+        spend(player, soul);
         level.sendParticles(ParticleTypes.SOUL, mob.getX(), mob.getY() + mob.getBbHeight() / 2, mob.getZ(), 30, 0.4, 0.6, 0.4, 0.05);
         level.sendParticles(ParticleTypes.SCULK_SOUL, mob.getX(), mob.getY() + 0.2, mob.getZ(), 12, 0.5, 0.1, 0.5, 0.02);
         level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 1.5F, 0.7F);
@@ -266,6 +267,7 @@ public final class SoulReaper {
             player.displayClientMessage(Component.translatable("tensurafragments.soul.none"), true);
             return false;
         }
+        spend(player, soul);
         double gain = soul.ep() * Config.SOUL_ABSORB_RATE.get();
         if (gain > 0) {
             EnergyHelper.increaseMaxEP(player, gain);
@@ -319,6 +321,7 @@ public final class SoulReaper {
             return false;
         }
         takeSelected(player);
+        spend(player, soul);
         // Possessing one of your summoned souls keeps it here for good.
         SoulBond possessed = ours ? new SoulBond(bond.owner(), Long.MAX_VALUE, bond.summoned(), stacks + 1)
                 : new SoulBond(player.getUUID(), Long.MAX_VALUE, false, 1);

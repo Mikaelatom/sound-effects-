@@ -319,14 +319,14 @@ public final class Config {
             .defineInRange("spiritBellRange", 32.0, 1.0, 128.0);
 
     static {
-        BUILDER.pop().comment("Soul Reaper: every kill gives souls; spend them to summon, absorb and possess").push("souls");
+        BUILDER.pop().comment("Soul Reaper: every kill gives a soul; each soul can be used once to summon, absorb or possess").push("souls");
     }
 
     public static final ModConfigSpec.BooleanValue GRANT_SOUL_REAPER = BUILDER
             .comment("Give every player the Soul Reaper skill.")
             .define("grantSoulReaper", true);
     public static final ModConfigSpec.IntValue SOUL_POINTS_PER_KILL = BUILDER
-            .comment("Tensura soul points every kill gives (1000 points show as 1 soul in Tensura's menu).")
+            .comment("Tensura soul points every kill gives (1000 points show as 1 soul in Tensura's menu). Using the soul takes them back.")
             .defineInRange("soulPointsPerKill", 1000, 0, 10_000_000);
     public static final ModConfigSpec.DoubleValue SOUL_POINTS_PER_EP = BUILDER
             .comment("Extra soul points per EP of what you killed, so stronger kills give more.")
@@ -334,12 +334,6 @@ public final class Config {
     public static final ModConfigSpec.IntValue MAX_CAPTURED_SOULS = BUILDER
             .comment("How many captured souls you can keep; past that the weakest is let go.")
             .defineInRange("maxCapturedSouls", 27, 1, 256);
-    public static final ModConfigSpec.IntValue SOUL_SUMMON_BASE_COST = BUILDER
-            .comment("Soul points to summon a soul.")
-            .defineInRange("summonBaseCost", 1000, 0, 10_000_000);
-    public static final ModConfigSpec.DoubleValue SOUL_SUMMON_COST_PER_EP = BUILDER
-            .comment("Extra soul points per EP of the soul you summon.")
-            .defineInRange("summonCostPerEp", 0.25, 0.0, 1000.0);
     public static final ModConfigSpec.IntValue SOUL_SUMMON_SECONDS = BUILDER
             .comment("How long a summoned soul fights for you.")
             .defineInRange("summonSeconds", 60, 5, 3600);
