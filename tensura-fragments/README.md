@@ -261,8 +261,8 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
   soul**: what it was, its name and its EP. You keep up to 27; past that the weakest is let go. Kills by your
   summoned souls and possessed creatures count as yours.
 - **Each captured soul can be used once**, by any of the modes below: using it takes it off your list and takes its
-  worth (what its kill gave you) off your soul count, in creative too. Recalling a summoned soul gives both back. Kill ten zombies and you have ten zombie souls
-  to use.
+  worth (what its kill gave you) off your soul count, in creative too. Recalling a summoned soul gives both back.
+  Kill ten zombies and you have ten zombie souls to use.
 - **Sneak** with any mode to switch which captured soul is selected. A small line right of the hotbar (while it's on
   your active preset) shows your souls and the selected soul.
 
