@@ -18,6 +18,8 @@ public final class ClientEnergy {
 
     public static void add(int entityId) {
         ENTITIES.add(entityId);
+        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT energy add {} exists={}", entityId,
+                Minecraft.getInstance().level != null && Minecraft.getInstance().level.getEntity(entityId) != null);
     }
 
     public static boolean isEnergy(Entity entity) {
@@ -33,6 +35,7 @@ public final class ClientEnergy {
         ENTITIES.removeIf(id -> {
             Entity entity = mc.level.getEntity(id);
             if (entity == null || entity.isRemoved()) {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT energy drop {} entity={}", id, entity);
                 return true;
             }
             double y = entity.getY() + entity.getBbHeight() / 2;
