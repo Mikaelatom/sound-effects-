@@ -1,10 +1,11 @@
 package com.tensurafragments.test;
 
 import com.tensurafragments.TensuraFragments;
-import com.tensurafragments.flame.FlameEmperor;
-import com.tensurafragments.rainbow.RainbowMagic;
-import com.tensurafragments.rainbow.RainbowSpell;
 import com.tensurafragments.skill.ModSkills;
+import com.tensurafragments.yifa.FireWhirlEntity;
+import com.tensurafragments.yifa.SpiritCommunion;
+import com.tensurafragments.yifa.SpiritElement;
+import com.tensurafragments.yifa.WispEntity;
 import io.github.manasmods.tensura.storage.TensuraStorages;
 import java.util.function.Consumer;
 import net.minecraft.client.CameraType;
@@ -43,25 +44,35 @@ public final class VisualCheck {
             return;
         }
         ticks++;
+        if (ticks >= 100 && ticks <= 170 && ticks % 5 == 0) {
+            for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+                if (e instanceof FireWhirlEntity whirl) {
+                    org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT whirl tickCount={} pos={} old={}",
+                            whirl.tickCount, whirl.position(), new net.minecraft.world.phys.Vec3(whirl.xOld, whirl.yOld, whirl.zOld));
+                }
+            }
+        }
         switch (ticks) {
             case 40 -> onServer(mc, VisualCheck::buildScene);
             case 60 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-            case 100 -> onServer(mc, FlameEmperor::hellStorm);
-            case 118 -> shot(mc, "1_hell_circle");
-            case 140 -> shot(mc, "2_hell_storm");
-            case 160 -> shot(mc, "3_hell_storm_late");
-            case 200 -> {
-                mc.options.setCameraType(CameraType.FIRST_PERSON);
-                onServer(mc, player -> {
-                    while (RainbowMagic.selectedSpell(player) != RainbowSpell.WATER_BLADE) {
-                        RainbowMagic.cycleSpell(player);
-                    }
-                    RainbowMagic.cast(player);
-                });
-            }
-            case 205 -> shot(mc, "4_rainbow_water_blade");
-            case 240 -> shot(mc, "5_hellfire_burning");
-            case 260 -> mc.stop();
+            case 95 -> onServer(mc, player -> {
+                SpiritCommunion.setSight(player, true);
+                for (SpiritElement element : new SpiritElement[] {SpiritElement.FIRE, SpiritElement.WIND, SpiritElement.WIND}) {
+                    player.level().addFreshEntity(WispEntity.wild(player.level(), element, player.position().add(0, 1, 1)));
+                }
+            });
+            case 98 -> onServer(mc, player -> {
+                player.setShiftKeyDown(true);
+                SpiritCommunion.call(player);
+                player.setShiftKeyDown(false);
+                player.setYRot(0);
+                player.setXRot(8);
+                SpiritCommunion.release(player);
+            });
+            case 110 -> shot(mc, "1_whirl_start");
+            case 125 -> shot(mc, "2_whirl_mid");
+            case 140 -> shot(mc, "3_whirl_late");
+            case 180 -> mc.stop();
             default -> {
             }
         }
@@ -101,8 +112,7 @@ public final class VisualCheck {
         }
         var ability = TensuraStorages.getAbilityFrom(player);
         if (ability != null) {
-            ability.setAbilitySlot(0, ModSkills.FLAME_EMPEROR.get(), 1);
-            ability.setAbilitySlot(1, ModSkills.RAINBOW_MAGIC.get(), 0);
+            ability.setAbilitySlot(0, ModSkills.SPIRIT_COMMUNION.get(), 2);
         }
     }
 
