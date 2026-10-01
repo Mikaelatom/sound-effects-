@@ -11,11 +11,24 @@ public final class Config {
     }
 
     public static final ModConfigSpec.BooleanValue STRIP_ORIGINAL_SKILLS = BUILDER
-            .comment("Remove every skill from the namespaces below from players. Tensura is only used for its assets.")
+            .comment("Remove Tensura's own top-tier skills from players (the types below): this addon makes the new ones.",
+                    "Everything else (magic, resistances, common, extra and intrinsic skills) is learned the normal Tensura way.")
             .define("stripOriginalSkills", true);
     public static final ModConfigSpec.ConfigValue<List<? extends String>> STRIPPED_NAMESPACES = BUILDER
-            .comment("Skill namespaces that get removed.")
+            .comment("Mods whose skills of the types below get removed.")
             .defineListAllowEmpty("strippedNamespaces", List.of("tensura"), () -> "tensura", o -> o instanceof String);
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> STRIPPED_SKILL_TYPES = BUILDER
+            .comment("Tensura skill types that get removed (RESISTANCE, INTRINSIC, COMMON, EXTRA, UNIQUE, ULTIMATE).",
+                    "Ultimates are removed because this addon's skills will evolve into its own.")
+            .defineListAllowEmpty("strippedSkillTypes", List.of("UNIQUE", "ULTIMATE"), () -> "UNIQUE", o -> o instanceof String);
+
+    static {
+        BUILDER.pop().comment("Learning Tensura's magic").push("magic");
+    }
+
+    public static final ModConfigSpec.IntValue SURVIVALS_TO_LEARN_SPELL = BUILDER
+            .comment("Survive being hit by a Tensura spell you don't know this many times and you learn it (0 turns this off).")
+            .defineInRange("survivalsToLearnSpell", 5, 0, 1000);
 
     static {
         BUILDER.pop().comment("Gambit Cards: place cards, teleport to them, blow them up").push("cards");

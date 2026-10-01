@@ -3,6 +3,7 @@ package com.tensurafragments.skill;
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.flame.FlameEmperor;
 import com.tensurafragments.grimoire.SealingGrimoire;
+import com.tensurafragments.magic.SpellLearning;
 import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.PaperBeasts;
 import com.tensurafragments.shikigami.ShikigamiControl;
@@ -60,6 +61,7 @@ public final class SkillEvents {
     public static void onDamaged(LivingDamageEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getNewDamage() > 0) {
             PaperBeasts.onOwnerHurt(player);
+            SpellLearning.onSurvivedHit(player, event.getSource());
         }
     }
 

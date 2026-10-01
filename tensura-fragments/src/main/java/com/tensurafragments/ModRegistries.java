@@ -1,6 +1,8 @@
 package com.tensurafragments;
 
 import com.mojang.serialization.Codec;
+import java.util.HashMap;
+import java.util.Map;
 import com.tensurafragments.card.CardEntity;
 import com.tensurafragments.flame.DraconicHellfireEffect;
 import com.tensurafragments.flame.HellCircleEntity;
@@ -157,6 +159,11 @@ public final class ModRegistries {
     /** Which spirit Rainbow Magic calls next (index into SpiritKind); its own turn order, apart from Spirit Control's. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> RAINBOW_SPIRIT_INDEX = ATTACHMENTS.register(
             "rainbow_spirit_index", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
+    /** Times each Tensura spell (by id) has been survived, toward learning it. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<String, Integer>>> SPELL_EXPOSURE = ATTACHMENTS.register(
+            "spell_exposure", () -> AttachmentType.<Map<String, Integer>>builder(() -> new HashMap<>())
+                    .serialize(Codec.unboundedMap(Codec.STRING, Codec.INT)).copyOnDeath().build());
 
     /** Whether Spirit Communion's Spirit Sight is on. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_SIGHT = ATTACHMENTS.register(

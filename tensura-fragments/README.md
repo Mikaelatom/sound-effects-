@@ -1,7 +1,8 @@
 # Tensura: Fragments
 
-An addon for **Tensura: Reincarnated** (Minecraft 1.21.1, NeoForge). It removes the original Tensura skills and
-builds new abilities out of their parts (visuals, sounds, effects). Tensura has to be installed; this addon ships
+An addon for **Tensura: Reincarnated** (Minecraft 1.21.1, NeoForge). It replaces Tensura's Unique and Ultimate
+skills with new ones built out of Tensura's parts (visuals, sounds, effects), and keeps Tensura's magic and other
+skills learnable. Tensura has to be installed; this addon ships
 none of its assets.
 
 Abilities are meant to take practice: momentum, placement, aim, time limits and gauge management.
@@ -223,10 +224,22 @@ is on, then your bound spirits with a thin bar for their time left. Switching ju
 
 All numbers are in the `[yifa]` section of the server config.
 
-## Original skills
+## Tensura's own skills and magic
 
-By default every skill in the `tensura` namespace is removed from players (checked on login and every 2 seconds).
-Races are untouched. Turn this off with `stripOriginalSkills = false` in the server config.
+Tensura's **magic** and its **resistance, intrinsic, common and extra skills** are all kept and learned the normal
+Tensura way: Grimoires from wizard-tower chests, Magic Tomes, Learn Points in Tensura's ability screen, and skills
+that become available as you use things. Tensura charges for new skills out of your maximum magicules, as usual.
+
+Only Tensura's **Unique and Ultimate** skills are removed (checked on login and every 2 seconds): this addon makes
+the new Unique skills, and they'll evolve into its own Ultimates. Set `strippedSkillTypes` (or turn off
+`stripOriginalSkills`) in the `[originals]` section of the server config to change that. Races are untouched.
+
+### Learning magic by surviving it
+
+Every time a Tensura spell you don't know hits you and you live, you get closer to understanding it; the action bar
+shows your progress ("Survived Fire Ball: 3/5"). **Survive it 5 times and you learn it** (through Tensura's own
+learning, so its magicule cost applies). It works whoever cast it: a monster, another player, or a spell thrown by
+one of this addon's skills. Set `survivalsToLearnSpell` in the `[magic]` section (0 turns it off).
 
 See `docs/tensura-reference.md` for the Tensura code and magic entities we can reuse.
 

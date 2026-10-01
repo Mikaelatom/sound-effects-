@@ -133,5 +133,7 @@
   "item.tensurafragments.spirit_bell": "Magisteel Spirit Bell",
   "item.tensurafragments.spirit_bell.tooltip": "Ring it: wild spirits nearby come flying and bind to you",
   "item.tensurafragments.spirit_lantern": "Magisteel Spirit Lantern",
-  "item.tensurafragments.spirit_lantern.tooltip": "Carried: more spirits gather, and they come to wait at your side"
+  "item.tensurafragments.spirit_lantern.tooltip": "Carried: more spirits gather, and they come to wait at your side",
+  "tensurafragments.magic.surviving": "Survived %s: %s/%s (live through it to learn it)",
+  "tensurafragments.magic.learned_by_surviving": "You've survived %s enough to learn it!"
 }
