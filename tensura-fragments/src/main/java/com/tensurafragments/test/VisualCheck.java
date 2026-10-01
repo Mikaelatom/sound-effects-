@@ -61,23 +61,23 @@ public final class VisualCheck {
         switch (ticks) {
             case 40 -> onServer(mc, VisualCheck::buildScene);
             case 60 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-            case 95 -> onServer(mc, player -> {
-                SpiritCommunion.setSight(player, true);
-                for (SpiritElement element : new SpiritElement[] {SpiritElement.FIRE, SpiritElement.WIND, SpiritElement.WIND}) {
-                    player.level().addFreshEntity(WispEntity.wild(player.level(), element, player.position().add(0, 1, 1)));
-                }
-            });
-            case 98 -> onServer(mc, player -> {
-                player.setShiftKeyDown(true);
-                SpiritCommunion.call(player);
-                player.setShiftKeyDown(false);
+            case 95 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
+            case 100 -> onServer(mc, player -> {
+                player.setExperienceLevels(50);
+                player.setData(com.tensurafragments.ModRegistries.ENERGY_SPELL,
+                        com.tensurafragments.energy.EnergySpell.FIRE_BALL.ordinal());
                 player.setYRot(0);
-                player.setXRot(8);
-                SpiritCommunion.release(player);
+                player.setXRot(4);
+                com.tensurafragments.energy.EnergyMagic.cast(player);
             });
-            case 110 -> shot(mc, "1_whirl_start");
-            case 125 -> shot(mc, "2_whirl_mid");
-            case 140 -> shot(mc, "3_whirl_late");
+            case 104 -> shot(mc, "1_energy_fire_ball");
+            case 120 -> onServer(mc, player -> {
+                player.setData(com.tensurafragments.ModRegistries.ENERGY_SPELL,
+                        com.tensurafragments.energy.EnergySpell.ICE_LANCE.ordinal());
+                com.tensurafragments.energy.EnergyMagic.cast(player);
+            });
+            case 123 -> shot(mc, "2_energy_ice_lance");
+            case 140 -> shot(mc, "3_energy_after");
             case 180 -> mc.stop();
             default -> {
             }
@@ -118,7 +118,7 @@ public final class VisualCheck {
         }
         var ability = TensuraStorages.getAbilityFrom(player);
         if (ability != null) {
-            ability.setAbilitySlot(0, ModSkills.SPIRIT_COMMUNION.get(), 2);
+            ability.setAbilitySlot(0, ModSkills.ENERGY_MAGIC.get(), 0);
         }
     }
 

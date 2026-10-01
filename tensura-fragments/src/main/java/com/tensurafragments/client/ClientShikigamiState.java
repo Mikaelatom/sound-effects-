@@ -1,5 +1,6 @@
 package com.tensurafragments.client;
 
+import com.tensurafragments.energy.EnergySpell;
 import com.tensurafragments.flame.FireSpell;
 import com.tensurafragments.network.SyncShikigamiPayload;
 import com.tensurafragments.rainbow.RainbowSpell;
@@ -15,6 +16,7 @@ public final class ClientShikigamiState {
     private static RainbowSpell rainbowSpell = RainbowSpell.FIRE_BALL;
     private static FireSpell fireSpell = FireSpell.FIRE_BOLT;
     private static BeastKind beast = BeastKind.OWL;
+    private static EnergySpell energySpell = EnergySpell.FIRE_BOLT;
     /** Raw Rainbow Magic choice: a spell index, or the Rainbow Spirit slot after them. */
     private static int rainbowChoice;
 
@@ -30,6 +32,7 @@ public final class ClientShikigamiState {
         rainbowChoice = payload.rainbowSpell();
         fireSpell = FireSpell.byIndex(payload.fireSpell());
         beast = BeastKind.byIndex(payload.beast());
+        energySpell = EnergySpell.byIndex(payload.energySpell());
     }
 
     static void tick() {
@@ -52,6 +55,10 @@ public final class ClientShikigamiState {
 
     public static int rainbowChoice() {
         return rainbowChoice;
+    }
+
+    public static EnergySpell energySpell() {
+        return energySpell;
     }
 
     public static BeastKind beast() {

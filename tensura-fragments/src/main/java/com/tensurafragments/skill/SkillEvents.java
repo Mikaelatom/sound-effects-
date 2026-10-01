@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.energy.EnergyMagic;
 import com.tensurafragments.flame.FlameEmperor;
 import com.tensurafragments.grimoire.SealingGrimoire;
 import com.tensurafragments.magic.SpellLearning;
@@ -40,6 +41,7 @@ public final class SkillEvents {
             FlameEmperor.grantSkill(player);
             SpiritControl.grantSkill(player);
             SpiritCommunion.grantSkill(player);
+            EnergyMagic.grantSkill(player);
         }
     }
 
@@ -83,6 +85,7 @@ public final class SkillEvents {
             FlameEmperor.grantSkill(player);
             SpiritControl.grantSkill(player);
             SpiritCommunion.grantSkill(player);
+            EnergyMagic.grantSkill(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
             SpiritCommunion.sync(player);

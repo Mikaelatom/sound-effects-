@@ -1,6 +1,7 @@
 package com.tensurafragments.skill;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.energy.EnergyMagicSkill;
 import com.tensurafragments.flame.FlameEmperorSkill;
 import com.tensurafragments.grimoire.SealingGrimoireSkill;
 import com.tensurafragments.rainbow.RainbowMagicSkill;
@@ -24,6 +25,7 @@ public final class ModSkills {
             register("rainbow_talismans", RainbowMagicSkill::new);
     public static final RegistrySupplier<FlameEmperorSkill> FLAME_EMPEROR = register("flame_emperor", FlameEmperorSkill::new);
     public static final RegistrySupplier<SpiritControlSkill> SPIRIT_CONTROL = register("spirit_control", SpiritControlSkill::new);
+    public static final RegistrySupplier<EnergyMagicSkill> ENERGY_MAGIC = register("energy_magic", EnergyMagicSkill::new);
     public static final RegistrySupplier<SpiritCommunionSkill> SPIRIT_COMMUNION =
             register("spirit_communion", SpiritCommunionSkill::new);
 

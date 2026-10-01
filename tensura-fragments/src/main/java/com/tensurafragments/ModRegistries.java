@@ -165,6 +165,10 @@ public final class ModRegistries {
             "spell_exposure", () -> AttachmentType.<Map<String, Integer>>builder(() -> new HashMap<>())
                     .serialize(Codec.unboundedMap(Codec.STRING, Codec.INT)).copyOnDeath().build());
 
+    /** Which spell Energy Magic casts (index into EnergySpell). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> ENERGY_SPELL = ATTACHMENTS.register(
+            "energy_spell", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Whether Spirit Communion's Spirit Sight is on. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_SIGHT = ATTACHMENTS.register(
             "spirit_sight", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());

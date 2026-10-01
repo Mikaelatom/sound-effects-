@@ -224,6 +224,32 @@ is on, then your bound spirits with a thin bar for their time left. Switching ju
 
 All numbers are in the `[yifa]` section of the server config.
 
+## Skill 8: Energy Magic
+
+Pour your experience into a spell. A Unique skill, given to every player. It casts **Tensura's own spells, glowing
+green and twice as powerful**, and instead of magicules it costs **experience levels** (the vanilla green XP bar).
+**Sneak** to switch spell. A small line left of the hotbar (while it's on your active preset) shows the selected
+spell and its cost, in red when you don't have the levels.
+
+| Energy spell (Tensura's) | Damage (normal x2) | Levels |
+|---|---|---|
+| Fire Bolt | 10, burns | 1 |
+| Wind Blade | 10 | 1 |
+| Water Blade | 12 | 1 |
+| Stone Shot | 14 | 1 |
+| Water Ball | 14 | 2 |
+| Ice Lance | 14 | 2 |
+| Fire Ball | 16, burns, explodes | 2 |
+| Frost Ball | 16 | 2 |
+| Lightning Lance | 18 | 2 |
+| Boulder Shot | 22 | 3 |
+| Fire Lance | 24, burns | 3 |
+| Thunder Lance | 26 | 3 |
+| Flame Sphere | 28, burns | 4 |
+| Plasma Ball | 40, burns | 5 |
+
+`energyPower` (2) and `energyLevelCostMultiplier` are in the `[energy]` section of the server config.
+
 ## Tensura's own skills and magic
 
 Tensura's **magic** and its **resistance, intrinsic, common and extra skills** are all kept and learned the normal
@@ -259,7 +285,8 @@ chaining), teleporting, the skill icons, turning blocks into shikigami (and need
 dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
 grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching
 and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura spells, all ten Flame Emperor fire
-spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), paper beasts (folding each one, paper cost,
+spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), Energy Magic (paying in levels, twice the
+damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper) and
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies).

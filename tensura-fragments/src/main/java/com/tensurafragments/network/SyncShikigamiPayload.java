@@ -8,17 +8,23 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/** Server tells the client the Shikigami Control state for the HUD: Substitution on/off, its cooldown, the selected spell, rainbow spell, fire spell and paper beast. */
-public record SyncShikigamiPayload(boolean enabled, int cooldownTicks, int spell, int rainbowSpell, int fireSpell, int beast) implements CustomPacketPayload {
+/** Server tells the client the Shikigami Control state for the HUD: Substitution on/off, its cooldown, the selected spell, rainbow spell, fire spell, paper beast and energy spell. */
+public record SyncShikigamiPayload(boolean enabled, int cooldownTicks, int spell, int rainbowSpell, int fireSpell, int beast, int energySpell) implements CustomPacketPayload {
     public static final Type<SyncShikigamiPayload> TYPE = new Type<>(TensuraFragments.id("sync_shikigami"));
-    public static final StreamCodec<ByteBuf, SyncShikigamiPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, SyncShikigamiPayload::enabled,
-            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::cooldownTicks,
-            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::spell,
-            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::rainbowSpell,
-            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::fireSpell,
-            ByteBufCodecs.VAR_INT, SyncShikigamiPayload::beast,
-            SyncShikigamiPayload::new);
+    // Written by hand: more fields than StreamCodec.composite takes.
+    public static final StreamCodec<ByteBuf, SyncShikigamiPayload> STREAM_CODEC = StreamCodec.of(
+            (buf, p) -> {
+                ByteBufCodecs.BOOL.encode(buf, p.enabled());
+                ByteBufCodecs.VAR_INT.encode(buf, p.cooldownTicks());
+                ByteBufCodecs.VAR_INT.encode(buf, p.spell());
+                ByteBufCodecs.VAR_INT.encode(buf, p.rainbowSpell());
+                ByteBufCodecs.VAR_INT.encode(buf, p.fireSpell());
+                ByteBufCodecs.VAR_INT.encode(buf, p.beast());
+                ByteBufCodecs.VAR_INT.encode(buf, p.energySpell());
+            },
+            buf -> new SyncShikigamiPayload(ByteBufCodecs.BOOL.decode(buf), ByteBufCodecs.VAR_INT.decode(buf),
+                    ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf),
+                    ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf)));
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

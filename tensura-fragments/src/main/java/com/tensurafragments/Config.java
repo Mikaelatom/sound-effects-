@@ -270,6 +270,20 @@ public final class Config {
             .defineInRange("spiritRange", 32.0, 4.0, 128.0);
 
     static {
+        BUILDER.pop().comment("Energy Magic: Tensura's spells, glowing green and twice as strong, paid for with experience levels").push("energy");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_ENERGY_MAGIC = BUILDER
+            .comment("Give every player the Energy Magic skill.")
+            .define("grantEnergyMagic", true);
+    public static final ModConfigSpec.DoubleValue ENERGY_POWER = BUILDER
+            .comment("How many times stronger an energy spell is than the normal spell.")
+            .defineInRange("energyPower", 2.0, 0.1, 100.0);
+    public static final ModConfigSpec.DoubleValue ENERGY_LEVEL_COST_MULTIPLIER = BUILDER
+            .comment("Multiplier on every energy spell's cost in experience levels (Fire Bolt 1 up to Plasma Ball 5).")
+            .defineInRange("energyLevelCostMultiplier", 1.0, 0.0, 100.0);
+
+    static {
         BUILDER.pop().comment("Spirit Communion (Yifa): see elemental spirits, bind them, and cast through them").push("yifa");
     }
 
