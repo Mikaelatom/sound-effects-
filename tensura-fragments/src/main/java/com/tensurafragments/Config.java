@@ -319,6 +319,53 @@ public final class Config {
             .defineInRange("spiritBellRange", 32.0, 1.0, 128.0);
 
     static {
+        BUILDER.pop().comment("Soul Reaper: every kill gives souls; spend them to summon, absorb and possess").push("souls");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_SOUL_REAPER = BUILDER
+            .comment("Give every player the Soul Reaper skill.")
+            .define("grantSoulReaper", true);
+    public static final ModConfigSpec.IntValue SOUL_POINTS_PER_KILL = BUILDER
+            .comment("Tensura soul points every kill gives (1000 points show as 1 soul in Tensura's menu).")
+            .defineInRange("soulPointsPerKill", 1000, 0, 10_000_000);
+    public static final ModConfigSpec.DoubleValue SOUL_POINTS_PER_EP = BUILDER
+            .comment("Extra soul points per EP of what you killed, so stronger kills give more.")
+            .defineInRange("soulPointsPerEp", 0.5, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue MAX_CAPTURED_SOULS = BUILDER
+            .comment("How many captured souls you can keep; past that the weakest is let go.")
+            .defineInRange("maxCapturedSouls", 27, 1, 256);
+    public static final ModConfigSpec.IntValue SOUL_SUMMON_BASE_COST = BUILDER
+            .comment("Soul points to summon a soul.")
+            .defineInRange("summonBaseCost", 1000, 0, 10_000_000);
+    public static final ModConfigSpec.DoubleValue SOUL_SUMMON_COST_PER_EP = BUILDER
+            .comment("Extra soul points per EP of the soul you summon.")
+            .defineInRange("summonCostPerEp", 0.25, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue SOUL_SUMMON_SECONDS = BUILDER
+            .comment("How long a summoned soul fights for you.")
+            .defineInRange("summonSeconds", 60, 5, 3600);
+    public static final ModConfigSpec.IntValue MAX_SOUL_SUMMONS = BUILDER
+            .comment("Most summoned souls you can have out at once.")
+            .defineInRange("maxSummons", 3, 1, 32);
+    public static final ModConfigSpec.DoubleValue SOUL_ABSORB_RATE = BUILDER
+            .comment("Share of a soul's EP you gain by absorbing it (1.0 = all of it).")
+            .defineInRange("absorbRate", 1.0, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue SOUL_POSSESS_RANGE = BUILDER
+            .comment("How far away a creature can be to possess it.")
+            .defineInRange("possessRange", 24.0, 2.0, 128.0);
+    public static final ModConfigSpec.IntValue SOUL_POSSESS_MAX_STACKS = BUILDER
+            .comment("How many souls can possess one creature (each makes it stronger).")
+            .defineInRange("maxPossessionStacks", 5, 1, 100);
+    public static final ModConfigSpec.DoubleValue SOUL_POSSESS_HEALTH = BUILDER
+            .comment("Extra max health per possessing soul, as a share of its normal health (0.5 = +50%).")
+            .defineInRange("possessHealthBonus", 0.5, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue SOUL_POSSESS_DAMAGE = BUILDER
+            .comment("Extra attack damage per possessing soul, as a share of its normal damage.")
+            .defineInRange("possessDamageBonus", 0.5, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue SOUL_POSSESS_SPEED = BUILDER
+            .comment("Extra movement speed per possessing soul, as a share of its normal speed.")
+            .defineInRange("possessSpeedBonus", 0.1, 0.0, 10.0);
+
+    static {
         BUILDER.pop();
     }
 

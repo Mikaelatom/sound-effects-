@@ -19,6 +19,7 @@ public final class ClientEvents {
             ClientShikigamiState.tick();
             ClientRainbow.tick();
             ClientEnergy.tick();
+            ClientSouls.tick();
             ClientSpiritSight.tick();
         }
     }

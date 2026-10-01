@@ -32,7 +32,7 @@ public final class ModeGameTests {
         IAbility ability = TensuraStorages.getAbilityFrom(player);
         helper.assertTrue(ability != null, "player has Tensura ability data");
         List<RegistrySupplier<? extends ManasSkill>> skills = List.of(ModSkills.SHIKIGAMI_CONTROL, ModSkills.RAINBOW_MAGIC,
-                ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_COMMUNION);
+                ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_COMMUNION, ModSkills.SOUL_REAPER);
         StringBuilder problems = new StringBuilder();
         // Each skill in turn goes in the first slot (a preset only has three).
         int slot = 0;

@@ -8,6 +8,7 @@ import com.tensurafragments.magic.SpellLearning;
 import com.tensurafragments.rainbow.RainbowMagic;
 import com.tensurafragments.shikigami.PaperBeasts;
 import com.tensurafragments.shikigami.ShikigamiControl;
+import com.tensurafragments.soul.SoulReaper;
 import com.tensurafragments.spirit.SpiritControl;
 import com.tensurafragments.yifa.SpiritCommunion;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +43,7 @@ public final class SkillEvents {
             SpiritControl.grantSkill(player);
             SpiritCommunion.grantSkill(player);
             EnergyMagic.grantSkill(player);
+            SoulReaper.grantSkill(player);
         }
     }
 
@@ -86,6 +88,7 @@ public final class SkillEvents {
             SpiritControl.grantSkill(player);
             SpiritCommunion.grantSkill(player);
             EnergyMagic.grantSkill(player);
+            SoulReaper.grantSkill(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
             SpiritCommunion.sync(player);

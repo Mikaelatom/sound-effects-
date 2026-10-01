@@ -6,6 +6,7 @@ import com.tensurafragments.flame.FlameEmperorSkill;
 import com.tensurafragments.grimoire.SealingGrimoireSkill;
 import com.tensurafragments.rainbow.RainbowMagicSkill;
 import com.tensurafragments.shikigami.ShikigamiControlSkill;
+import com.tensurafragments.soul.SoulReaperSkill;
 import com.tensurafragments.spirit.SpiritControlSkill;
 import com.tensurafragments.yifa.SpiritCommunionSkill;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -28,6 +29,7 @@ public final class ModSkills {
     public static final RegistrySupplier<EnergyMagicSkill> ENERGY_MAGIC = register("energy_magic", EnergyMagicSkill::new);
     public static final RegistrySupplier<SpiritCommunionSkill> SPIRIT_COMMUNION =
             register("spirit_communion", SpiritCommunionSkill::new);
+    public static final RegistrySupplier<SoulReaperSkill> SOUL_REAPER = register("soul_reaper", SoulReaperSkill::new);
 
     private ModSkills() {
     }

@@ -1,7 +1,9 @@
 package com.tensurafragments;
 
 import com.mojang.serialization.Codec;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.tensurafragments.card.CardEntity;
 import com.tensurafragments.flame.DraconicHellfireEffect;
@@ -15,6 +17,8 @@ import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.PaperBeastEntity;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.shikigami.TalismanEntity;
+import com.tensurafragments.soul.CapturedSoul;
+import com.tensurafragments.soul.SoulBond;
 import com.tensurafragments.spirit.SpiritEntity;
 import com.tensurafragments.yifa.FireWhirlEntity;
 import com.tensurafragments.yifa.SpiritBellItem;
@@ -180,6 +184,19 @@ public final class ModRegistries {
     /** Whether your attacks call spirits (Spirit Link). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPIRIT_LINK = ATTACHMENTS.register(
             "spirit_link", () -> AttachmentType.builder(() -> true).serialize(Codec.BOOL).copyOnDeath().build());
+
+    /** Soul Reaper: the souls you've captured from what you killed. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<CapturedSoul>>> SOULS = ATTACHMENTS.register(
+            "souls", () -> AttachmentType.<List<CapturedSoul>>builder(() -> new ArrayList<>())
+                    .serialize(CapturedSoul.CODEC.listOf().xmap(ArrayList::new, list -> list)).copyOnDeath().build());
+
+    /** Soul Reaper: which captured soul is selected (index into SOULS). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SELECTED_SOUL = ATTACHMENTS.register(
+            "selected_soul", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
+    /** Set on summoned souls and soul-possessed creatures. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<SoulBond>> SOUL_BOND = ATTACHMENTS.register(
+            "soul_bond", () -> AttachmentType.<SoulBond>builder(() -> null).serialize(SoulBond.CODEC).build());
 
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",

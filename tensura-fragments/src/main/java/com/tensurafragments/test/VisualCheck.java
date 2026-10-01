@@ -83,7 +83,41 @@ public final class VisualCheck {
             });
             case 122 -> shot(mc, "2_energy_ice_lance");
             case 140 -> shot(mc, "3_energy_after");
-            case 180 -> mc.stop();
+            case 145 -> {
+                mc.player.setYRot(0);
+                mc.player.setXRot(10);
+            }
+            case 150 -> onServer(mc, player -> {
+                player.setYRot(0);
+                player.setXRot(10);
+                player.setData(com.tensurafragments.ModRegistries.SOULS, new java.util.ArrayList<>(java.util.List.of(
+                        new com.tensurafragments.soul.CapturedSoul("minecraft:husk", "Husk", 40),
+                        new com.tensurafragments.soul.CapturedSoul(com.tensurafragments.soul.CapturedSoul.PLAYER, "Steve", 100),
+                        new com.tensurafragments.soul.CapturedSoul("minecraft:zombie", "Zombie", 1.0E6))));
+                player.setData(com.tensurafragments.ModRegistries.SELECTED_SOUL, 0);
+                TensuraStorages.getAbilityFrom(player).setAbilitySlot(1, ModSkills.SOUL_REAPER.get(), 0);
+                io.github.manasmods.tensura.storage.TensuraStorages.getExistenceFrom(player).setSoulPoints(20_000);
+                com.tensurafragments.soul.SoulReaper.summon(player);
+                player.setData(com.tensurafragments.ModRegistries.SELECTED_SOUL, 1);
+                player.setYRot(-35);
+                com.tensurafragments.soul.SoulReaper.summon(player);
+                // Possess the nearest husk with the strong soul.
+                Husk nearest = player.serverLevel().getNearestEntity(Husk.class,
+                        net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat(), player,
+                        player.getX(), player.getY(), player.getZ(), player.getBoundingBox().inflate(30));
+                if (nearest != null && com.tensurafragments.soul.SoulBond.get(nearest) == null) {
+                    player.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,
+                            nearest.position().add(0, 1, 0));
+                    player.setData(com.tensurafragments.ModRegistries.SELECTED_SOUL, 2);
+                    com.tensurafragments.soul.SoulReaper.possess(player);
+                }
+                player.setYRot(0);
+                player.setXRot(10);
+            });
+            case 160 -> shot(mc, "4_souls");
+            case 162 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            case 168 -> shot(mc, "5_souls_behind");
+            case 200 -> mc.stop();
             default -> {
             }
         }
@@ -124,6 +158,7 @@ public final class VisualCheck {
         var ability = TensuraStorages.getAbilityFrom(player);
         if (ability != null) {
             ability.setAbilitySlot(0, ModSkills.ENERGY_MAGIC.get(), 0);
+            ability.setAbilitySlot(1, ModSkills.SOUL_REAPER.get(), 0);
         }
     }
 

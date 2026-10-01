@@ -251,6 +251,26 @@ trail and burst into green sparks where they land.
 
 `energyPower` (2) and `energyLevelCostMultiplier` are in the `[energy]` section of the server config.
 
+## Skill 9: Soul Reaper
+
+Every life you take leaves its soul in your hands. A Unique skill, given to every player.
+
+- **Every kill gives you souls**, whether or not you're a Demon Lord Seed. They're Tensura's own soul points (the
+  "Souls" in Tensura's menu, 1000 points = 1 soul), so they still count toward awakening as a True Demon Lord, and
+  dying still costs you some. A kill gives 1 soul plus more the stronger it was (½ point per EP), and **captures its
+  soul**: what it was, its name and its EP. You keep up to 27; past that the weakest is let go. Kills by your
+  summoned souls and possessed creatures count as yours.
+- **Sneak** with any mode to switch which captured soul is selected. A small line right of the hotbar (while it's on
+  your active preset) shows your souls and the selected soul.
+
+| Mode | What it does | Cost |
+|---|---|---|
+| Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and fights whatever you fight for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. | 1 soul + ¼ point per EP; the soul is kept |
+| Soul Absorb | You devour the selected soul and **take all its EP** (your max magicules and aura go up). | Uses up the soul |
+| Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it fights for you, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | Uses up the soul |
+
+All the numbers are in the `[souls]` section of the server config.
+
 ## Tensura's own skills and magic
 
 Tensura's **magic** and its **resistance, intrinsic, common and extra skills** are all kept and learned the normal
@@ -281,19 +301,20 @@ Requires JDK 21.
 ./gradlew catalogTensuraAssets   # writes docs/tensura-assets.md, a list of every Tensura asset to pick from
 ```
 
-The in-world tests in `src/main/java/com/tensurafragments/test/` cover both skills: card blasts (range, self damage,
+The in-world tests in `src/main/java/com/tensurafragments/test/` cover every skill: card blasts (range, self damage,
 chaining), teleporting, the skill icons, turning blocks into shikigami (and needing paper), block hardness scaling,
 dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
 grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching
 and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura spells, all ten Flame Emperor fire
 spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), Energy Magic (paying in levels, twice the
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
-possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper) and
+possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
-allies).
+allies) and Soul Reaper (souls from kills without being a Seed, summoning and its cost, kills by your souls counting,
+player souls, absorbing EP, possession taking over and stacking, too-weak souls failing).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
-casts Draconic Hell Storm and a Rainbow Magic spell, saves screenshots to `run/client/screenshots/`, and quits.
+casts Energy Magic spells and summons souls with Soul Reaper, saves screenshots to `run/client/screenshots/`, and quits.
 
 Tensura: Reincarnated, ManasCore, Architectury, GeckoLib, SmartBrainLib and TerraBlender (runtime only) are pulled from CurseForge via
 CurseMaven (versions in `build.gradle`). If you update Tensura, bump the file id in `tensuraDep`.

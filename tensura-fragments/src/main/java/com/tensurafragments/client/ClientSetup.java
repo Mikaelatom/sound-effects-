@@ -40,5 +40,6 @@ public final class ClientSetup {
         event.registerAboveAll(TensuraFragments.id("possession_hud"), ClientPossession::renderHud);
         event.registerAboveAll(TensuraFragments.id("spirit_hud"), SpiritHud::render);
         event.registerAboveAll(TensuraFragments.id("energy_hud"), EnergyHud::render);
+        event.registerAboveAll(TensuraFragments.id("soul_hud"), SoulHud::render);
     }
 }
