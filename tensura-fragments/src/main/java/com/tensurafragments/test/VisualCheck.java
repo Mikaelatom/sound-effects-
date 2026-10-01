@@ -40,7 +40,13 @@ public final class VisualCheck {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (!ENABLED || mc.player == null || mc.level == null || mc.getSingleplayerServer() == null || mc.screen != null) {
+        if (!ENABLED || mc.player == null || mc.level == null || mc.getSingleplayerServer() == null) {
+            return;
+        }
+        if (mc.screen != null) {
+            // Tensura's reincarnation (race) screen opens on first join; close it so the check can run.
+            org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT closing screen {}", mc.screen.getClass().getName());
+            mc.setScreen(null);
             return;
         }
         ticks++;
