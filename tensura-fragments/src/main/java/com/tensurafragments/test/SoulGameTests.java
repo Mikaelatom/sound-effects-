@@ -112,6 +112,27 @@ public final class SoulGameTests {
         helper.succeed();
     }
 
+    /** Recalling gives the summoned souls back, worth and all, to summon again later. */
+    @GameTest(template = "platform")
+    public static void recallGivesSoulsBack(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 4.5, 1.5);
+        CapturedSoul husk = new CapturedSoul("minecraft:husk", "Husk", 40);
+        CapturedSoul zombie = new CapturedSoul("minecraft:zombie", "Zombie", 20);
+        giveSouls(player, husk, zombie);
+        int worth = SoulReaper.soulValue(husk) + SoulReaper.soulValue(zombie);
+        setSoulPoints(player, worth);
+        helper.assertFalse(SoulReaper.recall(player), "nothing out to recall");
+        helper.assertTrue(SoulReaper.summon(player) && SoulReaper.summon(player), "both summoned");
+        helper.assertTrue(SoulReaper.souls(player).isEmpty() && SoulReaper.soulPoints(player) == 0, "both souls spent");
+        helper.assertTrue(SoulReaper.recall(player), "recalled");
+        helper.assertTrue(SoulReaper.summons(player).isEmpty(), "the ghosts are gone");
+        helper.assertTrue(SoulReaper.souls(player).size() == 2 && SoulReaper.souls(player).containsAll(List.of(husk, zombie)),
+                "both souls back: " + SoulReaper.souls(player));
+        helper.assertTrue(SoulReaper.soulPoints(player) == worth, "the count is back, at " + SoulReaper.soulPoints(player));
+        helper.assertTrue(SoulReaper.summon(player), "and can be summoned again");
+        helper.succeed();
+    }
+
     /** A player's soul comes back as a zombie wearing their head. */
     @GameTest(template = "platform")
     public static void playerSoulsWearTheirHead(GameTestHelper helper) {

@@ -261,7 +261,7 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
   soul**: what it was, its name and its EP. You keep up to 27; past that the weakest is let go. Kills by your
   summoned souls and possessed creatures count as yours.
 - **Each captured soul can be used once**, by any of the modes below: using it takes it off your list and takes its
-  worth (what its kill gave you) off your soul count, in creative too. Kill ten zombies and you have ten zombie souls
+  worth (what its kill gave you) off your soul count, in creative too. Recalling a summoned soul gives both back. Kill ten zombies and you have ten zombie souls
   to use.
 - **Sneak** with any mode to switch which captured soul is selected. A small line right of the hotbar (while it's on
   your active preset) shows your souls and the selected soul.
@@ -269,6 +269,7 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
 | Mode | What it does | Uses |
 |---|---|---|
 | Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and fights whatever you fight for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. When its time is up it passes on. | The soul |
+| Soul Recall | Calls all your summoned souls back to you. Each goes back on your list and its worth back onto your soul count, ready to summon again later. (Souls that possessed a summoned soul are lost with it.) | Nothing |
 | Soul Absorb | You devour the selected soul and **take all its EP** (your max magicules and aura go up). | The soul |
 | Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it fights for you, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | The soul |
 
@@ -313,7 +314,7 @@ spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), En
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
-allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), kills by your souls counting,
+allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),

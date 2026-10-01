@@ -61,7 +61,8 @@ import org.jetbrains.annotations.Nullable;
  * Soul Reaper: every kill gives you souls (Tensura's soul points, Demon Lord Seed or not) and captures the soul of what
  * died. Each captured soul can be used once: summon it back as a ghost that fights for you, absorb it to take all its
  * EP, or send it into a creature to possess it (it becomes yours and grows stronger with every soul). Using a soul
- * takes it off your list and its worth off your soul count. Triggered through {@link SoulReaperSkill}.
+ * takes it off your list and its worth off your soul count; recalling a summoned soul gives both back. Triggered
+ * through {@link SoulReaperSkill}.
  */
 public final class SoulReaper {
     /** Soul blue, for messages, names and the HUD. */
@@ -228,7 +229,7 @@ public final class SoulReaper {
         mob.setCustomName(Component.translatable("tensurafragments.soul.summon_name", soul.name()).withColor(SOUL_COLOUR));
         mob.setPersistenceRequired();
         mob.setData(ModRegistries.SOUL_BOND, new SoulBond(player.getUUID(),
-                level.getGameTime() + Config.SOUL_SUMMON_SECONDS.get() * 20L, true, 0));
+                level.getGameTime() + Config.SOUL_SUMMON_SECONDS.get() * 20L, true, 0, soul));
         level.addFreshEntity(mob);
         announce(mob);
         // The soul is spent: one kill, one summon.
@@ -257,6 +258,46 @@ public final class SoulReaper {
             entity.discard();
         }
         return null;
+    }
+
+    // ---- Recall ----
+
+    /**
+     * Calls every summoned soul back: each goes back on your list (worth and all) to be summoned again later. Souls
+     * that possessed one of them are lost with it.
+     */
+    public static boolean recall(ServerPlayer player) {
+        List<Mob> summons = summons(player);
+        if (summons.isEmpty()) {
+            fail(player, Component.translatable("tensurafragments.soul.none_out"));
+            return false;
+        }
+        ServerLevel level = player.serverLevel();
+        List<CapturedSoul> souls = new ArrayList<>(souls(player));
+        for (Mob mob : summons) {
+            SoulBond bond = SoulBond.get(mob);
+            if (bond != null && bond.soul() != null) {
+                souls.add(bond.soul());
+                addSoulPoints(player, soulValue(bond.soul()));
+            }
+            Vec3 from = mob.position().add(0, mob.getBbHeight() / 2, 0);
+            Vec3 to = player.position().add(0, 1, 0);
+            for (int i = 0; i <= 10; i++) {
+                Vec3 at = from.lerp(to, i / 10.0);
+                level.sendParticles(ParticleTypes.SOUL, at.x, at.y, at.z, 1, 0.05, 0.05, 0.05, 0);
+            }
+            mob.discard();
+        }
+        while (souls.size() > Config.MAX_CAPTURED_SOULS.get()) {
+            souls.remove(souls.stream().min(Comparator.comparingDouble(CapturedSoul::ep)).orElseThrow());
+        }
+        player.setData(ModRegistries.SOULS, souls);
+        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY() + 1, player.getZ(), 15, 0.4, 0.6, 0.4, 0.03);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 1.5F, 1.0F);
+        player.displayClientMessage(Component.translatable("tensurafragments.soul.recalled", summons.size())
+                .withColor(SOUL_COLOUR), true);
+        sync(player);
+        return true;
     }
 
     // ---- Absorb ----
@@ -323,8 +364,8 @@ public final class SoulReaper {
         takeSelected(player);
         spend(player, soul);
         // Possessing one of your summoned souls keeps it here for good.
-        SoulBond possessed = ours ? new SoulBond(bond.owner(), Long.MAX_VALUE, bond.summoned(), stacks + 1)
-                : new SoulBond(player.getUUID(), Long.MAX_VALUE, false, 1);
+        SoulBond possessed = ours ? new SoulBond(bond.owner(), Long.MAX_VALUE, bond.summoned(), stacks + 1, bond.soul())
+                : new SoulBond(player.getUUID(), Long.MAX_VALUE, false, 1, null);
         target.setData(ModRegistries.SOUL_BOND, possessed);
         applyPossession(target, possessed.stacks());
         if (soul.ep() > 0) {

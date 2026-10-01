@@ -9,11 +9,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Soul Reaper as a Tensura skill. Modes: Soul Summon, Soul Absorb, Soul Possession. Sneak with any mode to switch
- * which captured soul is selected. Every kill gives souls whatever mode you're in.
+ * Soul Reaper as a Tensura skill. Modes: Soul Summon, Soul Recall, Soul Absorb, Soul Possession. Sneak with any mode
+ * to switch which captured soul is selected. Every kill gives souls whatever mode you're in.
  */
 public class SoulReaperSkill extends Skill {
-    private static final String[] MODES = {"soul_reaper.summon", "soul_reaper.absorb", "soul_reaper.possess"};
+    private static final String[] MODES = {"soul_reaper.summon", "soul_reaper.recall", "soul_reaper.absorb",
+            "soul_reaper.possess"};
 
     public SoulReaperSkill() {
         super(SkillType.UNIQUE);
@@ -51,7 +52,8 @@ public class SoulReaperSkill extends Skill {
         }
         boolean used = switch (Math.floorMod(mode, MODES.length)) {
             case 0 -> SoulReaper.summon(player);
-            case 1 -> SoulReaper.absorb(player);
+            case 1 -> SoulReaper.recall(player);
+            case 2 -> SoulReaper.absorb(player);
             default -> SoulReaper.possess(player);
         };
         if (used) {
