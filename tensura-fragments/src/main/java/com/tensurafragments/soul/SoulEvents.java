@@ -2,6 +2,7 @@ package com.tensurafragments.soul;
 
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.network.SoulEntityPayload;
+import java.util.List;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +12,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -85,18 +89,54 @@ public final class SoulEvents {
                 return;
             }
         }
-        if (owner == null || mob.tickCount % 10 != 0) {
+        if (owner == null) {
+            return;
+        }
+        // Never you or your allies, checked every tick: brain-driven mobs (most of Tensura's) pick targets into their
+        // brain's memory, which the target event below doesn't fully stop.
+        forgetFriendlyTargets(mob, owner);
+        if (mob.tickCount % 5 != 0) {
             return;
         }
         // Fight whatever the owner is fighting; otherwise stay close.
         LivingEntity target = pickTarget(owner, mob);
         if (target != null) {
-            mob.setTarget(target);
-        } else if (mob.getTarget() != null && SoulReaper.isFriendly(mob.getTarget(), owner)) {
-            mob.setTarget(null);
+            if (mob.getTarget() != target) {
+                mob.setTarget(target);
+            }
+            setBrainTarget(mob, target);
         }
         if (mob.getTarget() == null && mob.distanceToSqr(owner) > 10 * 10 && mob.level() == owner.level()) {
             mob.getNavigation().moveTo(owner, 1.2);
+        }
+    }
+
+    /** Brain memories that make a mob go for someone. */
+    private static final List<MemoryModuleType<? extends LivingEntity>> TARGET_MEMORIES = List.of(
+            MemoryModuleType.ATTACK_TARGET, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.NEAREST_ATTACKABLE);
+
+    private static void forgetFriendlyTargets(Mob mob, ServerPlayer owner) {
+        if (mob.getTarget() != null && SoulReaper.isFriendly(mob.getTarget(), owner)) {
+            mob.setTarget(null);
+        }
+        Brain<?> brain = mob.getBrain();
+        for (MemoryModuleType<? extends LivingEntity> memory : TARGET_MEMORIES) {
+            if (brain.checkMemory(memory, MemoryStatus.REGISTERED)
+                    && SoulReaper.isFriendly(brain.getMemory(memory).orElse(null), owner)) {
+                brain.eraseMemory(memory);
+            }
+        }
+        if (brain.checkMemory(MemoryModuleType.ANGRY_AT, MemoryStatus.REGISTERED)
+                && brain.getMemory(MemoryModuleType.ANGRY_AT).map(id -> SoulReaper.isFriendly(
+                ((ServerLevel) mob.level()).getEntity(id), owner)).orElse(false)) {
+            brain.eraseMemory(MemoryModuleType.ANGRY_AT);
+        }
+    }
+
+    private static void setBrainTarget(Mob mob, LivingEntity target) {
+        Brain<?> brain = mob.getBrain();
+        if (brain.checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.REGISTERED)) {
+            brain.setMemory(MemoryModuleType.ATTACK_TARGET, target);
         }
     }
 
@@ -117,7 +157,8 @@ public final class SoulEvents {
         LivingEntity target = event.getNewAboutToBeSetTarget();
         if (bond != null && target != null && event.getEntity().level() instanceof ServerLevel level
                 && level.getPlayerByUUID(bond.owner()) instanceof ServerPlayer owner && SoulReaper.isFriendly(target, owner)) {
-            event.setNewAboutToBeSetTarget(null);
+            // Cancelled rather than set to nothing, so it keeps going after whatever it was already fighting.
+            event.setCanceled(true);
         }
     }
 

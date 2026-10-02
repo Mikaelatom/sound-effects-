@@ -191,6 +191,96 @@ public final class SoulGameTests {
         helper.succeed();
     }
 
+    /** A possessed zombie with its normal AI: it never goes for you, and it attacks what you punch. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void possessedHostileFightsForYou(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 1.5, 1.5);
+        Zombie zombie = helper.spawn(EntityType.ZOMBIE, new Vec3(4.5, GROUND, 4.5));
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, zombie.position().add(0, 1, 0));
+        giveSouls(player, new CapturedSoul("minecraft:zombie", "Zombie", 1.0E6));
+        helper.assertTrue(SoulReaper.possess(player), "possessed");
+        fightsForYou(helper, player, zombie);
+    }
+
+    /** A summoned zombie soul with its normal AI: same thing. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void summonedHostileFightsForYou(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 1.5, 1.5);
+        giveSouls(player, new CapturedSoul("minecraft:zombie", "Zombie", 20));
+        player.setYRot(-45);
+        helper.assertTrue(SoulReaper.summon(player), "summoned");
+        fightsForYou(helper, player, SoulReaper.summons(player).get(0));
+    }
+
+    private static Mob tensuraZombie(GameTestHelper helper, double x, double z) {
+        EntityType<?> type = EntityType.byString("tensura:zombie").orElseThrow();
+        return (Mob) helper.spawn(type, new Vec3(x, GROUND, z));
+    }
+
+    private static boolean brainTargets(Mob mob, net.minecraft.world.entity.LivingEntity target) {
+        var brain = mob.getBrain();
+        return mob.getTarget() == target || (brain.checkMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.ATTACK_TARGET,
+                net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED)
+                && brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.ATTACK_TARGET).orElse(null) == target);
+    }
+
+    /** Control: a Tensura zombie (a SmartBrainLib brain mob) left alone does go for you, so the tests below mean something. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void tensuraZombieAttacksNormally(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 1.5, 1.5);
+        Mob zombie = tensuraZombie(helper, 5.5, 5.5);
+        helper.succeedWhen(() -> helper.assertTrue(brainTargets(zombie, player), "goes for you"));
+    }
+
+    /** A possessed Tensura zombie: its brain never targets you, and it attacks what you punch. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void possessedBrainMobFightsForYou(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 1.5, 1.5);
+        Mob zombie = tensuraZombie(helper, 4.5, 4.5);
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, zombie.position().add(0, 1, 0));
+        giveSouls(player, new CapturedSoul("tensura:zombie", "Zombie", 1.0E9));
+        helper.assertTrue(SoulReaper.possess(player), "possessed");
+        fightsForYou(helper, player, zombie);
+    }
+
+    /** A summoned Tensura zombie soul: same thing. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void summonedBrainMobFightsForYou(GameTestHelper helper) {
+        ServerPlayer player = reaper(helper, 1.5, 1.5);
+        giveSouls(player, new CapturedSoul("tensura:zombie", "Zombie", 20));
+        player.setYRot(-45);
+        helper.assertTrue(SoulReaper.summon(player), "summoned");
+        fightsForYou(helper, player, SoulReaper.summons(player).get(0));
+    }
+
+    private static void fightsForYou(GameTestHelper helper, ServerPlayer player, Mob soul) {
+        float health = player.getHealth();
+        // A while with you standing right there: it must never go for you.
+        helper.onEachTick(() -> {
+            helper.assertFalse(brainTargets(soul, player), "it targeted you");
+            helper.assertTrue(player.getHealth() >= health, "it hurt you");
+        });
+        helper.runAfterDelay(60, () -> {
+            net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(7.5, GROUND, 7.5));
+            pig.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+            pig.setHealth(200);
+            // You punch the pig.
+            pig.hurt(player.damageSources().playerAttack(player), 1);
+            player.setLastHurtMob(pig);
+            helper.succeedWhen(() -> helper.assertTrue(pig.getHealth() < 195,
+                    "it attacks what you punched: pig at " + pig.getHealth() + ", its target " + soul.getTarget()
+                            + ", it is at " + helper.relativeVec(soul.position()) + " baby " + soul.isBaby()
+                            + " navigating " + soul.getNavigation().isInProgress()
+                            + " path " + (soul.getNavigation().getPath() == null ? null : soul.getNavigation().getPath().getTarget())
+                            + " pig at " + helper.relativeVec(pig.position()) + " speed "
+                            + soul.getAttributeValue(Attributes.MOVEMENT_SPEED) + " vehicle " + soul.getVehicle()
+                            + " moving " + soul.getDeltaMovement() + " collided " + soul.horizontalCollision
+                            + " noAi " + soul.isNoAi() + " goals "
+                            + soul.goalSelector.getAvailableGoals().stream().filter(g -> g.isRunning())
+                            .map(g -> g.getGoal().getClass().getSimpleName()).toList()));
+        });
+    }
+
     @GameTest(template = "platform")
     public static void sneakCyclesSouls(GameTestHelper helper) {
         ServerPlayer player = reaper(helper, 4.5, 4.5);
