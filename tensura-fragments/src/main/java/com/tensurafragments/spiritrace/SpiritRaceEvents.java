@@ -23,6 +23,9 @@ public final class SpiritRaceEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            SpiritRelease.tick(player);
+        }
         if (event.getEntity() instanceof ServerPlayer player && player.tickCount % 20 == 0) {
             if (SpiritRaces.isSpirit(player)) {
                 SpiritPassage.tick(player);
@@ -35,6 +38,7 @@ public final class SpiritRaceEvents {
     @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            SpiritRelease.end(player, true);
             SpiritPassage.stopClock(player);
             if (SpiritRaces.isSpirit(player)) {
                 SpiritPassage.giveBook(player);

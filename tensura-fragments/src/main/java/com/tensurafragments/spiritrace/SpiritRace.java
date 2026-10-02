@@ -2,6 +2,7 @@ package com.tensurafragments.spiritrace;
 
 import com.mojang.datafixers.util.Pair;
 import com.tensurafragments.ModRegistries;
+import com.tensurafragments.skill.ModSkills;
 import dev.architectury.registry.registries.RegistrySupplier;
 import io.github.manasmods.manascore.config.ConfigRegistry;
 import io.github.manasmods.manascore.race.api.ManasRace;
@@ -208,6 +209,7 @@ public class SpiritRace extends DefaultRace {
         List<ManasSkill> skills = new ArrayList<>();
         skills.add(IntrinsicSkills.POSSESSION.get());
         skills.add(ResistanceSkills.MAGIC_RESISTANCE.get());
+        skills.add(ModSkills.SPIRIT_RELEASE.get());
         SpiritElement own = element != null ? element : rememberedElement(entity);
         if (own != null && stage != Stage.LESSER && stage != Stage.GREATER) {
             skills.add(own.transform.get());

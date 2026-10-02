@@ -208,5 +208,17 @@
   "tensurafragments.race.darkness_spirit": "Darkness Spirit",
   "tensurafragments.race.darkness_spirit.description": "A spirit bound to darkness, shadowed and whole. It can become its element at will and shrugs off attacks of its own kind.",
   "tensurafragments.race.space_spirit": "Space Spirit",
-  "tensurafragments.race.space_spirit.description": "A spirit bound to space, boundless and whole. It can become its element at will and shrugs off attacks of its own kind."
+  "tensurafragments.race.space_spirit.description": "A spirit bound to space, boundless and whole. It can become its element at will and shrugs off attacks of its own kind.",
+  "tensurafragments.skill.spirit_release": "Spirit Release",
+  "tensurafragments.skill.spirit_release.description": "§oA spirit wearing a body need not be held to it. Unleash your own spirit's power through the flesh, wrapped in a blue aura, for as long as the body can bear it.",
+  "tensurafragments.skill.mode.spirit_release.ten": "Release 10% (5 min, then half your health)",
+  "tensurafragments.skill.mode.spirit_release.fifty": "Release 50% (5 min, then half your health)",
+  "tensurafragments.skill.mode.spirit_release.full": "Release 100% (2 min, then you lose your body)",
+  "tensurafragments.spirit_release.not_spirit": "Only a spirit can release its power",
+  "tensurafragments.spirit_release.no_body": "You need a body to release your power through: possess one first",
+  "tensurafragments.spirit_release.cooldown": "Your spirit is still recovering (%s s)",
+  "tensurafragments.spirit_release.started": "Spirit Release %s%%: your spirit's power floods the body for %s minutes",
+  "tensurafragments.spirit_release.ended": "The release ends, and the body pays for it",
+  "tensurafragments.spirit_release.torn_free": "Your full power tears your spirit free of its body",
+  "tensurafragments.spirit_release.hud": "Spirit Release %s%% · %s:%s"
 }

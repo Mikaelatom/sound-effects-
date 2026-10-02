@@ -287,11 +287,22 @@ and Possession systems, and modelled on its Lesser Daemon.
   within 5 blocks). Take one and the clock stops: you can stay. Run out and your spirit fades: you die and wake up in
   the Spirit Realm. Any spirit out in the material world without a body is on the clock, however it got there.
 - **Race ability:** float (fly) while in spiritual form.
+- **Spirit Release** (a skill only spirits have, at every stage): while you're possessing a body, unleash your own
+  spirit's power through it instead of being held to the body's, wrapped in a blue spirit-fire aura. Pick a mode:
+
+  | Mode | Stats (attack, max health, armor, toughness, speed, attack speed) | Lasts | When it ends |
+  |---|---|---|---|
+  | 10% | +10% | 5 minutes | the body loses half its health |
+  | 50% | +50% | 5 minutes | the body loses half its health |
+  | 100% | doubled | 2 minutes | your spirit tears free of the body (back to spiritual form, and the clock starts again) |
+
+  Press it again to end it early, at the same cost. It needs a minute to recover afterwards. Durations and the
+  cooldown are in `[spiritRace]` (`releaseSeconds`, `fullReleaseSeconds`, `releaseCooldownSeconds`).
 - Spirits learn magic as they grow, the same spells as Tensura's daemons at each stage.
 
 | Stage | Race | How | Brings |
 |---|---|---|---|
-| 1 | Lesser Spirit | Race menu | Possession, Magic Resistance |
+| 1 | Lesser Spirit | Race menu | Possession, Magic Resistance, Spirit Release |
 | 2 | Greater Spirit | 20,000 EP | Stronger stats |
 | 3 | Flame, Water, Wind, Earth, Light, Darkness or Space Spirit (your choice) | 140,000 EP | That element's Transform skill and attack resistance |
 | 4 | Heroic Spirit | Awaken as a True Hero | Holy Attack Nullification, Spiritual Attack Resistance, Divine Ki Release; keeps its element |
@@ -343,7 +354,8 @@ Spirit Control (every spirit hurting its target and vanishing, the turn order, t
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures
 with brain-driven AI staying loyal) and the Spirit race (the races and the Spirit Realm loading, Possession and the
-book, the clock and fading, a body stopping the clock, and the whole evolution line with the hero/demon lord split).
+book, the clock and fading, a body stopping the clock, the whole evolution line with the hero/demon lord split, and Spirit Release: needing a
+body, the boost, half health at the end, losing the body at 100%, ending early and the cooldown).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
 casts Energy Magic spells, summons souls with Soul Reaper, becomes a Lesser Spirit in the Spirit Realm and reads the

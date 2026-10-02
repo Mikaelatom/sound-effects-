@@ -21,6 +21,7 @@ import com.tensurafragments.soul.CapturedSoul;
 import com.tensurafragments.soul.SoulBond;
 import com.tensurafragments.spirit.SpiritEntity;
 import com.tensurafragments.spiritrace.BookOfPassageItem;
+import com.tensurafragments.spiritrace.SpiritRelease;
 import com.tensurafragments.yifa.FireWhirlEntity;
 import com.tensurafragments.yifa.SpiritBellItem;
 import com.tensurafragments.yifa.SpiritLanternItem;
@@ -210,6 +211,10 @@ public final class ModRegistries {
     /** Spirit race: game time a spirit without a body fades from the material world (0: not counting down). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> SPIRIT_DEADLINE = ATTACHMENTS.register(
             "spirit_deadline", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG).build());
+
+    /** Spirit race: an active Spirit Release. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<SpiritRelease.State>> SPIRIT_RELEASE = ATTACHMENTS.register(
+            "spirit_release", () -> AttachmentType.<SpiritRelease.State>builder(() -> null).serialize(SpiritRelease.State.CODEC).build());
 
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",

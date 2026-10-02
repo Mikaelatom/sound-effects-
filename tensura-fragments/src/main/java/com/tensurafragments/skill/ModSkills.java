@@ -7,6 +7,7 @@ import com.tensurafragments.grimoire.SealingGrimoireSkill;
 import com.tensurafragments.rainbow.RainbowMagicSkill;
 import com.tensurafragments.shikigami.ShikigamiControlSkill;
 import com.tensurafragments.soul.SoulReaperSkill;
+import com.tensurafragments.spiritrace.SpiritReleaseSkill;
 import com.tensurafragments.spirit.SpiritControlSkill;
 import com.tensurafragments.yifa.SpiritCommunionSkill;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -30,6 +31,9 @@ public final class ModSkills {
     public static final RegistrySupplier<SpiritCommunionSkill> SPIRIT_COMMUNION =
             register("spirit_communion", SpiritCommunionSkill::new);
     public static final RegistrySupplier<SoulReaperSkill> SOUL_REAPER = register("soul_reaper", SoulReaperSkill::new);
+    /** The Spirit race's own skill (a race skill, not given to everyone). */
+    public static final RegistrySupplier<SpiritReleaseSkill> SPIRIT_RELEASE =
+            register("spirit_release", SpiritReleaseSkill::new);
 
     private ModSkills() {
     }

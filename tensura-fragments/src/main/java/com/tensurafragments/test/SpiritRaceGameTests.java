@@ -137,4 +137,87 @@ public final class SpiritRaceGameTests {
                 "the Heroic Spirit keeps its element");
         helper.succeed();
     }
+
+    private static io.github.manasmods.manascore.skill.api.ManasSkillInstance release(ServerPlayer player) {
+        return SkillAPI.getSkillsFrom(player).getSkill(com.tensurafragments.skill.ModSkills.SPIRIT_RELEASE.get()).orElseThrow();
+    }
+
+    /** Spirit Release is a spirit's own skill, and needs a body to release through. */
+    @GameTest(template = "platform")
+    public static void spiritReleaseNeedsABody(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        helper.assertTrue(SkillAPI.getSkillsFrom(player).getSkill(com.tensurafragments.skill.ModSkills.SPIRIT_RELEASE.get())
+                .isPresent(), "spirits have Spirit Release");
+        TensuraStorages.getExistenceFrom(player).setSpiritualForm(true);
+        helper.assertFalse(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 0), "no body, no release");
+        ServerPlayer human = TestPlayers.spawn(helper, 1.5, 1.5);
+        helper.assertTrue(SkillAPI.getSkillsFrom(human).getSkill(com.tensurafragments.skill.ModSkills.SPIRIT_RELEASE.get())
+                .isEmpty(), "other races don't have it");
+        helper.succeed();
+    }
+
+    /** 50%: half as strong again for 5 minutes, then the body pays half its health. */
+    @GameTest(template = "platform")
+    public static void spiritReleaseHalfPower(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        TensuraStorages.getExistenceFrom(player).setSpiritualForm(false);
+        double attack = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        double health = player.getMaxHealth();
+        player.setHealth(player.getMaxHealth());
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 1), "released 50%");
+        var state = com.tensurafragments.spiritrace.SpiritRelease.state(player);
+        helper.assertTrue(state != null && state.percent() == 50
+                && state.until() == helper.getLevel().getGameTime() + 300 * 20, "50% for 5 minutes");
+        helper.assertTrue(Math.abs(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                - attack * 1.5) < 0.01, "attack x1.5");
+        helper.assertTrue(Math.abs(player.getMaxHealth() - health * 1.5) < 0.01 && player.getHealth() == player.getMaxHealth(),
+                "max health x1.5, filled in");
+        // Time's up.
+        player.setData(ModRegistries.SPIRIT_RELEASE, new com.tensurafragments.spiritrace.SpiritRelease.State(50,
+                helper.getLevel().getGameTime()));
+        com.tensurafragments.spiritrace.SpiritReleaseTestAccess.tick(player);
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.state(player) == null, "ended");
+        helper.assertTrue(Math.abs(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                - attack) < 0.01 && Math.abs(player.getMaxHealth() - health) < 0.01, "stats back to normal");
+        helper.assertTrue(Math.abs(player.getHealth() - health / 2) < 0.01, "half its health, at " + player.getHealth());
+        helper.assertFalse(SpiritPassage.isSpiritual(player), "still in its body");
+        helper.assertFalse(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 0), "cooling down");
+        helper.succeed();
+    }
+
+    /** 100%: double strength for 2 minutes, then the spirit tears free of its body. */
+    @GameTest(template = "platform")
+    public static void spiritReleaseFullPowerCostsTheBody(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        TensuraStorages.getExistenceFrom(player).setSpiritualForm(false);
+        double attack = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 2), "released 100%");
+        var state = com.tensurafragments.spiritrace.SpiritRelease.state(player);
+        helper.assertTrue(state.percent() == 100 && state.until() == helper.getLevel().getGameTime() + 120 * 20,
+                "100% for 2 minutes");
+        helper.assertTrue(Math.abs(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                - attack * 2) < 0.01, "attack x2");
+        player.setData(ModRegistries.SPIRIT_RELEASE, new com.tensurafragments.spiritrace.SpiritRelease.State(100,
+                helper.getLevel().getGameTime()));
+        com.tensurafragments.spiritrace.SpiritReleaseTestAccess.tick(player);
+        helper.assertTrue(SpiritPassage.isSpiritual(player), "torn free of its body");
+        helper.assertTrue(player.isAlive(), "but alive");
+        SpiritPassageTestAccess.tick(player);
+        helper.assertTrue(SpiritPassage.deadline(player) != 0, "and the clock on the material world starts again");
+        helper.succeed();
+    }
+
+    /** Pressing again ends it early, with the same cost. */
+    @GameTest(template = "platform")
+    public static void spiritReleaseEndsEarly(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        TensuraStorages.getExistenceFrom(player).setSpiritualForm(false);
+        player.setHealth(player.getMaxHealth());
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 0), "released 10%");
+        float before = player.getHealth();
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 0), "ended early");
+        helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.state(player) == null, "no longer released");
+        helper.assertTrue(player.getHealth() <= before / 2 + 0.01, "half health, at " + player.getHealth());
+        helper.succeed();
+    }
 }

@@ -369,6 +369,15 @@ public final class Config {
     public static final ModConfigSpec.IntValue SPIRIT_MATERIAL_SECONDS = BUILDER
             .comment("How long a spirit without a body can stay in the material world before it fades and dies.")
             .defineInRange("secondsWithoutBody", 300, 10, 86400);
+    public static final ModConfigSpec.IntValue SPIRIT_RELEASE_SECONDS = BUILDER
+            .comment("Spirit Release at 10% or 50%: how long it lasts (it costs half your health when it ends).")
+            .defineInRange("releaseSeconds", 300, 5, 86400);
+    public static final ModConfigSpec.IntValue SPIRIT_RELEASE_FULL_SECONDS = BUILDER
+            .comment("Spirit Release at 100%: how long it lasts (then your spirit tears free of the body).")
+            .defineInRange("fullReleaseSeconds", 120, 5, 86400);
+    public static final ModConfigSpec.IntValue SPIRIT_RELEASE_COOLDOWN_SECONDS = BUILDER
+            .comment("Spirit Release: cooldown after a release ends.")
+            .defineInRange("releaseCooldownSeconds", 60, 0, 86400);
 
     static {
         BUILDER.pop();

@@ -139,7 +139,17 @@ public final class VisualCheck {
                         player.level().dimension(), com.tensurafragments.spiritrace.SpiritPassage.deadline(player));
             });
             case 260 -> shot(mc, "7_material_world");
-            case 280 -> mc.stop();
+            case 265 -> onServer(mc, player -> {
+                // As if it had possessed a body: release everything.
+                TensuraStorages.getExistenceFrom(player).setSpiritualForm(false);
+                com.tensurafragments.spiritrace.SpiritRelease.start(player, 100);
+            });
+            case 270 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+                mc.player.setXRot(15);
+            }
+            case 285 -> shot(mc, "8_spirit_release");
+            case 300 -> mc.stop();
             default -> {
             }
         }

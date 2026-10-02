@@ -110,7 +110,10 @@ public final class SpiritPassage {
     static void sync(ServerPlayer player) {
         long deadline = deadline(player);
         int left = deadline == 0 ? 0 : (int) Math.max(0, deadline - player.level().getGameTime());
-        PacketDistributor.sendToPlayer(player, new SyncSpiritPassagePayload(left));
+        SpiritRelease.State release = SpiritRelease.state(player);
+        int releaseLeft = release == null ? 0 : (int) Math.max(0, release.until() - player.level().getGameTime());
+        PacketDistributor.sendToPlayer(player, new SyncSpiritPassagePayload(left, release == null ? 0 : release.percent(),
+                releaseLeft));
     }
 
     /** Checked every second for spirits. */
