@@ -45,12 +45,18 @@ public class CardRenderer extends EntityRenderer<CardEntity> {
             poseStack.mulPose(card.getFace().getRotation());
         }
 
-        // Charge tints the card from white to a hot magenta and makes it glow when full.
+        // Charge tints the card from white to a hot magenta and makes it glow when full. Spell Cards glow in their colour.
         float charge = Mth.clamp(card.getCharge() - 0.5F, 0, 1);
         int red = 255;
         int green = (int) (255 - 150 * charge);
         int blue = (int) (255 - 60 * charge);
-        int packedLight = card.isFullyCharged() ? LightTexture.FULL_BRIGHT : light;
+        var spell = card.getSpell();
+        if (spell != null) {
+            red = (spell.colour() >> 16) & 0xFF;
+            green = (spell.colour() >> 8) & 0xFF;
+            blue = spell.colour() & 0xFF;
+        }
+        int packedLight = card.isFullyCharged() || spell != null ? LightTexture.FULL_BRIGHT : light;
 
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
         PoseStack.Pose pose = poseStack.last();

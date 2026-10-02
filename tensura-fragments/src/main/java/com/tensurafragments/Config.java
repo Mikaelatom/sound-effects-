@@ -59,15 +59,25 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue TELEPORT_MAGICULE_COST = BUILDER
             .defineInRange("teleportMagiculeCost", 60.0, 0.0, 1.0E9);
     public static final ModConfigSpec.DoubleValue BLAST_RADIUS = BUILDER
-            .defineInRange("blastRadius", 4.0, 0.5, 32.0);
+            .comment("Blast radius of a card. (Replaces the old blastRadius.)")
+            .defineInRange("cardBlastRadius", 5.0, 0.5, 32.0);
     public static final ModConfigSpec.DoubleValue BLAST_DAMAGE = BUILDER
-            .comment("Damage at the centre of the blast at 100% charge. Falls off to 0 at the edge.")
-            .defineInRange("blastDamage", 8.0, 0.0, 1000.0);
+            .comment("Damage at the centre of the blast at 100% charge. Falls off to 0 at the edge. (Replaces the old blastDamage.)")
+            .defineInRange("cardBlastDamage", 20.0, 0.0, 1000.0);
     public static final ModConfigSpec.DoubleValue SELF_DAMAGE_MULTIPLIER = BUILDER
-            .comment("How much of the blast hits the card's owner. 0 disables self damage.")
-            .defineInRange("selfDamageMultiplier", 1.0, 0.0, 10.0);
+            .comment("How much of the blast hits the card's owner. 0 disables self damage. (Replaces the old selfDamageMultiplier.)")
+            .defineInRange("cardSelfDamage", 0.35, 0.0, 10.0);
     public static final ModConfigSpec.DoubleValue BLAST_KNOCKBACK = BUILDER
             .defineInRange("blastKnockback", 1.2, 0.0, 10.0);
+    public static final ModConfigSpec.DoubleValue SPELL_CARD_POWER = BUILDER
+            .comment("Multiplier on all Spell Card damage (and, a little, their size).")
+            .defineInRange("spellCardPower", 1.0, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue SPELL_CARD_COST_MULTIPLIER = BUILDER
+            .comment("Multiplier on the magicules it takes to inscribe a Spell Card (Flame 120 up to Meteor 600).")
+            .defineInRange("spellCardCostMultiplier", 1.0, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue MAX_SPELL_CARDS = BUILDER
+            .comment("Spell Cards you can have out at once (separate from the plain cards). Throwing another makes the oldest fizzle.")
+            .defineInRange("maxSpellCards", 8, 1, 64);
     public static final ModConfigSpec.DoubleValue MOMENTUM_CARRY = BUILDER
             .comment("Fraction of your speed kept (redirected where you look) when teleporting to a card.")
             .defineInRange("momentumCarry", 1.0, 0.0, 2.0);

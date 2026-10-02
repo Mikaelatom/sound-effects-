@@ -10,20 +10,51 @@ Abilities are meant to take practice: momentum, placement, aim, time limits and 
 ## Skill 1: Gambit Cards
 
 Gambit Cards is a real Tensura skill (Unique). It shows up in Tensura's skill menu, goes on Tensura's skill keys,
-and you switch between its three modes the same way as any Tensura skill. Every player is given it automatically.
+and you switch between its four modes the same way as any Tensura skill. Every player is given it automatically.
 
 | Mode | What it does |
 |---|---|
 | **Throw** | A card flies where you aim and sticks to the first block or mob it hits. It inherits your momentum. |
 | **Teleport** | Warp to the card under your crosshair (or your newest card). You keep your speed, redirected where you look. |
-| **Detonate** | Blow up every card. Sneak while using it to detonate only the card you're aiming at. |
+| **Detonate** | Blow up every card (Spell Cards too). Sneak while using it to detonate only the card you're aiming at. |
+| **Inscribe** | Turn magicules into a **Spell Card** (an item). Sneak while using it to choose which spell. |
 
 - **Deck:** 5 cards; one is drawn back every 3 seconds. At most 3 cards can be out; throwing a 4th makes the oldest fizzle.
 - **Magicules:** throwing costs 40, teleporting costs 60, charged by Tensura like any skill (nothing is charged if the action can't happen).
 - **Charge:** a card's blast grows from 50% to 150% over 5 seconds. It sparks and glows when fully charged.
 - **Time limit:** cards fizzle after 20 seconds and blink during their last 3.
-- **Blast:** damage falls off with distance and **hits you too** if you're inside the radius (4 blocks).
+- **Blast:** 20 damage at the centre (10 to 30 with charge), falling off with distance across a 5 block radius. It
+  **hits you too** (at 35%) if you're inside the radius.
   The knockback also hits you, so a careful self-blast doubles as a launch. Blasts set off other cards nearby.
+
+### Spell Cards
+
+Inscribe makes Spell Cards out of magicules. **Right-click** one to throw it: it sticks like a Gambit card (and
+you can teleport to it), and casts its spell when you detonate it. Spell Cards never hurt you, don't take the
+plain cards' 3 slots (up to 8 can be out), and last a minute.
+
+| Card | Magicules | Spell |
+|---|---|---|
+| Flame | 120 | A fire burst (20 damage, 4 blocks) that sets everything ablaze |
+| Frost | 120 | A freezing burst (14 damage, 4 blocks): heavy slowness and frost |
+| Thunder | 200 | Lightning on the target (28), leaping to 4 more enemies within 8 blocks (14 each) |
+| Gale | 250 | A **tornado** for 5 seconds: drags enemies in from 8 blocks, lifts and grinds what it catches |
+| Quake | 250 | A **wide** ground slam (18 damage, 8 blocks) that throws everything up |
+| Meteor | 600 | A meteor falls a second later: a **massive** blast (50 damage, 10 blocks) that sets everything alight |
+
+**Chains:** Spell Cards stuck on the same creature (or the same spot) go off together as a chain, one after
+another, each link **+50%** stronger than the last (100%, 150%, 200%, ...). Some mixes finish with a **combo**:
+
+| Combo | Cards | Finisher |
+|---|---|---|
+| Fire Tornado | Flame + Gale | A big burning tornado that travels away from you, dragging and burning everything |
+| Thunderstorm | Thunder + Gale | A storm tornado that calls lightning down on everything around it |
+| Steam Explosion | Flame + Frost | A huge blinding steam blast (30 damage, 9 blocks) |
+| Cataclysm | Quake + Meteor | The biggest blast in the kit: a second meteor, 80 damage across 16 blocks |
+| Three of a Kind | 3 of the same | That spell again at double power |
+
+Longer chains make the combo stronger too. `spellCardPower`, `spellCardCostMultiplier` and `maxSpellCards` are in
+the `[cards]` section of the server config.
 
 Uses Tensura's shockwave particle for the blast and teleport. Everything above is tunable in `serverconfig/tensurafragments-server.toml`.
 
@@ -354,7 +385,7 @@ Requires JDK 21.
 ./gradlew catalogTensuraAssets   # writes docs/tensura-assets.md, a list of every Tensura asset to pick from
 ```
 
-The in-world tests in `src/main/java/com/tensurafragments/test/` cover every skill: card blasts (range, self damage,
+The in-world tests (including every Spell Card, chains and combos) in `src/main/java/com/tensurafragments/test/` cover every skill: card blasts (range, self damage,
 chaining), teleporting, the skill icons, turning blocks into shikigami (and needing paper), block hardness scaling,
 dismissing, substitution (timed and mistimed), talisman blasts, the barrier keeping out mobs and arrows, and the
 grimoire (making it from a book, sealing only weakened creatures, released creatures serving and returning, catching

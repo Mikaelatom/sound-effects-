@@ -8,6 +8,7 @@ public final class ClientDeckState {
     private static int deckSize = 5;
     private static int regenTicks = 60;
     private static int regenProgress;
+    private static int spellCard;
 
     private ClientDeckState() {
     }
@@ -17,12 +18,19 @@ public final class ClientDeckState {
         deckSize = payload.deckSize();
         regenTicks = Math.max(1, payload.regenTicks());
         regenProgress = payload.regenProgress();
+        spellCard = payload.spellCard();
     }
 
     static void tick() {
         if (deck < deckSize && regenProgress < regenTicks) {
             regenProgress++;
         }
+    }
+
+    /** The spell Gambit Cards' Inscribe mode makes. */
+    public static com.tensurafragments.card.SpellCard spellCard() {
+        var spell = com.tensurafragments.card.SpellCard.byIndex(spellCard);
+        return spell == null ? com.tensurafragments.card.SpellCard.FLAME : spell;
     }
 
     public static int deck() {

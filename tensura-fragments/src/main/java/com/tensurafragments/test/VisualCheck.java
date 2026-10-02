@@ -193,7 +193,51 @@ public final class VisualCheck {
             });
             case 330 -> onServer(mc, player -> spiritLog("respawned", player));
             case 335 -> shot(mc, "10_respawned");
-            case 345 -> mc.stop();
+            case 338 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                mc.player.setYRot(0);
+                mc.player.setXRot(20);
+            }
+            case 340 -> onServer(mc, player -> {
+                player.setGameMode(GameType.CREATIVE);
+                player.setYRot(0);
+                // Three husks in a row ahead: Gale, Flame + Gale, Thunder + Gale.
+                com.tensurafragments.card.SpellCard[][] hands = {
+                        {com.tensurafragments.card.SpellCard.GALE},
+                        {com.tensurafragments.card.SpellCard.FLAME, com.tensurafragments.card.SpellCard.GALE},
+                        {com.tensurafragments.card.SpellCard.THUNDER, com.tensurafragments.card.SpellCard.GALE}};
+                for (int i = 0; i < hands.length; i++) {
+                    Husk husk = EntityType.HUSK.create(player.serverLevel());
+                    husk.moveTo(player.getX() + (i - 1) * 9, player.getY(), player.getZ() + 14, 180, 0);
+                    husk.setNoAi(true);
+                    player.serverLevel().addFreshEntity(husk);
+                    com.tensurafragments.card.CardEntity first = null;
+                    for (var spell : hands[i]) {
+                        var card = com.tensurafragments.card.CardEntity.createSpell(player, spell);
+                        player.serverLevel().addFreshEntity(card);
+                        card.attachTo(husk);
+                        first = first == null ? card : first;
+                    }
+                    first.detonate();
+                }
+            });
+            case 356 -> shot(mc, "11_tornadoes");
+            case 370 -> onServer(mc, player -> {
+                Husk husk = EntityType.HUSK.create(player.serverLevel());
+                husk.moveTo(player.getX(), player.getY(), player.getZ() + 12, 180, 0);
+                husk.setNoAi(true);
+                player.serverLevel().addFreshEntity(husk);
+                var quake = com.tensurafragments.card.CardEntity.createSpell(player, com.tensurafragments.card.SpellCard.QUAKE);
+                var meteor = com.tensurafragments.card.CardEntity.createSpell(player, com.tensurafragments.card.SpellCard.METEOR);
+                player.serverLevel().addFreshEntity(quake);
+                player.serverLevel().addFreshEntity(meteor);
+                quake.attachTo(husk);
+                meteor.attachTo(husk);
+                quake.detonate();
+            });
+            case 397 -> shot(mc, "12_meteor");
+            case 413 -> shot(mc, "13_cataclysm");
+            case 430 -> mc.stop();
             default -> {
             }
         }

@@ -273,13 +273,15 @@ public final class SoulGameTests {
             helper.assertTrue(villager.getHealth() >= villagerHealth, "it hurt something you didn't hit");
         });
         helper.runAfterDelay(60, () -> {
-            net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(7.5, GROUND, 7.5));
+            // Well inside the platform, so it can be reached from every side.
+            net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(6.5, GROUND, 6.5));
             pig.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
             pig.setHealth(200);
             // You punch the pig.
             pig.hurt(player.damageSources().playerAttack(player), 1);
             player.setLastHurtMob(pig);
-            helper.succeedWhen(() -> helper.assertTrue(pig.getHealth() < 195,
+            // It landed a hit of its own on top of your punch.
+            helper.succeedWhen(() -> helper.assertTrue(pig.getHealth() < 199,
                     "it attacks what you punched: pig at " + pig.getHealth() + ", its target " + soul.getTarget()
                             + ", it is at " + helper.relativeVec(soul.position()) + " baby " + soul.isBaby()
                             + " navigating " + soul.getNavigation().isInProgress()

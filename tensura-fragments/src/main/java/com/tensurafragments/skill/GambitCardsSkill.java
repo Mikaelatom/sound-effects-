@@ -2,6 +2,7 @@ package com.tensurafragments.skill;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.card.SpellCards;
 import io.github.manasmods.manascore.skill.api.ManasSkillInstance;
 import io.github.manasmods.tensura.ability.skill.Skill;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +23,8 @@ public class GambitCardsSkill extends Skill {
     public static final int MODE_THROW = 0;
     public static final int MODE_TELEPORT = 1;
     public static final int MODE_DETONATE = 2;
+    public static final int MODE_INSCRIBE = 3;
+    private static final int MODES = 4;
 
     public GambitCardsSkill() {
         super(SkillType.UNIQUE);
@@ -35,7 +38,7 @@ public class GambitCardsSkill extends Skill {
 
     @Override
     public int getModes(ManasSkillInstance instance) {
-        return 3;
+        return MODES;
     }
 
     @Override
@@ -44,13 +47,14 @@ public class GambitCardsSkill extends Skill {
             case MODE_THROW -> "gambit_cards.throw";
             case MODE_TELEPORT -> "gambit_cards.teleport";
             case MODE_DETONATE -> "gambit_cards.detonate";
+            case MODE_INSCRIBE -> "gambit_cards.inscribe";
             default -> super.getModeId(instance, mode);
         };
     }
 
     @Override
     public int nextMode(LivingEntity entity, ManasSkillInstance instance, int mode, boolean reverse) {
-        return Math.floorMod(mode + (reverse ? -1 : 1), 3);
+        return Math.floorMod(mode + (reverse ? -1 : 1), MODES);
     }
 
     /** Tensura spends this when the key is pressed, so it is 0 whenever the action would do nothing. */
@@ -75,6 +79,16 @@ public class GambitCardsSkill extends Skill {
             case MODE_THROW -> GambitCards.throwCard(player);
             case MODE_TELEPORT -> GambitCards.teleport(player);
             case MODE_DETONATE -> GambitCards.detonate(player, player.isShiftKeyDown());
+            case MODE_INSCRIBE -> {
+                // Sneak to choose the spell; otherwise inscribe it (paid in magicules there).
+                if (player.isShiftKeyDown()) {
+                    SpellCards.cycle(player);
+                    return;
+                }
+                if (!SpellCards.inscribe(player)) {
+                    return;
+                }
+            }
             default -> {
                 return;
             }

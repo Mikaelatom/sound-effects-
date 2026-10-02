@@ -2,10 +2,15 @@ package com.tensurafragments;
 
 import com.mojang.serialization.Codec;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.tensurafragments.card.CardEntity;
+import com.tensurafragments.card.CardTornadoEntity;
+import com.tensurafragments.card.SpellCard;
+import com.tensurafragments.card.SpellCardItem;
 import com.tensurafragments.flame.DraconicHellfireEffect;
 import com.tensurafragments.flame.HellCircleEntity;
 import com.tensurafragments.flame.HellStormEntity;
@@ -112,6 +117,11 @@ public final class ModRegistries {
             () -> EntityType.Builder.<WispEntity>of(WispEntity::new, MobCategory.MISC)
                     .sized(0.35F, 0.35F).clientTrackingRange(8).updateInterval(1).noSave().fireImmune().build("spirit_wisp"));
 
+    /** Spell Card tornadoes (Gale, Fire Tornado, Thunderstorm). */
+    public static final DeferredHolder<EntityType<?>, EntityType<CardTornadoEntity>> CARD_TORNADO = ENTITY_TYPES.register(
+            "card_tornado", () -> EntityType.Builder.<CardTornadoEntity>of(CardTornadoEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 3.0F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("card_tornado"));
+
     public static final DeferredHolder<EntityType<?>, EntityType<FireWhirlEntity>> FIRE_WHIRL = ENTITY_TYPES.register("fire_whirl",
             () -> EntityType.Builder.<FireWhirlEntity>of(FireWhirlEntity::new, MobCategory.MISC)
                     .sized(2.0F, 3.0F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("fire_whirl"));
@@ -126,6 +136,9 @@ public final class ModRegistries {
     /** Magisteel Spirit Lantern: carried, it draws spirits in and makes more gather. */
     public static final DeferredItem<SpiritLanternItem> SPIRIT_LANTERN = ITEMS.registerItem("spirit_lantern",
             SpiritLanternItem::new, new Item.Properties().stacksTo(1));
+
+    /** Gambit Cards' Spell Cards, one item per spell. */
+    public static final Map<SpellCard, DeferredItem<SpellCardItem>> SPELL_CARD_ITEMS = spellCards();
 
     /** Draconic Hellfire: Hell Storm's burn that never goes out. */
     public static final DeferredHolder<MobEffect, DraconicHellfireEffect> DRACONIC_HELLFIRE =
@@ -216,11 +229,24 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<SpiritRelease.State>> SPIRIT_RELEASE = ATTACHMENTS.register(
             "spirit_release", () -> AttachmentType.<SpiritRelease.State>builder(() -> null).serialize(SpiritRelease.State.CODEC).build());
 
+    /** Which spell Gambit Cards inscribes (index into SpellCard). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SELECTED_SPELL_CARD = ATTACHMENTS.register(
+            "selected_spell_card", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
 
     private ModRegistries() {
+    }
+
+    private static Map<SpellCard, DeferredItem<SpellCardItem>> spellCards() {
+        Map<SpellCard, DeferredItem<SpellCardItem>> items = new EnumMap<>(SpellCard.class);
+        for (SpellCard spell : SpellCard.values()) {
+            items.put(spell, ITEMS.registerItem(spell.id() + "_card",
+                    properties -> new SpellCardItem(spell, properties), new Item.Properties().rarity(Rarity.UNCOMMON)));
+        }
+        return Collections.unmodifiableMap(items);
     }
 
     private static DeferredHolder<EntityType<?>, EntityType<PaperBeastEntity>> paperBeast(String name, float width, float height) {
@@ -244,6 +270,7 @@ public final class ModRegistries {
             if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
                 event.accept(SPIRIT_BELL.get());
                 event.accept(BOOK_OF_PASSAGE.get());
+                SPELL_CARD_ITEMS.values().forEach(item -> event.accept(item.get()));
                 event.accept(SPIRIT_LANTERN.get());
             }
         });

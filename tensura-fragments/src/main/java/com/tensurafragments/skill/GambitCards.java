@@ -3,6 +3,7 @@ package com.tensurafragments.skill;
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.card.CardEntity;
+import com.tensurafragments.card.SpellCards;
 import com.tensurafragments.network.SyncDeckPayload;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
 import io.github.manasmods.tensura.ability.SkillHelper;
@@ -47,7 +48,7 @@ public final class GambitCards {
             return;
         }
 
-        List<CardEntity> active = getCards(player);
+        List<CardEntity> active = new ArrayList<>(getCards(player).stream().filter(card -> !card.isSpellCard()).toList());
         int overflow = active.size() - Config.MAX_ACTIVE_CARDS.get() + 1;
         for (int i = 0; i < overflow; i++) {
             active.get(i).fizzle(); // oldest first
@@ -142,7 +143,8 @@ public final class GambitCards {
 
     public static void sync(ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, new SyncDeckPayload(getDeck(player), Config.DECK_SIZE.get(),
-                Config.DECK_REGEN_TICKS.get(), player.getData(ModRegistries.DECK_REGEN)));
+                Config.DECK_REGEN_TICKS.get(), player.getData(ModRegistries.DECK_REGEN),
+                SpellCards.selected(player).ordinal()));
     }
 
     /** The player's live cards in their current dimension, oldest first. */
@@ -203,7 +205,7 @@ public final class GambitCards {
         return pos;
     }
 
-    private static Vec3 clampSpeed(Vec3 velocity) {
+    public static Vec3 clampSpeed(Vec3 velocity) {
         double max = Config.MAX_CARRIED_SPEED.get();
         double length = velocity.length();
         if (!Double.isFinite(length)) {

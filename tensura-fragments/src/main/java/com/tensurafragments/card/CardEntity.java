@@ -23,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A thrown card. It flies until it hits something, then sticks to the block or entity.
@@ -38,6 +39,9 @@ public class CardEntity extends Projectile {
     private static final EntityDataAccessor<Integer> LIFETIME =
             SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FULL_CHARGE =
+            SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.INT);
+    /** The spell of a Spell Card ({@link SpellCard} index), or -1 for a plain Gambit card. */
+    private static final EntityDataAccessor<Integer> SPELL =
             SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.INT);
 
     private Vec3 stuckOffset = Vec3.ZERO;
@@ -58,6 +62,40 @@ public class CardEntity extends Projectile {
         return card;
     }
 
+    /** A thrown Spell Card: it doesn't charge, lasts a minute, and casts its spell when it goes off. */
+    public static CardEntity createSpell(ServerPlayer owner, SpellCard spell) {
+        CardEntity card = create(owner);
+        card.entityData.set(SPELL, spell.ordinal());
+        card.entityData.set(LIFETIME, 60 * 20);
+        card.entityData.set(FULL_CHARGE, 1);
+        return card;
+    }
+
+    @Nullable
+    public SpellCard getSpell() {
+        return SpellCard.byIndex(entityData.get(SPELL));
+    }
+
+    public boolean isSpellCard() {
+        return getSpell() != null;
+    }
+
+    /** What it's stuck to, if it's stuck to something living. */
+    @Nullable
+    public Entity getStuckEntity() {
+        return isStuckToEntity() ? level().getEntity(entityData.get(STUCK_ENTITY)) : null;
+    }
+
+    public boolean hasExploded() {
+        return exploded;
+    }
+
+    /** Taken into a spell chain: it goes, without a blast of its own. */
+    void spend() {
+        exploded = true;
+        discard();
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STUCK, false);
@@ -65,6 +103,7 @@ public class CardEntity extends Projectile {
         builder.define(STUCK_ENTITY, -1);
         builder.define(LIFETIME, 400);
         builder.define(FULL_CHARGE, 100);
+        builder.define(SPELL, -1);
     }
 
     public boolean isStuck() {
@@ -109,6 +148,17 @@ public class CardEntity extends Projectile {
         }
 
         if (level().isClientSide) {
+            SpellCard spell = getSpell();
+            if (spell != null) {
+                // Spell Cards trail and shimmer in their spell's colour.
+                if (!isStuck() || random.nextInt(4) == 0) {
+                    level().addParticle(new net.minecraft.core.particles.DustParticleOptions(
+                            new org.joml.Vector3f(((spell.colour() >> 16) & 0xFF) / 255F,
+                            ((spell.colour() >> 8) & 0xFF) / 255F, (spell.colour() & 0xFF) / 255F), 0.8F),
+                            getX(), getY(), getZ(), 0, 0.02, 0);
+                }
+                return;
+            }
             if (!isStuck()) {
                 level().addParticle(ParticleTypes.ENCHANT, getX(), getY(), getZ(), 0, 0, 0);
             } else if (isFullyCharged() && random.nextInt(6) == 0) {
@@ -196,6 +246,14 @@ public class CardEntity extends Projectile {
                 0.8F, 0.9F + random.nextFloat() * 0.2F);
     }
 
+    /** Sticks the card straight onto a creature (as if it had hit it). */
+    public void attachTo(Entity target) {
+        stuckOffset = new Vec3(0, target.getBbHeight() * 0.6, 0);
+        setPos(target.position().add(stuckOffset));
+        entityData.set(STUCK_ENTITY, target.getId());
+        stick(Direction.UP);
+    }
+
     /** Arms the card so it detonates after {@code ticks} ticks. Used for chain reactions. */
     public void prime(int ticks) {
         if (!exploded && (fuse < 0 || ticks < fuse)) {
@@ -205,6 +263,11 @@ public class CardEntity extends Projectile {
 
     public void detonate() {
         if (exploded || !(level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        if (isSpellCard()) {
+            // Spell Cards cast their spell, chaining with any others on the same target.
+            SpellCards.detonate(this);
             return;
         }
         exploded = true;
@@ -229,6 +292,7 @@ public class CardEntity extends Projectile {
         tag.putInt("Face", getFace().get3DDataValue());
         tag.putInt("Lifetime", getLifetime());
         tag.putInt("FullCharge", entityData.get(FULL_CHARGE));
+        tag.putInt("Spell", entityData.get(SPELL));
     }
 
     @Override
@@ -241,6 +305,9 @@ public class CardEntity extends Projectile {
         }
         if (tag.contains("FullCharge")) {
             entityData.set(FULL_CHARGE, tag.getInt("FullCharge"));
+        }
+        if (tag.contains("Spell")) {
+            entityData.set(SPELL, tag.getInt("Spell"));
         }
     }
 

@@ -36,10 +36,10 @@ public final class CardGameTests {
 
     @GameTest(template = "platform")
     public static void blastHurtsNearbyButNotFar(GameTestHelper helper) {
-        ServerPlayer owner = player(helper, 0.5, 0.5);
-        Pig near = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(4.5, TestPlayers.GROUND, 4.5));
-        Pig far = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(4.5, TestPlayers.GROUND, 8.5)); // 4 blocks away: outside the blast
-        card(helper, owner, 4.5, 4.0).detonate();
+        ServerPlayer owner = player(helper, 0.5, 8.5);
+        Pig near = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(4.5, TestPlayers.GROUND, 2.5));
+        Pig far = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(4.5, TestPlayers.GROUND, 8.5)); // 6.5 blocks away: outside the blast
+        card(helper, owner, 4.5, 2.0).detonate();
 
         helper.assertTrue(near.getHealth() < near.getMaxHealth(), "pig next to the card should be hurt");
         helper.assertTrue(far.getHealth() == far.getMaxHealth(), "pig outside the blast radius should be untouched");

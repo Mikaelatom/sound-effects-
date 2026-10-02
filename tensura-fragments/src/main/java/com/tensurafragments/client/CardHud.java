@@ -9,6 +9,7 @@ import java.util.List;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -49,6 +50,13 @@ public final class CardHud {
                 }
             }
         }
+
+        // The spell Inscribe makes, left of the deck.
+        var spell = ClientDeckState.spellCard();
+        Component inscribe = Component.translatable("tensurafragments.spell_card.hud",
+                Component.translatable("item.tensurafragments." + spell.id() + "_card"),
+                com.tensurafragments.card.SpellCards.cost(spell));
+        graphics.drawString(mc.font, inscribe, x0 - mc.font.width(inscribe) - 6, y0 + 1, 0xFF000000 | spell.colour(), true);
 
         List<CardEntity> cards = new ArrayList<>();
         for (Entity entity : mc.level.entitiesForRendering()) {
