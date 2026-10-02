@@ -354,8 +354,9 @@ Spirit Control (every spirit hurting its target and vanishing, the turn order, t
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures
 with brain-driven AI staying loyal) and the Spirit race (the races and the Spirit Realm loading, Possession and the
-book, the clock and fading, a body stopping the clock, the whole evolution line with the hero/demon lord split, and Spirit Release: needing a
-body, the boost, half health at the end, losing the body at 100%, ending early and the cooldown).
+book, the clock and fading, a body stopping the clock, the whole evolution line with the hero/demon lord split,
+and Spirit Release: needing a body, the boost, half health at the end, losing the body at 100%, ending early and
+the cooldown).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
 casts Energy Magic spells, summons souls with Soul Reaper, becomes a Lesser Spirit in the Spirit Realm and reads the
