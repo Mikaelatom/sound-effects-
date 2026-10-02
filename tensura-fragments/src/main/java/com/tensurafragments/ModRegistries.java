@@ -20,6 +20,7 @@ import com.tensurafragments.shikigami.TalismanEntity;
 import com.tensurafragments.soul.CapturedSoul;
 import com.tensurafragments.soul.SoulBond;
 import com.tensurafragments.spirit.SpiritEntity;
+import com.tensurafragments.spiritrace.BookOfPassageItem;
 import com.tensurafragments.yifa.FireWhirlEntity;
 import com.tensurafragments.yifa.SpiritBellItem;
 import com.tensurafragments.yifa.SpiritLanternItem;
@@ -32,6 +33,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -114,6 +116,9 @@ public final class ModRegistries {
                     .sized(2.0F, 3.0F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("fire_whirl"));
 
     /** Magisteel Spirit Bell: ring to make wild spirits come and bind themselves to you. */
+    /** The Book of Passage, carried by every spirit. */
+    public static final DeferredItem<BookOfPassageItem> BOOK_OF_PASSAGE = ITEMS.registerItem("book_of_passage",
+            BookOfPassageItem::new, new Item.Properties().rarity(Rarity.RARE));
     public static final DeferredItem<SpiritBellItem> SPIRIT_BELL = ITEMS.registerItem("spirit_bell", SpiritBellItem::new,
             new Item.Properties().stacksTo(1));
 
@@ -198,6 +203,14 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<SoulBond>> SOUL_BOND = ATTACHMENTS.register(
             "soul_bond", () -> AttachmentType.<SoulBond>builder(() -> null).serialize(SoulBond.CODEC).build());
 
+    /** Spirit race: the element spirit you became, remembered by the Heroic or Demonic Spirit after it. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<String>> SPIRIT_ELEMENT = ATTACHMENTS.register(
+            "spirit_element", () -> AttachmentType.builder(() -> "").serialize(Codec.STRING).copyOnDeath().build());
+
+    /** Spirit race: game time a spirit without a body fades from the material world (0: not counting down). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> SPIRIT_DEADLINE = ATTACHMENTS.register(
+            "spirit_deadline", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG).build());
+
     /** Ticks since the deck last regained a card. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK_REGEN = ATTACHMENTS.register("deck_regen",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
@@ -225,6 +238,7 @@ public final class ModRegistries {
         modEventBus.addListener((BuildCreativeModeTabContentsEvent event) -> {
             if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
                 event.accept(SPIRIT_BELL.get());
+                event.accept(BOOK_OF_PASSAGE.get());
                 event.accept(SPIRIT_LANTERN.get());
             }
         });

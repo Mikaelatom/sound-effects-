@@ -275,6 +275,32 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
 
 All the numbers are in the `[souls]` section of the server config.
 
+## Race: Spirit
+
+A new race, picked from Tensura's race selection menu (as **Lesser Spirit**), built on Tensura's own spiritual-form
+and Possession systems, and modelled on its Lesser Daemon.
+
+- **Born in the Spirit Realm**, a new dimension of moss-covered calcite islands floating in a pale sky. You spawn and
+  respawn there, in spiritual form, carrying the **Book of Passage** (it never drops; you get it back on respawn).
+- **Read the book** to cross into the overworld (or, early, back home). From then on a clock runs above your hotbar:
+  **5 minutes** to take a body with Tensura's **Possession** skill (every spirit has it: possess a weakened creature
+  within 5 blocks). Take one and the clock stops: you can stay. Run out and your spirit fades: you die and wake up in
+  the Spirit Realm. Any spirit out in the material world without a body is on the clock, however it got there.
+- **Race ability:** float (fly) while in spiritual form.
+- Spirits learn magic as they grow, the same spells as Tensura's daemons at each stage.
+
+| Stage | Race | How | Brings |
+|---|---|---|---|
+| 1 | Lesser Spirit | Race menu | Possession, Magic Resistance |
+| 2 | Greater Spirit | 20,000 EP | Stronger stats |
+| 3 | Flame, Water, Wind, Earth, Light, Darkness or Space Spirit (your choice) | 140,000 EP | That element's Transform skill and attack resistance |
+| 4 | Heroic Spirit | Awaken as a True Hero | Holy Attack Nullification, Spiritual Attack Resistance, Divine Ki Release; keeps its element |
+| 4 | Demonic Spirit | Awaken as a True Demon Lord | Darkness Attack Nullification, Spiritual Attack Resistance, Drain; keeps its element |
+
+Until awakening a spirit is Chaos-aligned, so either awakening is open to it. Stats follow Tensura's Daemon line at
+the same stage. `spiritRaceInMenu` and `secondsWithoutBody` (300) are in the `[spiritRace]` section of the server
+config.
+
 ## Tensura's own skills and magic
 
 Tensura's **magic** and its **resistance, intrinsic, common and extra skills** are all kept and learned the normal
@@ -315,10 +341,13 @@ damage, not casting without the levels, every spell casting), paper beasts (fold
 possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
-player souls, absorbing EP, possession taking over and stacking, too-weak souls failing).
+player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures
+with brain-driven AI staying loyal) and the Spirit race (the races and the Spirit Realm loading, Possession and the
+book, the clock and fading, a body stopping the clock, and the whole evolution line with the hero/demon lord split).
 
 `./gradlew runClient -PvisualCheck` opens a world called `visualtest` (copy any world into `run/client/saves/`),
-casts Energy Magic spells and summons souls with Soul Reaper, saves screenshots to `run/client/screenshots/`, and quits.
+casts Energy Magic spells, summons souls with Soul Reaper, becomes a Lesser Spirit in the Spirit Realm and reads the
+Book of Passage, saves screenshots to `run/client/screenshots/`, and quits.
 
 Tensura: Reincarnated, ManasCore, Architectury, GeckoLib, SmartBrainLib and TerraBlender (runtime only) are pulled from CurseForge via
 CurseMaven (versions in `build.gradle`). If you update Tensura, bump the file id in `tensuraDep`.

@@ -117,7 +117,29 @@ public final class VisualCheck {
             case 160 -> shot(mc, "4_souls");
             case 162 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
             case 168 -> shot(mc, "5_souls_behind");
-            case 200 -> mc.stop();
+            case 175 -> onServer(mc, player -> {
+                player.setGameMode(GameType.SURVIVAL);
+                player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.REGENERATION, 2000, 4));
+                io.github.manasmods.manascore.race.api.RaceAPI.getRaceFrom(player)
+                        .setRace(com.tensurafragments.spiritrace.SpiritRaces.LESSER.get(), true);
+                TensuraStorages.getExistenceFrom(player).setSpiritualForm(true);
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("SPIRIT levels {} now in {}",
+                        player.server.levelKeys(), player.level().dimension());
+            });
+            case 190 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                mc.player.setXRot(30);
+            }
+            case 216 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
+            case 215 -> shot(mc, "6_spirit_realm");
+            case 220 -> onServer(mc, player -> {
+                com.tensurafragments.spiritrace.SpiritPassage.use(player);
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("SPIRIT crossed to {} deadline {}",
+                        player.level().dimension(), com.tensurafragments.spiritrace.SpiritPassage.deadline(player));
+            });
+            case 260 -> shot(mc, "7_material_world");
+            case 280 -> mc.stop();
             default -> {
             }
         }

@@ -360,6 +360,17 @@ public final class Config {
             .defineInRange("possessSpeedBonus", 0.1, 0.0, 10.0);
 
     static {
+        BUILDER.pop().comment("Spirit race: born in the Spirit Realm, must take a body to stay in the material world").push("spiritRace");
+    }
+
+    public static final ModConfigSpec.BooleanValue SPIRIT_RACE_IN_MENU = BUILDER
+            .comment("Add Lesser Spirit to Tensura's race selection menu.")
+            .define("spiritRaceInMenu", true);
+    public static final ModConfigSpec.IntValue SPIRIT_MATERIAL_SECONDS = BUILDER
+            .comment("How long a spirit without a body can stay in the material world before it fades and dies.")
+            .defineInRange("secondsWithoutBody", 300, 10, 86400);
+
+    static {
         BUILDER.pop();
     }
 

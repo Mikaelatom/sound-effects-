@@ -9,7 +9,7 @@ public final class ModNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("13");
+        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("14");
         registrar.playToClient(SyncDeckPayload.TYPE, SyncDeckPayload.STREAM_CODEC, SyncDeckPayload::handle);
         registrar.playToClient(EnergyEntityPayload.TYPE, EnergyEntityPayload.STREAM_CODEC, EnergyEntityPayload::handle);
         registrar.playToClient(RainbowEntityPayload.TYPE, RainbowEntityPayload.STREAM_CODEC, RainbowEntityPayload::handle);
@@ -18,6 +18,8 @@ public final class ModNetwork {
         registrar.playToClient(PossessPayload.TYPE, PossessPayload.STREAM_CODEC, PossessPayload::handle);
         registrar.playToClient(SoulEntityPayload.TYPE, SoulEntityPayload.STREAM_CODEC, SoulEntityPayload::handle);
         registrar.playToClient(SyncSoulsPayload.TYPE, SyncSoulsPayload.STREAM_CODEC, SyncSoulsPayload::handle);
+        registrar.playToClient(SyncSpiritPassagePayload.TYPE, SyncSpiritPassagePayload.STREAM_CODEC,
+                SyncSpiritPassagePayload::handle);
         registrar.playToServer(BeastInputPayload.TYPE, BeastInputPayload.STREAM_CODEC, BeastInputPayload::handle);
     }
 }
