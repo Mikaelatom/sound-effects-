@@ -145,18 +145,23 @@ public final class SoulGameTests {
         helper.succeed();
     }
 
+    /** Absorbing: half the soul's EP, at most a quarter of your own, then a cooldown. */
     @GameTest(template = "platform")
-    public static void absorbingTakesAllItsEp(GameTestHelper helper) {
+    public static void absorbingIsStrongButCapped(GameTestHelper helper) {
         ServerPlayer player = reaper(helper, 4.5, 4.5);
-        CapturedSoul soul = new CapturedSoul("minecraft:husk", "Husk", 5000);
-        giveSouls(player, soul);
-        setSoulPoints(player, 10_000);
-        double before = EnergyHelper.getMaxEP(player);
+        double own = EnergyHelper.getMaxEP(player);
+        CapturedSoul weak = new CapturedSoul("minecraft:husk", "Husk", own * 0.2);
+        CapturedSoul huge = new CapturedSoul("minecraft:husk", "Husk", own * 100);
+        helper.assertTrue(Math.abs(SoulReaper.absorbGain(player, weak) - own * 0.1) < 1, "a weak soul gives half its EP: own " + own + " gain " + SoulReaper.absorbGain(player, weak));
+        helper.assertTrue(Math.abs(SoulReaper.absorbGain(player, huge) - own * 0.25) < 1, "a huge soul gives a quarter of yours");
+        giveSouls(player, huge, weak);
+        setSoulPoints(player, 10_000_000);
         helper.assertTrue(SoulReaper.absorb(player), "absorbed");
-        helper.assertTrue(SoulReaper.soulPoints(player) == 10_000 - SoulReaper.soulValue(soul), "the count went down");
         double after = EnergyHelper.getMaxEP(player);
-        helper.assertTrue(after - before >= 4999, "gained its EP: " + before + " -> " + after);
-        helper.assertTrue(SoulReaper.souls(player).isEmpty(), "the soul is used up");
+        helper.assertTrue(Math.abs(after - own * 1.25) < own * 0.01, "+25%: " + own + " -> " + after);
+        helper.assertTrue(SoulReaper.souls(player).size() == 1, "the soul is used up");
+        helper.assertFalse(SoulReaper.absorb(player), "digesting: cooldown");
+        helper.assertTrue(SoulReaper.souls(player).size() == 1, "the next soul is kept for later");
         helper.succeed();
     }
 
@@ -180,7 +185,8 @@ public final class SoulGameTests {
         SoulBond bond = SoulBond.get(husk);
         helper.assertTrue(bond != null && bond.owner().equals(player.getUUID()) && bond.stacks() == 1, "it's yours");
         helper.assertTrue(husk.getMaxHealth() >= baseHealth * 1.49, "stronger: " + husk.getMaxHealth());
-        helper.assertTrue(EnergyHelper.getMaxEP(husk) > huskEp, "took on the soul's EP");
+        helper.assertTrue(Math.abs(EnergyHelper.getMaxEP(husk) - (huskEp + huskEp + 100)) < 1,
+                "took on exactly the soul's EP: " + huskEp + " -> " + EnergyHelper.getMaxEP(husk));
         // Once it's yours, any soul makes it stronger still.
         player.setData(ModRegistries.SELECTED_SOUL, 1);
         helper.assertTrue(SoulReaper.possess(player), "possessed again");
@@ -256,9 +262,15 @@ public final class SoulGameTests {
     static void fightsForYou(GameTestHelper helper, ServerPlayer player, Mob soul) {
         float health = player.getHealth();
         // A while with you standing right there: it must never go for you.
+        // A villager right there, which zombies hunt: it must leave it alone, since you haven't hit it.
+        net.minecraft.world.entity.npc.Villager villager = helper.spawnWithNoFreeWill(EntityType.VILLAGER,
+                helper.relativeVec(soul.position()).add(1.5, 0, 0));
+        float villagerHealth = villager.getHealth();
         helper.onEachTick(() -> {
             helper.assertFalse(brainTargets(soul, player), "it targeted you");
             helper.assertTrue(player.getHealth() >= health, "it hurt you");
+            helper.assertFalse(brainTargets(soul, villager), "it went for something you didn't hit");
+            helper.assertTrue(villager.getHealth() >= villagerHealth, "it hurt something you didn't hit");
         });
         helper.runAfterDelay(60, () -> {
             net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new Vec3(7.5, GROUND, 7.5));

@@ -91,14 +91,14 @@ public final class SoulEvents {
         }
     }
 
-    /** A soul never turns on its reaper or the reaper's other creatures. */
+    /** A soul only ever sets its sights on what its reaper hit. */
     @SubscribeEvent
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         SoulBond bond = SoulBond.get(event.getEntity());
         LivingEntity target = event.getNewAboutToBeSetTarget();
         if (bond != null && target != null && event.getEntity().level() instanceof ServerLevel level
-                && level.getPlayerByUUID(bond.owner()) instanceof ServerPlayer owner && Allies.isFriendly(target, owner)) {
-            // Cancelled rather than set to nothing, so it keeps going after whatever it was already fighting.
+                && level.getPlayerByUUID(bond.owner()) instanceof ServerPlayer owner && !Allies.mayTarget(target, owner)) {
+            // Only what its owner hit; cancelled (not set to nothing) so it keeps after that.
             event.setCanceled(true);
         }
     }

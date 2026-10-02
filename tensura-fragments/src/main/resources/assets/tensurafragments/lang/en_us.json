@@ -220,5 +220,6 @@
   "tensurafragments.spirit_release.started": "Spirit Release %s%%: your spirit's power floods the body for %s minutes",
   "tensurafragments.spirit_release.ended": "The release ends, and the body pays for it",
   "tensurafragments.spirit_release.torn_free": "Your full power tears your spirit free of its body",
-  "tensurafragments.spirit_release.hud": "Spirit Release %s%% · %s:%s"
+  "tensurafragments.spirit_release.hud": "Spirit Release %s%% · %s:%s",
+  "tensurafragments.soul.digesting": "You're still digesting the last soul (%s s)"
 }

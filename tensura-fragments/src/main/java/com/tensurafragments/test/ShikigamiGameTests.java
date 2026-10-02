@@ -64,6 +64,24 @@ public final class ShikigamiGameTests {
         return all.get(all.size() - 1);
     }
 
+    /** A shikigami ignores a monster you haven't hit, and goes for it once you do. */
+    @GameTest(template = "platform", timeoutTicks = 120)
+    public static void shikigamiOnlyAttackWhatYouHit(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 1.5, 2);
+        ShikigamiEntity shikigami = summonFrom(helper, player, new BlockPos(4, GROUND, 4), Blocks.STONE);
+        net.minecraft.world.entity.monster.Husk husk = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.HUSK,
+                new Vec3(4.5, GROUND, 7.5));
+        helper.onEachTick(() -> {
+            if (husk.getHealth() == husk.getMaxHealth()) {
+                helper.assertTrue(shikigami.getTarget() == null, "went for a monster you didn't hit");
+            }
+        });
+        helper.runAfterDelay(40, () -> {
+            husk.hurt(player.damageSources().playerAttack(player), 1);
+            helper.succeedWhen(() -> helper.assertTrue(shikigami.getTarget() == husk, "goes for what you hit"));
+        });
+    }
+
     @GameTest(template = "platform")
     public static void summonTurnsBlockIntoShikigami(GameTestHelper helper) {
         ServerPlayer player = caster(helper, 4.5, 1.5, 3);

@@ -9,6 +9,7 @@ import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.network.SoulEntityPayload;
 import com.tensurafragments.network.SyncSoulsPayload;
 import com.tensurafragments.skill.ModSkills;
+import io.github.manasmods.manascore.skill.api.ManasSkillInstance;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
 import io.github.manasmods.tensura.ability.SkillHelper;
 import io.github.manasmods.tensura.data.TensuraEntityTags;
@@ -303,16 +304,37 @@ public final class SoulReaper {
 
     // ---- Absorb ----
 
+    /** Soul Reaper's Soul Absorb mode (for its cooldown). */
+    public static final int ABSORB_MODE = 2;
+
+    /**
+     * EP absorbing this soul gives: half its EP, but never more than a quarter of your own max EP, so a strong soul is
+     * a big step up without multiplying you.
+     */
+    public static double absorbGain(Player player, CapturedSoul soul) {
+        double cap = EnergyHelper.getMaxEP(player) * Config.SOUL_ABSORB_CAP.get();
+        return Math.max(0, Math.min(soul.ep() * Config.SOUL_ABSORB_RATE.get(), cap));
+    }
+
     public static boolean absorb(ServerPlayer player) {
-        CapturedSoul soul = takeSelected(player);
+        ManasSkillInstance instance = SkillAPI.getSkillsFrom(player).getSkill(ModSkills.SOUL_REAPER.get()).orElse(null);
+        if (instance != null && instance.getCoolDown(ABSORB_MODE) > 0) {
+            fail(player, Component.translatable("tensurafragments.soul.digesting", instance.getCoolDown(ABSORB_MODE)));
+            return false;
+        }
+        CapturedSoul soul = selected(player);
         if (soul == null) {
             player.displayClientMessage(Component.translatable("tensurafragments.soul.none"), true);
             return false;
         }
+        double gain = absorbGain(player, soul);
+        takeSelected(player);
         spend(player, soul);
-        double gain = soul.ep() * Config.SOUL_ABSORB_RATE.get();
         if (gain > 0) {
-            EnergyHelper.increaseMaxEP(player, gain);
+            addEP(player, gain);
+        }
+        if (instance != null) {
+            instance.setCoolDown(Config.SOUL_ABSORB_COOLDOWN_SECONDS.get(), ABSORB_MODE);
         }
         player.displayClientMessage(Component.translatable("tensurafragments.soul.absorbed", soul.name(), epText(gain))
                 .withColor(SOUL_COLOUR), true);
@@ -370,7 +392,7 @@ public final class SoulReaper {
         target.setData(ModRegistries.SOUL_BOND, possessed);
         applyPossession(target, possessed.stacks());
         if (soul.ep() > 0) {
-            EnergyHelper.increaseMaxEP(target, soul.ep());
+            addEP(target, soul.ep());
         }
         target.setHealth(target.getMaxHealth());
         target.setPersistenceRequired();
@@ -393,6 +415,11 @@ public final class SoulReaper {
                 possessed.stacks()).withColor(SOUL_COLOUR), true);
         sync(player);
         return true;
+    }
+
+    /** Adds exactly {@code ep} EP (Tensura's increaseMaxEP adds its amount to max aura and max magicules each). */
+    private static void addEP(LivingEntity entity, double ep) {
+        EnergyHelper.increaseMaxEP(entity, ep / 2);
     }
 
     /** Every possessing soul adds to the creature's health, damage and speed. */

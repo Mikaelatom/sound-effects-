@@ -49,6 +49,24 @@ public final class BeastGameTests {
         return beasts.get(beasts.size() - 1);
     }
 
+    /** A paper hound ignores a monster you haven't hit, and goes for it once you do. */
+    @GameTest(template = "platform", timeoutTicks = 120)
+    public static void beastsOnlyAttackWhatYouHit(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 1.5, 3);
+        PaperBeastEntity hound = fold(helper, player, BeastKind.HOUND);
+        Husk husk = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.HUSK,
+                new net.minecraft.world.phys.Vec3(4.5, TestPlayers.GROUND, 7.5));
+        helper.onEachTick(() -> {
+            if (husk.getHealth() == husk.getMaxHealth()) {
+                helper.assertTrue(hound.getTarget() == null, "went for a monster you didn't hit");
+            }
+        });
+        helper.runAfterDelay(40, () -> {
+            husk.hurt(player.damageSources().playerAttack(player), 1);
+            helper.succeedWhen(() -> helper.assertTrue(hound.getTarget() == husk, "goes for what you hit"));
+        });
+    }
+
     private static Husk dummy(GameTestHelper helper, double x, double z) {
         Husk husk = helper.spawnWithNoFreeWill(EntityType.HUSK, new Vec3(x, GROUND, z));
         husk.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);

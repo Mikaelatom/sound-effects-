@@ -341,8 +341,14 @@ public final class Config {
             .comment("Most summoned souls you can have out at once.")
             .defineInRange("maxSummons", 3, 1, 32);
     public static final ModConfigSpec.DoubleValue SOUL_ABSORB_RATE = BUILDER
-            .comment("Share of a soul's EP you gain by absorbing it (1.0 = all of it).")
-            .defineInRange("absorbRate", 1.0, 0.0, 100.0);
+            .comment("Share of a soul's EP you gain by absorbing it (1.0 = all of it). (Replaces the old absorbRate.)")
+            .defineInRange("absorbEpShare", 0.5, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue SOUL_ABSORB_CAP = BUILDER
+            .comment("Most EP one absorbed soul can give, as a share of your own max EP (0.25 = a quarter of it).")
+            .defineInRange("absorbCap", 0.25, 0.0, 100.0);
+    public static final ModConfigSpec.IntValue SOUL_ABSORB_COOLDOWN_SECONDS = BUILDER
+            .comment("Cooldown between absorbing souls.")
+            .defineInRange("absorbCooldownSeconds", 30, 0, 86400);
     public static final ModConfigSpec.DoubleValue SOUL_POSSESS_RANGE = BUILDER
             .comment("How far away a creature can be to possess it.")
             .defineInRange("possessRange", 24.0, 2.0, 128.0);

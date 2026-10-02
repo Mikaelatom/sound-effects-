@@ -41,7 +41,7 @@ always used first. Things made from leaves have a green talisman.
 
 | Mode | What it does | Uses |
 |---|---|---|
-| **Shikigami** | Turn the block you're looking at (up to 32 blocks away) into a helper that follows you and fights your enemies. Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
+| **Shikigami** | Turn the block you're looking at (up to 32 blocks away) into a helper that follows you and attacks what you hit (nothing else). Hard blocks make slow, tough, hard-hitting shikigami; soft blocks make quick, fragile ones. When it dies or its 2 minutes run out it turns back into the block (dropped as an item). There's no limit on how many you can have out (server owners can set one with `shikigamiLimit`). **Sneak** to dismiss them all. | 1 paper + 50 magicules + 20 per point of block hardness |
 | **Spell Talisman** | Throw your selected spell talisman. Thrown fast (3 blocks a tick) and nearly flat, so it lands where you aim, up to about 290 blocks away. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at (up to 64 blocks away). **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Paper Beast** | Fold paper into the selected beast, just in front of you. It follows you and fights your enemies on its own until you possess it. It's paper: fire does triple damage, falls do nothing, and it falls apart if you leave. No limit on how many. **Sneak** to switch beast (see below). | The beast's paper + 40 magicules |
@@ -268,10 +268,10 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
 
 | Mode | What it does | Uses |
 |---|---|---|
-| Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and fights whatever you fight for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. When its time is up it passes on. | The soul |
+| Soul Summon | The selected soul comes back as a glowing blue ghost of what it was (a player's soul comes back as a zombie wearing their head) and attacks what you hit for 60 seconds. It never turns on you, doesn't burn in the sun and drops nothing. Up to 3 out at once. When its time is up it passes on. | The soul |
 | Soul Recall | Calls all your summoned souls back to you. Each goes back on your list and its worth back onto your soul count, ready to summon again later. (Souls that possessed a summoned soul are lost with it.) | Nothing |
-| Soul Absorb | You devour the selected soul and **take all its EP** (your max magicules and aura go up). | The soul |
-| Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it fights for you, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | The soul |
+| Soul Absorb | You devour the selected soul and take **half its EP**, at most a quarter of your own max EP per soul (your max magicules and aura go up). 30 second cooldown between absorbs. | The soul |
+| Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it attacks what you hit, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | The soul |
 
 All the numbers are in the `[souls]` section of the server config.
 
@@ -315,6 +315,14 @@ and Possession systems, and modelled on its Lesser Daemon.
 Until awakening a spirit is Chaos-aligned, so either awakening is open to it. Stats follow Tensura's Daemon line at
 the same stage. `spiritRaceInMenu` and `secondsWithoutBody` (300) are in the `[spiritRace]` section of the server
 config.
+
+## Summons only attack what you hit
+
+Every summoned or bound creature (shikigami, paper beasts, Soul Reaper's summoned and possessed creatures, the
+Sealing Grimoire's released creatures) only ever attacks what **you** hit: with your hands, a weapon, a projectile
+or a skill. Not what attacks you, not what attacks it, and not what it would naturally hunt. They keep after it
+until it dies, you hit something else, or 30 seconds pass without you hitting it; otherwise they follow you.
+(Spirit Control's spirits already strike only the target of your attack.)
 
 ## Tensura's own skills and magic
 

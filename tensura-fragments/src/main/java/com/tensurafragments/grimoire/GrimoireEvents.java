@@ -58,15 +58,15 @@ public final class GrimoireEvents {
         Allies.serve(mob, binder);
     }
 
-    /** A released creature never turns on its binder or the binder's other creatures. */
+    /** A released creature only ever sets its sights on what its binder hit. */
     @SubscribeEvent
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         Binding binding = Binding.get(event.getEntity());
         LivingEntity target = event.getNewAboutToBeSetTarget();
         if (binding != null && target != null && event.getEntity().level() instanceof ServerLevel level
                 && level.getPlayerByUUID(binding.binder()) instanceof ServerPlayer binder
-                && Allies.isFriendly(target, binder)) {
-            // Cancelled rather than set to nothing, so it keeps going after whatever it was already fighting.
+                && !Allies.mayTarget(target, binder)) {
+            // Only what its owner hit; cancelled (not set to nothing) so it keeps after that.
             event.setCanceled(true);
         }
     }
