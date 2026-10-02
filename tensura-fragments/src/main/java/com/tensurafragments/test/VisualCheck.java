@@ -179,15 +179,32 @@ public final class VisualCheck {
                 spiritLog("pressed Possession", player);
             });
             case 262 -> onServer(mc, player -> spiritLog("after possessing", player));
+            case 263 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+                mc.player.setXRot(10);
+            }
             case 268 -> shot(mc, "8_possessed");
             case 270 -> onServer(mc, player -> {
-                com.tensurafragments.spiritrace.SpiritRelease.start(player, 100);
-                spiritLog("released 100%", player);
+                com.tensurafragments.spiritrace.SpiritRelease.start(player, 10);
+                spiritLog("released 10%", player);
             });
-            case 272 -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
-            case 285 -> shot(mc, "9_spirit_release");
-            case 287 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
-            case 290 -> onServer(mc, player -> {
+            case 272 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+                mc.player.setXRot(10);
+            }
+            case 281 -> shot(mc, "9a_release_10");
+            case 282 -> onServer(mc, player -> {
+                com.tensurafragments.spiritrace.SpiritRelease.end(player, true);
+                com.tensurafragments.spiritrace.SpiritRelease.start(player, 50);
+            });
+            case 293 -> shot(mc, "9b_release_50");
+            case 296 -> onServer(mc, player -> {
+                com.tensurafragments.spiritrace.SpiritRelease.end(player, true);
+                com.tensurafragments.spiritrace.SpiritRelease.start(player, 100);
+            });
+            case 307 -> shot(mc, "9c_release_100");
+            case 309 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
+            case 312 -> onServer(mc, player -> {
                 player.removeAllEffects();
                 player.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
             });

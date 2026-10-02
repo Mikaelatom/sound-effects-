@@ -14,6 +14,7 @@ import io.github.manasmods.tensura.storage.TensuraStorages;
 import io.github.manasmods.tensura.storage.ep.IExistence;
 import java.util.List;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,11 +22,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 /**
  * Spirit Release: a spirit possessing a body unlocks its own power instead of being held to the body's. 10% and 50%
@@ -87,12 +90,11 @@ public final class SpiritRelease {
         float healthShare = player.getHealth() / player.getMaxHealth();
         player.setData(ModRegistries.SPIRIT_RELEASE, new State(percent, player.level().getGameTime() + durationTicks(percent)));
         applyModifiers(player, percent);
+        ReleaseAuraEntity.spawn(player, percent);
         // The extra health comes filled in.
         player.setHealth(player.getMaxHealth() * healthShare);
         ServerLevel level = player.serverLevel();
-        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY() + 1, player.getZ(),
-                20 + percent / 2, 0.5, 0.9, 0.5, 0.08);
-        level.sendParticles(ParticleTypes.SONIC_BOOM, player.getX(), player.getY() + 1, player.getZ(), 1, 0, 0, 0, 0);
+        burst(level, player, percent);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_POWER_SELECT,
                 SoundSource.PLAYERS, 1.2F, 0.6F + percent / 200F);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 1.5F, 0.7F);
@@ -193,19 +195,28 @@ public final class SpiritRelease {
         aura(player, state.percent());
     }
 
+    /** A burst of dust in the aura's colour: blue, every colour, or purple. */
+    private static void burst(ServerLevel level, ServerPlayer player, int percent) {
+        int count = 24 + percent / 2;
+        for (int i = 0; i < count; i++) {
+            int rgb = percent >= 100 ? 0x9B30FF : percent >= 50 ? Mth.hsvToRgb((float) i / count, 1F, 1F) : 0x2E7BFF;
+            level.sendParticles(new DustParticleOptions(new Vector3f(((rgb >> 16) & 0xFF) / 255F, ((rgb >> 8) & 0xFF) / 255F,
+                            (rgb & 0xFF) / 255F), 1.6F), player.getX(), player.getY() + 1, player.getZ(),
+                    1, 0.7, 0.9, 0.7, 0.05);
+        }
+    }
+
+    /** The Haki aura carries the look; a few motes rise off it, more the more is released. */
     private static void aura(ServerPlayer player, int percent) {
         ServerLevel level = player.serverLevel();
-        int flames = percent >= 100 ? 4 : percent >= 50 ? 2 : 1;
-        for (int i = 0; i < flames; i++) {
-            double angle = (player.tickCount * 0.35 + i * Math.PI * 2 / flames);
-            double radius = 0.7 + percent / 250.0;
-            level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, player.getX() + Math.cos(angle) * radius,
-                    player.getY() + 0.1 + level.random.nextDouble() * player.getBbHeight(),
-                    player.getZ() + Math.sin(angle) * radius, 1, 0, 0.04, 0, 0.01);
-        }
-        if (percent >= 50 && player.tickCount % 3 == 0) {
+        if (player.tickCount % (percent >= 100 ? 2 : percent >= 50 ? 4 : 8) == 0) {
             level.sendParticles(ParticleTypes.END_ROD, player.getX(), player.getY() + player.getBbHeight() / 2, player.getZ(),
-                    1, 0.4, 0.6, 0.4, 0.02);
+                    1, 0.5, 0.7, 0.5, 0.02);
+        }
+        // Keep the aura up (it may have been unloaded with a dimension change).
+        if (player.tickCount % 20 == 0 && player.level().getEntitiesOfClass(ReleaseAuraEntity.class,
+                player.getBoundingBox().inflate(2), aura -> aura.owner() == player).isEmpty()) {
+            ReleaseAuraEntity.spawn(player, percent);
         }
     }
 }

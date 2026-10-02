@@ -29,6 +29,7 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModRegistries.WISP.get(), WispRenderer::new);
         event.registerEntityRenderer(ModRegistries.FIRE_WHIRL.get(), FireWhirlRenderer::new);
         event.registerEntityRenderer(ModRegistries.CARD_TORNADO.get(), CardTornadoRenderer::new);
+        event.registerEntityRenderer(ModRegistries.RELEASE_AURA.get(), ReleaseAuraRenderer::new);
     }
 
     @SubscribeEvent

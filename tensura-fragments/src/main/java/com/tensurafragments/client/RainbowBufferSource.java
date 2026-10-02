@@ -12,27 +12,40 @@ import net.minecraft.util.Mth;
 public final class RainbowBufferSource implements MultiBufferSource {
     private final MultiBufferSource delegate;
     private final float baseHue;
+    private final float saturation;
+    private final float bandScale;
 
     public RainbowBufferSource(MultiBufferSource delegate, float baseHue) {
+        this(delegate, baseHue, 0.75F, 0.35F);
+    }
+
+    /** @param bandScale how fast the hue changes across the model (higher: narrower bands) */
+    public RainbowBufferSource(MultiBufferSource delegate, float baseHue, float saturation, float bandScale) {
         this.delegate = delegate;
         this.baseHue = baseHue;
+        this.saturation = saturation;
+        this.bandScale = bandScale;
     }
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        return new Tinting(delegate.getBuffer(renderType), baseHue);
+        return new Tinting(delegate.getBuffer(renderType), baseHue, saturation, bandScale);
     }
 
     private static final class Tinting implements VertexConsumer {
         private final VertexConsumer delegate;
         private final float baseHue;
+        private final float saturation;
+        private final float bandScale;
         private float lastX;
         private float lastY;
         private float lastZ;
 
-        Tinting(VertexConsumer delegate, float baseHue) {
+        Tinting(VertexConsumer delegate, float baseHue, float saturation, float bandScale) {
             this.delegate = delegate;
             this.baseHue = baseHue;
+            this.saturation = saturation;
+            this.bandScale = bandScale;
         }
 
         @Override
@@ -47,8 +60,8 @@ public final class RainbowBufferSource implements MultiBufferSource {
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
             // Bands of colour across the model, shifting over time. Keep the original brightness.
-            float hue = (baseHue + (lastX + lastY + lastZ) * 0.35F) % 1F;
-            int rgb = Mth.hsvToRgb(hue < 0 ? hue + 1 : hue, 0.75F, 1.0F);
+            float hue = (baseHue + (lastX + lastY + lastZ) * bandScale) % 1F;
+            int rgb = Mth.hsvToRgb(hue < 0 ? hue + 1 : hue, saturation, 1.0F);
             float brightness = Math.max(red, Math.max(green, blue)) / 255F;
             delegate.setColor(Math.round(((rgb >> 16) & 0xFF) * brightness), Math.round(((rgb >> 8) & 0xFF) * brightness),
                     Math.round((rgb & 0xFF) * brightness), alpha);

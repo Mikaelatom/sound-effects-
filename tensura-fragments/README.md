@@ -3,7 +3,8 @@
 An addon for **Tensura: Reincarnated** (Minecraft 1.21.1, NeoForge). It replaces Tensura's Unique and Ultimate
 skills with new ones built out of Tensura's parts (visuals, sounds, effects), and keeps Tensura's magic and other
 skills learnable. Tensura has to be installed; this addon ships
-none of its assets.
+none of its assets except two recoloured copies of the Demon Lord Haki texture (Spirit Release's blue and rainbow
+auras).
 
 Abilities are meant to take practice: momentum, placement, aim, time limits and gauge management.
 
@@ -323,7 +324,9 @@ and Possession systems, and modelled on its Lesser Daemon.
   them from other spiritual forms outside its spirit dimensions).
 - **Race ability (R):** toggle flight, in any form.
 - **Spirit Release** (a skill only spirits have, at every stage): while you're possessing a body, unleash your own
-  spirit's power through it instead of being held to the body's, wrapped in a blue spirit-fire aura. Pick a mode:
+  spirit's power through it instead of being held to the body's, wrapped in Tensura's Demon Lord Haki aura, which
+  grows and changes colour with the mode: **blue** at 10%, a shifting **rainbow** at 50% and Tensura's own **purple**
+  at 100%. Pick a mode:
 
   | Mode | Stats (attack, max health, armor, toughness, speed, attack speed) | Lasts | When it ends |
   |---|---|---|---|

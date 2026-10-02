@@ -26,6 +26,7 @@ import com.tensurafragments.soul.CapturedSoul;
 import com.tensurafragments.soul.SoulBond;
 import com.tensurafragments.spirit.SpiritEntity;
 import com.tensurafragments.spiritrace.BookOfPassageItem;
+import com.tensurafragments.spiritrace.ReleaseAuraEntity;
 import com.tensurafragments.spiritrace.SpiritRelease;
 import com.tensurafragments.yifa.FireWhirlEntity;
 import com.tensurafragments.yifa.SpiritBellItem;
@@ -121,6 +122,11 @@ public final class ModRegistries {
     public static final DeferredHolder<EntityType<?>, EntityType<CardTornadoEntity>> CARD_TORNADO = ENTITY_TYPES.register(
             "card_tornado", () -> EntityType.Builder.<CardTornadoEntity>of(CardTornadoEntity::new, MobCategory.MISC)
                     .sized(2.0F, 3.0F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("card_tornado"));
+
+    /** Spirit Release's Haki aura. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ReleaseAuraEntity>> RELEASE_AURA = ENTITY_TYPES.register(
+            "release_aura", () -> EntityType.Builder.<ReleaseAuraEntity>of(ReleaseAuraEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(1).noSave().fireImmune().build("release_aura"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<FireWhirlEntity>> FIRE_WHIRL = ENTITY_TYPES.register("fire_whirl",
             () -> EntityType.Builder.<FireWhirlEntity>of(FireWhirlEntity::new, MobCategory.MISC)
