@@ -114,6 +114,8 @@ time bar per shikigami, the selected spell talisman and paper beast (with the pa
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 
+**Making paper:** fill a crafting table with planks (any wood, mixed is fine) for **20 paper**.
+
 ## Skill 3: Sealing Grimoire
 
 An empty book that seals creatures and magic with paper talismans, so you can call them back out later. A Unique
