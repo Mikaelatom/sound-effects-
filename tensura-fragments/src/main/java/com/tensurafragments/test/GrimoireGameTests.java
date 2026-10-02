@@ -116,6 +116,21 @@ public final class GrimoireGameTests {
         });
     }
 
+    /** A released Tensura zombie (a brain-driven mob) never goes for you, and attacks what you punch. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void releasedBrainMobFightsForYou(GameTestHelper helper) {
+        ServerPlayer player = sealer(helper, 1.5, 1.5, 1);
+        net.minecraft.world.entity.Mob zombie = SoulGameTests.tensuraZombie(helper, 4.5, 4.5);
+        zombie.setHealth(1.0F);
+        lookAt(player, zombie);
+        helper.assertTrue(SealingGrimoire.sealCreature(player), "sealed");
+        helper.assertTrue(SealingGrimoire.release(player), "released");
+        List<net.minecraft.world.entity.Mob> out = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+                new AABB(player.blockPosition()).inflate(8), m -> Binding.isBoundTo(m, player));
+        helper.assertTrue(out.size() == 1, "one creature out");
+        SoulGameTests.fightsForYou(helper, player, out.get(0));
+    }
+
     @GameTest(template = "platform", timeoutTicks = 60)
     public static void catchesIncomingMagicAndFiresItBack(GameTestHelper helper) {
         ServerPlayer player = sealer(helper, 4.5, 1.5, 1);

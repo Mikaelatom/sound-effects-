@@ -212,7 +212,7 @@ public final class SoulGameTests {
         fightsForYou(helper, player, SoulReaper.summons(player).get(0));
     }
 
-    private static Mob tensuraZombie(GameTestHelper helper, double x, double z) {
+    static Mob tensuraZombie(GameTestHelper helper, double x, double z) {
         EntityType<?> type = EntityType.byString("tensura:zombie").orElseThrow();
         return (Mob) helper.spawn(type, new Vec3(x, GROUND, z));
     }
@@ -253,7 +253,7 @@ public final class SoulGameTests {
         fightsForYou(helper, player, SoulReaper.summons(player).get(0));
     }
 
-    private static void fightsForYou(GameTestHelper helper, ServerPlayer player, Mob soul) {
+    static void fightsForYou(GameTestHelper helper, ServerPlayer player, Mob soul) {
         float health = player.getHealth();
         // A while with you standing right there: it must never go for you.
         helper.onEachTick(() -> {

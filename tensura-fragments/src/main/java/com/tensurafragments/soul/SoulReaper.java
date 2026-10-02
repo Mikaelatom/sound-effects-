@@ -4,6 +4,7 @@ import com.mojang.authlib.properties.PropertyMap;
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.ally.Allies;
 import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.network.SoulEntityPayload;
 import com.tensurafragments.network.SyncSoulsPayload;
@@ -428,10 +429,7 @@ public final class SoulReaper {
 
     /** Never turned on: you, your tamed animals, your souls and your grimoire's creatures. */
     public static boolean isFriendly(@Nullable Entity entity, ServerPlayer player) {
-        return entity != null && (entity == player
-                || (entity instanceof OwnableEntity ownable && player.getUUID().equals(ownable.getOwnerUUID()))
-                || SoulBond.isBoundTo(entity, player)
-                || Binding.isBoundTo(entity, player));
+        return Allies.isFriendly(entity, player);
     }
 
     /** Tells everyone nearby how to draw it. */

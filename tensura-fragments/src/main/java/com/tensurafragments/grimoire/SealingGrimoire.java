@@ -3,6 +3,7 @@ package com.tensurafragments.grimoire;
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.ally.Allies;
 import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.skill.Magicules;
@@ -332,9 +333,7 @@ public final class SealingGrimoire {
     }
 
     static boolean isFriendly(@Nullable Entity entity, ServerPlayer player) {
-        return entity != null && (entity == player
-                || (entity instanceof OwnableEntity ownable && player.getUUID().equals(ownable.getOwnerUUID()))
-                || Binding.isBoundTo(entity, player));
+        return Allies.isFriendly(entity, player);
     }
 
     public static boolean hasSkill(ServerPlayer player) {

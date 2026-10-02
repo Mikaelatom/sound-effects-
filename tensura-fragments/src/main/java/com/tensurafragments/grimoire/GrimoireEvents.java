@@ -1,6 +1,7 @@
 package com.tensurafragments.grimoire;
 
 import com.tensurafragments.TensuraFragments;
+import com.tensurafragments.ally.Allies;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -47,33 +48,14 @@ public final class GrimoireEvents {
             }
             return;
         }
-        if (entity.tickCount % 10 != 0 || !(entity instanceof Mob mob)) {
+        if (!(entity instanceof Mob mob)) {
             return;
         }
         if (entity.tickCount % 20 == 0) {
             level.sendParticles(ParticleTypes.ENCHANT, entity.getX(), entity.getY() + entity.getBbHeight(), entity.getZ(),
                     3, 0.2, 0.1, 0.2, 0.3);
         }
-        // Fight whatever the binder is fighting; otherwise stay close.
-        LivingEntity target = pickTarget(binder, mob);
-        if (target != null) {
-            mob.setTarget(target);
-        } else if (mob.getTarget() != null && SealingGrimoire.isFriendly(mob.getTarget(), binder)) {
-            mob.setTarget(null);
-        }
-        if (mob.getTarget() == null && mob.distanceToSqr(binder) > 10 * 10) {
-            mob.getNavigation().moveTo(binder, 1.2);
-        }
-    }
-
-    private static LivingEntity pickTarget(ServerPlayer binder, Mob mob) {
-        for (LivingEntity candidate : new LivingEntity[] {binder.getLastHurtMob(), binder.getLastHurtByMob()}) {
-            if (candidate != null && candidate.isAlive() && candidate != mob && !SealingGrimoire.isFriendly(candidate, binder)
-                    && candidate.distanceToSqr(mob) < 32 * 32) {
-                return candidate;
-            }
-        }
-        return null;
+        Allies.serve(mob, binder);
     }
 
     /** A released creature never turns on its binder or the binder's other creatures. */
@@ -83,8 +65,9 @@ public final class GrimoireEvents {
         LivingEntity target = event.getNewAboutToBeSetTarget();
         if (binding != null && target != null && event.getEntity().level() instanceof ServerLevel level
                 && level.getPlayerByUUID(binding.binder()) instanceof ServerPlayer binder
-                && SealingGrimoire.isFriendly(target, binder)) {
-            event.setNewAboutToBeSetTarget(null);
+                && Allies.isFriendly(target, binder)) {
+            // Cancelled rather than set to nothing, so it keeps going after whatever it was already fighting.
+            event.setCanceled(true);
         }
     }
 
