@@ -70,7 +70,7 @@ public final class SpiritRelease {
             player.displayClientMessage(Component.translatable("tensurafragments.spirit_release.not_spirit"), true);
             return false;
         }
-        if (SpiritPassage.isSpiritual(player)) {
+        if (SpiritPassage.isSpiritual(player) || SpiritPassage.inSpiritRealm(player)) {
             player.displayClientMessage(Component.translatable("tensurafragments.spirit_release.no_body"), true);
             return false;
         }
@@ -177,7 +177,7 @@ public final class SpiritRelease {
         if (state == null) {
             return;
         }
-        if (SpiritPassage.isSpiritual(player) || !SpiritRaces.isSpirit(player)) {
+        if (SpiritPassage.isSpiritual(player) || !SpiritRaces.isSpirit(player) || SpiritPassage.inSpiritRealm(player)) {
             // The body is already gone (or the spirit is no longer a spirit).
             end(player, true);
             return;

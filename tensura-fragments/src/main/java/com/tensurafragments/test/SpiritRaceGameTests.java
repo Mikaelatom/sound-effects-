@@ -7,12 +7,10 @@ import com.tensurafragments.spiritrace.SpiritPassageTestAccess;
 import com.tensurafragments.spiritrace.SpiritRace;
 import com.tensurafragments.spiritrace.SpiritRaces;
 import com.tensurafragments.spiritrace.SpiritRealm;
-import io.github.manasmods.manascore.config.ConfigRegistry;
 import io.github.manasmods.manascore.race.api.ManasRace;
 import io.github.manasmods.manascore.race.api.ManasRaceInstance;
 import io.github.manasmods.manascore.race.api.RaceAPI;
 import io.github.manasmods.manascore.skill.api.SkillAPI;
-import io.github.manasmods.tensura.config.ReincarnationConfig;
 import io.github.manasmods.tensura.registry.skill.IntrinsicSkills;
 import io.github.manasmods.tensura.storage.TensuraStorages;
 import io.github.manasmods.tensura.storage.ep.IExistence;
@@ -58,9 +56,11 @@ public final class SpiritRaceGameTests {
                 "Spirit Realm biome");
         helper.assertTrue(registries.registryOrThrow(net.minecraft.core.registries.Registries.NOISE_SETTINGS).containsKey(id),
                 "Spirit Realm terrain");
-        SpiritRaces.addToRaceMenu();
-        helper.assertTrue(ConfigRegistry.getConfig(ReincarnationConfig.class).Races.startingRaces
-                .contains("tensurafragments:lesser_spirit"), "Lesser Spirit is on the race menu");
+        // The race selection menu's own list (what the screen shows).
+        ServerPlayer player = TestPlayers.spawn(helper, 4.5, 4.5);
+        var menu = new io.github.manasmods.tensura.menu.ReincarnationMenu(0, player.getInventory(), player);
+        helper.assertTrue(menu.getRacePool().contains(SpiritRaces.LESSER.get()), "Lesser Spirit is on the race menu: "
+                + menu.getRacePool().stream().map(ManasRace::getRegistryName).toList());
         helper.succeed();
     }
 
@@ -71,8 +71,8 @@ public final class SpiritRaceGameTests {
         helper.assertTrue(instance(player).getRespawnDimension(player).getFirst() == SpiritRealm.KEY, "respawns in the Spirit Realm");
         helper.assertTrue(SkillAPI.getSkillsFrom(player).getSkill(IntrinsicSkills.POSSESSION.get()).isPresent(), "has Possession");
         helper.assertTrue(player.getInventory().countItem(ModRegistries.BOOK_OF_PASSAGE.get()) == 1, "carries the Book of Passage");
-        helper.assertTrue(instance(player).is(io.github.manasmods.tensura.data.TensuraRaceTags.SPAWN_AS_SPIRITUAL),
-                "spawns as a spirit");
+        helper.assertFalse(instance(player).is(io.github.manasmods.tensura.data.TensuraRaceTags.SPAWN_AS_SPIRITUAL),
+                "not born a bodiless spirit (that's only for the material world)");
         helper.succeed();
     }
 
@@ -218,6 +218,69 @@ public final class SpiritRaceGameTests {
         helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.press(player, release(player), 0), "ended early");
         helper.assertTrue(com.tensurafragments.spiritrace.SpiritRelease.state(player) == null, "no longer released");
         helper.assertTrue(player.getHealth() <= before / 2 + 0.01, "half health, at " + player.getHealth());
+        helper.succeed();
+    }
+
+    /** The book always turns you into a bodiless spirit and starts the clock. */
+    @GameTest(template = "platform")
+    public static void crossingMakesYouASpirit(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        helper.assertFalse(SpiritPassage.isSpiritual(player), "your own form to begin with");
+        SpiritPassage.cross(player);
+        helper.assertTrue(SpiritPassage.isSpiritual(player), "a bodiless spirit");
+        helper.assertTrue(SpiritPassage.deadline(player) == helper.getLevel().getGameTime() + SpiritPassage.limitTicks(),
+                "the clock started");
+        helper.succeed();
+    }
+
+    /** Dying as a spirit: you come back in your own form, with no clock (it used to leave you a spirit). */
+    @GameTest(template = "platform")
+    public static void respawnInYourOwnForm(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        SpiritPassage.cross(player);
+        player.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
+        helper.assertTrue(player.isDeadOrDying(), "died");
+        // However it died, it comes back in its own form.
+        TensuraStorages.getExistenceFrom(player).setSpiritualForm(true);
+        com.tensurafragments.spiritrace.SpiritRaceEvents.onRespawn(
+                new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerRespawnEvent(player, false));
+        helper.assertFalse(SpiritPassage.isSpiritual(player), "respawned in your own form");
+        helper.assertTrue(SpiritPassage.deadline(player) == 0, "no clock");
+        helper.succeed();
+    }
+
+    /** Tensura drains magicules from spiritual forms outside its spirit dimensions; not from spirits. */
+    @GameTest(template = "platform")
+    public static void spiritsDontLoseMagicules(GameTestHelper helper) throws Exception {
+        var regen = io.github.manasmods.tensura.storage.ep.ExistenceStorage.class.getDeclaredMethod("handleMagiculeRegen",
+                IExistence.class, net.minecraft.world.entity.LivingEntity.class, double.class, double.class);
+        regen.setAccessible(true);
+        ServerPlayer spirit = spirit(helper, SpiritRaces.LESSER.get());
+        SpiritPassage.cross(spirit);
+        IExistence spiritExistence = TensuraStorages.getExistenceFrom(spirit);
+        spiritExistence.setMagicule(1000);
+        regen.invoke(null, spiritExistence, spirit, 0.0, 0.0);
+        // (Tensura still trims 5 off anything over your max; the spiritual drain is 115.)
+        helper.assertTrue(spiritExistence.getMagicule() >= 990, "a spirit keeps its magicules: " + spiritExistence.getMagicule());
+        // Control: anything else in spiritual form does lose them.
+        ServerPlayer other = TestPlayers.spawn(helper, 1.5, 1.5);
+        IExistence otherExistence = TensuraStorages.getExistenceFrom(other);
+        otherExistence.setSpiritualForm(true);
+        otherExistence.setMagicule(1000);
+        regen.invoke(null, otherExistence, other, 0.0, 0.0);
+        helper.assertTrue(otherExistence.getMagicule() <= 1000 - 115, "others still drain: " + otherExistence.getMagicule());
+        helper.succeed();
+    }
+
+    /** R (the race ability) toggles flight in your own form too. */
+    @GameTest(template = "platform")
+    public static void flyInAnyForm(GameTestHelper helper) {
+        ServerPlayer player = spirit(helper, SpiritRaces.LESSER.get());
+        helper.assertFalse(SpiritPassage.isSpiritual(player), "own form");
+        instance(player).onActivateAbility(player);
+        helper.assertTrue(player.getAbilities().mayfly, "can fly");
+        instance(player).onActivateAbility(player);
+        helper.assertFalse(player.getAbilities().mayfly, "and land again");
         helper.succeed();
     }
 }

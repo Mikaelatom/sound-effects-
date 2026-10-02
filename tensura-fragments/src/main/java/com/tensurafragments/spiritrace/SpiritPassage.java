@@ -24,10 +24,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * A spirit's time in the material world. The Book of Passage carries a spirit from the Spirit Realm to the overworld;
- * from then on, while it's still in spiritual form outside the Spirit Realm, a clock runs (5 minutes by default). Take
- * a body with Tensura's Possession before it runs out and you can stay; otherwise your spirit fades, you die, and you
- * wake up back in the Spirit Realm.
+ * A spirit's time in the material world. In the Spirit Realm a spirit has its own form. The Book of Passage carries it
+ * to the overworld as a bodiless spirit (Tensura's spiritual form), and a clock starts (5 minutes by default). Take a
+ * body with Tensura's Possession before it runs out and you can stay; otherwise your spirit fades, you die, and you
+ * wake up back in the Spirit Realm in your own form. Any spirit in spiritual form outside the realm is on the clock.
  */
 public final class SpiritPassage {
     /** Your spirit fading away. */
@@ -68,22 +68,43 @@ public final class SpiritPassage {
             effects(player);
             SpawnPointHelper.teleportToAcrossDimensions(player, overworld, ground.getX() + 0.5, ground.getY(),
                     ground.getZ() + 0.5, player.getYRot(), player.getXRot());
-            startClock(player);
+            cross(player);
             effects(player);
-            player.displayClientMessage(Component.translatable("tensurafragments.spirit_race.crossed",
-                    limitTicks() / 20 / 60).withColor(0x9FD8FF), false);
             return true;
         }
-        // Back home, ahead of time.
-        ServerLevel realm = player.server.getLevel(SpiritRealm.KEY);
-        if (realm == null) {
+        // Back home, ahead of time (with or without a body), in your own form.
+        if (player.server.getLevel(SpiritRealm.KEY) == null) {
             return false;
         }
         effects(player);
         SpawnPointHelper.teleportToNewSpawn(player, SpiritRealm.KEY, net.minecraft.world.level.block.Blocks.CALCITE.defaultBlockState());
-        stopClock(player);
+        comeHome(player);
         effects(player);
         return true;
+    }
+
+    /** Out into the material world: always as a bodiless spirit, with the clock running. */
+    public static void cross(ServerPlayer player) {
+        setSpiritual(player, true);
+        startClock(player);
+        player.displayClientMessage(Component.translatable("tensurafragments.spirit_race.crossed",
+                limitTicks() / 20 / 60).withColor(0x9FD8FF), false);
+    }
+
+    /** In the Spirit Realm a spirit has its own form: no spiritual form, no clock. */
+    public static void comeHome(ServerPlayer player) {
+        SpiritRelease.end(player, true);
+        setSpiritual(player, false);
+        player.setData(ModRegistries.SPIRIT_DEADLINE, 0L);
+        sync(player);
+    }
+
+    static void setSpiritual(ServerPlayer player, boolean spiritual) {
+        IExistence existence = TensuraStorages.getExistenceFrom(player);
+        if (existence != null && existence.isSpiritualForm() != spiritual) {
+            existence.setSpiritualForm(spiritual);
+            existence.markDirty();
+        }
     }
 
     private static void effects(ServerPlayer player) {
@@ -101,10 +122,8 @@ public final class SpiritPassage {
     }
 
     static void stopClock(ServerPlayer player) {
-        if (deadline(player) != 0) {
-            player.setData(ModRegistries.SPIRIT_DEADLINE, 0L);
-            sync(player);
-        }
+        player.setData(ModRegistries.SPIRIT_DEADLINE, 0L);
+        sync(player);
     }
 
     static void sync(ServerPlayer player) {
@@ -118,6 +137,13 @@ public final class SpiritPassage {
 
     /** Checked every second for spirits. */
     static void tick(ServerPlayer player) {
+        if (inSpiritRealm(player)) {
+            // Home: your own form, no clock (whatever state you arrived in).
+            if (isSpiritual(player) || deadline(player) != 0) {
+                comeHome(player);
+            }
+            return;
+        }
         boolean exposed = isSpiritual(player) && !inSpiritRealm(player) && !player.isCreative() && !player.isSpectator();
         long deadline = deadline(player);
         if (!exposed) {
@@ -136,6 +162,8 @@ public final class SpiritPassage {
             return;
         }
         long left = deadline - player.level().getGameTime();
+        // Re-sent every second, so the HUD never shows a stale clock.
+        sync(player);
         if (left <= 0) {
             fade(player);
         } else if (left <= 20 * 30 && left % (20 * 10) < 20) {

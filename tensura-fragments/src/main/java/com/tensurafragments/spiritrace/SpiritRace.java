@@ -35,8 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Spirit race line: Lesser Spirit, Greater Spirit, an element spirit of your choice, then Heroic Spirit (awakened
- * as a True Hero) or Demonic Spirit (awakened as a True Demon Lord). Spirits are born in the Spirit Realm in spiritual
- * form, carry Tensura's Possession skill, and have to take a body to stay in the material world (see
+ * as a True Hero) or Demonic Spirit (awakened as a True Demon Lord). Spirits live in the Spirit Realm, carry Tensura's
+ * Possession skill, and cross into the material world as bodiless spirits that have to take a body to stay (see
  * {@link SpiritPassage}).
  */
 public class SpiritRace extends DefaultRace {
@@ -263,15 +263,14 @@ public class SpiritRace extends DefaultRace {
         return SpiritElement.byId(entity.getData(ModRegistries.SPIRIT_ELEMENT));
     }
 
-    // ---- Race ability: drift (fly) while in spiritual form ----
+    // ---- Race ability (R): toggle flight, in any form ----
 
     @Override
     public void onActivateAbility(ManasRaceInstance instance, LivingEntity entity) {
         if (!(entity instanceof Player player) || player.isSpectator() || player.isCreative()) {
             return;
         }
-        IExistence existence = TensuraStorages.getExistenceFrom(player);
-        boolean fly = !player.getAbilities().mayfly && existence != null && existence.isSpiritualForm();
+        boolean fly = !player.getAbilities().mayfly;
         player.getAbilities().mayfly = fly;
         player.getAbilities().flying = fly;
         player.onUpdateAbilities();

@@ -281,12 +281,14 @@ A new race, picked from Tensura's race selection menu (as **Lesser Spirit**), bu
 and Possession systems, and modelled on its Lesser Daemon.
 
 - **Born in the Spirit Realm**, a new dimension of moss-covered calcite islands floating in a pale sky. You spawn and
-  respawn there, in spiritual form, carrying the **Book of Passage** (it never drops; you get it back on respawn).
-- **Read the book** to cross into the overworld (or, early, back home). From then on a clock runs above your hotbar:
-  **5 minutes** to take a body with Tensura's **Possession** skill (every spirit has it: possess a weakened creature
-  within 5 blocks). Take one and the clock stops: you can stay. Run out and your spirit fades: you die and wake up in
-  the Spirit Realm. Any spirit out in the material world without a body is on the clock, however it got there.
-- **Race ability:** float (fly) while in spiritual form.
+  respawn there in your own form, carrying the **Book of Passage** (it never drops; you get it back on respawn).
+- **Read the book** to cross into the overworld as a bodiless spirit (Tensura's spiritual form). A clock runs above
+  your hotbar: **5 minutes** to take a body with Tensura's **Possession** skill (every spirit has it: look at a
+  weakened creature within 5 blocks; you take on that body's health and stats). Take one and the clock stops: you
+  can stay. Run out and your spirit fades: you die and wake up in the Spirit Realm, in your own form again. Reading
+  the book in the overworld takes you home early. Spirits don't lose magicules in spiritual form (Tensura drains
+  them from other spiritual forms outside its spirit dimensions).
+- **Race ability (R):** toggle flight, in any form.
 - **Spirit Release** (a skill only spirits have, at every stage): while you're possessing a body, unleash your own
   spirit's power through it instead of being held to the body's, wrapped in a blue spirit-fire aura. Pick a mode:
 
@@ -295,6 +297,8 @@ and Possession systems, and modelled on its Lesser Daemon.
   | 10% | +10% | 5 minutes | the body loses half its health |
   | 50% | +50% | 5 minutes | the body loses half its health |
   | 100% | doubled | 2 minutes | your spirit tears free of the body (back to spiritual form, and the clock starts again) |
+
+  It needs a body you possessed out in the material world (not in the Spirit Realm).
 
   Press it again to end it early, at the same cost. It needs a minute to recover afterwards. Durations and the
   cooldown are in `[spiritRace]` (`releaseSeconds`, `fullReleaseSeconds`, `releaseCooldownSeconds`).

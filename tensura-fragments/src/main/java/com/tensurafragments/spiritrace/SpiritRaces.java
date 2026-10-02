@@ -3,15 +3,11 @@ package com.tensurafragments.spiritrace;
 import com.tensurafragments.Config;
 import com.tensurafragments.TensuraFragments;
 import dev.architectury.registry.registries.RegistrySupplier;
-import io.github.manasmods.manascore.config.ConfigRegistry;
 import io.github.manasmods.manascore.race.api.ManasRaceInstance;
 import io.github.manasmods.manascore.race.api.RaceAPI;
 import io.github.manasmods.manascore.race.impl.RaceRegistry;
-import io.github.manasmods.tensura.config.ReincarnationConfig;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.LivingEntity;
@@ -59,18 +55,12 @@ public final class SpiritRaces {
         return raceOf(entity) != null;
     }
 
-    /** Puts Lesser Spirit on Tensura's race selection menu (Tensura keeps that list in its own config). */
-    public static void addToRaceMenu() {
-        if (!Config.SPIRIT_RACE_IN_MENU.get()) {
-            return;
-        }
-        ReincarnationConfig config = ConfigRegistry.getConfig(ReincarnationConfig.class);
-        String id = LESSER.getId().toString();
-        if (config != null && config.Races != null && config.Races.startingRaces != null
-                && !config.Races.startingRaces.contains(id)) {
-            List<String> races = new ArrayList<>(config.Races.startingRaces);
-            races.add(id);
-            config.Races.startingRaces = races;
+    /** Whether Lesser Spirit goes on Tensura's race selection menu (see ReincarnationMenuMixin). */
+    public static boolean inRaceMenu() {
+        try {
+            return Config.SPIRIT_RACE_IN_MENU.get();
+        } catch (IllegalStateException notLoadedYet) {
+            return true;
         }
     }
 }
