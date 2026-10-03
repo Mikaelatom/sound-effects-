@@ -2,6 +2,7 @@ package com.tensurafragments.soul;
 
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.ally.Allies;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.network.SoulEntityPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -75,7 +76,8 @@ public final class SoulEvents {
         if (bond.summoned()) {
             // Ghosts don't burn in the sun.
             mob.clearFire();
-            if (owner == null || !owner.isAlive() || level.getGameTime() >= bond.until()) {
+            // A named soul stays for good (it waits while you're away).
+            if (!Companions.isNamed(mob) && (owner == null || !owner.isAlive() || level.getGameTime() >= bond.until())) {
                 level.sendParticles(ParticleTypes.SOUL, mob.getX(), mob.getY() + mob.getBbHeight() / 2, mob.getZ(), 20,
                         0.3, 0.5, 0.3, 0.05);
                 level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.SOUL_ESCAPE, SoundSource.NEUTRAL, 1F, 1.2F);
@@ -86,7 +88,7 @@ public final class SoulEvents {
                 return;
             }
         }
-        if (owner != null) {
+        if (owner != null && owner.level() == level) {
             Allies.serve(mob, owner);
         }
     }

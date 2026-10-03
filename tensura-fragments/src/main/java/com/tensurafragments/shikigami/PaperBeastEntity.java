@@ -1,6 +1,7 @@
 package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.ally.OwnersTargetGoal;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -159,6 +160,17 @@ public class PaperBeastEntity extends TamableAnimal implements GeoEntity {
         if (controlled) {
             setTarget(null);
             getNavigation().stop();
+        }
+    }
+
+    /**
+     * Mobs turn their movement and looking goals back on every 5 ticks; while possessed they stay off, or following its
+     * owner would teleport it back to your body whenever it got 12 blocks away.
+     */
+    @Override
+    protected void updateControlFlags() {
+        if (!isControlled()) {
+            super.updateControlFlags();
         }
     }
 
@@ -350,7 +362,7 @@ public class PaperBeastEntity extends TamableAnimal implements GeoEntity {
             entityData.set(GLIDE, glide);
         }
         LivingEntity owner = getOwner();
-        if (owner == null || !owner.isAlive() || owner.level() != level()) {
+        if (!Companions.isNamed(this) && (owner == null || !owner.isAlive() || owner.level() != level())) {
             unfold();
         }
     }

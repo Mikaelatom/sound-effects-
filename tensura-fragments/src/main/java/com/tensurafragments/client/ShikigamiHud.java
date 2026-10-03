@@ -4,7 +4,6 @@ import com.tensurafragments.shikigami.BarrierAnchorEntity;
 import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.Paper;
 import com.tensurafragments.shikigami.Spell;
-import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.skill.EquippedSkills;
 import com.tensurafragments.skill.ModSkills;
 import net.minecraft.client.DeltaTracker;
@@ -18,7 +17,7 @@ import net.minecraft.world.item.Items;
 /**
  * Bottom-left HUD for Shikigami Control, shown while it's on the active skill preset: paper count (or leaves once
  * the paper runs out), the Substitution doll (glowing while automatic dodging is on,
- * with a bar while on cooldown), one timer bar per shikigami, and barrier anchors placed.
+ * with a bar while on cooldown) and barrier anchors placed.
  */
 public final class ShikigamiHud {
     private static final ItemStack PAPER = new ItemStack(Items.PAPER);
@@ -68,24 +67,15 @@ public final class ShikigamiHud {
 
         int anchors = 0;
         boolean barrierUp = false;
-        int row = 0;
         for (Entity entity : mc.level.entitiesForRendering()) {
-            if (entity instanceof ShikigamiEntity shikigami && mc.player.getUUID().equals(shikigami.getOwnerUUID())) {
-                float left = shikigami.getTicksLeft() / (float) Math.max(1, shikigami.getLifetime());
-                float health = shikigami.getHealth() / shikigami.getMaxHealth();
-                int by = y - 8 - row * 6;
-                graphics.fill(x, by, x + 40, by + 2, 0x60000000);
-                graphics.fill(x, by, x + Math.round(40 * health), by + 2, 0xFF7CE07C);
-                graphics.fill(x, by + 2, x + Math.round(40 * left), by + 3, 0xFFE8D8A0);
-                row++;
-            } else if (entity instanceof BarrierAnchorEntity anchor && anchor.isOwnedBy(mc.player)) {
+            if (entity instanceof BarrierAnchorEntity anchor && anchor.isOwnedBy(mc.player)) {
                 anchors++;
                 barrierUp |= anchor.isActive();
             }
         }
         if (anchors > 0) {
             String text = (barrierUp ? "◆ " : "◇ ") + anchors;
-            graphics.drawString(mc.font, text, x + 44, y - 8 - row * 6 - 4, barrierUp ? 0xFFFFE08A : 0xFFCCCCCC, true);
+            graphics.drawString(mc.font, text, x, y - 12, barrierUp ? 0xFFFFE08A : 0xFFCCCCCC, true);
         }
     }
 }

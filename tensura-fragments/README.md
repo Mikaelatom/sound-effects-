@@ -77,7 +77,7 @@ always used first. Things made from leaves have a green talisman.
 | **Spell Talisman** | Throw your selected spell talisman. Thrown fast (3 blocks a tick) and nearly flat, so it lands where you aim, up to about 290 blocks away. It goes off the moment it touches the ground or a creature. **Sneak** to switch spell. See the spell table below. | 1 paper + the spell's magicules |
 | **Barrier** | Plant a talisman anchor on the block you're looking at (up to 64 blocks away). **Sneak** to raise the barrier once you have 3 or more (placing the 6th raises it automatically), or to dispel it. While up it's a solid wall: mobs can't walk through it (anything inside when it goes up is pushed out, and hostile mobs caught inside burn), and projectiles that aren't yours are destroyed, even fast ones. You, your shikigami, your pets and other players can pass (`barrierBlocksAllMobs`, `barrierBlocksPlayers` to change). Lasts 30 seconds. | 1 paper + 15 magicules per anchor, then 8 magicules/second |
 | **Paper Beast** | Fold paper into the selected beast, just in front of you. It follows you and fights your enemies on its own until you possess it. It's paper: fire does triple damage, falls do nothing, and it falls apart if you leave. No limit on how many. **Sneak** to switch beast (see below). | The beast's paper + 40 magicules |
-| **Possess** | See through a paper beast's eyes and control it: the one you're looking at, or your nearest. Your movement keys and mouse steer it, attack is its attack, and your body stands still (and helpless) where you left it. Press again to come back. Taking damage, going over 128 blocks away, or running out of magicules snaps you back. **Sneak** (when not possessing) to unfold all your beasts. | 2 magicules/second |
+| **Possess** | See through a paper beast's eyes and control it: the one you're looking at, or your nearest. Your movement keys and mouse steer it, attack is its attack, and your body stands still (and helpless) where you left it. Press again to come back. There's no range: go as far as you like, and the world loads around the beast while your body waits where you left it. Taking damage or running out of magicules snaps you back. **Sneak** (when not possessing) to unfold all your beasts. | 2 magicules/second |
 | **Substitution** | Automatic: while it's on and you have paper, every attack that hits you is taken by a paper doll instead. You take no damage, lose 1 paper and blink 3 blocks away from the attacker. Only real attacks count (mobs, players, projectiles, blasts), so burning, drowning and falling don't eat your paper. Use the mode to turn it **on/off** to save paper (on by default). | 1 paper per hit blocked |
 
 **Paper beasts** are drawn with Tensura's own creature models and animations, folded from paper:
@@ -110,8 +110,7 @@ shikigami, your pets and your released grimoire creatures. Leaves make every spe
 Costs scale with `spellCostMultiplier`.
 
 The HUD (bottom left, only while Shikigami Control is on your active skill preset) shows your paper (or leaves once
-the paper is gone), the Substitution doll (glows while it's on), a health and
-time bar per shikigami, the selected spell talisman and paper beast (with the paper it takes), and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
+the paper is gone), the Substitution doll (glows while it's on), the selected spell talisman and paper beast (with the paper it takes), and your barrier anchors (◇ placed, ◆ barrier up). All numbers are in the `[shikigami]` section of the server config.
 
 Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds and its shockwave particle.
 
@@ -352,6 +351,19 @@ Until awakening a spirit is Chaos-aligned, so either awakening is open to it. St
 the same stage. `spiritRaceInMenu` and `secondsWithoutBody` (300) are in the `[spiritRace]` section of the server
 config.
 
+## Named companions
+
+Use a **name tag** on anything you summoned: a shikigami, a paper beast, a Soul Reaper soul (summoned or a creature
+your souls possessed), or a creature released from your Sealing Grimoire. Only the summoner can name it. Once named,
+it's yours for good:
+
+- no time limit (it doesn't pass on, go back into the book, or turn back into its block or paper);
+- recalling, dismissing (sneak) and summon limits leave it alone and don't count it;
+- it stays with you: it catches up when it falls more than 24 blocks behind (unless it's in a fight), follows you to
+  other dimensions and back after you die, and leaves with you when you log off, coming back when you log in.
+
+Only being killed ends it.
+
 ## Summons only attack what you hit
 
 Every summoned or bound creature (shikigami, paper beasts, Soul Reaper's summoned and possessed creatures, the
@@ -397,7 +409,9 @@ grimoire (making it from a book, sealing only weakened creatures, released creat
 and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura spells, all ten Flame Emperor fire
 spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), Energy Magic (paying in levels, twice the
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
-possession steering the hound and owl, attacking what the beast faces, snapping back when hurt, fire tearing paper),
+possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
+back when hurt, fire tearing paper), named companions (naming only your own summons, no timer, ignoring recall and
+dismissal, catching up, leaving and coming back with you),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures

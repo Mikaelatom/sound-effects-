@@ -177,10 +177,6 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue POSSESSION_MAGICULES_PER_SECOND = BUILDER
             .comment("Magicules per second while you see through and control a paper beast.")
             .defineInRange("possessionMagiculesPerSecond", 2.0, 0.0, 1.0E6);
-    public static final ModConfigSpec.DoubleValue POSSESSION_RANGE = BUILDER
-            .comment("How far a possessed beast can go from your body before the link snaps back. Beasts farther away than",
-                    "your server's view and simulation distance stop being visible or moving, so keep it within those.")
-            .defineInRange("possessionRangeBlocks", 128.0, 8.0, 512.0);
 
     static {
         BUILDER.pop().comment("Sealing Grimoire: seal creatures and magic in a book with paper, then release them").push("grimoire");

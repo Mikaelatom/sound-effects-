@@ -155,6 +155,40 @@ public final class BeastGameTests {
         helper.succeed();
     }
 
+    /**
+     * No range: the world is loaded and sent around the possessed hound instead of your body (so it can go anywhere),
+     * and back around your body when you return. The long-distance run itself is in the client visual check, since
+     * the test server doesn't load chunks for test players.
+     */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void possessionHasNoRange(GameTestHelper helper) {
+        ServerPlayer player = caster(helper, 4.5, 0.5, 5);
+        PaperBeastEntity hound = fold(helper, player, BeastKind.HOUND);
+        PaperBeasts.possess(player, hound);
+        // Through whatever's out there (other tests' structures) without suffocating.
+        hound.setInvulnerable(true);
+        double startX = hound.getX();
+        helper.onEachTick(() -> {
+            // Test players don't tick on their own (and would pay the upkeep every call, so keep them topped up).
+            TestPlayers.giveMagicules(player, 100_000);
+            PaperBeasts.tick(player);
+            int next = net.minecraft.core.SectionPos.blockToSectionCoord(hound.getX() + 2);
+            if (hound.getX() - startX < 40 && player.serverLevel().hasChunk(next, hound.chunkPosition().z)) {
+                hound.teleportTo(hound.getX() + 2, hound.getY(), hound.getZ());
+            }
+        });
+        helper.succeedWhen(() -> {
+            helper.assertTrue(PaperBeasts.possessed(player) == hound, "still seeing through the hound");
+            helper.assertTrue(!hound.chunkPosition().equals(player.chunkPosition()),
+                    "ran off, " + (hound.getX() - startX));
+            helper.assertTrue(player.getChunkTrackingView() instanceof net.minecraft.server.level.ChunkTrackingView.Positioned view
+                    && view.center().equals(hound.chunkPosition()), "the world is sent around the hound");
+            PaperBeasts.release(player);
+            helper.assertTrue(player.getChunkTrackingView() instanceof net.minecraft.server.level.ChunkTrackingView.Positioned view
+                    && view.center().equals(player.chunkPosition()), "back around your body");
+        });
+    }
+
     @GameTest(template = "platform", timeoutTicks = 60)
     public static void hurtBodySnapsYouBack(GameTestHelper helper) {
         ServerPlayer player = caster(helper, 4.5, 1.5, 5);

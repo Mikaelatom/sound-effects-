@@ -168,6 +168,7 @@
   "tensurafragments.soul.cant_summon": "The soul of %s can't take form",
   "tensurafragments.soul.summon_name": "☠ %s",
   "tensurafragments.soul.none_out": "You have no summoned souls out",
+  "tensurafragments.companion.named": "%s will stay with you for good",
   "tensurafragments.soul.recalled": "Recalled %s souls",
   "tensurafragments.soul.faded": "%s has passed on",
   "tensurafragments.soul.absorbed": "You devoured the soul of %s: +%s EP",

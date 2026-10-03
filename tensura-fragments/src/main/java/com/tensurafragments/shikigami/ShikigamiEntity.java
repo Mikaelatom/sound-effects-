@@ -2,6 +2,7 @@ package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.ally.OwnersTargetGoal;
 import io.github.manasmods.tensura.registry.sound.TensuraSoundEvents;
 import net.minecraft.core.BlockPos;
@@ -132,6 +133,10 @@ public class ShikigamiEntity extends TamableAnimal {
     public void tick() {
         super.tick();
         if (level().isClientSide) {
+            return;
+        }
+        if (Companions.isNamed(this)) {
+            // Named: no time limit, and it waits for you while you're away.
             return;
         }
         LivingEntity owner = getOwner();

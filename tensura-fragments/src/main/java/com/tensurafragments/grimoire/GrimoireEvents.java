@@ -2,6 +2,7 @@ package com.tensurafragments.grimoire;
 
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.ally.Allies;
+import com.tensurafragments.ally.Companions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +38,8 @@ public final class GrimoireEvents {
         }
         Binding binding = Binding.get(entity);
         ServerPlayer binder = level.getPlayerByUUID(binding.binder()) instanceof ServerPlayer p ? p : null;
-        if (binder == null || !binder.isAlive() || level.getGameTime() >= binding.until()) {
+        boolean named = Companions.isNamed(entity);
+        if (!named && (binder == null || !binder.isAlive() || level.getGameTime() >= binding.until())) {
             // Time's up (or the binder is gone): back into the book, or it fades away if there's no room.
             if (binder == null || !SealingGrimoire.reseal(entity, binder)) {
                 level.sendParticles(ParticleTypes.POOF, entity.getX(), entity.getY() + 0.5, entity.getZ(), 10, 0.3, 0.3, 0.3, 0.02);
@@ -48,7 +50,8 @@ public final class GrimoireEvents {
             }
             return;
         }
-        if (!(entity instanceof Mob mob)) {
+        if (!(entity instanceof Mob mob) || binder == null || binder.level() != level) {
+            // A named one waits for you while you're away.
             return;
         }
         if (entity.tickCount % 20 == 0) {

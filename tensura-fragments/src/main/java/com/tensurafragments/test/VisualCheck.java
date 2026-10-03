@@ -254,8 +254,51 @@ public final class VisualCheck {
             });
             case 397 -> shot(mc, "12_meteor");
             case 413 -> shot(mc, "13_cataclysm");
-            case 430 -> mc.stop();
+            case 416 -> onServer(mc, player -> {
+                io.github.manasmods.tensura.ability.SkillHelper.learnSkill(player,
+                        com.tensurafragments.skill.ModSkills.SHIKIGAMI_CONTROL.get());
+                player.getInventory().add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER, 16));
+                TensuraStorages.getExistenceFrom(player).setMagicule(100_000);
+                player.setData(com.tensurafragments.ModRegistries.SELECTED_BEAST,
+                        com.tensurafragments.shikigami.BeastKind.OWL.ordinal());
+                com.tensurafragments.shikigami.PaperBeasts.fold(player);
+                var beasts = com.tensurafragments.shikigami.PaperBeasts.beasts(player);
+                com.tensurafragments.shikigami.PaperBeasts.possess(player, beasts.get(beasts.size() - 1));
+            });
+            case 640 -> {
+                net.minecraft.world.entity.Entity camera = mc.getCameraEntity();
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT FAR BEAST: camera {} {} blocks from body at {}, chunk loaded {}",
+                        camera.getType(), Math.round(camera.distanceTo(mc.player)), mc.player.position(),
+                        mc.level.getChunkSource().hasChunk(camera.chunkPosition().x, camera.chunkPosition().z));
+                onServer(mc, player -> {
+                    var beast = com.tensurafragments.shikigami.PaperBeasts.possessed(player);
+                    org.slf4j.LoggerFactory.getLogger("visualcheck").warn("SERVER FAR BEAST: possessing {} at {} blocks",
+                            beast, beast == null ? -1 : Math.round(beast.distanceTo(player)));
+                });
+            }
+            case 641 -> shot(mc, "14_beast_far");
+            case 645 -> onServer(mc, com.tensurafragments.shikigami.PaperBeasts::release);
+            case 665 -> {
+                shot(mc, "15_back_in_body");
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT BACK: body at {}, health {}", mc.player.position(),
+                        mc.player.getHealth());
+            }
+            case 670 -> mc.stop();
             default -> {
+                if (ticks > 418 && ticks < 638) {
+                    // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
+                    onServer(mc, player -> {
+                        var beast = com.tensurafragments.shikigami.PaperBeasts.possessed(player);
+                        if (beast != null) {
+                            double before = beast.getX();
+                            beast.teleportTo(beast.getX() + 1.5, 215, beast.getZ());
+                        }
+                        if (ticks % 40 == 0) {
+                            org.slf4j.LoggerFactory.getLogger("visualcheck").warn("FAR BEAST t{}: body {} beast {}", ticks,
+                                    player.position(), beast == null ? null : beast.position());
+                        }
+                    });
+                }
             }
         }
     }

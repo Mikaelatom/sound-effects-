@@ -2,6 +2,7 @@ package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.network.PossessPayload;
 import com.tensurafragments.skill.Magicules;
 import io.github.manasmods.tensura.registry.sound.TensuraSoundEvents;
@@ -16,13 +17,16 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
@@ -39,6 +43,11 @@ import org.jetbrains.annotations.Nullable;
 public final class PaperBeasts {
     /** Which beast each player is seeing through (entity id). */
     private static final Map<UUID, Integer> POSSESSED = new HashMap<>();
+    /** Keeps the area around a possessing player's body loaded while the world is sent around the beast. */
+    private static final TicketType<ChunkPos> BODY = TicketType.create("tensurafragments_body",
+            Comparator.comparingLong(ChunkPos::toLong), 60);
+    /** How far you can look to pick out the beast to possess. */
+    private static final double PICK_RANGE = 256;
 
     private PaperBeasts() {
     }
@@ -100,7 +109,7 @@ public final class PaperBeasts {
 
     public static void dismissAll(ServerPlayer player) {
         release(player);
-        beasts(player).forEach(PaperBeastEntity::unfold);
+        beasts(player).stream().filter(beast -> !Companions.isNamed(beast)).forEach(PaperBeastEntity::unfold);
     }
 
     // ---- Possession ----------------------------------------------------------------------------------------------
@@ -123,7 +132,6 @@ public final class PaperBeasts {
         PaperBeastEntity beast = lookedAtBeast(player);
         if (beast == null) {
             beast = beasts(player).stream()
-                    .filter(b -> b.distanceTo(player) <= Config.POSSESSION_RANGE.get())
                     .min(Comparator.comparingDouble(b -> b.distanceToSqr(player))).orElse(null);
         }
         if (beast == null) {
@@ -140,6 +148,7 @@ public final class PaperBeasts {
         beast.setControlled(true);
         beast.steer(0, 0, false, false, player.getYRot(), player.getXRot());
         PacketDistributor.sendToPlayer(player, new PossessPayload(beast.getId()));
+        refreshView(player);
         player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), TensuraSoundEvents.CAST_LIGHT.get(),
                 SoundSource.PLAYERS, 0.6F, 1.6F);
     }
@@ -154,6 +163,23 @@ public final class PaperBeasts {
             beast.setControlled(false);
         }
         PacketDistributor.sendToPlayer(player, new PossessPayload(-1));
+        refreshView(player);
+    }
+
+    /**
+     * What the world is loaded and sent around for this player: the beast they're seeing through, or themselves.
+     * There's no range limit: wherever the beast goes, the world goes with it.
+     */
+    public static Entity viewpoint(ServerPlayer player) {
+        if (POSSESSED.isEmpty()) {
+            return player;
+        }
+        PaperBeastEntity beast = possessed(player);
+        return beast != null && beast.level() == player.level() ? beast : player;
+    }
+
+    private static void refreshView(ServerPlayer player) {
+        player.serverLevel().getChunkSource().move(player);
     }
 
     /** Clears state for a player leaving, without sending them anything. */
@@ -177,15 +203,20 @@ public final class PaperBeasts {
         }
     }
 
-    /** Keeps the link alive: magicules every second, and it snaps if the beast is lost or too far away. */
+    /** Keeps the link alive: magicules every second, and it snaps if the beast is lost. Distance doesn't matter. */
     public static void tick(ServerPlayer player) {
         if (!POSSESSED.containsKey(player.getUUID())) {
             return;
         }
         PaperBeastEntity beast = possessed(player);
-        if (beast == null || !player.isAlive() || beast.distanceTo(player) > Config.POSSESSION_RANGE.get()) {
+        if (beast == null || !player.isAlive() || beast.level() != player.level()) {
             release(player);
             return;
+        }
+        // The world follows the beast; your body's surroundings stay loaded so it can still be found (and hurt).
+        refreshView(player);
+        if (player.tickCount % 20 == 0) {
+            player.serverLevel().getChunkSource().addRegionTicket(BODY, player.chunkPosition(), 3, player.chunkPosition());
         }
         if (player.tickCount % 20 == 0 && !Magicules.trySpend(player, Config.POSSESSION_MAGICULES_PER_SECOND.get())) {
             player.displayClientMessage(Component.translatable("tensurafragments.shikigami.no_magicules"), true);
@@ -208,7 +239,7 @@ public final class PaperBeasts {
 
     @Nullable
     private static PaperBeastEntity lookedAtBeast(ServerPlayer player) {
-        double range = Config.POSSESSION_RANGE.get();
+        double range = PICK_RANGE;
         Vec3 eye = player.getEyePosition();
         Vec3 end = eye.add(player.getLookAngle().scale(range));
         HitResult block = player.level().clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));

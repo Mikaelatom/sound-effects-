@@ -8,8 +8,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +22,7 @@ import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Seeing through a paper beast: the camera moves into it, your movement keys and mouse steer it, and your attack is
@@ -34,6 +37,9 @@ public final class ClientPossession {
     private static boolean jump;
     private static boolean down;
     private static boolean attack;
+    /** Where your body was left, to hold it there once the world around it is no longer sent to you. */
+    @Nullable
+    private static Vec3 body;
 
     private ClientPossession() {
     }
@@ -48,6 +54,7 @@ public final class ClientPossession {
         beastId = entityId;
         waitingTicks = 0;
         attack = false;
+        body = entityId >= 0 && mc.player != null ? mc.player.position() : null;
         if (entityId < 0) {
             if (mc.player != null) {
                 mc.setCameraEntity(mc.player);
@@ -74,6 +81,14 @@ public final class ClientPossession {
             }
         } else if (mc.getCameraEntity() != beast) {
             mc.setCameraEntity(beast);
+        }
+        if (body != null && !mc.level.getChunkSource().hasChunk(SectionPos.blockToSectionCoord(body.x),
+                SectionPos.blockToSectionCoord(body.z))) {
+            // The beast is far away, so the world is sent around it instead: keep your body from falling through
+            // the missing ground.
+            mc.player.setPos(body.x, body.y, body.z);
+            mc.player.setDeltaMovement(Vec3.ZERO);
+            mc.player.resetFallDistance();
         }
         byte keys = (byte) ((jump ? BeastInputPayload.JUMP : 0) | (down ? BeastInputPayload.DOWN : 0)
                 | (attack ? BeastInputPayload.ATTACK : 0));

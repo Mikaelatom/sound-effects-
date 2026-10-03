@@ -5,6 +5,7 @@ import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.ally.Allies;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.network.SoulEntityPayload;
 import com.tensurafragments.network.SyncSoulsPayload;
@@ -199,7 +200,9 @@ public final class SoulReaper {
     public static List<Mob> summons(ServerPlayer player) {
         return player.serverLevel().getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(128), mob -> {
             SoulBond bond = SoulBond.get(mob);
-            return bond != null && bond.summoned() && bond.owner().equals(player.getUUID()) && mob.isAlive();
+            // Named souls are companions for good: not recalled, not counted.
+            return bond != null && bond.summoned() && bond.owner().equals(player.getUUID()) && mob.isAlive()
+                    && !Companions.isNamed(mob);
         });
     }
 

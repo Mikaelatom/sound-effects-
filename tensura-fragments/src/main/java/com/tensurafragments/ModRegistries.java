@@ -34,6 +34,7 @@ import com.tensurafragments.yifa.SpiritLanternItem;
 import com.tensurafragments.yifa.WispEntity;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -156,6 +157,15 @@ public final class ModRegistries {
     /** Cards left in the deck. -1 means "not initialised yet", which is treated as a full deck. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> DECK = ATTACHMENTS.register("deck",
             () -> AttachmentType.builder(() -> -1).serialize(Codec.INT).build());
+
+    /** Set on a summon its owner named with a name tag: it stays with them for good, until it's killed. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> NAMED_COMPANION = ATTACHMENTS.register(
+            "named_companion", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
+
+    /** A player's named companions, kept with them while they're offline. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<CompoundTag>>> AWAY_COMPANIONS =
+            ATTACHMENTS.register("away_companions", () -> AttachmentType.<List<CompoundTag>>builder(() -> List.of())
+                    .serialize(CompoundTag.CODEC.listOf()).copyOnDeath().build());
 
     /** Set on creatures released from a grimoire. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Binding>> BINDING = ATTACHMENTS.register("binding",

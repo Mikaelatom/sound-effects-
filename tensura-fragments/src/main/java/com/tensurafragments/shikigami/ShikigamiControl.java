@@ -2,6 +2,7 @@ package com.tensurafragments.shikigami;
 
 import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
+import com.tensurafragments.ally.Companions;
 import com.tensurafragments.network.SyncShikigamiPayload;
 import com.tensurafragments.skill.Magicules;
 import com.tensurafragments.skill.ModSkills;
@@ -105,10 +106,10 @@ public final class ShikigamiControl {
         shikigami(player).forEach(ShikigamiEntity::revert);
     }
 
-    /** The player's shikigami in their current dimension, oldest first. */
+    /** The player's shikigami in their current dimension, oldest first. Named ones are companions, not counted. */
     public static List<ShikigamiEntity> shikigami(ServerPlayer player) {
         List<ShikigamiEntity> list = new ArrayList<>(player.serverLevel().getEntities(ModRegistries.SHIKIGAMI.get(),
-                s -> s.isAlive() && player.getUUID().equals(s.getOwnerUUID())));
+                s -> s.isAlive() && player.getUUID().equals(s.getOwnerUUID()) && !Companions.isNamed(s)));
         list.sort(Comparator.comparingInt((ShikigamiEntity s) -> s.tickCount).reversed());
         return list;
     }
