@@ -49,12 +49,16 @@ public final class Allies {
     private Allies() {
     }
 
-    /** Never turned on: the player, their tamed animals, their souls and their grimoire's creatures. */
+    /**
+     * Never turned on: the player, their tamed animals, their souls and their grimoire's creatures, and their allies
+     * (with all of theirs).
+     */
     public static boolean isFriendly(@Nullable Entity entity, ServerPlayer player) {
         return entity != null && (entity == player
                 || (entity instanceof OwnableEntity ownable && player.getUUID().equals(ownable.getOwnerUUID()))
                 || SoulBond.isBoundTo(entity, player)
-                || Binding.isBoundTo(entity, player));
+                || Binding.isBoundTo(entity, player)
+                || Alliances.isAlliedWith(entity, player));
     }
 
     /** You hit something: that's what your creatures go after (for the next 30 seconds, or until you hit another). */

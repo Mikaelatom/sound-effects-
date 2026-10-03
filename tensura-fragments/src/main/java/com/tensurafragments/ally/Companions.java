@@ -77,7 +77,10 @@ public final class Companions {
 
     // ---- Naming ----
 
-    /** A name tag on one of your own summons, whatever it is. Runs before the creature's own handling. */
+    /**
+     * A name tag on one of your own summons, or an ally's, whatever it is. It stays its summoner's. Runs before the
+     * creature's own handling.
+     */
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onInteract(PlayerInteractEvent.EntityInteract event) {
         ItemStack stack = event.getItemStack();
@@ -87,7 +90,7 @@ public final class Companions {
             return;
         }
         UUID owner = ownerOf(target);
-        if (owner == null || !owner.equals(player.getUUID())) {
+        if (owner == null || !(owner.equals(player.getUUID()) || Alliances.areAllies(player.server, owner, player.getUUID()))) {
             return;
         }
         name(target, stack.get(DataComponents.CUSTOM_NAME));

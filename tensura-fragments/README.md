@@ -354,8 +354,8 @@ config.
 ## Named companions
 
 Use a **name tag** on anything you summoned: a shikigami, a paper beast, a Soul Reaper soul (summoned or a creature
-your souls possessed), or a creature released from your Sealing Grimoire. Only the summoner can name it. Once named,
-it's yours for good:
+your souls possessed), or a creature released from your Sealing Grimoire. The summoner or one of their
+[allies](#allies) can name it (it stays the summoner's). Once named, it's theirs for good:
 
 - no time limit (it doesn't pass on, go back into the book, or turn back into its block or paper);
 - recalling, dismissing (sneak) and summon limits leave it alone and don't count it;
@@ -363,6 +363,19 @@ it's yours for good:
   other dimensions and back after you die, and leaves with you when you log off, coming back when you log in.
 
 Only being killed ends it.
+
+## Allies
+
+To become allies with another player, **sneak and right-click them with an empty hand**. They get a message; when
+they sneak and right-click you back (or click **[Accept]** in chat), you're allies. It's saved with the world, so it
+lasts until one of you ends it.
+
+- `/ally <player>`: the same as the right-click (ask, or accept their request)
+- `/ally list`: your allies
+- `/ally remove <name>`: stop being allies
+
+Allies can name each other's summons, and summons never attack an ally or an ally's summons and tamed animals (even
+if you hit them by accident).
 
 ## Summons only attack what you hit
 
@@ -411,7 +424,8 @@ spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), En
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
 back when hurt, fire tearing paper), named companions (naming only your own summons, no timer, ignoring recall and
-dismissal, catching up, leaving and coming back with you),
+dismissal, catching up, leaving and coming back with you), allies (asking each other, allies naming each other's
+summons, summons never going after an ally),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures
