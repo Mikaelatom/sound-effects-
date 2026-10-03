@@ -371,6 +371,19 @@ it's theirs for good:
 
 Only being killed ends it.
 
+**Follow, stay or wander.** Sneak and right-click a named companion with an empty hand to switch what it does
+(you or an ally can):
+
+- **Follow** (the default): it comes with you, as above.
+- **Stay**: it keeps still where it is and stays out of fights, and doesn't come to you, even when you change
+  dimension or log off (it's saved there with the world).
+- **Wander**: it roams around that spot (about 10 blocks), fights what you hit only near there, and otherwise
+  stays there like Stay.
+
+This works for everything named with a name tag or Tensura's Naming. Any creature you name with Tensura's Naming
+(that isn't one of Tensura's own monsters) becomes your named companion this way: it only attacks what you hit and
+never you. Tensura's own monsters keep Tensura's own subordinate commands.
+
 ## Tensura's Naming works on any creature
 
 Tensura only lets you name creatures on its own list (its own monsters and a few animals). Here its Naming works on any
@@ -444,7 +457,8 @@ damage, not casting without the levels, every spell casting), paper beasts (fold
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
 back when hurt, fire tearing paper), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
-dismissal, catching up, leaving and coming back with you), allies (asking each other, allies naming each other's
+dismissal, catching up, leaving and coming back with you, sneak-clicking through follow, stay and wander, staying
+put and staying behind on log-off, wandering near its spot, Tensura-named creatures becoming companions), allies (asking each other, allies naming each other's
 summons, summons never going after an ally), naming never taking from your max EP (with the chance forced to 100%),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,

@@ -6,12 +6,15 @@ import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.shikigami.PaperBeastEntity;
 import com.tensurafragments.shikigami.ShikigamiEntity;
 import com.tensurafragments.soul.SoulBond;
+import io.github.manasmods.tensura.storage.TensuraStorages;
+import io.github.manasmods.tensura.storage.ep.IExistence;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +29,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -37,6 +45,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,11 +74,20 @@ public final class Companions {
             return bond.owner();
         }
         Binding binding = Binding.get(entity);
-        return binding != null ? binding.binder() : null;
+        if (binding != null) {
+            return binding.binder();
+        }
+        // Any other creature named with Tensura's Naming is its namer's.
+        if (isNamed(entity) && entity instanceof LivingEntity living) {
+            IExistence existence = TensuraStorages.getExistenceFrom(living);
+            return existence != null ? existence.getPermanentOwner() : null;
+        }
+        return null;
     }
 
     public static boolean isNamed(Entity entity) {
-        return entity.getData(ModRegistries.NAMED_COMPANION);
+        // hasData first: getData would attach a "not named" to everything it's asked about.
+        return entity.hasData(ModRegistries.NAMED_COMPANION) && entity.getData(ModRegistries.NAMED_COMPANION);
     }
 
     /** Names a summon and makes it a companion for good. */
@@ -193,6 +211,112 @@ public final class Companions {
                 .withStyle(ChatFormatting.GREEN));
     }
 
+    // ---- Follow, stay, wander ----
+
+    public static final int FOLLOW = 0;
+    public static final int STAY = 1;
+    public static final int WANDER = 2;
+    private static final String[] MODE_NAMES = {"follow", "stay", "wander"};
+    /** How far from its spot a wandering companion roams. */
+    private static final int WANDER_RADIUS = 10;
+
+    /** What a companion is doing; anything that isn't a named companion follows its usual ways. */
+    public static int mode(Entity entity) {
+        return isNamed(entity) ? Math.floorMod(entity.getData(ModRegistries.COMPANION_MODE), MODE_NAMES.length) : FOLLOW;
+    }
+
+    /** Where a companion was told to stay or wander. */
+    public static Vec3 home(Entity entity) {
+        long packed = entity.getData(ModRegistries.COMPANION_HOME);
+        return packed == 0L ? entity.position() : Vec3.atBottomCenterOf(BlockPos.of(packed));
+    }
+
+    public static void setMode(Entity entity, int mode) {
+        entity.setData(ModRegistries.COMPANION_MODE, mode);
+        entity.setData(ModRegistries.COMPANION_HOME, entity.blockPosition().asLong());
+        if (entity instanceof Mob mob) {
+            mob.getNavigation().stop();
+            if (mode == STAY) {
+                mob.setTarget(null);
+            }
+        }
+    }
+
+    /**
+     * Sneak and right-click one of your named companions (or an ally's) with an empty hand: follow, stay, wander.
+     * Tensura's own monsters keep Tensura's command for this.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onCommand(PlayerInteractEvent.EntityInteract event) {
+        Entity target = event.getTarget();
+        if (event.getHand() != InteractionHand.MAIN_HAND || !event.getEntity().isShiftKeyDown()
+                || !event.getEntity().getMainHandItem().isEmpty() || !isNamed(target)
+                || !(event.getEntity() instanceof ServerPlayer player) || !mayName(player, target)) {
+            return;
+        }
+        int mode = (mode(target) + 1) % MODE_NAMES.length;
+        setMode(target, mode);
+        player.displayClientMessage(Component.translatable("tensurafragments.companion.mode." + MODE_NAMES[mode],
+                target.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
+        player.level().playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.NOTE_BLOCK_PLING.value(),
+                SoundSource.PLAYERS, 0.6F, 0.8F + mode * 0.3F);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        event.setCanceled(true);
+    }
+
+    /** Staying keeps still (and out of fights); wandering roams around its spot; Tensura-named creatures serve. */
+    @SubscribeEvent
+    public static void onEntityTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level) || !isNamed(mob)
+                || (mob instanceof PaperBeastEntity beast && beast.isControlled())) {
+            return;
+        }
+        int mode = mode(mob);
+        if (mode == STAY) {
+            mob.getNavigation().stop();
+            mob.setTarget(null);
+            Brain<?> brain = mob.getBrain();
+            if (brain.checkMemory(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED)) {
+                brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+            }
+            if (brain.checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.REGISTERED)) {
+                brain.eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            }
+        } else if (mode == WANDER && mob.tickCount % 20 == 0) {
+            wander(mob);
+        }
+        // Summons are already served by their own skill; anything else named by Tensura's Naming is served here.
+        if (SoulBond.get(mob) == null && Binding.get(mob) == null
+                && !(mob instanceof ShikigamiEntity) && !(mob instanceof PaperBeastEntity)) {
+            UUID owner = ownerOf(mob);
+            ServerPlayer player = owner == null ? null : level.getServer().getPlayerList().getPlayer(owner);
+            if (player != null && player.level() == level) {
+                Allies.serve(mob, player);
+            }
+        }
+    }
+
+    private static void wander(Mob mob) {
+        if (mob.getTarget() != null && mob.getTarget().isAlive()) {
+            return;
+        }
+        Vec3 home = home(mob);
+        if (mob.position().distanceTo(home) > WANDER_RADIUS + 6) {
+            mob.getNavigation().moveTo(home.x, home.y, home.z, 1.0);
+            return;
+        }
+        if (!mob.getNavigation().isDone() || mob.getRandom().nextFloat() > 0.35F || !(mob instanceof PathfinderMob walker)) {
+            return;
+        }
+        Vec3 spot = DefaultRandomPos.getPos(walker, 8, 4);
+        if (spot != null && spot.distanceTo(home) > WANDER_RADIUS) {
+            spot = DefaultRandomPos.getPosTowards(walker, 8, 4, home, Math.PI / 2);
+        }
+        if (spot != null) {
+            mob.getNavigation().moveTo(spot.x, spot.y, spot.z, 0.8);
+        }
+    }
+
     // ---- Staying with you ----
 
     @SubscribeEvent
@@ -225,6 +349,9 @@ public final class Companions {
             return;
         }
         for (Entity entity : companions(player)) {
+            if (mode(entity) != FOLLOW) {
+                continue;
+            }
             if (entity.level() != player.level()) {
                 bring(entity, player);
             } else if (!(entity instanceof PaperBeastEntity beast && beast.isControlled())
@@ -313,7 +440,11 @@ public final class Companions {
             return;
         }
         List<CompoundTag> away = new ArrayList<>(player.getData(ModRegistries.AWAY_COMPANIONS));
+        // Followers leave with you; the ones told to stay or wander stay where they are.
         for (Entity entity : companions(player)) {
+            if (mode(entity) != FOLLOW) {
+                continue;
+            }
             away.add(pack(entity));
             entity.discard();
         }

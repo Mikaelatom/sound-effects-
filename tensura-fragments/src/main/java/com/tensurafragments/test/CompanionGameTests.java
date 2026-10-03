@@ -203,6 +203,80 @@ public final class CompanionGameTests {
         helper.succeed();
     }
 
+    /** Sneak and right-click with an empty hand: follow, then stay, then wander, then follow again. */
+    @GameTest(template = "platform")
+    public static void sneakClickCyclesFollowStayWander(GameTestHelper helper) {
+        ServerPlayer owner = player(helper, 4.5, 1.5);
+        PaperBeastEntity hound = hound(helper, owner);
+        Companions.name(hound, Component.literal("Patch"));
+        owner.setShiftKeyDown(true);
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.assertTrue(Companions.mode(hound) == Companions.FOLLOW, "follows at first");
+        owner.interactOn(hound, InteractionHand.MAIN_HAND);
+        helper.assertTrue(Companions.mode(hound) == Companions.STAY, "then stays");
+        owner.interactOn(hound, InteractionHand.MAIN_HAND);
+        helper.assertTrue(Companions.mode(hound) == Companions.WANDER, "then wanders");
+        owner.interactOn(hound, InteractionHand.MAIN_HAND);
+        helper.assertTrue(Companions.mode(hound) == Companions.FOLLOW, "then follows again");
+        helper.succeed();
+    }
+
+    /** One told to stay doesn't come after you, isn't brought along, and stays behind when you log off. */
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void stayingCompanionStaysPut(GameTestHelper helper) {
+        ServerPlayer owner = player(helper, 4.5, 1.5);
+        PaperBeastEntity hound = hound(helper, owner);
+        Companions.name(hound, Component.literal("Patch"));
+        Companions.setMode(hound, Companions.STAY);
+        net.minecraft.world.phys.Vec3 spot = hound.position();
+        owner.teleportTo(owner.getX() + 40, owner.getY(), owner.getZ());
+        Companions.gather(owner);
+        helper.runAfterDelay(20, () -> {
+            helper.assertTrue(hound.position().distanceTo(spot) < 1, "stayed where it was told, moved "
+                    + hound.position().distanceTo(spot));
+            Companions.onLogout(new PlayerEvent.PlayerLoggedOutEvent(owner));
+            helper.assertTrue(hound.isAlive() && !hound.isRemoved(), "and stays behind when you log off");
+            helper.succeed();
+        });
+    }
+
+    /** One told to wander roams around its spot instead of following you. */
+    @GameTest(template = "platform", timeoutTicks = 200)
+    public static void wanderingCompanionRoamsNearItsSpot(GameTestHelper helper) {
+        ServerPlayer owner = player(helper, 4.5, 1.5);
+        PaperBeastEntity hound = hound(helper, owner);
+        Companions.name(hound, Component.literal("Patch"));
+        Companions.setMode(hound, Companions.WANDER);
+        net.minecraft.world.phys.Vec3 home = Companions.home(hound);
+        owner.teleportTo(owner.getX() + 40, owner.getY(), owner.getZ());
+        Companions.gather(owner);
+        helper.runAfterDelay(150, () -> {
+            helper.assertTrue(hound.position().distanceTo(home) < 17, "stayed around its spot, "
+                    + hound.position().distanceTo(home) + " away");
+            helper.assertTrue(hound.distanceTo(owner) > 20, "didn't follow you");
+            helper.succeed();
+        });
+    }
+
+    /** Any creature named with Tensura's Naming becomes yours to command. */
+    @GameTest(template = "platform")
+    public static void tensuraNamedCreatureBecomesCompanion(GameTestHelper helper) {
+        ServerPlayer player = player(helper, 4.5, 1.5);
+        io.github.manasmods.tensura.util.EnergyHelper.increaseMaxEP(player, 1_000_000);
+        TestPlayers.giveMagicules(player, 1_000_000);
+        net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG,
+                new net.minecraft.world.phys.Vec3(4.5, GROUND, 3.5));
+        pig.setHealth(1);
+        RequestNamingMenuPacket.name(pig, player, RequestNamingMenuPacket.NamingType.LOW, "Bacon");
+        helper.assertTrue(Companions.isNamed(pig) && player.getUUID().equals(Companions.ownerOf(pig)),
+                "the pig is a companion of its namer");
+        player.setShiftKeyDown(true);
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        player.interactOn(pig, InteractionHand.MAIN_HAND);
+        helper.assertTrue(Companions.mode(pig) == Companions.STAY, "and can be told to stay");
+        helper.succeed();
+    }
+
     /** Named shikigami have no time limit; named beasts ignore being dismissed. */
     @GameTest(template = "platform", timeoutTicks = 60)
     public static void namedShikigamiAndBeastsDontGo(GameTestHelper helper) {

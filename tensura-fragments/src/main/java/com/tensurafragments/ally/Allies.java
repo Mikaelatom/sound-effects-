@@ -92,15 +92,22 @@ public final class Allies {
         return target == null || target == target(owner);
     }
 
-    /** Call every tick for a creature serving {@code owner}. */
+    /**
+     * Call every tick for a creature serving {@code owner}. A named companion told to stay doesn't fight or move; one
+     * told to wander only fights near its spot and doesn't come to you.
+     */
     public static void serve(Mob mob, ServerPlayer owner) {
         // Every tick, so a brain never gets as far as attacking anything else.
         forgetOtherTargets(mob, owner);
-        if (mob.tickCount % 5 != 0) {
+        int mode = Companions.mode(mob);
+        if (mob.tickCount % 5 != 0 || mode == Companions.STAY) {
             return;
         }
         // Go after what the owner hit; otherwise stay close.
         LivingEntity target = target(owner);
+        if (mode == Companions.WANDER && target != null && target.position().distanceTo(Companions.home(mob)) > 16) {
+            target = null;
+        }
         if (target != null && target != mob && target.distanceToSqr(mob) < 48 * 48) {
             if (mob.getTarget() != target) {
                 mob.setTarget(target);
@@ -110,7 +117,8 @@ public final class Allies {
                 brain.setMemory(MemoryModuleType.ATTACK_TARGET, target);
             }
         }
-        if (mob.getTarget() == null && mob.level() == owner.level() && mob.distanceToSqr(owner) > 10 * 10) {
+        if (mode == Companions.FOLLOW && mob.getTarget() == null && mob.level() == owner.level()
+                && mob.distanceToSqr(owner) > 10 * 10) {
             mob.getNavigation().moveTo(owner, 1.2);
         }
     }

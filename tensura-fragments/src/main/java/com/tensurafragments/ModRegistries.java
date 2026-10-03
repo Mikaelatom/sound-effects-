@@ -162,6 +162,14 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> NAMED_COMPANION = ATTACHMENTS.register(
             "named_companion", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
+    /** What a named companion does: 0 follow, 1 stay, 2 wander (see {@code Companions}). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> COMPANION_MODE = ATTACHMENTS.register(
+            "companion_mode", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+
+    /** Where a named companion was told to stay or wander (a packed block position). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> COMPANION_HOME = ATTACHMENTS.register(
+            "companion_home", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG).build());
+
     /** A player's named companions, kept with them while they're offline. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<CompoundTag>>> AWAY_COMPANIONS =
             ATTACHMENTS.register("away_companions", () -> AttachmentType.<List<CompoundTag>>builder(() -> List.of())
