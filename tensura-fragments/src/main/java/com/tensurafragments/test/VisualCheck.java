@@ -205,10 +205,16 @@ public final class VisualCheck {
             case 307 -> shot(mc, "9c_release_100");
             case 309 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
             case 312 -> onServer(mc, player -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("EP before death: {}",
+                        io.github.manasmods.tensura.util.EnergyHelper.getBaseMaxEP(player));
                 player.removeAllEffects();
                 player.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
             });
-            case 330 -> onServer(mc, player -> spiritLog("respawned", player));
+            case 330 -> onServer(mc, player -> {
+                spiritLog("respawned", player);
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("EP after death: {}",
+                        io.github.manasmods.tensura.util.EnergyHelper.getBaseMaxEP(player));
+            });
             case 335 -> shot(mc, "10_respawned");
             case 338 -> {
                 mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);

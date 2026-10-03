@@ -12,7 +12,9 @@
   },
   "mixins": [
     "ChunkMapMixin",
+    "DeathPenaltyMixin",
     "ExistenceStorageMixin",
+    "NamingCostMixin",
     "ReincarnationMenuMixin",
     "TensuraNamedMixin",
     "TensuraNamingMixin",

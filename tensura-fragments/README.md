@@ -377,6 +377,12 @@ Tensura only lets you name creatures on its own list (its own monsters and a few
 creature, vanilla or modded; its other rules still apply (it has to submit to you: be your subordinate, weakened,
 afraid of you, or much weaker than you; you need the EP; it can't already have a name).
 
+## No EP lost to dying or naming
+
+Players keep their max EP when they die (Tensura normally takes `epDeathPenalty` percent, 5% by default) and when they
+name something (Tensura's Naming normally has a chance to take from your maximum magicules). Naming still spends the
+magicules you have at the time, and dying still cuts soul points as usual.
+
 ## Allies
 
 To become allies with another player, **sneak and right-click them with an empty hand**. They get a message; when
@@ -439,7 +445,7 @@ possession steering the hound and owl, the world following a possessed beast, at
 back when hurt, fire tearing paper), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
 dismissal, catching up, leaving and coming back with you), allies (asking each other, allies naming each other's
-summons, summons never going after an ally),
+summons, summons never going after an ally), naming never taking from your max EP (with the chance forced to 100%),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures

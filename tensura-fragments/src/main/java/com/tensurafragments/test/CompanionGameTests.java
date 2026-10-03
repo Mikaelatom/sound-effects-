@@ -180,6 +180,29 @@ public final class CompanionGameTests {
         helper.succeed();
     }
 
+    /** Naming something, even the strongest kind of naming, never takes from your max EP. */
+    @GameTest(template = "platform")
+    public static void namingKeepsYourMaxEp(GameTestHelper helper) {
+        ServerPlayer owner = player(helper, 4.5, 1.5);
+        PaperBeastEntity hound = hound(helper, owner);
+        io.github.manasmods.tensura.util.EnergyHelper.increaseMaxEP(owner, 1_000_000);
+        TestPlayers.giveMagicules(owner, 1_000_000);
+        double before = io.github.manasmods.tensura.util.EnergyHelper.getBaseMaxEP(owner);
+        // Tensura takes from your maximum by chance; make it certain, so this would catch it.
+        double chance = io.github.manasmods.tensura.menu.NamingMenu.CONFIG.endowLostChance;
+        io.github.manasmods.tensura.menu.NamingMenu.CONFIG.endowLostChance = 100;
+        try {
+            RequestNamingMenuPacket.name(hound, owner, RequestNamingMenuPacket.NamingType.HIGH, "Rex");
+        } finally {
+            io.github.manasmods.tensura.menu.NamingMenu.CONFIG.endowLostChance = chance;
+        }
+        helper.assertTrue("Rex".equals(io.github.manasmods.tensura.storage.TensuraStorages.getExistenceFrom(hound).getName()),
+                "named");
+        double after = io.github.manasmods.tensura.util.EnergyHelper.getBaseMaxEP(owner);
+        helper.assertTrue(after >= before, "max EP kept: " + before + " -> " + after);
+        helper.succeed();
+    }
+
     /** Named shikigami have no time limit; named beasts ignore being dismissed. */
     @GameTest(template = "platform", timeoutTicks = 60)
     public static void namedShikigamiAndBeastsDontGo(GameTestHelper helper) {
