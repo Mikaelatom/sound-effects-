@@ -409,6 +409,10 @@ lasts until one of you ends it.
 Allies can name each other's summons, and summons never attack an ally or an ally's summons and tamed animals (even
 if you hit them by accident).
 
+**Riding allies.** Right-click an ally with an empty hand (not sneaking) to climb onto their shoulders; you go wherever
+they go, flying included. One rider at a time, and no stacking. **Sneak** to get off (careful in mid-air: you fall).
+The one carrying can let you off with `/ally drop`. Logging off while riding or carrying lets the rider off first.
+
 ## Summons only attack what you hit
 
 Every summoned or bound creature (shikigami, paper beasts, Soul Reaper's summoned and possessed creatures, the
@@ -459,7 +463,8 @@ back when hurt, fire tearing paper), named companions (naming only your own or a
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
 dismissal, catching up, leaving and coming back with you, sneak-clicking through follow, stay and wander, staying
 put and staying behind on log-off, wandering near its spot, Tensura-named creatures becoming companions), allies (asking each other, allies naming each other's
-summons, summons never going after an ally), naming never taking from your max EP (with the chance forced to 100%),
+summons, summons never going after an ally, riding an ally but not a stranger, one rider at a time, letting off,
+and a rider logging off not taking the carrier with them), naming never taking from your max EP (with the chance forced to 100%),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing
 allies) and Soul Reaper (souls from kills without being a Seed, summoning, each soul being usable once (even in creative), recalling, kills by your souls counting,
 player souls, absorbing EP, possession taking over and stacking, too-weak souls failing, souls and grimoire creatures

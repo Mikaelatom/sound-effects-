@@ -4,6 +4,7 @@ import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.ally.Alliances;
 import com.tensurafragments.ally.Allies;
+import com.tensurafragments.ally.Carrying;
 import com.tensurafragments.ally.Companions;
 import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.PaperBeastEntity;
@@ -274,6 +275,38 @@ public final class CompanionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         player.interactOn(pig, InteractionHand.MAIN_HAND);
         helper.assertTrue(Companions.mode(pig) == Companions.STAY, "and can be told to stay");
+        helper.succeed();
+    }
+
+    /** Right-clicking an ally with an empty hand rides them; a stranger can't be ridden. */
+    @GameTest(template = "platform")
+    public static void allyCanRideAlly(GameTestHelper helper) {
+        ServerPlayer rider = TestPlayers.spawnRider(helper, 4.5, 1.5);
+        ServerPlayer carrier = TestPlayers.spawnRider(helper, 3.5, 1.5);
+        rider.interactOn(carrier, InteractionHand.MAIN_HAND);
+        helper.assertFalse(rider.isPassenger(), "can't ride a stranger");
+        Alliances.ask(rider, carrier);
+        Alliances.ask(carrier, rider);
+        rider.interactOn(carrier, InteractionHand.MAIN_HAND);
+        helper.assertTrue(rider.getVehicle() == carrier, "riding your ally");
+        ServerPlayer third = TestPlayers.spawnRider(helper, 2.5, 1.5);
+        Alliances.ask(third, carrier);
+        Alliances.ask(carrier, third);
+        helper.assertFalse(Carrying.ride(third, carrier), "one rider at a time");
+        helper.assertTrue(Carrying.drop(carrier) && !rider.isPassenger(), "the carrier can let you off");
+        helper.succeed();
+    }
+
+    /** A rider logging off gets off first, so the one carrying them isn't taken out of the world with them. */
+    @GameTest(template = "platform")
+    public static void riderLoggingOffLeavesCarrierBehind(GameTestHelper helper) {
+        ServerPlayer rider = TestPlayers.spawnRider(helper, 4.5, 1.5);
+        ServerPlayer carrier = TestPlayers.spawnRider(helper, 3.5, 1.5);
+        Alliances.ask(rider, carrier);
+        Alliances.ask(carrier, rider);
+        helper.assertTrue(Carrying.ride(rider, carrier) && rider.getVehicle() == carrier, "riding");
+        Carrying.onLogout(new PlayerEvent.PlayerLoggedOutEvent(rider));
+        helper.assertTrue(!rider.isPassenger() && !carrier.isVehicle() && !carrier.isRemoved(), "got off; carrier still here");
         helper.succeed();
     }
 

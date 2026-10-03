@@ -40,6 +40,27 @@ final class TestPlayers {
         }
     }
 
+    /**
+     * A plain server player (not a FakePlayer, which refuses to ride anything) with NeoForge's do-nothing connection,
+     * for riding tests.
+     */
+    static final class RidingPlayer extends ServerPlayer {
+        RidingPlayer(ServerLevel level) {
+            super(level.getServer(), level, new GameProfile(UUID.randomUUID(), "fragments_rider"),
+                    net.minecraft.server.level.ClientInformation.createDefault());
+            // Borrow a FakePlayer's connection (it's package-private): everything sent through it goes nowhere.
+            connection = new FakePlayer(level, new GameProfile(UUID.randomUUID(), "fragments_rider_link")).connection;
+        }
+    }
+
+    static ServerPlayer spawnRider(GameTestHelper helper, double x, double z) {
+        ServerPlayer player = new RidingPlayer(helper.getLevel());
+        Vec3 pos = helper.absoluteVec(new Vec3(x, GROUND, z));
+        player.moveTo(pos.x, pos.y, pos.z, 0, 0);
+        helper.getLevel().addNewPlayer(player);
+        return player;
+    }
+
     /** A survival player at the given spot inside the test structure, added to the world so blasts can find it. */
     static ServerPlayer spawn(GameTestHelper helper, double x, double z) {
         ServerPlayer player = new TestPlayer(helper.getLevel());
