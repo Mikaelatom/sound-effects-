@@ -353,9 +353,16 @@ config.
 
 ## Named companions
 
-Use a **name tag** on anything you summoned: a shikigami, a paper beast, a Soul Reaper soul (summoned or a creature
-your souls possessed), or a creature released from your Sealing Grimoire. The summoner or one of their
-[allies](#allies) can name it (it stays the summoner's). Once named, it's theirs for good:
+Name anything you summoned (a shikigami, a paper beast, a Soul Reaper soul, summoned or a creature your souls
+possessed, or a creature released from your Sealing Grimoire) any of three ways:
+
+- **Tensura's own Naming** (its naming key while looking at it). Your summons (and your allies') always accept, and you
+  don't need more EP than them; the naming costs magicules as usual and gives Tensura's naming rewards.
+- A **name tag** renamed in an anvil: right-click it.
+- A **blank name tag**: right-click it, then type the name in chat (it isn't sent to anyone).
+
+The summoner or one of their [allies](#allies) can name it (it stays the summoner's); nobody else can. Once named,
+it's theirs for good:
 
 - no time limit (it doesn't pass on, go back into the book, or turn back into its block or paper);
 - recalling, dismissing (sneak) and summon limits leave it alone and don't count it;
@@ -363,6 +370,12 @@ your souls possessed), or a creature released from your Sealing Grimoire. The su
   other dimensions and back after you die, and leaves with you when you log off, coming back when you log in.
 
 Only being killed ends it.
+
+## Tensura's Naming works on any creature
+
+Tensura only lets you name creatures on its own list (its own monsters and a few animals). Here its Naming works on any
+creature, vanilla or modded; its other rules still apply (it has to submit to you: be your subordinate, weakened,
+afraid of you, or much weaker than you; you need the EP; it can't already have a name).
 
 ## Allies
 
@@ -423,7 +436,8 @@ and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura s
 spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), Energy Magic (paying in levels, twice the
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
-back when hurt, fire tearing paper), named companions (naming only your own summons, no timer, ignoring recall and
+back when hurt, fire tearing paper), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
+accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
 dismissal, catching up, leaving and coming back with you), allies (asking each other, allies naming each other's
 summons, summons never going after an ally),
 Spirit Control (every spirit hurting its target and vanishing, the turn order, the spam limit, Spirit Link, sparing

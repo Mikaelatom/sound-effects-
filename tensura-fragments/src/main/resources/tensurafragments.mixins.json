@@ -14,6 +14,8 @@
     "ChunkMapMixin",
     "ExistenceStorageMixin",
     "ReincarnationMenuMixin",
+    "TensuraNamedMixin",
+    "TensuraNamingMixin",
     "TrackedEntityMixin"
   ]
 }

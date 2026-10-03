@@ -283,7 +283,57 @@ public final class VisualCheck {
                 org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT BACK: body at {}, health {}", mc.player.position(),
                         mc.player.getHealth());
             }
-            case 670 -> mc.stop();
+            case 668 -> onServer(mc, player -> {
+                // Creative: Tensura's Naming is free, so this doesn't depend on the scene's magicules.
+                player.setGameMode(GameType.CREATIVE);
+                player.getInventory().add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER, 40));
+                player.setData(com.tensurafragments.ModRegistries.SELECTED_BEAST,
+                        com.tensurafragments.shikigami.BeastKind.HOUND.ordinal());
+                player.setYRot(0);
+                player.setXRot(30);
+                for (int i = 0; i < 3; i++) {
+                    org.slf4j.LoggerFactory.getLogger("visualcheck").warn("FOLD {}", com.tensurafragments.shikigami.PaperBeasts.fold(player));
+                }
+                net.minecraft.world.item.ItemStack named = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NAME_TAG);
+                named.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Patch"));
+                player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, named);
+                player.getInventory().setItem(5, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NAME_TAG));
+            });
+            // An anvil-named tag.
+            case 676 -> clickNearest(mc, com.tensurafragments.shikigami.PaperBeastEntity.class);
+            // A blank tag, then the name typed in chat.
+            case 680 -> onServer(mc, player -> player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,
+                    player.getInventory().removeItem(5, 1)));
+            case 686 -> clickNearest(mc, com.tensurafragments.shikigami.PaperBeastEntity.class);
+            case 690 -> mc.player.connection.sendChat("Biscuit");
+            // Tensura's own Naming, through its key packet and naming screen.
+            case 693 -> {
+                net.minecraft.world.entity.Entity hound = nearestUnnamed(mc, com.tensurafragments.shikigami.PaperBeastEntity.class);
+                mc.player.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES, hound.position().add(0, 0.5, 0));
+                onServer(mc, player -> player.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,
+                        hound.position().add(0, 0.5, 0)));
+            }
+            case 695 -> dev.architectury.networking.NetworkManager.sendToServer(
+                    new io.github.manasmods.tensura.network.c2s.RequestNamingKeyPacket());
+            case 697 -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("TENSURA NAMING screen: {}", mc.screen);
+                net.minecraft.world.entity.Entity hound = nearestUnnamed(mc, com.tensurafragments.shikigami.PaperBeastEntity.class);
+                dev.architectury.networking.NetworkManager.sendToServer(new io.github.manasmods.tensura.network.c2s.RequestNamingMenuPacket(
+                        hound.getId(), "Rex", io.github.manasmods.tensura.network.c2s.RequestNamingMenuPacket.NamingType.LOW));
+            }
+            case 699 -> {
+                if (mc.screen != null) {
+                    mc.player.closeContainer();
+                }
+            }
+            case 700 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+                onServer(mc, player -> com.tensurafragments.ally.Companions.companions(player).forEach(e ->
+                        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("NAMED: {} called {}", e.getType(),
+                                e.getCustomName() == null ? null : e.getCustomName().getString())));
+            }
+            case 712 -> shot(mc, "16_named");
+            case 715 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
@@ -301,6 +351,25 @@ public final class VisualCheck {
                 }
             }
         }
+    }
+
+    private static net.minecraft.world.entity.Entity nearestUnnamed(Minecraft mc, Class<? extends net.minecraft.world.entity.Entity> type) {
+        net.minecraft.world.entity.Entity nearest = null;
+        for (net.minecraft.world.entity.Entity entity : mc.level.entitiesForRendering()) {
+            if (type.isInstance(entity) && entity.getCustomName() == null
+                    && (nearest == null || entity.distanceTo(mc.player) < nearest.distanceTo(mc.player))) {
+                nearest = entity;
+            }
+        }
+        return nearest;
+    }
+
+    /** A real right-click (through the client, packets and all) on the nearest unnamed entity of a type. */
+    private static void clickNearest(Minecraft mc, Class<? extends net.minecraft.world.entity.Entity> type) {
+        net.minecraft.world.entity.Entity nearest = nearestUnnamed(mc, type);
+        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLICK {} at {} blocks holding {}: {}", nearest,
+                nearest == null ? -1 : nearest.distanceTo(mc.player), mc.player.getMainHandItem(),
+                nearest == null ? null : mc.gameMode.interact(mc.player, nearest, net.minecraft.world.InteractionHand.MAIN_HAND));
     }
 
     private static void onServer(Minecraft mc, Consumer<ServerPlayer> action) {

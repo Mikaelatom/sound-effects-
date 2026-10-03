@@ -14,6 +14,8 @@ import com.tensurafragments.soul.CapturedSoul;
 import com.tensurafragments.soul.SoulBond;
 import com.tensurafragments.soul.SoulReaper;
 import io.github.manasmods.tensura.ability.SkillHelper;
+import io.github.manasmods.tensura.network.c2s.RequestNamingKeyPacket;
+import io.github.manasmods.tensura.network.c2s.RequestNamingMenuPacket;
 import io.github.manasmods.tensura.storage.TensuraStorages;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,6 +136,47 @@ public final class CompanionGameTests {
                 "an ally and their summons are friendly");
         friend.hurt(friend.damageSources().playerAttack(owner), 1);
         helper.assertTrue(Allies.target(owner) == null, "hitting your ally doesn't send your summons after them");
+        helper.succeed();
+    }
+
+    /** Tensura's Naming works on any creature now, not only the ones on its list (a pig isn't on it). */
+    @GameTest(template = "platform")
+    public static void tensuraNamingWorksOnAnyCreature(GameTestHelper helper) {
+        ServerPlayer player = player(helper, 4.5, 1.5);
+        net.minecraft.world.entity.animal.Pig pig = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG,
+                new net.minecraft.world.phys.Vec3(4.5, GROUND, 3.5));
+        // Weakened, so it submits.
+        pig.setHealth(1);
+        helper.assertTrue(RequestNamingKeyPacket.canName(player, pig), "a pig can be named");
+        helper.succeed();
+    }
+
+    /**
+     * Tensura's Naming on a summon: yours or an ally's can be named right away (no need to weaken it), someone else's
+     * can't, and the named summon becomes a companion.
+     */
+    @GameTest(template = "platform")
+    public static void tensuraNamingOnSummons(GameTestHelper helper) {
+        ServerPlayer owner = player(helper, 4.5, 1.5);
+        ServerPlayer stranger = player(helper, 2.5, 1.5);
+        PaperBeastEntity hound = hound(helper, owner);
+        var ex = io.github.manasmods.tensura.storage.TensuraStorages.getExistenceFrom(hound);
+        helper.assertTrue(RequestNamingKeyPacket.canName(owner, hound), "you can name your own summon: hound EP "
+                + io.github.manasmods.tensura.util.EnergyHelper.getMaxEP(hound) + " vs your base "
+                + io.github.manasmods.tensura.util.EnergyHelper.getBaseMaxEP(owner) + ", name " + ex.getName()
+                + ", permanent owner " + ex.getPermanentOwner() + ", subordinate-of-it "
+                + io.github.manasmods.tensura.util.SubordinateHelper.isSubordinate(hound, owner));
+        helper.assertFalse(RequestNamingKeyPacket.canName(stranger, hound), "a stranger can't");
+        Alliances.ask(owner, stranger);
+        Alliances.ask(stranger, owner);
+        helper.assertTrue(RequestNamingKeyPacket.canName(stranger, hound), "an ally can");
+        // Enough magicules to pay for the naming.
+        io.github.manasmods.tensura.util.EnergyHelper.increaseMaxEP(owner, 1_000_000);
+        TestPlayers.giveMagicules(owner, 1_000_000);
+        RequestNamingMenuPacket.name(hound, owner, RequestNamingMenuPacket.NamingType.LOW, "Rex");
+        helper.assertTrue("Rex".equals(io.github.manasmods.tensura.storage.TensuraStorages.getExistenceFrom(hound).getName()),
+                "Tensura named it Rex");
+        helper.assertTrue(Companions.isNamed(hound), "and it's a companion for good");
         helper.succeed();
     }
 
