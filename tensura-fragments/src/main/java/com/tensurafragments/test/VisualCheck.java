@@ -402,6 +402,8 @@ public final class VisualCheck {
                         }
                     }
                     player.teleportTo(level, base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5, 0F, 10F);
+                    // Husks from earlier runs of this persistent world.
+                    level.getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
                     // Earlier scenes can leave Magicule Poison behind; clear it so nothing dies mid-scene.
                     player.removeAllEffects();
                     TensuraStorages.getExistenceFrom(player).setMagicule(0);
@@ -417,24 +419,43 @@ public final class VisualCheck {
                     for (int i = 0; i < 3; i++) {
                         Husk husk = EntityType.HUSK.create(player.serverLevel());
                         husk.moveTo(player.getX() + (i - 1) * 1.2, player.getY(), player.getZ() + 2.2, 180, 0);
-                        husk.setNoAi(true);
+                        // Not NoAI (that also stops them being knocked about): just too slow to go anywhere.
+                        husk.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                                net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 10, false, false));
+                        husk.setPersistenceRequired();
                         husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);
                         husk.setHealth(500);
                         player.serverLevel().addFreshEntity(husk);
                     }
                 });
             }
-            case 762, 768, 774, 780 -> {
-                // Real punches through the client.
-                net.minecraft.world.entity.Entity nearest = nearestUnnamed(mc, Husk.class);
-                if (nearest != null) {
-                    mc.player.resetAttackStrengthTicker();
-                    mc.gameMode.attack(mc.player, nearest);
-                    mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-                }
+            case 762, 768, 774 -> {
+                // Real punches: the attack key, at the husk in the crosshair.
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
             }
-            case 769 -> shot(mc, "20_combo");
-            case 781 -> shot(mc, "21_finisher");
+            case 763, 769, 775 -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn(
+                    "COMBAT punch with {} (target {}, main hand {}, combat {})", mc.player.swingingArm,
+                    mc.hitResult == null ? null : mc.hitResult.getType(), mc.player.getMainHandItem(),
+                    com.tensurafragments.client.ClientCombat.isOn());
+            case 778 -> mc.player.jumpFromGround();
+            case 780 -> {
+                // Look down at the nearest husk's chest, from midair.
+                mc.level.getEntitiesOfClass(Husk.class, mc.player.getBoundingBox().inflate(5)).stream()
+                        .min(java.util.Comparator.comparingDouble(h -> h.distanceToSqr(mc.player)))
+                        .ifPresent(h -> mc.player.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,
+                                h.position().add(0, 1.0, 0)));
+                mc.gameRenderer.pick(1.0F);
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT uppercut try: onGround {} dy {} aiming at {}",
+                        mc.player.onGround(), mc.player.getDeltaMovement().y,
+                        mc.hitResult == null ? null : mc.hitResult.getType());
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            }
+            case 781 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                    player.getBoundingBox().inflate(6)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                    .warn("COMBAT husk after uppercut: y-speed {} height {}", h.getDeltaMovement().y,
+                            h.getY() - player.getY())));
+            case 770 -> shot(mc, "20_combo");
+            case 784 -> shot(mc, "21_uppercut");
             case 786 -> {
                 mc.options.keyShift.setDown(true);
                 onServer(mc, player -> player.teleportTo(player.getX(), player.getY() + 12, player.getZ() + 1.5));

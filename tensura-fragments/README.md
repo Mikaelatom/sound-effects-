@@ -364,12 +364,14 @@ A melee fighting style you can turn on and off: press **G** (rebind it in Contro
 `/combat`. "Combat" shows under the crosshair while it's on.
 
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
-  seconds of the last. Bare-handed, the jabs alternate left and right hands; every hit steps you in a little and
-  leaves a **white swish** in the air.
+  seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or
+  tool); every hit steps you in a little and leaves a **white swish** in the air.
 - **Hit stun:** whatever you hit is stunned for a moment (about half a second): it can't move or hurt anyone. Combo
   hits barely knock it back, so you can keep going.
 - **Finisher:** the 4th hit of a combo (x4!) hits much harder (1.5 times, plus 3) and launches the target up and
   away, with a big swish and a crack.
+- **Uppercut:** **jump and punch** on the way up to throw an uppercut: it hits a bit harder, launches the target
+  straight up into the air (higher still if it's your finisher) and stuns it a little longer, with a rising swish.
 - **Down slam:** in mid-air, **sneak and attack** to dive straight down. Landing sends out a shockwave (white ring,
   dust, a thud) that hurts and knocks up everything within 4 blocks, harder the higher you came from, and stuns it.
   You take no fall damage from a slam.
@@ -530,7 +532,7 @@ damage, not casting without the levels, every spell casting), paper beasts (fold
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
 back when hurt, fire tearing paper), Rune Magic (every rune matching however it's drawn, wrong drawings keeping the paper, runes on foes and on
 yourself, a weapon carrying a rune and using charges, Rune Tomes teaching runes, drawing without the skill only
-learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), Combat Mode (combos counting up and stunning, the finisher hitting harder and launching, stunned creatures
+learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), Combat Mode (combos counting up and stunning, the finisher hitting harder and launching, a jumping punch uppercutting straight up, stunned creatures
 unable to hurt anyone, the down slam's shockwave, and nothing happening with it off), the starting skill choice (one pick, Rune Magic bringing the
 codex, players with earlier skills keeping them), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and

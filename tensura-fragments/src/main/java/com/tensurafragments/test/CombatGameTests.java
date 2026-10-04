@@ -60,6 +60,28 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
+    /** A punch thrown while jumping is an uppercut: it launches the target straight up. */
+    @GameTest(template = "platform", timeoutTicks = 40)
+    public static void jumpingPunchIsAnUppercut(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        Husk husk = dummy(helper, 4.5, 3.0);
+        husk.setDeltaMovement(Vec3.ZERO);
+        CombatMode.markUppercut(player);
+        player.attack(husk);
+        Vec3 motion = husk.getDeltaMovement();
+        helper.assertTrue(motion.y > 0.9, "launched up, " + motion);
+        helper.assertTrue(Math.abs(motion.x) < 0.3 && Math.abs(motion.z) < 0.3, "straight up, " + motion);
+        helper.assertTrue(husk.getHealth() <= 1000 - 2, "with extra damage, at " + husk.getHealth());
+        helper.assertTrue(CombatMode.isStunned(husk), "and stunned");
+        double startY = husk.getY();
+        // The stun mustn't hold it down: two ticks later it's two blocks up (the test space's ceiling is just above).
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(husk.getY() - startY > 1.8, "flew up, " + (husk.getY() - startY));
+            husk.discard();
+            helper.succeed();
+        });
+    }
+
     /** A stunned creature can't hurt anyone. */
     @GameTest(template = "platform")
     public static void stunnedCantHurt(GameTestHelper helper) {

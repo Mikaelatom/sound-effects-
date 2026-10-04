@@ -8,6 +8,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -24,6 +25,9 @@ public final class ClientCombat {
     private static boolean on;
     private static int combo;
     private static long comboShownAt;
+    /** Jabs thrown in a row (for alternating hands), and when the last was. */
+    private static int jabs;
+    private static long lastJab;
 
     private ClientCombat() {
     }
@@ -47,17 +51,41 @@ public final class ClientCombat {
         }
     }
 
-    /** In Combat Mode, attacking while sneaking in mid-air is a down slam instead of a swing. */
+    /**
+     * In Combat Mode: attacking while sneaking in mid-air is a down slam; attacking while rising from a jump is an
+     * uppercut; and jabs (unless you hold a weapon or tool) alternate right and left hands.
+     */
     @SubscribeEvent
     public static void onAttackKey(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft mc = Minecraft.getInstance();
-        if (!on || !event.isAttack() || mc.player == null || mc.player.onGround() || !mc.player.isShiftKeyDown()
-                || mc.player.isInWater() || ClientPossession.isPossessing()) {
+        if (!on || !event.isAttack() || mc.player == null || mc.level == null || ClientPossession.isPossessing()) {
             return;
         }
-        PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.SLAM));
-        event.setSwingHand(true);
-        event.setCanceled(true);
+        if (!mc.player.onGround() && mc.player.isShiftKeyDown() && !mc.player.isInWater()) {
+            PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.SLAM));
+            event.setSwingHand(true);
+            event.setCanceled(true);
+            return;
+        }
+        if (!mc.player.onGround() && mc.player.getDeltaMovement().y > 0 && !mc.player.isInWater()
+                && !mc.player.getAbilities().flying) {
+            // Sent before the attack itself, so the server knows this punch is the uppercut.
+            PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.UPPERCUT));
+            jabs = 0;
+            return;
+        }
+        long now = mc.level.getGameTime();
+        if (now - lastJab > 30) {
+            jabs = 0;
+        }
+        lastJab = now;
+        jabs++;
+        // Unless it's a weapon or tool in your hand, punches go right, left, right...
+        if (jabs % 2 == 0 && !mc.player.getMainHandItem().isDamageableItem()) {
+            // The left hand's turn: swing it instead (the swing is sent on to the server and everyone else).
+            event.setSwingHand(false);
+            mc.player.swing(InteractionHand.OFF_HAND);
+        }
     }
 
     /** "Combat" under the crosshair while it's on, and the combo count while one is going. */

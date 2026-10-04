@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -60,6 +59,10 @@ public final class CombatMode {
     private static final Map<UUID, Slam> SLAMS = new HashMap<>();
     /** The finisher being dealt right now (for its damage and knockback). */
     private static final Map<UUID, Boolean> FINISHING = new HashMap<>();
+    /** When the client said the next punch is an uppercut (jumping while punching). */
+    private static final Map<UUID, Long> UPPERCUT_ASKED = new HashMap<>();
+    /** The uppercut being dealt right now. */
+    private static final Map<UUID, Boolean> UPPERCUTTING = new HashMap<>();
 
     private CombatMode() {
     }
@@ -115,8 +118,11 @@ public final class CombatMode {
     public static void onEntityTick(EntityTickEvent.Pre event) {
         if (event.getEntity() instanceof Mob mob && !mob.level().isClientSide && isStunned(mob)) {
             mob.getNavigation().stop();
+            // Only its own walking is held back: launches (finisher, uppercut, slam) still carry it up.
             Vec3 motion = mob.getDeltaMovement();
-            mob.setDeltaMovement(motion.x * 0.5, Math.min(motion.y, mob.onGround() ? 0 : motion.y), motion.z * 0.5);
+            if (motion.y <= 0.1) {
+                mob.setDeltaMovement(motion.x * 0.5, motion.y, motion.z * 0.5);
+            }
         }
     }
 
@@ -132,6 +138,9 @@ public final class CombatMode {
         // The finisher hits harder.
         if (attacker instanceof ServerPlayer player && FINISHING.containsKey(player.getUUID())) {
             event.setAmount((float) (event.getAmount() * Config.COMBAT_FINISHER_DAMAGE.get() + 3));
+        }
+        if (attacker instanceof ServerPlayer player && UPPERCUTTING.containsKey(player.getUUID())) {
+            event.setAmount(event.getAmount() * 1.2F + 2);
         }
     }
 
@@ -156,16 +165,24 @@ public final class CombatMode {
         } else {
             FINISHING.remove(player.getUUID());
         }
-        // Left, right, left...: jabs from alternating hands (and a small step in).
+        // (Which hand jabs is the client's: it alternates left and right itself.)
         boolean left = count % 2 == 0;
-        if (left && player.getMainHandItem().isEmpty()) {
-            player.swing(InteractionHand.OFF_HAND, true);
+        Long asked = UPPERCUT_ASKED.remove(player.getUUID());
+        boolean uppercut = asked != null && player.level().getGameTime() - asked <= 5;
+        if (uppercut) {
+            UPPERCUTTING.put(player.getUUID(), true);
+            upswish((ServerLevel) player.level(), player);
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
+                    SoundSource.PLAYERS, 1.1F, 0.8F);
+        } else {
+            UPPERCUTTING.remove(player.getUUID());
+            // A small step in with each jab.
+            Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
+            double lunge = count >= finisher ? 0.45 : 0.15;
+            player.push(forward.x * lunge, 0, forward.z * lunge);
+            player.hurtMarked = true;
+            swish((ServerLevel) player.level(), player, left, count >= finisher);
         }
-        Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
-        double lunge = count >= finisher ? 0.45 : 0.15;
-        player.push(forward.x * lunge, 0, forward.z * lunge);
-        player.hurtMarked = true;
-        swish((ServerLevel) player.level(), player, left, count >= finisher);
         sync(player, count >= finisher ? finisher : count);
     }
 
@@ -207,11 +224,43 @@ public final class CombatMode {
                 || target.getLastHurtByMobTimestamp() != target.tickCount) {
             return;
         }
-        if (FINISHING.remove(player.getUUID()) != null) {
+        boolean finisher = FINISHING.remove(player.getUUID()) != null;
+        if (UPPERCUTTING.remove(player.getUUID()) != null) {
+            event.setCanceled(true);
+            uppercutLaunch(target, finisher ? 1.45 : 1.1);
+            stun(target, Config.COMBAT_STUN_TICKS.get() + 8);
+        } else if (finisher) {
             event.setCanceled(true);
             launch(player, target);
         } else {
             event.setStrength(event.getStrength() * 0.25F);
+        }
+    }
+
+    /** The client says this punch is thrown while jumping: an uppercut. */
+    public static void markUppercut(ServerPlayer player) {
+        if (isOn(player)) {
+            UPPERCUT_ASKED.put(player.getUUID(), player.level().getGameTime());
+        }
+    }
+
+    /** Straight up. */
+    static void uppercutLaunch(LivingEntity target, double power) {
+        double resist = 1 - target.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+        target.setDeltaMovement(target.getDeltaMovement().x * 0.2, power * Math.max(0.3, resist),
+                target.getDeltaMovement().z * 0.2);
+        target.hurtMarked = true;
+    }
+
+    /** A white swish rising from the hip up past the head, in front of the player. */
+    static void upswish(ServerLevel level, ServerPlayer player) {
+        Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
+        Vec3 base = player.position().add(forward.scale(0.9));
+        for (int i = 0; i < 16; i++) {
+            double t = i / 15.0;
+            double arc = Math.sin(t * Math.PI) * 0.45;
+            Vec3 at = base.add(forward.scale(arc)).add(0, 0.4 + t * 2.0, 0);
+            level.sendParticles(WHITE_BIG, at.x, at.y, at.z, 1, 0, 0, 0, 0);
         }
     }
 
@@ -359,6 +408,8 @@ public final class CombatMode {
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         COMBOS.remove(event.getEntity().getUUID());
         SLAMS.remove(event.getEntity().getUUID());
+        UPPERCUT_ASKED.remove(event.getEntity().getUUID());
+        UPPERCUTTING.remove(event.getEntity().getUUID());
         FINISHING.remove(event.getEntity().getUUID());
     }
 }
