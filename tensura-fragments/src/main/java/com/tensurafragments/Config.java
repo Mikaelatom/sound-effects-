@@ -392,6 +392,33 @@ public final class Config {
             .defineInRange("releaseCooldownSeconds", 60, 0, 86400);
 
     static {
+        BUILDER.pop().comment("Rune Magic: draw runes onto paper, then use them on a creature or inscribe them on a weapon").push("runes");
+    }
+
+    public static final ModConfigSpec.BooleanValue GRANT_RUNE_MAGIC = BUILDER
+            .comment("Give every player Rune Magic (only used when [startingSkill] pickOneSkill is off).")
+            .define("grantRuneMagic", true);
+    public static final ModConfigSpec.DoubleValue RUNE_DRAW_MAGICULES = BUILDER
+            .comment("Magicules to draw one rune (plus one paper).")
+            .defineInRange("drawMagicules", 30.0, 0.0, 1.0E6);
+    public static final ModConfigSpec.IntValue RUNE_WEAPON_CHARGES = BUILDER
+            .comment("How many hits a rune inscribed on a weapon lasts.")
+            .defineInRange("weaponCharges", 32, 1, 100000);
+    public static final ModConfigSpec.DoubleValue RUNE_POWER = BUILDER
+            .comment("Multiplies every rune's damage, healing and durations.")
+            .defineInRange("runePower", 1.0, 0.1, 100.0);
+
+    static {
+        BUILDER.pop().comment("Starting skill: after picking a race, new players pick one of this addon's skills").push("startingSkill");
+    }
+
+    public static final ModConfigSpec.BooleanValue STARTING_SKILL_PICK = BUILDER
+            .comment("New players pick one of this addon's skills after choosing their race, instead of being given them all.",
+                    "Players who already have this addon's skills keep them. Off: everyone gets every skill whose grant",
+                    "option is on, as before.")
+            .define("pickOneSkill", true);
+
+    static {
         BUILDER.pop();
     }
 

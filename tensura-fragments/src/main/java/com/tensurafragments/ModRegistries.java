@@ -17,6 +17,9 @@ import com.tensurafragments.flame.HellStormEntity;
 import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.grimoire.GrimoireContents;
 import com.tensurafragments.grimoire.SealingGrimoireItem;
+import com.tensurafragments.rune.RuneCodexItem;
+import com.tensurafragments.rune.RunePaperItem;
+import com.tensurafragments.rune.WeaponRune;
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
 import com.tensurafragments.shikigami.BeastKind;
 import com.tensurafragments.shikigami.PaperBeastEntity;
@@ -95,6 +98,22 @@ public final class ModRegistries {
             COMPONENTS.registerComponentType("grimoire_contents",
                     builder -> builder.persistent(GrimoireContents.CODEC).networkSynchronized(GrimoireContents.STREAM_CODEC));
 
+    /** Which rune a rune paper carries. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> RUNE =
+            COMPONENTS.registerComponentType("rune",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.STRING)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8));
+
+    /** A rune inscribed on a weapon, with its charges. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WeaponRune>> WEAPON_RUNE =
+            COMPONENTS.registerComponentType("weapon_rune",
+                    builder -> builder.persistent(WeaponRune.CODEC).networkSynchronized(WeaponRune.STREAM_CODEC));
+
+    public static final DeferredItem<RunePaperItem> RUNE_PAPER = ITEMS.registerItem("rune_paper", RunePaperItem::new,
+            new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<RuneCodexItem> RUNE_CODEX = ITEMS.registerItem("rune_codex", RuneCodexItem::new,
+            new Item.Properties().rarity(Rarity.UNCOMMON));
+
     public static final DeferredItem<SealingGrimoireItem> SEALING_GRIMOIRE = ITEMS.registerItem("sealing_grimoire",
             SealingGrimoireItem::new, new Item.Properties().stacksTo(1));
 
@@ -161,6 +180,14 @@ public final class ModRegistries {
     /** Set on a summon its owner named with a name tag: it stays with them for good, until it's killed. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> NAMED_COMPANION = ATTACHMENTS.register(
             "named_companion", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
+
+    /** Whether a player has made (or doesn't need) their starting skill choice. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> STARTING_SKILL_PICKED = ATTACHMENTS.register(
+            "starting_skill_picked", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
+
+    /** Whether a Rune Magic user has been given their Rune Codex. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> RUNE_CODEX_GIVEN = ATTACHMENTS.register(
+            "rune_codex_given", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
 
     /** What a named companion does: 0 follow, 1 stay, 2 wander (see {@code Companions}). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> COMPANION_MODE = ATTACHMENTS.register(
@@ -296,6 +323,10 @@ public final class ModRegistries {
                 event.accept(BOOK_OF_PASSAGE.get());
                 SPELL_CARD_ITEMS.values().forEach(item -> event.accept(item.get()));
                 event.accept(SPIRIT_LANTERN.get());
+                event.accept(RUNE_CODEX.get());
+                for (com.tensurafragments.rune.Rune rune : com.tensurafragments.rune.Rune.values()) {
+                    event.accept(RunePaperItem.of(rune));
+                }
             }
         });
         ATTACHMENTS.register(modEventBus);

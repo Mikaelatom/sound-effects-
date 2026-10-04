@@ -8,10 +8,19 @@ auras).
 
 Abilities are meant to take practice: momentum, placement, aim, time limits and gauge management.
 
+## Your starting skill
+
+After you pick your race (the first time you join a world), a screen asks you to **pick one of this addon's skills**
+to start with: Gambit Cards, Shikigami Control, Sealing Grimoire, Rainbow Magic, Flame Emperor, Spirit Control,
+Spirit Communion, Energy Magic, Soul Reaper or Rune Magic (hover a button for what it does). You get only that one.
+Players who already had this addon's skills from before keep them all and aren't asked. Turn the choice off with
+`pickOneSkill` in the `[startingSkill]` section of the server config, and everyone gets every skill again (each has
+its own `grant...` option).
+
 ## Skill 1: Gambit Cards
 
 Gambit Cards is a real Tensura skill (Unique). It shows up in Tensura's skill menu, goes on Tensura's skill keys,
-and you switch between its four modes the same way as any Tensura skill. Every player is given it automatically.
+and you switch between its four modes the same way as any Tensura skill. It's one of the starting skills you can pick (see [Your starting skill](#your-starting-skill)).
 
 | Mode | What it does |
 |---|---|
@@ -63,7 +72,7 @@ The HUD (bottom right, only while Gambit Cards is on your active skill preset) s
 
 ## Skill 2: Shikigami Control
 
-Based on Seika from *The Reincarnation of the Strongest Exorcist*. A Unique skill, given to every player. **Paper**
+Based on Seika from *The Reincarnation of the Strongest Exorcist*. A Unique skill, one of the starting skills. **Paper**
 (vanilla `minecraft:paper`) in your inventory is the ammo; creative players don't use any.
 
 **Leaves** (any kind) work as a weaker stand-in once you're out of paper, at half strength by default
@@ -119,7 +128,7 @@ Uses Tensura's earth-cast, space-cast, barrier-break, uncast and golem sounds an
 ## Skill 3: Sealing Grimoire
 
 An empty book that seals creatures and magic with paper talismans, so you can call them back out later. A Unique
-skill, given to every player. The first time you use it, one ordinary **book** in your inventory becomes the
+skill, one of the starting skills. The first time you use it, one ordinary **book** in your inventory becomes the
 **Sealing Grimoire** item. Everything sealed lives in that book (9 pages by default), so if you lose the book, you
 lose what's in it. Paper is the ammo, and leaves work at reduced strength as with Shikigami Control.
 
@@ -135,7 +144,7 @@ the server config.
 
 ## Skill 4: Rainbow Magic
 
-A Unique skill of its own, given to every player. It casts **Tensura's own spells**, recoloured in a moving rainbow
+A Unique skill of its own, one of the starting skills. It casts **Tensura's own spells**, recoloured in a moving rainbow
 (the spell's model is redrawn in rainbow bands and leaves a rainbow trail), and every hit strikes with **every element
 at once**: the spell's own damage plus 12 extra (half of all the elements' damage together,
 `rainbowDamageMultiplier`), and the target is set on fire, frozen and slowed. When the spell ends it bursts into
@@ -162,7 +171,7 @@ Rainbow spirits have their own turn order, separate from Spirit Control's, and c
 
 ## Skill 5: Flame Emperor
 
-A Unique skill, given to every player, with two modes.
+A Unique skill, one of the starting skills, with two modes.
 
 **Fire Magic.** Cast any of Tensura's own fire spells. **Sneak** to switch; the HUD (bottom right, while it's on
 your active preset) shows the selected one.
@@ -194,7 +203,7 @@ All numbers are in the `[flame]` section of the server config.
 
 ## Skill 6: Spirit Control
 
-Every blow calls a spirit. A Unique skill, given to every player. While it's on your active skill preset, **each of
+Every blow calls a spirit. A Unique skill, one of the starting skills. While it's on your active skill preset, **each of
 your melee hits** calls the next spirit in line onto what you hit; it does one of its attacks and vanishes. They come
 in turn, using Tensura's own spirit models, textures and attack animations:
 
@@ -216,7 +225,7 @@ the `[spirits]` section of the server config.
 ## Skill 7: Spirit Communion (Yifa)
 
 After Yifa, Seika's elf companion: she has little magic of her own, but her elf blood lets her see elemental spirits
-and command them, casting far beyond her own power (fire and wind are her affinity). A Unique skill, given to every
+and command them, casting far beyond her own power (fire and wind are her affinity). A Unique skill, one of the starting
 player. Spirits are found **in the world, near their element**, so where you fight decides what you can cast:
 
 | Spirit | Gathers |
@@ -259,7 +268,7 @@ All numbers are in the `[yifa]` section of the server config.
 
 ## Skill 8: Energy Magic
 
-Pour your experience into a spell. A Unique skill, given to every player. It casts **Tensura's own spells, glowing
+Pour your experience into a spell. A Unique skill, one of the starting skills. It casts **Tensura's own spells, glowing
 green and twice as powerful**, and instead of magicules it costs **experience levels** (the vanilla green XP bar).
 **Sneak** to switch spell. A small line left of the hotbar (while it's on your active preset) shows the selected
 spell and its cost, in red when you don't have the levels. Energy spells glow with a green outline, leave a green
@@ -286,7 +295,7 @@ trail and burst into green sparks where they land.
 
 ## Skill 9: Soul Reaper
 
-Every life you take leaves its soul in your hands. A Unique skill, given to every player.
+Every life you take leaves its soul in your hands. A Unique skill, one of the starting skills.
 
 - **Every kill gives you souls**, whether or not you're a Demon Lord Seed. They're Tensura's own soul points (the
   "Souls" in Tensura's menu, 1000 points = 1 soul), so they still count toward awakening as a True Demon Lord, and
@@ -307,6 +316,38 @@ Every life you take leaves its soul in your hands. A Unique skill, given to ever
 | Soul Possession | The selected soul flies into the creature you're looking at (up to 24 blocks). If the soul was at least as strong (EP) as the creature, **it becomes yours for good**: it attacks what you hit, never turns on you, and gets the soul's EP plus +50% health, +50% damage and +10% speed. Send more souls into your own creatures (summoned ones too, which then stay for good) to stack it, up to 5 souls each. Possessed creatures glow violet. | The soul |
 
 All the numbers are in the `[souls]` section of the server config.
+
+## Skill 10: Rune Magic
+
+Power lives in the lines. A Unique skill, one of the starting skills; it comes with the **Rune Codex**, a book showing
+every rune and what it does (right-click to read it; a lost one is crafted from a book, a paper and an ink sac).
+
+**Drawing a rune.** With **paper** in your inventory, press the Rune Magic key: a sheet of 25 dots opens. Press on a
+dot and drag through the others to draw lines (straight across, down or diagonal); lift and press again for another
+stroke. Undo, Clear, and Codex (look up a rune) are there; **Inscribe** when it's done. If your lines match a rune
+exactly (in any order or direction), the paper becomes that **Rune Paper** (30 magicules); if not, you keep the paper.
+The sheet shows the rune's name once your lines match.
+
+**Using a rune paper.**
+
+- **On a creature:** right-click it. Foes get the harmful side, you and your allies the helpful one.
+- **On yourself:** right-click the air.
+- **On a weapon:** right-click the rune paper onto a weapon in your inventory (or the weapon onto the paper), or hold
+  the weapon and use the paper from your off hand. The weapon's hits carry the rune for 32 hits (shown on its
+  tooltip).
+
+| Rune | On a foe | On you or a friend | On a weapon |
+|---|---|---|---|
+| Fire | burns and scorches | fire resistance (3 min) | sets what it hits alight |
+| Frost | freezes and slows hard | puts out fire, resistance (1 min) | slows and chills |
+| Thunder | lightning strike | speed and haste (1 min) | every 4th hit calls lightning |
+| Life | heals and regenerates (anyone) | heals and regenerates | heals you for part of the damage |
+| Guard | weakness | extra hearts and resistance | each hit gives you a little shield |
+| Wind | blown up and away | speed, jumps, slow falling (1 min) | knocks far back |
+| Bind | rooted in place (5 s) | cures bad effects | briefly roots |
+| Sight | glows through walls (1 min) | night vision (3 min) | makes what it hits glow |
+
+Numbers are in the `[runes]` section of the server config (`drawMagicules`, `weaponCharges`, `runePower`).
 
 ## Race: Spirit
 
@@ -459,7 +500,9 @@ and re-firing magic, bosses being unsealable), Rainbow Magic with real Tensura s
 spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), Energy Magic (paying in levels, twice the
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
-back when hurt, fire tearing paper), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
+back when hurt, fire tearing paper), Rune Magic (every rune matching however it's drawn, wrong drawings keeping the paper, runes on foes and on
+yourself, a weapon carrying a rune and using charges), the starting skill choice (one pick, Rune Magic bringing the
+codex, players with earlier skills keeping them), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
 dismissal, catching up, leaving and coming back with you, sneak-clicking through follow, stay and wander, staying
 put and staying behind on log-off, wandering near its spot, Tensura-named creatures becoming companions), allies (asking each other, allies naming each other's

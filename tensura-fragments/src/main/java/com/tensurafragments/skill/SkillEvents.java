@@ -35,15 +35,7 @@ public final class SkillEvents {
         SpiritCommunion.tick(player);
         if (player.tickCount % 40 == 0) {
             OriginalSkillStripper.strip(player);
-            GambitCards.grantSkill(player);
-            ShikigamiControl.grantSkill(player);
-            SealingGrimoire.grantSkill(player);
-            RainbowMagic.grantSkill(player);
-            FlameEmperor.grantSkill(player);
-            SpiritControl.grantSkill(player);
-            SpiritCommunion.grantSkill(player);
-            EnergyMagic.grantSkill(player);
-            SoulReaper.grantSkill(player);
+            StartingSkill.grantOrOffer(player);
         }
     }
 
@@ -73,6 +65,7 @@ public final class SkillEvents {
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             PaperBeasts.forget(player);
+            StartingSkill.forget(player);
         }
     }
 
@@ -80,15 +73,7 @@ public final class SkillEvents {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             OriginalSkillStripper.strip(player);
-            GambitCards.grantSkill(player);
-            ShikigamiControl.grantSkill(player);
-            SealingGrimoire.grantSkill(player);
-            RainbowMagic.grantSkill(player);
-            FlameEmperor.grantSkill(player);
-            SpiritControl.grantSkill(player);
-            SpiritCommunion.grantSkill(player);
-            EnergyMagic.grantSkill(player);
-            SoulReaper.grantSkill(player);
+            StartingSkill.grantOrOffer(player);
             GambitCards.sync(player);
             ShikigamiControl.sync(player);
             SpiritCommunion.sync(player);

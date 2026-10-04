@@ -53,7 +53,10 @@ public final class VisualCheck {
             mc.setScreen(null);
             return;
         }
-        if (mc.screen != null) {
+        boolean ours = mc.screen instanceof com.tensurafragments.client.RuneScreens.Canvas
+                || mc.screen instanceof com.tensurafragments.client.RuneScreens.Codex
+                || mc.screen instanceof com.tensurafragments.client.SkillPickScreen;
+        if (mc.screen != null && !ours) {
             // Tensura's reincarnation (race) screen opens on first join; close it so the check can run.
             org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLIENT closing screen {}", mc.screen.getClass().getName());
             mc.setScreen(null);
@@ -339,7 +342,54 @@ public final class VisualCheck {
                                 e.getCustomName() == null ? null : e.getCustomName().getString())));
             }
             case 712 -> shot(mc, "16_named");
-            case 715 -> mc.stop();
+            case 715 -> onServer(mc, player -> {
+                io.github.manasmods.tensura.ability.SkillHelper.learnSkill(player, com.tensurafragments.skill.ModSkills.RUNE_MAGIC.get());
+                player.getInventory().add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER, 5));
+            });
+            case 718 -> {
+                mc.options.setCameraType(CameraType.FIRST_PERSON);
+                com.tensurafragments.client.SkillPickScreen.open(com.tensurafragments.skill.StartingSkill.CHOICES.stream()
+                        .map(choice -> choice.getId().toString()).toList());
+            }
+            case 722 -> shot(mc, "17_skill_pick");
+            case 724 -> mc.setScreen(null);
+            case 726 -> onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn("RUNE startDrawing {}",
+                    com.tensurafragments.rune.RuneMagic.startDrawing(player)));
+            case 730 -> {
+                // Draw Thunder with real mouse events, dot by dot.
+                var screen = mc.screen;
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("RUNE canvas open: {}", screen);
+                if (screen != null) {
+                    int[][] path = {{3, 0}, {2, 1}, {1, 2}, {2, 2}, {3, 2}, {2, 3}, {1, 4}};
+                    double[] first = runeDot(screen, path[0]);
+                    screen.mouseClicked(first[0], first[1], 0);
+                    for (int[] dot : path) {
+                        double[] at = runeDot(screen, dot);
+                        screen.mouseDragged(at[0], at[1], 0, 0, 0);
+                    }
+                    double[] last = runeDot(screen, path[path.length - 1]);
+                    screen.mouseReleased(last[0], last[1], 0);
+                }
+            }
+            case 740 -> shot(mc, "18_rune_canvas");
+            case 744 -> {
+                var screen = mc.screen;
+                if (screen != null) {
+                    // The Inscribe button.
+                    screen.mouseClicked(screen.width / 2 + 110, screen.height / 2 - 86 + 160 + 22 + 10, 0);
+                }
+            }
+            case 748 -> onServer(mc, player -> {
+                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                    var rune = com.tensurafragments.rune.RunePaperItem.runeOf(player.getInventory().getItem(i));
+                    if (rune != null) {
+                        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("RUNE drawn onto paper: {}", rune);
+                    }
+                }
+            });
+            case 750 -> com.tensurafragments.client.RuneScreens.openCodex();
+            case 756 -> shot(mc, "19_rune_codex");
+            case 758 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
@@ -376,6 +426,11 @@ public final class VisualCheck {
         org.slf4j.LoggerFactory.getLogger("visualcheck").warn("CLICK {} at {} blocks holding {}: {}", nearest,
                 nearest == null ? -1 : nearest.distanceTo(mc.player), mc.player.getMainHandItem(),
                 nearest == null ? null : mc.gameMode.interact(mc.player, nearest, net.minecraft.world.InteractionHand.MAIN_HAND));
+    }
+
+    /** Where a rune dot is on the drawing sheet (the sheet is centred: dots 40 apart, 6 above the middle). */
+    private static double[] runeDot(net.minecraft.client.gui.screens.Screen screen, int[] dot) {
+        return new double[] {screen.width / 2 - 80 + dot[0] * 40, screen.height / 2 - 86 + dot[1] * 40};
     }
 
     private static void onServer(Minecraft mc, Consumer<ServerPlayer> action) {
