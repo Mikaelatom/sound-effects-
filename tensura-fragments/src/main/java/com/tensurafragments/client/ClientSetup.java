@@ -35,6 +35,9 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void registerKeys(net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent event) {
         event.register(ClientCombat.TOGGLE);
+        event.register(ClientCombat.BLOCK);
+        event.register(ClientCombat.GRAB);
+        event.register(ClientCombat.DASH);
     }
 
     @SubscribeEvent

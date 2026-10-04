@@ -360,18 +360,32 @@ Numbers are in the `[runes]` section of the server config (`drawMagicules`, `wea
 
 ## Combat Mode
 
-A melee fighting style you can turn on and off: press **G** (rebind it in Controls, under Tensura: Fragments) or use
-`/combat`. "Combat" shows under the crosshair while it's on.
+A melee fighting style you can turn on and off: press **G** or use `/combat`. "Combat" shows under the crosshair
+while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): **G** on/off, **H** block (hold),
+**J** grab / throw, **K** dash.
 
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or
   tool); every hit steps you in a little and leaves a **white swish** in the air.
 - **Hit stun:** whatever you hit is stunned for a moment (about half a second): it can't move or hurt anyone. Combo
-  hits barely knock it back, so you can keep going.
+  hits barely knock it back, so you can keep going. It works in the air too: something stunned in mid-air hangs
+  there, sinking slowly, instead of falling, and each punch you throw in mid-air keeps you up as well, so you can
+  juggle it.
 - **Finisher:** the 4th hit of a combo (x4!) hits much harder (1.5 times, plus 3) and launches the target up and
   away, with a big swish and a crack.
 - **Uppercut:** **jump and punch** on the way up to throw an uppercut: it hits a bit harder, launches the target
   straight up into the air (higher still if it's your finisher) and stuns it a little longer, with a rising swish.
+  **You go up with it**, just below it, ready to keep hitting it in the air. No fall damage on the way back down.
+- **Block:** hold **H** to put your guard up ("Blocking" under the crosshair). Hits from the front do a quarter of
+  their damage, barely knock you back and don't stun you; you shuffle slowly and can't punch while blocking. Block
+  **just as a hit comes** (within a third of a second) to **parry** it: no damage at all, and the attacker is stunned.
+  A combo finisher **breaks** a guard: full damage, and the blocker is stunned.
+- **Grab:** press **J** to grab the creature (or player) you're looking at, within reach. You hold it up in front of
+  you, stunned, for up to 2 seconds; press **J** again or punch to **throw** it, hard, forward and up. A grab goes
+  straight through a block. Bosses and very big creatures can't be grabbed, and neither can your allies.
+- **Dash:** press **K** to dash a few blocks the way you're moving (forward if you're standing still), on the ground
+  or in mid-air. For the first moment of the dash (8 ticks) **nothing can hurt you** (invulnerability frames), so
+  dash through an attack. One dash a second.
 - **Down slam:** in mid-air, **sneak and attack** to dive straight down. Landing sends out a shockwave (white ring,
   dust, a thud) that hurts and knocks up everything within 4 blocks, harder the higher you came from, and stuns it.
   You take no fall damage from a slam.
@@ -532,7 +546,9 @@ damage, not casting without the levels, every spell casting), paper beasts (fold
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
 back when hurt, fire tearing paper), Rune Magic (every rune matching however it's drawn, wrong drawings keeping the paper, runes on foes and on
 yourself, a weapon carrying a rune and using charges, Rune Tomes teaching runes, drawing without the skill only
-learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), Combat Mode (combos counting up and stunning, the finisher hitting harder and launching, a jumping punch uppercutting straight up, stunned creatures
+learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), Combat Mode (combos counting up and stunning, the finisher hitting harder and launching, a jumping punch uppercutting straight up and carrying you with it, stunned
+creatures hanging in mid-air, mid-air hits keeping you up, blocks and parries, grabs and throws (and grabs breaking
+blocks), dashes being untouchable and then on cooldown, stunned creatures
 unable to hurt anyone, the down slam's shockwave, and nothing happening with it off), the starting skill choice (one pick, Rune Magic bringing the
 codex, players with earlier skills keeping them), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and

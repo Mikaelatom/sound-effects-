@@ -474,7 +474,51 @@ public final class VisualCheck {
             case 805 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
                     player.getBoundingBox().inflate(8)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
                     .warn("COMBAT husk hp {}", h.getHealth())));
-            case 810 -> mc.stop();
+            case 810 -> onServer(mc, player -> {
+                // Grab, throw, dash and block: one fresh husk right in front.
+                player.serverLevel().getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
+                player.setYRot(0);
+                player.setXRot(15);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), 0, 15);
+                Husk husk = EntityType.HUSK.create(player.serverLevel());
+                husk.moveTo(player.getX(), player.getY(), player.getZ() + 2.0, 180, 0);
+                husk.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 10, false, false));
+                husk.setPersistenceRequired();
+                player.serverLevel().addFreshEntity(husk);
+            });
+            case 814 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
+            case 817 -> {
+                onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT grabbing {}",
+                        com.tensurafragments.combat.CombatMode.isGrabbing(player)));
+                shot(mc, "23_grab");
+            }
+            case 822 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
+            case 823 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                    player.getBoundingBox().inflate(8)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                    .warn("COMBAT thrown husk: motion {} hp {}", h.getDeltaMovement(), h.getHealth())));
+            case 825 -> shot(mc, "24_throw");
+            case 832 -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT before dash at {}", mc.player.position());
+                net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.DASH.getKey());
+            }
+            case 834 -> {
+                onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT dodging {}",
+                        com.tensurafragments.combat.CombatMode.isDodging(player)));
+                shot(mc, "25_dash");
+            }
+            case 840 -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT after dash at {}", mc.player.position());
+                net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), true);
+            }
+            case 845 -> {
+                onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT blocking {} (client {})",
+                        com.tensurafragments.combat.CombatMode.isBlocking(player),
+                        com.tensurafragments.client.ClientCombat.isBlocking()));
+                shot(mc, "26_block");
+            }
+            case 848 -> net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), false);
+            case 852 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

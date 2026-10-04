@@ -73,10 +73,119 @@ public final class CombatGameTests {
         helper.assertTrue(Math.abs(motion.x) < 0.3 && Math.abs(motion.z) < 0.3, "straight up, " + motion);
         helper.assertTrue(husk.getHealth() <= 1000 - 2, "with extra damage, at " + husk.getHealth());
         helper.assertTrue(CombatMode.isStunned(husk), "and stunned");
+        helper.assertTrue(player.getDeltaMovement().y > 0.9, "and you go up with it, " + player.getDeltaMovement());
         double startY = husk.getY();
         // The stun mustn't hold it down: two ticks later it's two blocks up (the test space's ceiling is just above).
         helper.runAfterDelay(2, () -> {
             helper.assertTrue(husk.getY() - startY > 1.8, "flew up, " + (husk.getY() - startY));
+            husk.discard();
+            helper.succeed();
+        });
+    }
+
+    /** Hits stun in mid-air too: a stunned creature hangs there instead of falling. */
+    @GameTest(template = "platform", timeoutTicks = 40)
+    public static void stunnedHangsInTheAir(GameTestHelper helper) {
+        Husk husk = dummy(helper, 4.5, 3.0);
+        Vec3 up = helper.absoluteVec(new Vec3(4.5, GROUND + 1.5, 3.0));
+        husk.teleportTo(up.x, up.y, up.z);
+        husk.setOnGround(false);
+        CombatMode.stun(husk, 40);
+        double startY = husk.getY();
+        helper.runAfterDelay(6, () -> {
+            double fell = startY - husk.getY();
+            helper.assertTrue(fell > 0 && fell < 0.5, "it hung in the air, fell " + fell);
+            husk.discard();
+            helper.succeed();
+        });
+    }
+
+    /** A hit thrown in mid-air keeps you up, so you can keep hitting what hangs there. */
+    @GameTest(template = "platform")
+    public static void airHitsKeepYouUp(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        Husk husk = dummy(helper, 4.5, 3.0);
+        player.setOnGround(false);
+        player.setDeltaMovement(0, -0.4, 0);
+        player.attack(husk);
+        helper.assertTrue(player.getDeltaMovement().y > 0.2, "lifted, " + player.getDeltaMovement());
+        husk.discard();
+        helper.succeed();
+    }
+
+    /** Blocking: a hit right as the block goes up is parried (no damage, attacker stunned); later ones are cut down. */
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void blockAndParry(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        player.setYRot(0);
+        Husk first = dummy(helper, 4.0, 3.0);
+        Husk second = dummy(helper, 5.0, 3.0);
+        first.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(8);
+        second.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(8);
+        CombatMode.setBlocking(player, true);
+        helper.assertTrue(CombatMode.isBlocking(player), "blocking");
+        float health = player.getHealth();
+        first.doHurtTarget(player);
+        helper.assertTrue(player.getHealth() == health, "parried: no damage");
+        helper.assertTrue(CombatMode.isStunned(first), "and the attacker is stunned");
+        helper.runAfterDelay(12, () -> {
+            player.invulnerableTime = 0;
+            float before = player.getHealth();
+            second.doHurtTarget(player);
+            float blocked = before - player.getHealth();
+            CombatMode.setBlocking(player, false);
+            player.invulnerableTime = 0;
+            second.getPersistentData().remove("tensurafragments_stun_until");
+            float before2 = player.getHealth();
+            second.doHurtTarget(player);
+            float open = before2 - player.getHealth();
+            helper.assertTrue(blocked > 0 && blocked < open * 0.5, "the block cut it down: " + blocked + " vs " + open);
+            first.discard();
+            second.discard();
+            helper.succeed();
+        });
+    }
+
+    /** Grab holds a creature in front of you; grabbing again throws it. A grab goes through a block. */
+    @GameTest(template = "platform")
+    public static void grabAndThrow(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        player.setYRot(0);
+        Husk husk = dummy(helper, 4.5, 3.0);
+        helper.assertTrue(CombatMode.grab(player, husk), "grabbed");
+        helper.assertTrue(CombatMode.isHeld(husk) && CombatMode.isStunned(husk), "held and stunned");
+        helper.assertTrue(husk.distanceTo(player) < 2.5 && husk.getZ() > player.getZ(), "in front of you");
+        CombatMode.grabOrThrow(player);
+        helper.assertFalse(CombatMode.isHeld(husk), "let go");
+        helper.assertTrue(husk.getHealth() < 1000, "the throw hurt");
+        helper.assertTrue(husk.getDeltaMovement().z > 0.8 && husk.getDeltaMovement().y > 0.2, "and flung it forward, "
+                + husk.getDeltaMovement());
+        husk.discard();
+
+        ServerPlayer other = TestPlayers.spawn(helper, 4.5, 3.0);
+        other.setData(ModRegistries.COMBAT_MODE, true);
+        CombatMode.setBlocking(other, true);
+        helper.assertTrue(CombatMode.grab(player, other), "grabbed a blocking player");
+        helper.assertFalse(CombatMode.isBlocking(other), "breaking the block");
+        CombatMode.throwHeld(player);
+        other.discard();
+        helper.succeed();
+    }
+
+    /** A dash makes you untouchable for a moment, then has a cooldown. */
+    @GameTest(template = "platform", timeoutTicks = 60)
+    public static void dashHasIFrames(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        Husk husk = dummy(helper, 4.5, 3.0);
+        helper.assertTrue(CombatMode.dash(player, new Vec3(0, 0, 1)), "dashed");
+        helper.assertFalse(CombatMode.dash(player, new Vec3(0, 0, 1)), "not again straight away");
+        float health = player.getHealth();
+        player.hurt(player.damageSources().mobAttack(husk), 4);
+        helper.assertTrue(player.getHealth() == health, "the hit went straight through you");
+        helper.runAfterDelay(com.tensurafragments.Config.COMBAT_DASH_IFRAMES.get() + 2, () -> {
+            player.invulnerableTime = 0;
+            player.hurt(player.damageSources().mobAttack(husk), 4);
+            helper.assertTrue(player.getHealth() < health, "but not once the dash is over");
             husk.discard();
             helper.succeed();
         });

@@ -17,12 +17,29 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
-/** Combat Mode on the client: its key (G), the down slam input, and the combo counter by the crosshair. */
+/**
+ * Combat Mode on the client: its keys (G to toggle, H to block, J to grab and throw, K to dash), the slam and uppercut
+ * inputs, the dash's movement, and the combo counter by the crosshair.
+ */
 @EventBusSubscriber(modid = TensuraFragments.MODID, value = Dist.CLIENT)
 public final class ClientCombat {
     public static final KeyMapping TOGGLE = new KeyMapping("key.tensurafragments.combat_mode", InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_G, "key.categories.tensurafragments");
+    public static final KeyMapping BLOCK = new KeyMapping("key.tensurafragments.combat_block", InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_H, "key.categories.tensurafragments");
+    public static final KeyMapping GRAB = new KeyMapping("key.tensurafragments.combat_grab", InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_J, "key.categories.tensurafragments");
+    public static final KeyMapping DASH = new KeyMapping("key.tensurafragments.combat_dash", InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_K, "key.categories.tensurafragments");
+    /** A dash lasts a few ticks of fast movement. */
+    private static final int DASH_TICKS = 4;
+    private static final double DASH_SPEED = 0.9;
+    private static final int DASH_COOLDOWN = 20;
     private static boolean on;
+    private static boolean blocking;
+    private static int dashTicks;
+    private static long lastDash = -100;
+    private static net.minecraft.world.phys.Vec3 dashDirection = net.minecraft.world.phys.Vec3.ZERO;
     private static int combo;
     private static long comboShownAt;
     /** Jabs thrown in a row (for alternating hands), and when the last was. */
@@ -36,6 +53,10 @@ public final class ClientCombat {
         return on;
     }
 
+    public static boolean isBlocking() {
+        return blocking;
+    }
+
     public static void sync(boolean isOn, int count) {
         on = isOn;
         combo = count;
@@ -44,10 +65,69 @@ public final class ClientCombat {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
         while (TOGGLE.consumeClick()) {
-            if (Minecraft.getInstance().player != null) {
+            if (mc.player != null) {
                 PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.TOGGLE));
             }
+        }
+        boolean able = on && mc.player != null && mc.level != null && mc.screen == null && !ClientPossession.isPossessing()
+                && mc.player.isAlive();
+        // Blocking: while the key is held.
+        boolean wantBlock = able && BLOCK.isDown() && dashTicks == 0;
+        if (wantBlock != blocking) {
+            blocking = wantBlock;
+            PacketDistributor.sendToServer(new CombatInputPayload(
+                    blocking ? CombatInputPayload.BLOCK_START : CombatInputPayload.BLOCK_STOP));
+        }
+        while (GRAB.consumeClick()) {
+            if (able) {
+                PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.GRAB));
+                mc.player.swing(InteractionHand.MAIN_HAND);
+            }
+        }
+        while (DASH.consumeClick()) {
+            if (able) {
+                startDash(mc);
+            }
+        }
+        if (dashTicks > 0 && mc.player != null) {
+            dashTicks--;
+            net.minecraft.world.phys.Vec3 motion = mc.player.getDeltaMovement();
+            // Along the ground, or straight across in mid-air.
+            mc.player.setDeltaMovement(dashDirection.x * DASH_SPEED, mc.player.onGround() ? motion.y : Math.max(motion.y, 0),
+                    dashDirection.z * DASH_SPEED);
+        }
+    }
+
+    /** Dash the way you're moving (forward if you aren't). */
+    private static void startDash(Minecraft mc) {
+        long now = mc.level.getGameTime();
+        if (now - lastDash < DASH_COOLDOWN || mc.player.isPassenger() || mc.player.getAbilities().flying) {
+            return;
+        }
+        lastDash = now;
+        float strafe = mc.player.input.leftImpulse;
+        float forward = mc.player.input.forwardImpulse;
+        if (Math.abs(strafe) < 0.01F && Math.abs(forward) < 0.01F) {
+            forward = 1;
+        }
+        double yaw = Math.toRadians(mc.player.getYRot());
+        double x = strafe * Math.cos(yaw) - forward * Math.sin(yaw);
+        double z = forward * Math.cos(yaw) + strafe * Math.sin(yaw);
+        dashDirection = new net.minecraft.world.phys.Vec3(x, 0, z).normalize();
+        dashTicks = DASH_TICKS;
+        PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.DASH, (float) dashDirection.x,
+                (float) dashDirection.z));
+    }
+
+    /** Blocking slows you to a shuffle. */
+    @SubscribeEvent
+    public static void onMovementInput(net.neoforged.neoforge.client.event.MovementInputUpdateEvent event) {
+        if (blocking) {
+            event.getInput().forwardImpulse *= 0.3F;
+            event.getInput().leftImpulse *= 0.3F;
+            event.getEntity().setSprinting(false);
         }
     }
 
@@ -59,6 +139,12 @@ public final class ClientCombat {
     public static void onAttackKey(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft mc = Minecraft.getInstance();
         if (!on || !event.isAttack() || mc.player == null || mc.level == null || ClientPossession.isPossessing()) {
+            return;
+        }
+        if (blocking) {
+            // Can't punch with your guard up.
+            event.setSwingHand(false);
+            event.setCanceled(true);
             return;
         }
         if (!mc.player.onGround() && mc.player.isShiftKeyDown() && !mc.player.isInWater()) {
@@ -108,6 +194,7 @@ public final class ClientCombat {
                     (alpha << 24) | colour, true);
             graphics.pose().popPose();
         }
-        graphics.drawCenteredString(mc.font, Component.translatable("tensurafragments.combat.hud"), x, y + 10, 0x80FFFFFF);
+        graphics.drawCenteredString(mc.font, Component.translatable(blocking ? "tensurafragments.combat.hud_blocking"
+                : "tensurafragments.combat.hud"), x, y + 10, blocking ? 0xC0FFE08A : 0x80FFFFFF);
     }
 }

@@ -418,7 +418,7 @@ public final class Config {
             .defineInRange("runePower", 1.0, 0.1, 100.0);
 
     static {
-        BUILDER.pop().comment("Combat Mode: toggled per player (G); punch combos with hit stun, finishers and down slams").push("combat");
+        BUILDER.pop().comment("Combat Mode: toggled per player (G); punch combos with hit stun, finishers, uppercuts, down slams, blocking, grabs and dashes").push("combat");
     }
 
     public static final ModConfigSpec.BooleanValue COMBAT_ENABLED = BUILDER
@@ -442,6 +442,21 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue COMBAT_SLAM_RADIUS = BUILDER
             .comment("Down slam: shockwave radius in blocks.")
             .defineInRange("slamRadius", 4.0, 1.0, 32.0);
+    public static final ModConfigSpec.DoubleValue COMBAT_BLOCK_REDUCTION = BUILDER
+            .comment("Blocking: how much of a hit from the front a block stops (0.75 = three quarters).")
+            .defineInRange("blockReduction", 0.75, 0.0, 1.0);
+    public static final ModConfigSpec.IntValue COMBAT_PARRY_TICKS = BUILDER
+            .comment("Blocking: a hit this soon (ticks) after you start blocking is parried: no damage, and the attacker is stunned.")
+            .defineInRange("parryTicks", 6, 0, 40);
+    public static final ModConfigSpec.DoubleValue COMBAT_THROW_DAMAGE = BUILDER
+            .comment("Grab: damage of the throw.")
+            .defineInRange("throwDamage", 5.0, 0.0, 1000.0);
+    public static final ModConfigSpec.IntValue COMBAT_DASH_IFRAMES = BUILDER
+            .comment("Dash: how long (ticks) you can't be hurt at the start of a dash.")
+            .defineInRange("dashInvulnerableTicks", 8, 0, 60);
+    public static final ModConfigSpec.IntValue COMBAT_DASH_COOLDOWN = BUILDER
+            .comment("Dash: ticks between dashes.")
+            .defineInRange("dashCooldownTicks", 20, 0, 600);
 
     static {
         BUILDER.pop().comment("Starting skill: after picking a race, new players pick one of this addon's skills").push("startingSkill");
