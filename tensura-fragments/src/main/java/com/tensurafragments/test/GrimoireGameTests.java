@@ -100,10 +100,12 @@ public final class GrimoireGameTests {
 
         helper.assertTrue(SealingGrimoire.release(player), "husk released");
         helper.assertTrue(contents(player).isEmpty(), "page used");
-        List<Husk> released = helper.getLevel().getEntitiesOfClass(Husk.class, new AABB(player.blockPosition()).inflate(8));
-        helper.assertTrue(released.size() == 1, "one husk out, found " + released.size());
+        // Only this caster's: other tests' husks can be within reach of the platform.
+        List<Husk> released = helper.getLevel().getEntitiesOfClass(Husk.class, new AABB(player.blockPosition()).inflate(8),
+                h -> Binding.isBoundTo(h, player));
+        helper.assertTrue(released.size() == 1, "one husk out, bound to the caster, found " + released.size());
+        helper.assertTrue(husk.isRemoved(), "the sealed husk left the world");
         Husk servant = released.get(0);
-        helper.assertTrue(Binding.isBoundTo(servant, player), "bound to the caster");
         helper.assertTrue(servant.getHealth() == servant.getMaxHealth(), "healed inside the book");
         servant.setTarget(player);
         helper.assertTrue(servant.getTarget() == null, "never turns on its binder");

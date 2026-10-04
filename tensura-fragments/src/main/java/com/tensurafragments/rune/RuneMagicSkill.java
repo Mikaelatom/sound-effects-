@@ -20,6 +20,22 @@ public class RuneMagicSkill extends Skill {
     }
 
     @Override
+    public int getModes(ManasSkillInstance instance) {
+        return 1;
+    }
+
+    /** Its one mode, so the mode switcher shows a name rather than a raw key. */
+    @Override
+    public String getModeId(ManasSkillInstance instance, int mode) {
+        return "rune_magic.default";
+    }
+
+    @Override
+    public int nextMode(LivingEntity entity, ManasSkillInstance instance, int mode, boolean reverse) {
+        return 0;
+    }
+
+    @Override
     public void onPressed(ManasSkillInstance instance, LivingEntity entity, int keyNumber, int mode) {
         if (entity instanceof ServerPlayer player && !player.isSpectator()) {
             RuneMagic.giveCodex(player);

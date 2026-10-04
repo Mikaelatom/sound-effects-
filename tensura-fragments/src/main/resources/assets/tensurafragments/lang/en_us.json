@@ -270,6 +270,7 @@
   "tensurafragments.spell_card.combo.cataclysm": "Cataclysm",
   "tensurafragments.spell_card.combo.three_of_a_kind": "Three of a Kind",
   "tensurafragments.skill.rune_magic": "Rune Magic",
+  "tensurafragments.skill.mode.rune_magic.default": "Default",
   "tensurafragments.skill.rune_magic.description": "§oPower lives in the lines. Draw a rune true, and the paper remembers it: lay it on a friend, a foe, or the edge of a blade.",
   "tensurafragments.starting_skill.title": "Choose your skill",
   "tensurafragments.starting_skill.subtitle": "Pick one to start with (hover for what each does)",
