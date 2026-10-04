@@ -41,6 +41,43 @@ public class RunePaperItem extends Item {
         return stack;
     }
 
+    /** Seconds left before a rune drawn without Rune Magic is finished (0: ready). */
+    public static long secondsLeft(ItemStack stack, @Nullable Level level) {
+        Long until = stack.get(ModRegistries.INSCRIBING_UNTIL.get());
+        if (until == null || level == null) {
+            return 0;
+        }
+        return Math.max(0, (until - level.getGameTime() + 19) / 20);
+    }
+
+    public static boolean isReady(ItemStack stack, @Nullable Level level) {
+        return !stack.has(ModRegistries.INSCRIBING_UNTIL.get()) || secondsLeft(stack, level) <= 0;
+    }
+
+    /** Still inscribing: say how long, and do nothing. */
+    private static boolean notReady(ItemStack stack, Player player) {
+        if (isReady(stack, player.level())) {
+            return false;
+        }
+        long left = secondsLeft(stack, player.level());
+        player.displayClientMessage(Component.translatable("tensurafragments.rune.inscribing", left / 60,
+                String.format("%02d", left % 60)), true);
+        return true;
+    }
+
+    /** Finishes inscribing once its time is up. */
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slot, boolean selected) {
+        if (!level.isClientSide && stack.has(ModRegistries.INSCRIBING_UNTIL.get()) && secondsLeft(stack, level) <= 0) {
+            stack.remove(ModRegistries.INSCRIBING_UNTIL.get());
+            Rune rune = runeOf(stack);
+            if (rune != null && entity instanceof ServerPlayer player) {
+                player.displayClientMessage(Component.translatable("tensurafragments.rune.finished",
+                        Component.translatable(rune.translationKey())).withColor(rune.colour()), true);
+            }
+        }
+    }
+
     @Override
     public Component getName(ItemStack stack) {
         Rune rune = runeOf(stack);
@@ -51,12 +88,17 @@ public class RunePaperItem extends Item {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        return runeOf(stack) != null;
+        return runeOf(stack) != null && !stack.has(ModRegistries.INSCRIBING_UNTIL.get());
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         Rune rune = runeOf(stack);
+        if (stack.has(ModRegistries.INSCRIBING_UNTIL.get())) {
+            long left = secondsLeft(stack, context.level());
+            tooltip.add(Component.translatable("tensurafragments.rune.inscribing", left / 60, String.format("%02d", left % 60))
+                    .withColor(0xE0B050));
+        }
         if (rune != null) {
             tooltip.add(Component.translatable(rune.translationKey() + ".creature").withColor(0xCFCFCF));
             tooltip.add(Component.translatable(rune.translationKey() + ".weapon").withColor(0xCFCFCF));
@@ -70,6 +112,9 @@ public class RunePaperItem extends Item {
         Rune rune = runeOf(stack);
         if (rune == null) {
             return InteractionResult.PASS;
+        }
+        if (notReady(stack, player)) {
+            return InteractionResult.sidedSuccess(player.level().isClientSide);
         }
         if (player instanceof ServerPlayer serverPlayer) {
             RuneMagic.useOn(serverPlayer, target, rune);
@@ -85,6 +130,9 @@ public class RunePaperItem extends Item {
         Rune rune = runeOf(stack);
         if (rune == null) {
             return InteractionResultHolder.pass(stack);
+        }
+        if (notReady(stack, player)) {
+            return InteractionResultHolder.fail(stack);
         }
         ItemStack weapon = player.getMainHandItem();
         if (hand == InteractionHand.OFF_HAND && RuneMagic.canInscribe(weapon)) {
@@ -105,7 +153,7 @@ public class RunePaperItem extends Item {
     public boolean overrideStackedOnOther(ItemStack paper, Slot slot, ClickAction action, Player player) {
         Rune rune = runeOf(paper);
         ItemStack weapon = slot.getItem();
-        if (action != ClickAction.SECONDARY || rune == null || !RuneMagic.canInscribe(weapon) || !slot.allowModification(player)) {
+        if (action != ClickAction.SECONDARY || rune == null || !isReady(paper, player.level()) || !RuneMagic.canInscribe(weapon) || !slot.allowModification(player)) {
             return false;
         }
         RuneMagic.inscribe(weapon, rune);
@@ -120,7 +168,7 @@ public class RunePaperItem extends Item {
     public boolean overrideOtherStackedOnMe(ItemStack paper, ItemStack weapon, Slot slot, ClickAction action, Player player,
                                             SlotAccess carried) {
         Rune rune = runeOf(paper);
-        if (action != ClickAction.SECONDARY || rune == null || !RuneMagic.canInscribe(weapon) || !slot.allowModification(player)) {
+        if (action != ClickAction.SECONDARY || rune == null || !isReady(paper, player.level()) || !RuneMagic.canInscribe(weapon) || !slot.allowModification(player)) {
             return false;
         }
         RuneMagic.inscribe(weapon, rune);

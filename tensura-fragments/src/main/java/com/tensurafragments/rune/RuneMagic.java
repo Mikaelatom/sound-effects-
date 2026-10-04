@@ -48,11 +48,12 @@ public final class RuneMagic {
             SkillHelper.learnSkill(player, ModSkills.RUNE_MAGIC.get());
         }
         giveCodex(player);
+        sync(player);
     }
 
-    /** Every Rune Magic user gets one Rune Codex (once; a lost one can be crafted again). */
+    /** Every Rune Magic user (and anyone who's learned a rune) gets one Rune Codex (once; a lost one can be crafted). */
     public static void giveCodex(ServerPlayer player) {
-        if (player.getData(ModRegistries.RUNE_CODEX_GIVEN) || !hasSkill(player)) {
+        if (player.getData(ModRegistries.RUNE_CODEX_GIVEN) || (!hasSkill(player) && known(player).isEmpty())) {
             return;
         }
         player.setData(ModRegistries.RUNE_CODEX_GIVEN, true);
@@ -60,6 +61,43 @@ public final class RuneMagic {
         if (!player.getInventory().add(codex)) {
             player.drop(codex, false);
         }
+    }
+
+    // ---- Knowing runes ----
+
+    /** The runes learned from Rune Tomes. */
+    public static java.util.List<String> known(ServerPlayer player) {
+        return player.getData(ModRegistries.KNOWN_RUNES);
+    }
+
+    /** Whether the player can draw this rune: Rune Magic knows them all; otherwise it has to be learned. */
+    public static boolean knows(ServerPlayer player, Rune rune) {
+        return hasSkill(player) || known(player).contains(rune.id());
+    }
+
+    /** Reads a Rune Tome. Returns whether it taught something new (the tome is used up then). */
+    public static boolean learn(ServerPlayer player, Rune rune) {
+        if (known(player).contains(rune.id())) {
+            player.displayClientMessage(Component.translatable("tensurafragments.rune.already_known",
+                    Component.translatable(rune.translationKey())), true);
+            return false;
+        }
+        java.util.List<String> runes = new java.util.ArrayList<>(known(player));
+        runes.add(rune.id());
+        player.setData(ModRegistries.KNOWN_RUNES, runes);
+        player.sendSystemMessage(Component.translatable("tensurafragments.rune.learned",
+                Component.translatable(rune.translationKey())).withColor(rune.colour()));
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENCHANTMENT_TABLE_USE,
+                SoundSource.PLAYERS, 1F, 0.8F);
+        giveCodex(player);
+        sync(player);
+        return true;
+    }
+
+    /** Tells the client which runes the codex should show. */
+    public static void sync(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(player, new com.tensurafragments.network.SyncKnownRunesPayload(known(player),
+                hasSkill(player)));
     }
 
     // ---- Drawing ----
@@ -74,12 +112,21 @@ public final class RuneMagic {
         return true;
     }
 
-    /** What the player drew. Returns the rune made, or null if the lines aren't a rune (the paper is kept then). */
+    /**
+     * What the player drew. Returns the rune made, or null if the lines aren't a rune the player knows (the paper is
+     * kept then). Without Rune Magic, the rune takes a while to finish inscribing.
+     */
     public static Rune finishDrawing(ServerPlayer player, Collection<Integer> segments) {
-        if (!hasSkill(player)) {
+        boolean skilled = hasSkill(player);
+        if (!skilled && known(player).isEmpty()) {
             return null;
         }
         Rune rune = Rune.match(segments);
+        if (rune != null && !knows(player, rune)) {
+            player.displayClientMessage(Component.translatable("tensurafragments.rune.unknown",
+                    Component.translatable(rune.translationKey())).withStyle(ChatFormatting.RED), true);
+            return null;
+        }
         if (rune == null) {
             player.displayClientMessage(Component.translatable("tensurafragments.rune.no_match").withStyle(ChatFormatting.RED),
                     true);
@@ -99,11 +146,17 @@ public final class RuneMagic {
             player.getInventory().getItem(slot).shrink(1);
         }
         ItemStack paper = RunePaperItem.of(rune);
+        int seconds = Config.RUNE_INSCRIBE_SECONDS.get();
+        if (!skilled && seconds > 0) {
+            paper.set(ModRegistries.INSCRIBING_UNTIL.get(), player.level().getGameTime() + seconds * 20L);
+        }
         if (!player.getInventory().add(paper)) {
             player.drop(paper, false);
         }
-        player.displayClientMessage(Component.translatable("tensurafragments.rune.drawn",
-                Component.translatable(rune.translationKey())).withColor(rune.colour()), true);
+        player.displayClientMessage(Component.translatable(paper.has(ModRegistries.INSCRIBING_UNTIL.get())
+                        ? "tensurafragments.rune.drawn_slow" : "tensurafragments.rune.drawn",
+                Component.translatable(rune.translationKey()), seconds / 60, String.format("%02d", seconds % 60))
+                .withColor(rune.colour()), true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENCHANTMENT_TABLE_USE,
                 SoundSource.PLAYERS, 0.8F, 1.4F);
         SkillAPI.getSkillsFrom(player).getSkill(ModSkills.RUNE_MAGIC.getId())

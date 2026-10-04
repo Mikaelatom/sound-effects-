@@ -18,6 +18,8 @@ import com.tensurafragments.grimoire.Binding;
 import com.tensurafragments.grimoire.GrimoireContents;
 import com.tensurafragments.grimoire.SealingGrimoireItem;
 import com.tensurafragments.rune.RuneCodexItem;
+import com.tensurafragments.rune.RuneLootModifier;
+import com.tensurafragments.rune.RuneTomeItem;
 import com.tensurafragments.rune.RunePaperItem;
 import com.tensurafragments.rune.WeaponRune;
 import com.tensurafragments.shikigami.BarrierAnchorEntity;
@@ -60,6 +62,13 @@ public final class ModRegistries {
     private static final DeferredRegister<SoundEvent> SOUNDS =
             DeferredRegister.create(Registries.SOUND_EVENT, TensuraFragments.MODID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(TensuraFragments.MODID);
+    private static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
+            LOOT_MODIFIERS = DeferredRegister.create(net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS,
+            TensuraFragments.MODID);
+    /** Rune Tomes and rune papers in loot chests. */
+    public static final DeferredHolder<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>,
+            com.mojang.serialization.MapCodec<RuneLootModifier>> RUNE_LOOT = LOOT_MODIFIERS.register("rune_loot",
+            () -> RuneLootModifier.CODEC);
     private static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, TensuraFragments.MODID);
     private static final DeferredRegister<MobEffect> MOB_EFFECTS =
@@ -108,6 +117,16 @@ public final class ModRegistries {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WeaponRune>> WEAPON_RUNE =
             COMPONENTS.registerComponentType("weapon_rune",
                     builder -> builder.persistent(WeaponRune.CODEC).networkSynchronized(WeaponRune.STREAM_CODEC));
+
+    /** Until when (game time) a rune drawn without Rune Magic is still inscribing. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> INSCRIBING_UNTIL =
+            COMPONENTS.registerComponentType("inscribing_until",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.LONG)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_LONG));
+
+    /** A Rune Tome, found in chests: reading it teaches its rune. */
+    public static final DeferredItem<RuneTomeItem> RUNE_TOME = ITEMS.registerItem("rune_tome", RuneTomeItem::new,
+            new Item.Properties().rarity(Rarity.RARE));
 
     public static final DeferredItem<RunePaperItem> RUNE_PAPER = ITEMS.registerItem("rune_paper", RunePaperItem::new,
             new Item.Properties().rarity(Rarity.UNCOMMON));
@@ -184,6 +203,11 @@ public final class ModRegistries {
     /** Whether a player has made (or doesn't need) their starting skill choice. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> STARTING_SKILL_PICKED = ATTACHMENTS.register(
             "starting_skill_picked", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
+
+    /** The runes a player has learned from Rune Tomes (Rune Magic users know them all anyway). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<String>>> KNOWN_RUNES = ATTACHMENTS.register(
+            "known_runes", () -> AttachmentType.<List<String>>builder(() -> List.of())
+                    .serialize(Codec.STRING.listOf()).copyOnDeath().build());
 
     /** Whether a Rune Magic user has been given their Rune Codex. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> RUNE_CODEX_GIVEN = ATTACHMENTS.register(
@@ -308,6 +332,7 @@ public final class ModRegistries {
     static void register(IEventBus modEventBus) {
         ENTITY_TYPES.register(modEventBus);
         ITEMS.register(modEventBus);
+        LOOT_MODIFIERS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
         COMPONENTS.register(modEventBus);
         modEventBus.addListener((EntityAttributeCreationEvent event) -> {
@@ -324,6 +349,9 @@ public final class ModRegistries {
                 SPELL_CARD_ITEMS.values().forEach(item -> event.accept(item.get()));
                 event.accept(SPIRIT_LANTERN.get());
                 event.accept(RUNE_CODEX.get());
+                for (com.tensurafragments.rune.Rune rune : com.tensurafragments.rune.Rune.values()) {
+                    event.accept(RuneTomeItem.of(rune));
+                }
                 for (com.tensurafragments.rune.Rune rune : com.tensurafragments.rune.Rune.values()) {
                     event.accept(RunePaperItem.of(rune));
                 }

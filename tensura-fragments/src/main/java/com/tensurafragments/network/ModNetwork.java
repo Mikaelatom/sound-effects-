@@ -9,7 +9,7 @@ public final class ModNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("17");
+        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("18");
         registrar.playToClient(SyncDeckPayload.TYPE, SyncDeckPayload.STREAM_CODEC, SyncDeckPayload::handle);
         registrar.playToClient(EnergyEntityPayload.TYPE, EnergyEntityPayload.STREAM_CODEC, EnergyEntityPayload::handle);
         registrar.playToClient(RainbowEntityPayload.TYPE, RainbowEntityPayload.STREAM_CODEC, RainbowEntityPayload::handle);
@@ -24,6 +24,7 @@ public final class ModNetwork {
         registrar.playToClient(OpenRuneCanvasPayload.TYPE, OpenRuneCanvasPayload.STREAM_CODEC, OpenRuneCanvasPayload::handle);
         registrar.playToServer(DrawRunePayload.TYPE, DrawRunePayload.STREAM_CODEC, DrawRunePayload::handle);
         registrar.playToClient(OpenSkillPickPayload.TYPE, OpenSkillPickPayload.STREAM_CODEC, OpenSkillPickPayload::handle);
+        registrar.playToClient(SyncKnownRunesPayload.TYPE, SyncKnownRunesPayload.STREAM_CODEC, SyncKnownRunesPayload::handle);
         registrar.playToServer(PickSkillPayload.TYPE, PickSkillPayload.STREAM_CODEC, PickSkillPayload::handle);
     }
 }

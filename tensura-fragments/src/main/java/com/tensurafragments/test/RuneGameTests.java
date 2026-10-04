@@ -135,6 +135,88 @@ public final class RuneGameTests {
         helper.succeed();
     }
 
+    /** Reading a Rune Tome teaches its rune for good (and gives a codex); a second copy isn't used up. */
+    @GameTest(template = "platform")
+    public static void runeTomeTeachesItsRune(GameTestHelper helper) {
+        ServerPlayer player = TestPlayers.spawn(helper, 4.5, 1.5);
+        player.getInventory().clearContent();
+        player.setItemInHand(InteractionHand.MAIN_HAND, com.tensurafragments.rune.RuneTomeItem.of(Rune.WIND));
+        player.getMainHandItem().use(player.level(), player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(RuneMagic.knows(player, Rune.WIND) && !RuneMagic.knows(player, Rune.FIRE), "knows Wind only");
+        helper.assertTrue(player.getMainHandItem().isEmpty(), "the tome was read");
+        helper.assertTrue(player.getInventory().countItem(ModRegistries.RUNE_CODEX.get()) == 1, "got a codex");
+        player.setItemInHand(InteractionHand.MAIN_HAND, com.tensurafragments.rune.RuneTomeItem.of(Rune.WIND));
+        player.getMainHandItem().use(player.level(), player, InteractionHand.MAIN_HAND);
+        helper.assertFalse(player.getMainHandItem().isEmpty(), "a second Wind tome is kept");
+        helper.succeed();
+    }
+
+    /** Without Rune Magic you can only draw runes you've learned, and they take 2 minutes to finish. */
+    @GameTest(template = "platform")
+    public static void drawingWithoutTheSkillTakesTime(GameTestHelper helper) {
+        ServerPlayer player = TestPlayers.spawn(helper, 4.5, 1.5);
+        TestPlayers.giveMagicules(player, 10_000);
+        player.getInventory().clearContent();
+        player.getInventory().add(new ItemStack(Items.PAPER, 3));
+        RuneMagic.learn(player, Rune.FIRE);
+        helper.assertTrue(RuneMagic.finishDrawing(player, Rune.THUNDER.segments()) == null, "can't draw an unlearned rune");
+        helper.assertTrue(player.getInventory().countItem(Items.PAPER) == 3, "paper kept");
+        helper.assertTrue(RuneMagic.finishDrawing(player, Rune.FIRE.segments()) == Rune.FIRE, "drew the learned one");
+        ItemStack paper = ItemStack.EMPTY;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            if (RunePaperItem.runeOf(player.getInventory().getItem(i)) == Rune.FIRE) {
+                paper = player.getInventory().getItem(i);
+            }
+        }
+        helper.assertTrue(!paper.isEmpty() && RunePaperItem.secondsLeft(paper, player.level()) > 110, "inscribing for 2 minutes, "
+                + RunePaperItem.secondsLeft(paper, player.level()) + "s left");
+        Husk husk = dummy(helper, 4.5, 3.0);
+        helper.assertFalse(RunePaperItem.isReady(paper, player.level()), "not ready yet");
+        paper.getItem().interactLivingEntity(paper, player, husk, InteractionHand.MAIN_HAND);
+        helper.assertTrue(!husk.isOnFire() && paper.getCount() == 1, "an unfinished rune does nothing");
+        // Two minutes later...
+        paper.set(ModRegistries.INSCRIBING_UNTIL.get(), player.level().getGameTime() - 1);
+        paper.inventoryTick(player.level(), player, 0, false);
+        helper.assertTrue(RunePaperItem.isReady(paper, player.level()) && !paper.has(ModRegistries.INSCRIBING_UNTIL.get()),
+                "finished");
+        paper.getItem().interactLivingEntity(paper, player, husk, InteractionHand.MAIN_HAND);
+        helper.assertTrue(husk.isOnFire(), "and now it burns");
+        helper.succeed();
+    }
+
+    /** Loot chests can hold Rune Tomes and rune papers; other loot can't. */
+    @GameTest(template = "platform")
+    public static void lootChestsHoldRunes(GameTestHelper helper) {
+        var level = helper.getLevel();
+        double tome = com.tensurafragments.Config.RUNE_TOME_CHANCE.get();
+        double paper = com.tensurafragments.Config.RUNE_PAPER_LOOT_CHANCE.get();
+        com.tensurafragments.Config.RUNE_TOME_CHANCE.set(1.0);
+        com.tensurafragments.Config.RUNE_PAPER_LOOT_CHANCE.set(1.0);
+        try {
+            var params = new net.minecraft.world.level.storage.loot.LootParams.Builder(level)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,
+                            helper.absoluteVec(new Vec3(4.5, GROUND, 4.5)))
+                    .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
+            var chest = level.getServer().reloadableRegistries()
+                    .getLootTable(net.minecraft.world.level.storage.loot.BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params);
+            helper.assertTrue(chest.stream().anyMatch(stack -> stack.is(ModRegistries.RUNE_TOME.get())), "a Rune Tome in the dungeon chest");
+            helper.assertTrue(chest.stream().anyMatch(stack -> RunePaperItem.runeOf(stack) != null), "and a rune paper");
+            var fishing = level.getServer().reloadableRegistries()
+                    .getLootTable(net.minecraft.world.level.storage.loot.BuiltInLootTables.FISHING_JUNK).getRandomItems(
+                            new net.minecraft.world.level.storage.loot.LootParams.Builder(level)
+                                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,
+                                            helper.absoluteVec(new Vec3(4.5, GROUND, 4.5)))
+                                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL,
+                                            new ItemStack(Items.FISHING_ROD))
+                                    .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.FISHING));
+            helper.assertFalse(fishing.stream().anyMatch(stack -> stack.is(ModRegistries.RUNE_TOME.get())), "not in fishing loot");
+        } finally {
+            com.tensurafragments.Config.RUNE_TOME_CHANCE.set(tome);
+            com.tensurafragments.Config.RUNE_PAPER_LOOT_CHANCE.set(paper);
+        }
+        helper.succeed();
+    }
+
     /** A new player (with a race) picks one skill; Rune Magic comes with the codex; there's only one pick. */
     @GameTest(template = "platform")
     public static void startingSkillPick(GameTestHelper helper) {

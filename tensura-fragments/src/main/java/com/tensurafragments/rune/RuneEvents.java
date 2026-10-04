@@ -35,6 +35,16 @@ public final class RuneEvents {
         if (event.getEntity() instanceof ServerPlayer player && player.tickCount % 40 == 0) {
             RuneMagic.giveCodex(player);
         }
+        if (event.getEntity() instanceof ServerPlayer player && player.tickCount % 200 == 0) {
+            RuneMagic.sync(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            RuneMagic.sync(player);
+        }
     }
 
     @SubscribeEvent

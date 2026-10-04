@@ -404,6 +404,15 @@ public final class Config {
     public static final ModConfigSpec.IntValue RUNE_WEAPON_CHARGES = BUILDER
             .comment("How many hits a rune inscribed on a weapon lasts.")
             .defineInRange("weaponCharges", 32, 1, 100000);
+    public static final ModConfigSpec.IntValue RUNE_INSCRIBE_SECONDS = BUILDER
+            .comment("Without Rune Magic: how long a drawn rune takes to finish inscribing before it can be used.")
+            .defineInRange("inscribeSecondsWithoutSkill", 120, 0, 86400);
+    public static final ModConfigSpec.DoubleValue RUNE_TOME_CHANCE = BUILDER
+            .comment("Chance a loot chest holds a Rune Tome (reading it teaches its rune).")
+            .defineInRange("runeTomeChestChance", 0.15, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue RUNE_PAPER_LOOT_CHANCE = BUILDER
+            .comment("Chance a loot chest holds a ready-to-use rune paper.")
+            .defineInRange("runePaperChestChance", 0.10, 0.0, 1.0);
     public static final ModConfigSpec.DoubleValue RUNE_POWER = BUILDER
             .comment("Multiplies every rune's damage, healing and durations.")
             .defineInRange("runePower", 1.0, 0.1, 100.0);

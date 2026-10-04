@@ -10,7 +10,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-/** The Rune Codex: every rune, how to draw it, and what it does. Right-click to read it. */
+/**
+ * The Rune Codex: how to draw each rune you know (every rune, with Rune Magic) and what it does. Right-click to read
+ * it; sneak and right-click to draw a rune.
+ */
 public class RuneCodexItem extends Item {
     public RuneCodexItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -18,8 +21,13 @@ public class RuneCodexItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        // Sneak to draw (with paper on you); otherwise read it.
         if (level.isClientSide) {
-            RuneClientHooks.openCodex();
+            if (player.isShiftKeyDown()) {
+                RuneClientHooks.openCanvas();
+            } else {
+                RuneClientHooks.openCodex();
+            }
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }

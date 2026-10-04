@@ -302,7 +302,7 @@
   "tensurafragments.rune.clear": "Clear",
   "tensurafragments.rune.codex": "Codex",
   "tensurafragments.rune.inscribe": "Inscribe",
-  "tensurafragments.rune.codex_how": "Hold paper and press Rune Magic, then connect the dots exactly as shown. Right-click a creature with the rune, or the air for yourself; right-click it onto a weapon in your inventory to inscribe it.",
+  "tensurafragments.rune.codex_how": "Hold paper and press Rune Magic (or sneak and right-click this codex), then connect the dots exactly as shown. Use the rune on a creature or the air (yourself), or right-click it onto a weapon in your inventory.",
   "tensurafragments.rune.fire": "Fire",
   "tensurafragments.rune.fire.creature": "Foe: burns and scorches. Friend: fire resistance.",
   "tensurafragments.rune.fire.weapon": "Weapon: sets what it hits alight.",
@@ -326,5 +326,15 @@
   "tensurafragments.rune.bind.weapon": "Weapon: briefly roots what it hits.",
   "tensurafragments.rune.sight": "Sight",
   "tensurafragments.rune.sight.creature": "Foe: glows through walls. Friend: night vision.",
-  "tensurafragments.rune.sight.weapon": "Weapon: makes what it hits glow."
+  "tensurafragments.rune.sight.weapon": "Weapon: makes what it hits glow.",
+  "item.tensurafragments.rune_tome": "Rune Tome",
+  "item.tensurafragments.rune_tome.named": "Tome of the %s Rune",
+  "item.tensurafragments.rune_tome.tooltip": "Right-click to read it and learn its rune for good",
+  "tensurafragments.rune.learned": "You learned the %s rune. Sneak and right-click your Rune Codex to draw it.",
+  "tensurafragments.rune.already_known": "You already know the %s rune",
+  "tensurafragments.rune.unknown": "You don't know the %s rune yet (find its Rune Tome)",
+  "tensurafragments.rune.drawn_slow": "Drew a Rune of %s: it's inscribing (%s:%s)",
+  "tensurafragments.rune.inscribing": "Still inscribing: %s:%s left",
+  "tensurafragments.rune.finished": "Your Rune of %s has finished inscribing",
+  "tensurafragments.rune.codex_none": "You don't know any runes yet. Rune Tomes turn up in chests around the world."
 }

@@ -24,6 +24,20 @@ public final class RuneScreens {
     private RuneScreens() {
     }
 
+    private static List<String> knownRunes = List.of();
+    private static boolean allRunes;
+
+    /** From the server: the runes this player knows (or all, with Rune Magic). */
+    public static void setKnown(List<String> known, boolean all) {
+        knownRunes = List.copyOf(known);
+        allRunes = all;
+    }
+
+    /** The runes the codex shows. */
+    static List<Rune> visible() {
+        return java.util.Arrays.stream(Rune.values()).filter(rune -> allRunes || knownRunes.contains(rune.id())).toList();
+    }
+
     public static void openCanvas() {
         Minecraft.getInstance().setScreen(new Canvas());
     }
@@ -197,7 +211,7 @@ public final class RuneScreens {
         }
 
         private int pages() {
-            return (Rune.values().length + 1) / 2;
+            return Math.max(1, (visible().size() + 1) / 2);
         }
 
         @Override
@@ -232,8 +246,14 @@ public final class RuneScreens {
             graphics.fill(width / 2 - 1, top, width / 2 + 1, bookTop + 180, 0x40000000);
             for (int i = 0; i < 2; i++) {
                 int index = page * 2 + i;
-                if (index < Rune.values().length) {
-                    drawRune(graphics, Rune.values()[index], bookLeft + 6 + i * 140, top);
+                if (index < visible().size()) {
+                    drawRune(graphics, visible().get(index), bookLeft + 6 + i * 140, top);
+                }
+            }
+            if (visible().isEmpty()) {
+                List<FormattedCharSequence> none = font.split(Component.translatable("tensurafragments.rune.codex_none"), 240);
+                for (int i = 0; i < none.size(); i++) {
+                    graphics.drawCenteredString(font, none.get(i), width / 2, bookTop + 90 + i * 10, 0xFF8C7650);
                 }
             }
             graphics.drawCenteredString(font, (page + 1) + " / " + pages(), width / 2, bookTop + 189, 0xCCCCCC);

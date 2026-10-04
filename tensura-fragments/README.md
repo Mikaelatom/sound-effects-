@@ -347,7 +347,16 @@ The sheet shows the rune's name once your lines match.
 | Bind | rooted in place (5 s) | cures bad effects | briefly roots |
 | Sight | glows through walls (1 min) | night vision (3 min) | makes what it hits glow |
 
-Numbers are in the `[runes]` section of the server config (`drawMagicules`, `weaponCharges`, `runePower`).
+**Runes without the skill.** Anyone can use runes, the slow way. **Rune Tomes** turn up in loot chests all over the
+world (dungeons, temples, mineshafts, strongholds, ancient cities, Tensura's chests and other mods': any chest loot);
+right-click one to **learn its rune for good** (you also get a Rune Codex, which shows only the runes you know).
+Sneak and right-click the codex (with paper on you) to open the drawing sheet. You can only draw runes you've
+learned, and without Rune Magic a drawn rune takes **2 minutes to finish inscribing** (the paper shows the time left
+and can't be used until it's done; it keeps counting in your inventory). Chests also sometimes hold a ready rune
+paper. Rune Magic users know every rune and draw them instantly.
+
+Numbers are in the `[runes]` section of the server config (`drawMagicules`, `weaponCharges`, `runePower`,
+`inscribeSecondsWithoutSkill`, `runeTomeChestChance` 15%, `runePaperChestChance` 10%).
 
 ## Race: Spirit
 
@@ -501,7 +510,8 @@ spells, Draconic Hell Storm (charge, damage, and a burn that can't be cured), En
 damage, not casting without the levels, every spell casting), paper beasts (folding each one, paper cost,
 possession steering the hound and owl, the world following a possessed beast, attacking what the beast faces, snapping
 back when hurt, fire tearing paper), Rune Magic (every rune matching however it's drawn, wrong drawings keeping the paper, runes on foes and on
-yourself, a weapon carrying a rune and using charges), the starting skill choice (one pick, Rune Magic bringing the
+yourself, a weapon carrying a rune and using charges, Rune Tomes teaching runes, drawing without the skill only
+learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), the starting skill choice (one pick, Rune Magic bringing the
 codex, players with earlier skills keeping them), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and
 dismissal, catching up, leaving and coming back with you, sneak-clicking through follow, stay and wander, staying

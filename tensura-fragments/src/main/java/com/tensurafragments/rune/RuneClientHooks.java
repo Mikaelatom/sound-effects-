@@ -14,6 +14,13 @@ public final class RuneClientHooks {
         }
     }
 
+    /** The runes the codex shows. */
+    public static void setKnown(java.util.List<String> known, boolean all) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            com.tensurafragments.client.RuneScreens.setKnown(known, all);
+        }
+    }
+
     public static void openCanvas() {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             com.tensurafragments.client.RuneScreens.openCanvas();
