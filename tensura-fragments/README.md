@@ -376,12 +376,13 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 - **Uppercut:** **jump and punch** on the way up to throw an uppercut: it hits a bit harder, launches the target
   straight up into the air (higher still if it's your finisher) and stuns it a little longer, with a rising swish.
   **You go up with it**, just below it, ready to keep hitting it in the air. No fall damage on the way back down.
-- **Block:** hold **H** to put your guard up ("Blocking" under the crosshair). Hits from the front do a quarter of
+- **Block:** hold **H** to put your guard up ("Blocking" under the crosshair): your forearms come up crossed in
+  front of your face (in first person too, and everyone around sees it). Hits from the front do a quarter of
   their damage, barely knock you back and don't stun you; you shuffle slowly and can't punch while blocking. Block
   **just as a hit comes** (within a third of a second) to **parry** it: no damage at all, and the attacker is stunned.
   A combo finisher **breaks** a guard: full damage, and the blocker is stunned.
 - **Grab:** press **J** to grab the creature (or player) you're looking at, within reach. You hold it up in front of
-  you, stunned, for up to 2 seconds; press **J** again or punch to **throw** it, hard, forward and up. A grab goes
+  you with both arms out (seen in first and third person), stunned, for up to 2 seconds; press **J** again or punch to **throw** it, hard, forward and up. A grab goes
   straight through a block. Bosses and very big creatures can't be grabbed, and neither can your allies.
 - **Dash:** press **K** to dash a few blocks the way you're moving (forward if you're standing still), on the ground
   or in mid-air. For the first moment of the dash (8 ticks) **nothing can hurt you** (invulnerability frames), so

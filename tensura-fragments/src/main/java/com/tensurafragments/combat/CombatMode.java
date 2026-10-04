@@ -4,6 +4,7 @@ import com.tensurafragments.Config;
 import com.tensurafragments.ModRegistries;
 import com.tensurafragments.TensuraFragments;
 import com.tensurafragments.ally.Allies;
+import com.tensurafragments.network.CombatPosePayload;
 import com.tensurafragments.network.SyncCombatPayload;
 import java.util.HashMap;
 import java.util.Map;
@@ -440,6 +441,7 @@ public final class CombatMode {
             return;
         }
         tickGrab(player);
+        sendPose(player);
         if (isBlocking(player)) {
             if (!isOn(player) || !player.isAlive() || isStunned(player)) {
                 BLOCKING.remove(player.getUUID());
@@ -513,6 +515,36 @@ public final class CombatMode {
         GRABS.values().removeIf(grab -> grab.target() == event.getEntity());
         DASHED.remove(event.getEntity().getUUID());
         AIR_SAFE.remove(event.getEntity().getUUID());
+        SHOWN_POSE.remove(event.getEntity().getUUID());
+    }
+
+    // ---- Stances (for drawing the arms) ----
+
+    /** The stance each player was last shown in. */
+    private static final Map<UUID, Integer> SHOWN_POSE = new HashMap<>();
+
+    public static int pose(ServerPlayer player) {
+        return isGrabbing(player) ? CombatPosePayload.GRAB : isBlocking(player) ? CombatPosePayload.BLOCK
+                : CombatPosePayload.NONE;
+    }
+
+    /** Tells the player and everyone watching them when their stance changes. */
+    private static void sendPose(ServerPlayer player) {
+        int pose = pose(player);
+        Integer shown = SHOWN_POSE.get(player.getUUID());
+        if (shown == null ? pose != CombatPosePayload.NONE : shown != pose) {
+            SHOWN_POSE.put(player.getUUID(), pose);
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new CombatPosePayload(player.getId(), pose));
+        }
+    }
+
+    /** Someone coming into view already blocking or grabbing. */
+    @SubscribeEvent
+    public static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (event.getTarget() instanceof ServerPlayer target && event.getEntity() instanceof ServerPlayer watcher
+                && pose(target) != CombatPosePayload.NONE) {
+            PacketDistributor.sendToPlayer(watcher, new CombatPosePayload(target.getId(), pose(target)));
+        }
     }
 
     // ---- Blocking ----

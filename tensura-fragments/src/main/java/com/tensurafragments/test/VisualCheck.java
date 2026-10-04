@@ -476,7 +476,9 @@ public final class VisualCheck {
                     .warn("COMBAT husk hp {}", h.getHealth())));
             case 810 -> onServer(mc, player -> {
                 // Grab, throw, dash and block: one fresh husk right in front.
-                player.serverLevel().getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
+                player.serverLevel().getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                        player.getBoundingBox().inflate(40), e -> !(e instanceof net.minecraft.world.entity.player.Player))
+                        .forEach(e -> e.discard());
                 player.setYRot(0);
                 player.setXRot(15);
                 player.connection.teleport(player.getX(), player.getY(), player.getZ(), 0, 15);
@@ -493,6 +495,9 @@ public final class VisualCheck {
                         com.tensurafragments.combat.CombatMode.isGrabbing(player)));
                 shot(mc, "23_grab");
             }
+            case 818 -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            case 819 -> shot(mc, "23b_grab_first_person");
+            case 820 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
             case 822 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
             case 823 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
                     player.getBoundingBox().inflate(8)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
@@ -511,13 +516,19 @@ public final class VisualCheck {
                 org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT after dash at {}", mc.player.position());
                 net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), true);
             }
+            case 843 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
             case 845 -> {
                 onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT blocking {} (client {})",
                         com.tensurafragments.combat.CombatMode.isBlocking(player),
                         com.tensurafragments.client.ClientCombat.isBlocking()));
                 shot(mc, "26_block");
             }
-            case 848 -> net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), false);
+            case 846 -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            case 847 -> shot(mc, "26b_block_first_person");
+            case 848 -> {
+                net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), false);
+                mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            }
             case 852 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
