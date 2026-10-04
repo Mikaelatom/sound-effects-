@@ -389,7 +389,71 @@ public final class VisualCheck {
             });
             case 750 -> com.tensurafragments.client.RuneScreens.openCodex();
             case 756 -> shot(mc, "19_rune_codex");
-            case 758 -> mc.stop();
+            case 758 -> {
+                mc.setScreen(null);
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                onServer(mc, player -> {
+                    // A clean stage high up.
+                    ServerLevel level = player.serverLevel();
+                    BlockPos base = new BlockPos(player.getBlockX() + 40, 230, player.getBlockZ());
+                    for (int x = -6; x <= 6; x++) {
+                        for (int z = -4; z <= 10; z++) {
+                            level.setBlockAndUpdate(base.offset(x, 0, z), Blocks.SMOOTH_STONE.defaultBlockState());
+                        }
+                    }
+                    player.teleportTo(level, base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5, 0F, 10F);
+                    // Earlier scenes can leave Magicule Poison behind; clear it so nothing dies mid-scene.
+                    player.removeAllEffects();
+                    TensuraStorages.getExistenceFrom(player).setMagicule(0);
+                    player.setHealth(player.getMaxHealth());
+                    player.setGameMode(GameType.CREATIVE);
+                    player.getAbilities().flying = false;
+                    player.onUpdateAbilities();
+                    player.getInventory().setItem(player.getInventory().selected, net.minecraft.world.item.ItemStack.EMPTY);
+                    player.setData(com.tensurafragments.ModRegistries.COMBAT_MODE, true);
+                    com.tensurafragments.combat.CombatMode.sync(player, 0);
+                    player.setYRot(0);
+                    player.setXRot(10);
+                    for (int i = 0; i < 3; i++) {
+                        Husk husk = EntityType.HUSK.create(player.serverLevel());
+                        husk.moveTo(player.getX() + (i - 1) * 1.2, player.getY(), player.getZ() + 2.2, 180, 0);
+                        husk.setNoAi(true);
+                        husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);
+                        husk.setHealth(500);
+                        player.serverLevel().addFreshEntity(husk);
+                    }
+                });
+            }
+            case 762, 768, 774, 780 -> {
+                // Real punches through the client.
+                net.minecraft.world.entity.Entity nearest = nearestUnnamed(mc, Husk.class);
+                if (nearest != null) {
+                    mc.player.resetAttackStrengthTicker();
+                    mc.gameMode.attack(mc.player, nearest);
+                    mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+                }
+            }
+            case 769 -> shot(mc, "20_combo");
+            case 781 -> shot(mc, "21_finisher");
+            case 786 -> {
+                mc.options.keyShift.setDown(true);
+                onServer(mc, player -> player.teleportTo(player.getX(), player.getY() + 12, player.getZ() + 1.5));
+            }
+            case 789 -> {
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT slam pressed: onGround {} shift {}",
+                        mc.player.onGround(), mc.player.isShiftKeyDown());
+            }
+            case 791 -> onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn(
+                    "COMBAT slamming {} y {}", com.tensurafragments.combat.CombatMode.isSlamming(player), player.getY()));
+            case 797 -> {
+                mc.options.keyShift.setDown(false);
+                shot(mc, "22_slam");
+            }
+            case 805 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                    player.getBoundingBox().inflate(8)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                    .warn("COMBAT husk hp {}", h.getHealth())));
+            case 810 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

@@ -418,6 +418,32 @@ public final class Config {
             .defineInRange("runePower", 1.0, 0.1, 100.0);
 
     static {
+        BUILDER.pop().comment("Combat Mode: toggled per player (G); punch combos with hit stun, finishers and down slams").push("combat");
+    }
+
+    public static final ModConfigSpec.BooleanValue COMBAT_ENABLED = BUILDER
+            .comment("Whether players can turn Combat Mode on at all.")
+            .define("combatModeAllowed", true);
+    public static final ModConfigSpec.IntValue COMBAT_STUN_TICKS = BUILDER
+            .comment("Hit stun: how long (ticks) a creature you hit can't move or hurt anyone.")
+            .defineInRange("hitStunTicks", 12, 0, 200);
+    public static final ModConfigSpec.IntValue COMBAT_COMBO_WINDOW_TICKS = BUILDER
+            .comment("How long (ticks) between hits a combo keeps going.")
+            .defineInRange("comboWindowTicks", 30, 5, 200);
+    public static final ModConfigSpec.IntValue COMBAT_FINISHER_HIT = BUILDER
+            .comment("Which hit of a combo is the finisher.")
+            .defineInRange("finisherHit", 4, 2, 20);
+    public static final ModConfigSpec.DoubleValue COMBAT_FINISHER_DAMAGE = BUILDER
+            .comment("Finisher damage: the hit's damage times this, plus 3.")
+            .defineInRange("finisherMultiplier", 1.5, 1.0, 20.0);
+    public static final ModConfigSpec.DoubleValue COMBAT_SLAM_DAMAGE = BUILDER
+            .comment("Down slam: base shockwave damage (more the higher you slam from).")
+            .defineInRange("slamDamage", 6.0, 0.0, 1000.0);
+    public static final ModConfigSpec.DoubleValue COMBAT_SLAM_RADIUS = BUILDER
+            .comment("Down slam: shockwave radius in blocks.")
+            .defineInRange("slamRadius", 4.0, 1.0, 32.0);
+
+    static {
         BUILDER.pop().comment("Starting skill: after picking a race, new players pick one of this addon's skills").push("startingSkill");
     }
 

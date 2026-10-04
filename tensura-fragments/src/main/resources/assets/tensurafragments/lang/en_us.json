@@ -336,5 +336,11 @@
   "tensurafragments.rune.drawn_slow": "Drew a Rune of %s: it's inscribing (%s:%s)",
   "tensurafragments.rune.inscribing": "Still inscribing: %s:%s left",
   "tensurafragments.rune.finished": "Your Rune of %s has finished inscribing",
-  "tensurafragments.rune.codex_none": "You don't know any runes yet. Rune Tomes turn up in chests around the world."
+  "tensurafragments.rune.codex_none": "You don't know any runes yet. Rune Tomes turn up in chests around the world.",
+  "key.categories.tensurafragments": "Tensura: Fragments",
+  "key.tensurafragments.combat_mode": "Toggle Combat Mode",
+  "tensurafragments.combat.on": "Combat Mode: ON (combos, finishers; sneak + attack in mid-air to slam)",
+  "tensurafragments.combat.off": "Combat Mode: OFF",
+  "tensurafragments.combat.disabled": "Combat Mode is turned off on this server",
+  "tensurafragments.combat.hud": "Combat"
 }

@@ -33,7 +33,13 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
+    public static void registerKeys(net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent event) {
+        event.register(ClientCombat.TOGGLE);
+    }
+
+    @SubscribeEvent
     public static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(TensuraFragments.id("combat_hud"), ClientCombat::render);
         event.registerAboveAll(TensuraFragments.id("card_hud"), CardHud::render);
         event.registerAboveAll(TensuraFragments.id("shikigami_hud"), ShikigamiHud::render);
         event.registerAboveAll(TensuraFragments.id("grimoire_hud"), GrimoireHud::render);

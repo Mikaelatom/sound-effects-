@@ -127,6 +127,12 @@ public final class FlameGameTests {
         blaze.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
         blaze.setHealth(1000);
         blaze.getAttribute(Attributes.ARMOR).setBaseValue(30);
+        // Neighbouring tests (a Spirit Control spirit's strike) can knock it out of the storm's path: hold it there.
+        Vec3 spot = blaze.position();
+        helper.onEachTick(() -> {
+            blaze.setPos(spot);
+            blaze.setDeltaMovement(Vec3.ZERO);
+        });
         blaze.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, MobEffectInstance.INFINITE_DURATION));
         blaze.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, MobEffectInstance.INFINITE_DURATION, 3));
         player.lookAt(EntityAnchorArgument.Anchor.EYES, blaze.position().add(0, 1, 0));

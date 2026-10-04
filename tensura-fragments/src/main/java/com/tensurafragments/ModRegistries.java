@@ -200,6 +200,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> NAMED_COMPANION = ATTACHMENTS.register(
             "named_companion", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
+    /** Whether a player has Combat Mode on. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> COMBAT_MODE = ATTACHMENTS.register(
+            "combat_mode", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
+
     /** Whether a player has made (or doesn't need) their starting skill choice. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> STARTING_SKILL_PICKED = ATTACHMENTS.register(
             "starting_skill_picked", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
