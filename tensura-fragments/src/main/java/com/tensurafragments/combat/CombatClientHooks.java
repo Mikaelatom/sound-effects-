@@ -14,6 +14,12 @@ public final class CombatClientHooks {
         }
     }
 
+    public static void arc(com.tensurafragments.network.ArcPayload payload) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            com.tensurafragments.client.ArcRenderer.add(payload);
+        }
+    }
+
     public static void pose(int entityId, int pose) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             com.tensurafragments.client.CombatPoses.set(entityId, pose);

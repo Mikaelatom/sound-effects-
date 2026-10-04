@@ -334,12 +334,20 @@ public final class CombatMode {
     static void upswish(ServerLevel level, ServerPlayer player) {
         Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
         Vec3 base = player.position().add(forward.scale(0.9));
-        for (int i = 0; i < 16; i++) {
-            double t = i / 15.0;
+        java.util.List<Vec3> points = new java.util.ArrayList<>();
+        for (int i = 0; i < 24; i++) {
+            double t = i / 23.0;
             double arc = Math.sin(t * Math.PI) * 0.45;
-            Vec3 at = base.add(forward.scale(arc)).add(0, 0.4 + t * 2.0, 0);
-            level.sendParticles(WHITE_BIG, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+            points.add(base.add(forward.scale(arc)).add(0, 0.4 + t * 2.0, 0));
         }
+        arc(level, points, 0.2F, 6, true);
+    }
+
+    /** A solid white pixel arc through these points, drawn by everyone nearby. */
+    static void arc(ServerLevel level, java.util.List<Vec3> points, float thickness, int life, boolean sweep) {
+        Vec3 at = points.get(0);
+        PacketDistributor.sendToPlayersNear(level, null, at.x, at.y, at.z, 64,
+                new com.tensurafragments.network.ArcPayload(points, thickness, life, sweep));
     }
 
     static void launch(ServerPlayer player, LivingEntity target) {
@@ -354,14 +362,15 @@ public final class CombatMode {
     static void swish(ServerLevel level, ServerPlayer player, boolean fromLeft, boolean big) {
         Vec3 eye = player.getEyePosition().subtract(0, 0.35, 0);
         float yaw = player.getYRot();
-        int points = big ? 22 : 15;
+        int count = big ? 32 : 24;
         double radius = big ? 1.7 : 1.25;
-        for (int i = 0; i < points; i++) {
-            double t = i / (double) (points - 1);
+        java.util.List<Vec3> points = new java.util.ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            double t = i / (double) (count - 1);
             double angle = Math.toRadians(yaw + (fromLeft ? -1 : 1) * (70 - 140 * t));
-            Vec3 at = eye.add(-Math.sin(angle) * radius, (t - 0.5) * (big ? 0.5 : 0.25), Math.cos(angle) * radius);
-            level.sendParticles(big ? WHITE_BIG : WHITE, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+            points.add(eye.add(-Math.sin(angle) * radius, (t - 0.5) * (big ? 0.5 : 0.25), Math.cos(angle) * radius));
         }
+        arc(level, points, big ? 0.26F : 0.17F, big ? 7 : 5, true);
     }
 
     private static void hitSpark(ServerLevel level, LivingEntity target) {
@@ -413,12 +422,13 @@ public final class CombatMode {
             stun(target, Config.COMBAT_STUN_TICKS.get());
         }
         // A ring of white, dust and a thud.
-        for (int i = 0; i < 36; i++) {
-            double angle = i * Math.PI * 2 / 36;
-            for (double r = 1; r <= radius; r += radius / 2.5) {
-                level.sendParticles(WHITE_BIG, player.getX() + Math.cos(angle) * r, player.getY() + 0.15,
-                        player.getZ() + Math.sin(angle) * r, 1, 0, 0.05, 0, 0);
+        for (double r = 1; r <= radius; r += radius / 2.5) {
+            java.util.List<Vec3> ring = new java.util.ArrayList<>();
+            for (int i = 0; i <= 48; i++) {
+                double angle = i * Math.PI * 2 / 48;
+                ring.add(new Vec3(player.getX() + Math.cos(angle) * r, player.getY() + 0.15, player.getZ() + Math.sin(angle) * r));
             }
+            arc(level, ring, 0.16F, 8, false);
         }
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 20, radius / 3, 0.1,
                 radius / 3, 0.08);
@@ -616,15 +626,16 @@ public final class CombatMode {
     static void guard(ServerLevel level, ServerPlayer player, boolean parry) {
         Vec3 centre = player.getEyePosition().subtract(0, 0.5, 0);
         float yaw = player.getYRot();
-        int points = parry ? 16 : 7;
-        for (int i = 0; i < points; i++) {
-            double t = i / (double) (points - 1);
+        int count = 20;
+        java.util.List<Vec3> points = new java.util.ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            double t = i / (double) (count - 1);
             double angle = Math.toRadians(yaw + 60 - 120 * t);
             double radius = parry ? 1.1 : 0.8;
-            Vec3 at = centre.add(-Math.sin(angle) * radius, Math.sin(t * Math.PI) * 0.3, Math.cos(angle) * radius);
-            level.sendParticles(parry ? WHITE_BIG : WHITE, at.x, at.y, at.z, parry ? 2 : 1, 0, parry ? 0.4 : 0, 0,
-                    parry ? 0.02 : 0);
+            points.add(centre.add(-Math.sin(angle) * radius, Math.sin(t * Math.PI) * 0.3, Math.cos(angle) * radius));
         }
+        // Held up while blocking (sent again every few ticks); a parry is a bigger flash.
+        arc(level, points, parry ? 0.18F : 0.07F, parry ? 8 : 5, false);
     }
 
     // ---- Grabs ----

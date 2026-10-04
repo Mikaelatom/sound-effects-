@@ -467,6 +467,9 @@ public final class VisualCheck {
             }
             case 791 -> onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn(
                     "COMBAT slamming {} y {}", com.tensurafragments.combat.CombatMode.isSlamming(player), player.getY()));
+            case 799 -> shot(mc, "22a_slam_landing");
+            case 801 -> shot(mc, "22b_slam_landing");
+            case 771 -> shot(mc, "20b_combo");
             case 797 -> {
                 mc.options.keyShift.setDown(false);
                 shot(mc, "22_slam");

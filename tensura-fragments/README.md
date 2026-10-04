@@ -366,7 +366,8 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or
-  tool); every hit steps you in a little and leaves a **white swish** in the air.
+  tool); every hit steps you in a little and leaves a **white swish** in the air: a solid
+  white pixel arc that sweeps across in front of you (guards and slam shockwaves are drawn the same way).
 - **Hit stun:** whatever you hit is stunned for a moment (about half a second): it can't move or hurt anyone. Combo
   hits barely knock it back, so you can keep going. It works in the air too: something stunned in mid-air hangs
   there, sinking slowly, instead of falling, and each punch you throw in mid-air keeps you up as well, so you can
