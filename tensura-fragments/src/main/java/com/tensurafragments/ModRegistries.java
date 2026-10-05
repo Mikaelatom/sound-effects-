@@ -204,6 +204,10 @@ public final class ModRegistries {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> COMBAT_MODE = ATTACHMENTS.register(
             "combat_mode", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());
 
+    /** The player's Combat Mode fighting style (an index into FightingStyle). */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> COMBAT_STYLE = ATTACHMENTS.register(
+            "combat_style", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
+
     /** Whether a player has made (or doesn't need) their starting skill choice. */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> STARTING_SKILL_PICKED = ATTACHMENTS.register(
             "starting_skill_picked", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build());

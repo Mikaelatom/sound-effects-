@@ -388,7 +388,7 @@ far deadlier), and reflected damage isn't either.
 
 A melee fighting style you can turn on and off: press **G** or use `/combat`. "Combat" shows under the crosshair
 while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): **G** on/off, **H** block (hold),
-**J** grab / throw, **K** dash.
+**J** grab / throw, **K** dash, **Y** next fighting style.
 
 - **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
@@ -418,6 +418,26 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 - **Down slam:** in mid-air, **sneak and attack** to dive straight down. Landing sends out a shockwave (white ring,
   dust, a thud) that hurts and knocks up everything within 4 blocks, harder the higher you came from, and stuns it.
   You take no fall damage from a slam.
+
+- **Down power:** every hit also fills the target's **down gauge** (the bar next to your combo count). When it fills
+  up, the target is **knocked down** ("DOWN!"): dropped out of the air, the stun ends, and for a moment
+  (1.5 seconds) it can't be stunned, juggled or grabbed and takes half damage from Combat Mode hits. That's what
+  stops infinite combos: a single combo string doesn't fill it, a second one does. The gauge empties if the target
+  goes 2 seconds without being hit.
+
+### Fighting styles
+
+Press **Y** (or `/combat style <name>`) to switch styles. Each changes your punches and what your moves do (H block
+works the same in all of them):
+
+| | Brawler | Swift | Titan | Ki |
+|---|---|---|---|---|
+| Punches | normal | faster, 0.8x damage | slower, 1.35x damage, more knockback | 0.9x damage |
+| Finisher | 4th hit: launch | 5th hit: **whirlwind**, hits everything around you | 3rd hit: **ground pound**, flings it and a shockwave hits those around it | 4th hit: **ki blast**, a beam that throws it far |
+| Jump + attack | **uppercut**, you ride up with it | **spin kick**, the target and everything around you | **hammer fist**, spikes it out of the air or bounces it off the ground | **ki palm**, blasts it straight away |
+| Sneak + attack in mid-air | **down slam** | **dive kick**, kicks down at a slant, spikes the first thing it meets and bounces you off | **meteor slam**, a bigger, harder slam | **ki bomb**, a blast at the ground below while you hang in the air |
+| J | **grab & throw** | **counter stance**: a hit in the next moment is turned aside, and you appear behind the attacker and strike | **tackle**: charge forward with super armour, bowling over everything | **ki burst**: knocks down everything around and throws it off; works even while you're stunned or held, so it **breaks combos** (10 s cooldown) |
+| K | **dash** with i-frames | **quick step**: a short dash, ready again almost at once | **iron body**: 2 seconds of no stun, no knockback and 40% less damage | **vanish**: reappear behind what you're looking at (up to 16 blocks), untouchable for a moment |
 
 Your allies and their creatures are never hit by it. Numbers (and turning it off for the whole server) are in the
 `[combat]` section of the server config.
@@ -577,7 +597,9 @@ back when hurt, fire tearing paper), Rune Magic (every rune matching however it'
 yourself, a weapon carrying a rune and using charges, Rune Tomes teaching runes, drawing without the skill only
 learned runes and waiting 2 minutes, chest loot holding tomes and rune papers), Combat Mode (combos counting up and stunning, the finisher hitting harder and launching, a jumping punch uppercutting straight up and carrying you with it, stunned
 creatures hanging in mid-air, mid-air hits keeping you up, blocks and parries, grabs and throws (and grabs breaking
-blocks), dashes being untouchable and then on cooldown, stunned creatures
+blocks), dashes being untouchable and then on cooldown, down power knocking down after a combo and a bit (no stun or
+grab while down), each style's damage and finisher, Swift's counter, whirlwind and dive kick, Titan's tackle, iron
+body and hammer fist, Ki's burst (breaking a stun), palm, vanish and bomb, stunned creatures
 unable to hurt anyone, the down slam's shockwave, and nothing happening with it off), the starting skill choice (one pick, Rune Magic bringing the
 codex, players with earlier skills keeping them), named companions (naming only your own or an ally's summons, with Tensura's Naming (any creature, summons always
 accepting) or a name tag (anvil-named or typed in chat), no timer, ignoring recall and

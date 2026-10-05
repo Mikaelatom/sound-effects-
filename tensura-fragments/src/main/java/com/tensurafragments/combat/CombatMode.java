@@ -55,7 +55,7 @@ public final class CombatMode {
     private record Combo(int count, long lastHit) {
     }
 
-    private record Slam(double fromY, long started) {
+    private record Slam(double fromY, long started, double power) {
     }
 
     private static final Map<UUID, Combo> COMBOS = new HashMap<>();
@@ -64,20 +64,20 @@ public final class CombatMode {
     private static final Map<UUID, Boolean> FINISHING = new HashMap<>();
     /** When the client said the next punch is an uppercut (jumping while punching). */
     private static final Map<UUID, Long> UPPERCUT_ASKED = new HashMap<>();
-    /** The uppercut being dealt right now. */
-    private static final Map<UUID, Boolean> UPPERCUTTING = new HashMap<>();
+    /** The launcher (a jumping punch: uppercut, spin kick, hammer fist or ki palm) being dealt right now. */
+    private static final Map<UUID, Boolean> LAUNCHING = new HashMap<>();
     /** Players blocking, and when they started (for parries). */
-    private static final Map<UUID, Long> BLOCKING = new HashMap<>();
+    static final Map<UUID, Long> BLOCKING = new HashMap<>();
     /** What each player is holding, and since when. */
-    private static final Map<UUID, Grab> GRABS = new HashMap<>();
+    static final Map<UUID, Grab> GRABS = new HashMap<>();
     /** When each player last dashed. */
-    private static final Map<UUID, Long> DASHED = new HashMap<>();
+    static final Map<UUID, Long> DASHED = new HashMap<>();
     /** Players riding an uppercut up: no fall damage until they land (or this time passes). */
-    private static final Map<UUID, Long> AIR_SAFE = new HashMap<>();
+    static final Map<UUID, Long> AIR_SAFE = new HashMap<>();
     /** How long a grab holds before letting go. */
     private static final int GRAB_TICKS = 40;
 
-    private record Grab(LivingEntity target, long started) {
+    record Grab(LivingEntity target, long started) {
     }
 
     private CombatMode() {
@@ -101,11 +101,159 @@ public final class CombatMode {
                 .withStyle(on ? ChatFormatting.GOLD : ChatFormatting.GRAY), true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARMOR_EQUIP_IRON.value(),
                 SoundSource.PLAYERS, 0.8F, on ? 1.3F : 0.8F);
+        applyAttackSpeed(player);
         sync(player, 0);
     }
 
     public static void sync(ServerPlayer player, int combo) {
-        PacketDistributor.sendToPlayer(player, new SyncCombatPayload(isOn(player), combo));
+        sync(player, combo, 0);
+    }
+
+    /** Combat Mode, the combo count, the style and the down power of what you last hit, for your HUD. */
+    public static void sync(ServerPlayer player, int combo, int down) {
+        PacketDistributor.sendToPlayer(player, new SyncCombatPayload(isOn(player), combo, style(player).ordinal(), down));
+    }
+
+    // ---- Fighting styles ----
+
+    public static FightingStyle style(ServerPlayer player) {
+        return FightingStyle.byId(player.getData(ModRegistries.COMBAT_STYLE));
+    }
+
+    public static void setStyle(ServerPlayer player, FightingStyle style) {
+        player.setData(ModRegistries.COMBAT_STYLE, style.ordinal());
+        COMBOS.remove(player.getUUID());
+        BLOCKING.remove(player.getUUID());
+        GRABS.remove(player.getUUID());
+        StyleMoves.clear(player);
+        player.displayClientMessage(Component.translatable("tensurafragments.combat.style_set",
+                Component.translatable(style.translationKey()).withStyle(ChatFormatting.GOLD),
+                Component.translatable(style.translationKey() + ".moves")), true);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(),
+                SoundSource.PLAYERS, 0.8F, 1.2F);
+        applyAttackSpeed(player);
+        sync(player, 0);
+    }
+
+    public static void cycleStyle(ServerPlayer player) {
+        if (Config.COMBAT_ENABLED.get()) {
+            setStyle(player, style(player).next());
+        }
+    }
+
+    private static final net.minecraft.resources.ResourceLocation STYLE_SPEED = TensuraFragments.id("combat_style_speed");
+
+    /** Swift punches faster, Titan slower (only while Combat Mode is on). */
+    static void applyAttackSpeed(ServerPlayer player) {
+        var attribute = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
+        if (attribute == null) {
+            return;
+        }
+        double amount = isOn(player) ? style(player).attackSpeed() : 0;
+        if (amount == 0) {
+            attribute.removeModifier(STYLE_SPEED);
+        } else {
+            attribute.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(STYLE_SPEED,
+                    amount, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        }
+    }
+
+    // ---- Down power ----
+
+    private static final String DOWN_KEY = "tensurafragments_down_power";
+    private static final String DOWN_HIT_KEY = "tensurafragments_down_hit";
+    private static final String DOWNED_KEY = "tensurafragments_downed_until";
+
+    /** The target's down power (0 to 100), emptied once it hasn't been hit for a while. */
+    public static float downPower(LivingEntity target) {
+        long since = target.level().getGameTime() - target.getPersistentData().getLong(DOWN_HIT_KEY);
+        return since > Config.COMBAT_DOWN_RESET_TICKS.get() ? 0 : target.getPersistentData().getFloat(DOWN_KEY);
+    }
+
+    /** Knocked down: for a moment it can't be stunned, juggled or grabbed. */
+    public static boolean isDowned(Entity entity) {
+        return entity.getPersistentData().getLong(DOWNED_KEY) > entity.level().getGameTime();
+    }
+
+    /** Adds down power to what was hit; a full gauge (100) knocks it down. Returns the gauge afterwards. */
+    public static float addDown(LivingEntity target, float amount, @org.jetbrains.annotations.Nullable Entity by) {
+        if (isDowned(target) || amount <= 0) {
+            return isDowned(target) ? 100 : downPower(target);
+        }
+        float down = downPower(target) + amount;
+        target.getPersistentData().putLong(DOWN_HIT_KEY, target.level().getGameTime());
+        if (down >= 100) {
+            knockDown(target, by);
+            return 100;
+        }
+        target.getPersistentData().putFloat(DOWN_KEY, down);
+        return down;
+    }
+
+    /** Down: the gauge empties, the stun ends, it drops out of the air and gets a moment to recover. */
+    public static void knockDown(LivingEntity target, @org.jetbrains.annotations.Nullable Entity by) {
+        ServerLevel level = (ServerLevel) target.level();
+        target.getPersistentData().putFloat(DOWN_KEY, 0);
+        target.getPersistentData().putLong(DOWNED_KEY, level.getGameTime() + Config.COMBAT_DOWN_TICKS.get());
+        target.getPersistentData().remove(STUN_KEY);
+        target.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+        GRABS.values().removeIf(grab -> grab.target() == target);
+        Vec3 motion = target.getDeltaMovement();
+        if (!target.onGround()) {
+            // Slammed down out of a juggle.
+            target.setDeltaMovement(motion.x * 0.3, Math.min(motion.y, -0.9), motion.z * 0.3);
+        } else if (by != null) {
+            Vec3 away = target.position().subtract(by.position()).multiply(1, 0, 1);
+            away = away.lengthSqr() < 1.0E-4 ? Vec3.ZERO : away.normalize().scale(0.6);
+            target.setDeltaMovement(away.x, 0.3, away.z);
+        }
+        target.hurtMarked = true;
+        java.util.List<Vec3> ring = new java.util.ArrayList<>();
+        for (int i = 0; i <= 32; i++) {
+            double angle = i * Math.PI * 2 / 32;
+            ring.add(new Vec3(target.getX() + Math.cos(angle) * 1.2, target.getY() + 0.1, target.getZ() + Math.sin(angle) * 1.2));
+        }
+        arc(level, ring, 0.14F, 8, false);
+        level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.GENERIC_BIG_FALL, SoundSource.PLAYERS,
+                1.0F, 0.6F);
+        level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
+                SoundSource.PLAYERS, 1.0F, 0.6F);
+        if (target instanceof ServerPlayer player) {
+            player.displayClientMessage(Component.translatable("tensurafragments.combat.knocked_down")
+                    .withStyle(ChatFormatting.RED), true);
+        }
+    }
+
+    // ---- Strikes ----
+
+    /** Down power and stun of the strike being dealt right now (-1: an ordinary punch). */
+    private static float pendingDown = -1;
+    private static int pendingStun = -1;
+
+    /**
+     * A special move's hit: dealt as your attack (so it counts as a Combat Mode hit and scales with your EP), with its
+     * own down power and stun instead of a punch's.
+     */
+    static boolean strike(ServerPlayer player, LivingEntity target, float damage, float down, int stunTicks) {
+        if (target == player || !target.isAlive() || Allies.isFriendly(target, player)) {
+            return false;
+        }
+        float lastDown = pendingDown;
+        int lastStun = pendingStun;
+        pendingDown = down;
+        pendingStun = stunTicks;
+        try {
+            target.invulnerableTime = 0;
+            return target.hurt(player.damageSources().playerAttack(player), damage);
+        } finally {
+            pendingDown = lastDown;
+            pendingStun = lastStun;
+        }
+    }
+
+    /** Your punch's base damage (your attack damage). */
+    static float punchDamage(ServerPlayer player) {
+        return (float) player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
     }
 
     public static int combo(ServerPlayer player) {
@@ -121,7 +269,7 @@ public final class CombatMode {
     }
 
     public static void stun(LivingEntity target, int ticks) {
-        if (ticks <= 0) {
+        if (ticks <= 0 || isDowned(target) || target instanceof ServerPlayer player && StyleMoves.isArmored(player)) {
             return;
         }
         target.getPersistentData().putLong(STUN_KEY, target.level().getGameTime() + ticks);
@@ -172,11 +320,29 @@ public final class CombatMode {
             event.setCanceled(true);
             return;
         }
+        if (event.getEntity() instanceof ServerPlayer target && attacker instanceof LivingEntity living
+                && StyleMoves.counter(target, living)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (attacker instanceof ServerPlayer player && isOn(player) && isMelee(player, event.getSource())) {
+            // An ordinary punch hits as hard as the style does (special moves set their own damage).
+            if (pendingDown < 0) {
+                event.setAmount(event.getAmount() * style(player).damage());
+            }
+            // Something knocked down takes less from Combat Mode hits.
+            if (isDowned(event.getEntity())) {
+                event.setAmount(event.getAmount() * 0.5F);
+            }
+        }
+        if (event.getEntity() instanceof ServerPlayer target && StyleMoves.isIronBody(target)) {
+            event.setAmount(event.getAmount() * 0.6F);
+        }
         // The finisher hits harder.
         if (attacker instanceof ServerPlayer player && FINISHING.containsKey(player.getUUID())) {
             event.setAmount((float) (event.getAmount() * Config.COMBAT_FINISHER_DAMAGE.get() + 3));
         }
-        if (attacker instanceof ServerPlayer player && UPPERCUTTING.containsKey(player.getUUID())) {
+        if (attacker instanceof ServerPlayer player && LAUNCHING.containsKey(player.getUUID())) {
             event.setAmount(event.getAmount() * 1.2F + 2);
         }
         if (event.getEntity() instanceof ServerPlayer target && isBlocking(target) && blocksFrom(target, event.getSource())) {
@@ -203,8 +369,9 @@ public final class CombatMode {
             throwHeld(player);
             return;
         }
+        FightingStyle style = style(player);
         int count = combo(player) + 1;
-        int finisher = Config.COMBAT_FINISHER_HIT.get();
+        int finisher = style.finisherHit();
         COMBOS.put(player.getUUID(), new Combo(count >= finisher ? 0 : count, player.level().getGameTime()));
         if (count >= finisher) {
             FINISHING.put(player.getUUID(), true);
@@ -216,17 +383,23 @@ public final class CombatMode {
         Long asked = UPPERCUT_ASKED.remove(player.getUUID());
         boolean uppercut = asked != null && player.level().getGameTime() - asked <= 5;
         if (uppercut) {
-            UPPERCUTTING.put(player.getUUID(), true);
-            // You go up with it, a touch slower so it stays just above you for the next hit.
-            Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
-            player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
-            player.hurtMarked = true;
+            LAUNCHING.put(player.getUUID(), true);
             AIR_SAFE.put(player.getUUID(), player.level().getGameTime() + 100);
-            upswish((ServerLevel) player.level(), player);
+            Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
+            if (style == FightingStyle.BRAWLER) {
+                // You go up with it, a touch slower so it stays just above you for the next hit.
+                player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
+                upswish((ServerLevel) player.level(), player);
+            } else {
+                // The other styles' jumping moves keep you hanging in the air a moment.
+                player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
+                StyleMoves.launcherVisual((ServerLevel) player.level(), player, style);
+            }
+            player.hurtMarked = true;
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
-                    SoundSource.PLAYERS, 1.1F, 0.8F);
+                    SoundSource.PLAYERS, 1.1F, style == FightingStyle.TITAN ? 0.5F : 0.8F);
         } else {
-            UPPERCUTTING.remove(player.getUUID());
+            LAUNCHING.remove(player.getUUID());
             // A small step in with each jab.
             Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
             double lunge = count >= finisher ? 0.45 : 0.15;
@@ -240,8 +413,13 @@ public final class CombatMode {
             player.hurtMarked = true;
             swish((ServerLevel) player.level(), player, left, count >= finisher);
         }
-        sync(player, count >= finisher ? finisher : count);
+        int shown = count >= finisher ? finisher : count;
+        LAST_COMBO.put(player.getUUID(), shown);
+        sync(player, shown);
     }
+
+    /** The combo count last shown to each player (sent again with the down power once the hit lands). */
+    private static final Map<UUID, Integer> LAST_COMBO = new HashMap<>();
 
     /** After it lands: stun, and the finisher's launch. Rapid hits aren't swallowed by the target's hit cooldown. */
     @SubscribeEvent
@@ -258,6 +436,16 @@ public final class CombatMode {
             hitSpark(level, target);
             return;
         }
+        FightingStyle style = style(player);
+        if (pendingDown >= 0) {
+            // A special move's strike: its own stun and down power.
+            stun(target, pendingStun);
+            sync(player, LAST_COMBO.getOrDefault(player.getUUID(), 0), (int) addDown(target, pendingDown, player));
+            hitSpark(level, target);
+            return;
+        }
+        float down = style.downPerHit() + (finisher ? 25 : 0) + (LAUNCHING.containsKey(player.getUUID()) ? 12 : 0);
+        sync(player, LAST_COMBO.getOrDefault(player.getUUID(), 0), (int) addDown(target, down, player));
         if (finisher) {
             // The launch itself comes with the knockback, just after this.
             level.sendParticles(ParticleTypes.SWEEP_ATTACK, target.getX(), target.getY() + target.getBbHeight() / 2,
@@ -286,7 +474,7 @@ public final class CombatMode {
             event.setStrength(event.getStrength() * 0.3F);
             return;
         }
-        if (isHeld(target)) {
+        if (isHeld(target) || target instanceof ServerPlayer armored && StyleMoves.isArmored(armored)) {
             event.setCanceled(true);
             return;
         }
@@ -295,15 +483,28 @@ public final class CombatMode {
             return;
         }
         boolean finisher = FINISHING.remove(player.getUUID()) != null;
-        if (UPPERCUTTING.remove(player.getUUID()) != null) {
+        FightingStyle style = style(player);
+        if (isDowned(target)) {
+            // Knocked down: it just goes down, no launches.
+            event.setStrength(event.getStrength() * 0.5F);
+            LAUNCHING.remove(player.getUUID());
+        } else if (LAUNCHING.remove(player.getUUID()) != null) {
             event.setCanceled(true);
-            uppercutLaunch(target, uppercutPower(finisher));
-            stun(target, Config.COMBAT_STUN_TICKS.get() + 8);
+            if (style == FightingStyle.BRAWLER) {
+                uppercutLaunch(target, uppercutPower(finisher));
+                stun(target, Config.COMBAT_STUN_TICKS.get() + 8);
+            } else {
+                StyleMoves.launcher(player, target, style, finisher);
+            }
         } else if (finisher) {
             event.setCanceled(true);
-            launch(player, target);
+            if (style == FightingStyle.BRAWLER) {
+                launch(player, target);
+            } else {
+                StyleMoves.finisher(player, target, style);
+            }
         } else {
-            event.setStrength(event.getStrength() * 0.25F);
+            event.setStrength(event.getStrength() * style.knockback());
         }
     }
 
@@ -373,19 +574,32 @@ public final class CombatMode {
         arc(level, points, big ? 0.26F : 0.17F, big ? 7 : 5, true);
     }
 
-    private static void hitSpark(ServerLevel level, LivingEntity target) {
+    static void hitSpark(ServerLevel level, LivingEntity target) {
         level.sendParticles(WHITE, target.getX(), target.getY() + target.getBbHeight() * 0.6, target.getZ(), 8,
                 0.15, 0.15, 0.15, 0.05);
     }
 
     // ---- Down slam ----
 
-    /** Sneak and attack in mid-air: dive straight down. */
+    /** Sneak and attack in mid-air: the style's air move (Brawler and Titan slam, Swift dive kicks, Ki bombs). */
+    public static boolean airSpecial(ServerPlayer player) {
+        if (!isOn(player) || isStunned(player)) {
+            return false;
+        }
+        return switch (style(player)) {
+            case BRAWLER, TITAN -> slam(player);
+            case SWIFT -> StyleMoves.diveKick(player);
+            case KI -> StyleMoves.kiBomb(player);
+        };
+    }
+
+    /** Dive straight down (the Titan's meteor slam lands bigger). */
     public static boolean slam(ServerPlayer player) {
         if (!isOn(player) || player.onGround() || player.isInWater() || SLAMS.containsKey(player.getUUID())) {
             return false;
         }
-        SLAMS.put(player.getUUID(), new Slam(player.getY(), player.level().getGameTime()));
+        SLAMS.put(player.getUUID(), new Slam(player.getY(), player.level().getGameTime(),
+                style(player) == FightingStyle.TITAN ? 1.5 : 1.0));
         player.setDeltaMovement(player.getDeltaMovement().x * 0.2, -2.6, player.getDeltaMovement().z * 0.2);
         player.hurtMarked = true;
         player.getAbilities().flying = false;
@@ -405,8 +619,8 @@ public final class CombatMode {
         player.resetFallDistance();
         player.getPersistentData().putLong(LANDED_KEY, level.getGameTime());
         double height = Math.max(0, slam.fromY() - player.getY());
-        double radius = Config.COMBAT_SLAM_RADIUS.get();
-        float damage = (float) (Config.COMBAT_SLAM_DAMAGE.get() + Math.min(height, 30) * 0.4);
+        double radius = Config.COMBAT_SLAM_RADIUS.get() * slam.power();
+        float damage = (float) ((Config.COMBAT_SLAM_DAMAGE.get() + Math.min(height, 30) * 0.4) * slam.power());
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(radius, 1.5, radius),
                 e -> e != player && e.isAlive() && !Allies.isFriendly(e, player))) {
             double distance = target.distanceTo(player);
@@ -414,12 +628,11 @@ public final class CombatMode {
                 continue;
             }
             float falloff = (float) Math.max(0.35, 1 - distance / (radius + 1));
-            target.hurt(player.damageSources().playerAttack(player), damage * falloff);
+            strike(player, target, damage * falloff, 20, Config.COMBAT_STUN_TICKS.get());
             Vec3 away = target.position().subtract(player.position()).multiply(1, 0, 1);
             away = away.lengthSqr() < 1.0E-4 ? Vec3.ZERO : away.normalize().scale(0.6 * falloff);
             target.setDeltaMovement(away.x, 0.65 * falloff + 0.2, away.z);
             target.hurtMarked = true;
-            stun(target, Config.COMBAT_STUN_TICKS.get());
         }
         // A ring of white, dust and a thud.
         for (double r = 1; r <= radius; r += radius / 2.5) {
@@ -452,6 +665,10 @@ public final class CombatMode {
         }
         tickGrab(player);
         sendPose(player);
+        StyleMoves.tick(player);
+        if (player.tickCount % 20 == 0) {
+            applyAttackSpeed(player);
+        }
         if (isBlocking(player)) {
             if (!isOn(player) || !player.isAlive() || isStunned(player)) {
                 BLOCKING.remove(player.getUUID());
@@ -503,7 +720,20 @@ public final class CombatMode {
         event.getDispatcher().register(net.minecraft.commands.Commands.literal("combat").executes(context -> {
             toggle(context.getSource().getPlayerOrException());
             return 1;
-        }));
+        }).then(net.minecraft.commands.Commands.literal("style").then(net.minecraft.commands.Commands
+                .argument("style", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggests((context, builder) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                        java.util.Arrays.stream(FightingStyle.values()).map(FightingStyle::id), builder))
+                .executes(context -> {
+                    FightingStyle style = FightingStyle.byName(
+                            com.mojang.brigadier.arguments.StringArgumentType.getString(context, "style"));
+                    if (style == null) {
+                        context.getSource().sendFailure(Component.translatable("tensurafragments.combat.no_style"));
+                        return 0;
+                    }
+                    setStyle(context.getSource().getPlayerOrException(), style);
+                    return 1;
+                }))));
     }
 
     @SubscribeEvent
@@ -518,7 +748,7 @@ public final class CombatMode {
         COMBOS.remove(event.getEntity().getUUID());
         SLAMS.remove(event.getEntity().getUUID());
         UPPERCUT_ASKED.remove(event.getEntity().getUUID());
-        UPPERCUTTING.remove(event.getEntity().getUUID());
+        LAUNCHING.remove(event.getEntity().getUUID());
         FINISHING.remove(event.getEntity().getUUID());
         BLOCKING.remove(event.getEntity().getUUID());
         GRABS.remove(event.getEntity().getUUID());
@@ -526,6 +756,10 @@ public final class CombatMode {
         DASHED.remove(event.getEntity().getUUID());
         AIR_SAFE.remove(event.getEntity().getUUID());
         SHOWN_POSE.remove(event.getEntity().getUUID());
+        LAST_COMBO.remove(event.getEntity().getUUID());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            StyleMoves.clear(player);
+        }
     }
 
     // ---- Stances (for drawing the arms) ----
@@ -657,7 +891,7 @@ public final class CombatMode {
     /** Takes hold of a creature (or player) in front of you; a grab goes straight through a block. */
     public static boolean grab(ServerPlayer player, LivingEntity target) {
         if (!isOn(player) || isStunned(player) || GRABS.containsKey(player.getUUID()) || target == player
-                || !target.isAlive() || Allies.isFriendly(target, player) || isHeld(target)
+                || !target.isAlive() || Allies.isFriendly(target, player) || isHeld(target) || isDowned(target)
                 || target.getType().is(net.neoforged.neoforge.common.Tags.EntityTypes.BOSSES)
                 || target.getBbWidth() > 2.5F || target.distanceTo(player) > 4.5
                 || target instanceof ServerPlayer dodger && isDodging(dodger)) {
@@ -724,15 +958,13 @@ public final class CombatMode {
         }
         LivingEntity target = grab.target();
         ServerLevel level = player.serverLevel();
-        target.invulnerableTime = 0;
-        target.hurt(player.damageSources().playerAttack(player), Config.COMBAT_THROW_DAMAGE.get().floatValue());
+        strike(player, target, Config.COMBAT_THROW_DAMAGE.get().floatValue(), 35, Config.COMBAT_STUN_TICKS.get() + 10);
         // After the hurt, so its knockback doesn't eat the throw.
         Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
         double resist = Math.max(0.3,
                 1 - target.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE));
         target.setDeltaMovement(forward.x * 1.5 * resist, 0.5 * resist, forward.z * 1.5 * resist);
         target.hurtMarked = true;
-        stun(target, Config.COMBAT_STUN_TICKS.get() + 10);
         swish(level, player, true, true);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
                 SoundSource.PLAYERS, 1.2F, 0.7F);
@@ -749,8 +981,11 @@ public final class CombatMode {
     public static boolean dash(ServerPlayer player, Vec3 direction) {
         long now = player.level().getGameTime();
         Long last = DASHED.get(player.getUUID());
+        boolean swift = style(player) == FightingStyle.SWIFT;
+        // Swift's quick step: shorter, but ready again almost at once.
+        int cooldown = swift ? 8 : Config.COMBAT_DASH_COOLDOWN.get();
         if (!isOn(player) || isStunned(player) || GRABS.containsKey(player.getUUID())
-                || last != null && now - last < Config.COMBAT_DASH_COOLDOWN.get()) {
+                || last != null && now - last < cooldown) {
             return false;
         }
         DASHED.put(player.getUUID(), now);
@@ -771,6 +1006,8 @@ public final class CombatMode {
     /** In a dash's invulnerable moment. */
     public static boolean isDodging(ServerPlayer player) {
         Long last = DASHED.get(player.getUUID());
-        return last != null && player.level().getGameTime() - last <= Config.COMBAT_DASH_IFRAMES.get();
+        int frames = style(player) == FightingStyle.SWIFT ? Math.min(5, Config.COMBAT_DASH_IFRAMES.get())
+                : Config.COMBAT_DASH_IFRAMES.get();
+        return last != null && player.level().getGameTime() - last <= frames;
     }
 }

@@ -8,9 +8,9 @@ public final class CombatClientHooks {
     private CombatClientHooks() {
     }
 
-    public static void sync(boolean on, int combo) {
+    public static void sync(boolean on, int combo, int style, int down) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            com.tensurafragments.client.ClientCombat.sync(on, combo);
+            com.tensurafragments.client.ClientCombat.sync(on, combo, style, down);
         }
     }
 

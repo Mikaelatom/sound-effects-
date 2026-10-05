@@ -38,6 +38,7 @@ public final class ClientSetup {
         event.register(ClientCombat.BLOCK);
         event.register(ClientCombat.GRAB);
         event.register(ClientCombat.DASH);
+        event.register(ClientCombat.STYLE);
     }
 
     @SubscribeEvent

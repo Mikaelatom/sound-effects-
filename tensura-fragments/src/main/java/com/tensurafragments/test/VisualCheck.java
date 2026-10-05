@@ -532,7 +532,37 @@ public final class VisualCheck {
                 net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), false);
                 mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
             }
-            case 852 -> mc.stop();
+            case 852 -> onServer(mc, player -> {
+                player.serverLevel().getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), 0, 15);
+                for (int i = 0; i < 2; i++) {
+                    Husk husk = EntityType.HUSK.create(player.serverLevel());
+                    husk.moveTo(player.getX() + i * 1.5 - 0.75, player.getY(), player.getZ() + 2.0 + i, 180, 0);
+                    husk.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 10, false, false));
+                    husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);
+                    husk.setHealth(500);
+                    husk.setPersistenceRequired();
+                    player.serverLevel().addFreshEntity(husk);
+                }
+            });
+            case 853, 855, 857 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.STYLE.getKey());
+            case 860, 864, 868 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 870 -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT style {}",
+                        com.tensurafragments.client.ClientCombat.style());
+                shot(mc, "27_ki_down_bar");
+            }
+            case 872 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
+            case 874 -> {
+                onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                        player.getBoundingBox().inflate(10)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                        .warn("COMBAT after ki burst: downed {} motion {}", com.tensurafragments.combat.CombatMode.isDowned(h),
+                                h.getDeltaMovement())));
+                shot(mc, "28_ki_burst");
+            }
+            case 882 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

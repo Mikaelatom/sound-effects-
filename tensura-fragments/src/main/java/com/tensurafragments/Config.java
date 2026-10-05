@@ -442,6 +442,14 @@ public final class Config {
     public static final ModConfigSpec.DoubleValue COMBAT_SLAM_RADIUS = BUILDER
             .comment("Down slam: shockwave radius in blocks.")
             .defineInRange("slamRadius", 4.0, 1.0, 32.0);
+    public static final ModConfigSpec.IntValue COMBAT_DOWN_TICKS = BUILDER
+            .comment("Down power: every hit fills the target's down gauge (100); when it's full the target is knocked down and",
+                    "for this many ticks can't be stunned, juggled or grabbed, and takes half damage from Combat Mode hits.",
+                    "This is what stops infinite combos.")
+            .defineInRange("knockdownTicks", 30, 0, 400);
+    public static final ModConfigSpec.IntValue COMBAT_DOWN_RESET_TICKS = BUILDER
+            .comment("Down power: the gauge empties if the target isn't hit for this many ticks.")
+            .defineInRange("downPowerResetTicks", 40, 1, 400);
     public static final ModConfigSpec.DoubleValue COMBAT_BLOCK_REDUCTION = BUILDER
             .comment("Blocking: how much of a hit from the front a block stops (0.75 = three quarters).")
             .defineInRange("blockReduction", 0.75, 0.0, 1.0);

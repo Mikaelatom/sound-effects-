@@ -24,6 +24,8 @@ public record CombatInputPayload(int action, float x, float z) implements Custom
     /** Grab what you're looking at, or throw what you're holding. */
     public static final int GRAB = 5;
     public static final int DASH = 6;
+    /** Next fighting style. */
+    public static final int STYLE = 7;
     public static final Type<CombatInputPayload> TYPE = new Type<>(TensuraFragments.id("combat_input"));
     public static final StreamCodec<ByteBuf, CombatInputPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, CombatInputPayload::action, ByteBufCodecs.FLOAT, CombatInputPayload::x,
@@ -43,12 +45,13 @@ public record CombatInputPayload(int action, float x, float z) implements Custom
             if (context.player() instanceof ServerPlayer player) {
                 switch (payload.action()) {
                     case TOGGLE -> CombatMode.toggle(player);
-                    case SLAM -> CombatMode.slam(player);
+                    case SLAM -> CombatMode.airSpecial(player);
                     case UPPERCUT -> CombatMode.markUppercut(player);
                     case BLOCK_START -> CombatMode.setBlocking(player, true);
                     case BLOCK_STOP -> CombatMode.setBlocking(player, false);
-                    case GRAB -> CombatMode.grabOrThrow(player);
-                    case DASH -> CombatMode.dash(player, new Vec3(payload.x(), 0, payload.z()));
+                    case GRAB -> com.tensurafragments.combat.StyleMoves.grabKey(player);
+                    case DASH -> com.tensurafragments.combat.StyleMoves.dashKey(player, new Vec3(payload.x(), 0, payload.z()));
+                    case STYLE -> CombatMode.cycleStyle(player);
                     default -> {
                     }
                 }

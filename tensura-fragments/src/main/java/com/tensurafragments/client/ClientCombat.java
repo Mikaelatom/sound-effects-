@@ -31,6 +31,8 @@ public final class ClientCombat {
             GLFW.GLFW_KEY_J, "key.categories.tensurafragments");
     public static final KeyMapping DASH = new KeyMapping("key.tensurafragments.combat_dash", InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_K, "key.categories.tensurafragments");
+    public static final KeyMapping STYLE = new KeyMapping("key.tensurafragments.combat_style", InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_Y, "key.categories.tensurafragments");
     /** A dash lasts a few ticks of fast movement. */
     private static final int DASH_TICKS = 4;
     private static final double DASH_SPEED = 0.9;
@@ -57,10 +59,25 @@ public final class ClientCombat {
         return blocking;
     }
 
-    public static void sync(boolean isOn, int count) {
+    private static com.tensurafragments.combat.FightingStyle style = com.tensurafragments.combat.FightingStyle.BRAWLER;
+    /** Down power of what you last hit, and when it was shown. */
+    private static int down;
+    private static long downShownAt;
+
+    public static com.tensurafragments.combat.FightingStyle style() {
+        return style;
+    }
+
+    public static void sync(boolean isOn, int count, int styleId, int downPower) {
         on = isOn;
         combo = count;
-        comboShownAt = Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime();
+        style = com.tensurafragments.combat.FightingStyle.byId(styleId);
+        long now = Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime();
+        comboShownAt = now;
+        if (downPower > 0) {
+            down = downPower;
+            downShownAt = now;
+        }
     }
 
     @SubscribeEvent
@@ -86,6 +103,11 @@ public final class ClientCombat {
                 mc.player.swing(InteractionHand.MAIN_HAND);
             }
         }
+        while (STYLE.consumeClick()) {
+            if (mc.player != null) {
+                PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.STYLE));
+            }
+        }
         while (DASH.consumeClick()) {
             if (able) {
                 startDash(mc);
@@ -103,7 +125,13 @@ public final class ClientCombat {
     /** Dash the way you're moving (forward if you aren't). */
     private static void startDash(Minecraft mc) {
         long now = mc.level.getGameTime();
-        if (now - lastDash < DASH_COOLDOWN || mc.player.isPassenger() || mc.player.getAbilities().flying) {
+        if (style == com.tensurafragments.combat.FightingStyle.TITAN || style == com.tensurafragments.combat.FightingStyle.KI) {
+            // Iron body and vanish: the server does it all.
+            PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.DASH));
+            return;
+        }
+        boolean swift = style == com.tensurafragments.combat.FightingStyle.SWIFT;
+        if (now - lastDash < (swift ? 8 : DASH_COOLDOWN) || mc.player.isPassenger() || mc.player.getAbilities().flying) {
             return;
         }
         lastDash = now;
@@ -116,7 +144,7 @@ public final class ClientCombat {
         double x = strafe * Math.cos(yaw) - forward * Math.sin(yaw);
         double z = forward * Math.cos(yaw) + strafe * Math.sin(yaw);
         dashDirection = new net.minecraft.world.phys.Vec3(x, 0, z).normalize();
-        dashTicks = DASH_TICKS;
+        dashTicks = swift ? DASH_TICKS - 1 : DASH_TICKS;
         PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.DASH, (float) dashDirection.x,
                 (float) dashDirection.z));
     }
@@ -183,18 +211,34 @@ public final class ClientCombat {
         int x = graphics.guiWidth() / 2;
         int y = graphics.guiHeight() / 2;
         long age = mc.level.getGameTime() - comboShownAt;
+        int finisher = style.finisherHit();
         if (combo > 0 && age < 30) {
             int alpha = (int) (255 * Math.max(0.2, 1 - age / 30.0));
-            float scale = combo >= 4 ? 1.6F : 1.2F;
+            float scale = combo >= finisher ? 1.6F : 1.2F;
             graphics.pose().pushPose();
             graphics.pose().translate(x + 12, y - 14, 0);
             graphics.pose().scale(scale, scale, 1);
-            int colour = combo >= 4 ? 0xFFD24A : 0xFFFFFF;
-            graphics.drawString(mc.font, Component.literal("x" + combo + (combo >= 4 ? "!" : "")), 0, 0,
+            int colour = combo >= finisher ? 0xFFD24A : 0xFFFFFF;
+            graphics.drawString(mc.font, Component.literal("x" + combo + (combo >= finisher ? "!" : "")), 0, 0,
                     (alpha << 24) | colour, true);
             graphics.pose().popPose();
         }
-        graphics.drawCenteredString(mc.font, Component.translatable(blocking ? "tensurafragments.combat.hud_blocking"
-                : "tensurafragments.combat.hud"), x, y + 10, blocking ? 0xC0FFE08A : 0x80FFFFFF);
+        // Down power of what you're hitting: a bar that fills; full is a knockdown.
+        long downAge = mc.level.getGameTime() - downShownAt;
+        if (down > 0 && downAge < 40) {
+            int left = x + 12;
+            int top = y - 2;
+            int width = 34;
+            graphics.fill(left - 1, top - 1, left + width + 1, top + 4, 0x90000000);
+            int filled = Math.round(width * Math.min(100, down) / 100F);
+            graphics.fill(left, top, left + filled, top + 3, down >= 100 ? 0xFFFF5050 : 0xFFFFFFFF);
+            if (down >= 100) {
+                graphics.drawString(mc.font, Component.translatable("tensurafragments.combat.down_hud"), left, top + 6,
+                        0xFFFF5050, true);
+            }
+        }
+        Component label = blocking ? Component.translatable("tensurafragments.combat.hud_blocking")
+                : Component.translatable("tensurafragments.combat.hud_style", Component.translatable(style.translationKey()));
+        graphics.drawCenteredString(mc.font, label, x, y + 10, blocking ? 0xC0FFE08A : 0x80FFFFFF);
     }
 }
