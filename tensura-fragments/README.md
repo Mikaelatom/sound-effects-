@@ -435,7 +435,7 @@ works the same in all of them):
 | Punches | normal | faster, 0.8x damage | slower, 1.35x damage, more knockback | 0.9x damage |
 | Finisher | 4th hit: launch | 5th hit: **whirlwind**, hits everything around you | 3rd hit: **ground pound**, flings it and a shockwave hits those around it | 4th hit: **ki blast**, a beam that throws it far |
 | Jump + attack | **uppercut**, you ride up with it | **spin kick**, the target and everything around you | **hammer fist**, spikes it out of the air or bounces it off the ground | **ki palm**, blasts it straight away |
-| Sneak + attack in mid-air | **down slam** | **dive kick**, kicks down at a slant, spikes the first thing it meets and bounces you off | **meteor slam**, a bigger, harder slam | **ki bomb**, a blast at the ground below while you hang in the air |
+| Sneak + attack in mid-air | **down slam** | **dive kick**, kicks down at a slant (homing in on the nearest enemy in front of you, within 7 blocks), spikes the first thing it meets (even as you land beside it) and bounces you off | **meteor slam**, a bigger, harder slam | **ki bomb**, a blast at the ground below while you hang in the air |
 | J | **grab & throw** | **counter stance**: a hit in the next moment is turned aside, and you appear behind the attacker and strike | **tackle**: charge forward with super armour, bowling over everything | **ki burst**: knocks down everything around and throws it off; works even while you're stunned or held, so it **breaks combos** (10 s cooldown) |
 | K | **dash** with i-frames | **quick step**: a short dash, ready again almost at once | **iron body**: 2 seconds of no stun, no knockback and 40% less damage | **vanish**: reappear behind what you're looking at (up to 16 blocks), untouchable for a moment |
 

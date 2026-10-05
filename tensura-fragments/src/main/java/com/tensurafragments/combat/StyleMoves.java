@@ -35,7 +35,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
  * </ul>
  */
 public final class StyleMoves {
-    private record Dive(Vec3 direction, long started) {
+    private record Dive(Vec3 direction, long started, Vec3 last) {
     }
 
     private record Tackle(Vec3 direction, long started, Set<Integer> hit) {
@@ -268,19 +268,50 @@ public final class StyleMoves {
 
     // ---- Air moves (sneak + attack in mid-air) ----
 
-    /** Swift: kick down and forward at a slant; the first thing it meets is spiked and you bounce off. */
+    /** How fast a dive kick travels (blocks a tick). */
+    static final double DIVE_SPEED = 1.5;
+
+    /**
+     * Swift: kick down and forward at a slant (straight at the nearest enemy in front of you, if there is one); the
+     * first thing it meets is spiked and you bounce off.
+     */
     static boolean diveKick(ServerPlayer player) {
         if (player.onGround() || player.isInWater() || DIVES.containsKey(player.getUUID())) {
             return false;
         }
-        Vec3 dir = forward(player);
-        DIVES.put(player.getUUID(), new Dive(dir, now(player)));
-        player.setDeltaMovement(dir.x * 1.3, -1.1, dir.z * 1.3);
+        Vec3 dir = diveDirection(player);
+        DIVES.put(player.getUUID(), new Dive(dir, now(player), player.position()));
+        player.setDeltaMovement(dir.scale(DIVE_SPEED));
         player.hurtMarked = true;
         CombatMode.AIR_SAFE.put(player.getUUID(), now(player) + 100);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PHANTOM_SWOOP,
                 SoundSource.PLAYERS, 0.8F, 1.8F);
         return true;
+    }
+
+    /** Down at a slant, or homing in on the nearest enemy within 7 blocks in front and below. */
+    static Vec3 diveDirection(ServerPlayer player) {
+        Vec3 look = forward(player);
+        Vec3 from = player.position().add(0, 0.5, 0);
+        LivingEntity aim = null;
+        double best = Double.MAX_VALUE;
+        for (LivingEntity e : enemiesAround(player, player.position(), 7)) {
+            Vec3 to = e.getBoundingBox().getCenter().subtract(from);
+            Vec3 flat = to.multiply(1, 0, 1);
+            if (to.y > 1.0 || flat.lengthSqr() > 1.0E-4 && flat.normalize().dot(look) < 0.5) {
+                continue;
+            }
+            if (to.lengthSqr() < best) {
+                best = to.lengthSqr();
+                aim = e;
+            }
+        }
+        if (aim == null) {
+            return new Vec3(look.x * 0.76, -0.65, look.z * 0.76).normalize();
+        }
+        Vec3 to = aim.getBoundingBox().getCenter().subtract(from);
+        // Always at least a little downward, so it's a dive.
+        return new Vec3(to.x, Math.min(to.y, -0.3 * to.length()), to.z).normalize();
     }
 
     /** Ki: a blast at the ground below; you hang in the air while it goes off. */
@@ -484,30 +515,52 @@ public final class StyleMoves {
         if (dive == null) {
             return;
         }
-        if (player.onGround() || player.isInWater() || !player.isAlive() || now(player) - dive.started() > DIVE_TICKS) {
+        boolean landed = player.onGround() || player.isInWater();
+        if (!player.isAlive() || now(player) - dive.started() > DIVE_TICKS) {
             DIVES.remove(player.getUUID());
             return;
         }
-        player.setDeltaMovement(dive.direction().x * 1.3, -1.1, dive.direction().z * 1.3);
-        player.hurtMarked = true;
-        player.resetFallDistance();
-        for (LivingEntity target : player.level().getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(0.7),
-                e -> e != player && e.isAlive() && !e.isSpectator() && !Allies.isFriendly(e, player))) {
-            DIVES.remove(player.getUUID());
-            CombatMode.strike(player, target, CombatMode.punchDamage(player) * 1.5F + 3, 25, Config.COMBAT_STUN_TICKS.get() + 6);
-            Vec3 motion = target.getDeltaMovement();
-            target.setDeltaMovement(dive.direction().x * 0.6 + motion.x * 0.2, -0.5, dive.direction().z * 0.6 + motion.z * 0.2);
-            target.hurtMarked = true;
-            // Bounce off it, back up into the air.
-            player.setDeltaMovement(-dive.direction().x * 0.3, 0.6, -dive.direction().z * 0.3);
+        // Everything along the way since last tick (at this speed it'd skip right past things), a little ahead, and on
+        // landing, a kick at whatever's right there.
+        Vec3 moved = dive.last().subtract(player.position());
+        AABB path = player.getBoundingBox().minmax(player.getBoundingBox().move(moved))
+                .expandTowards(dive.direction().scale(0.8)).inflate(landed ? 1.2 : 0.7);
+        if (!landed) {
+            DIVES.put(player.getUUID(), new Dive(dive.direction(), dive.started(), player.position()));
+            player.setDeltaMovement(dive.direction().scale(DIVE_SPEED));
             player.hurtMarked = true;
-            ServerLevel level = player.serverLevel();
-            streak(level, player.position().subtract(dive.direction().scale(2)).add(0, 2, 0), target.position().add(0, 1, 0),
-                    0.2F, 6);
-            level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
-                    SoundSource.PLAYERS, 1.2F, 1.2F);
+            player.resetFallDistance();
+        }
+        LivingEntity hit = null;
+        double nearest = Double.MAX_VALUE;
+        for (LivingEntity target : player.level().getEntitiesOfClass(LivingEntity.class, path,
+                e -> e != player && e.isAlive() && !e.isSpectator() && !Allies.isFriendly(e, player))) {
+            double d = target.distanceToSqr(dive.last());
+            if (d < nearest) {
+                nearest = d;
+                hit = target;
+            }
+        }
+        if (hit == null) {
+            if (landed) {
+                DIVES.remove(player.getUUID());
+            }
             return;
         }
+        LivingEntity target = hit;
+        DIVES.remove(player.getUUID());
+        CombatMode.strike(player, target, CombatMode.punchDamage(player) * 1.5F + 3, 25, Config.COMBAT_STUN_TICKS.get() + 6);
+        Vec3 motion = target.getDeltaMovement();
+        target.setDeltaMovement(dive.direction().x * 0.6 + motion.x * 0.2, -0.5, dive.direction().z * 0.6 + motion.z * 0.2);
+        target.hurtMarked = true;
+        // Bounce off it, back up into the air.
+        player.setDeltaMovement(-dive.direction().x * 0.3, 0.6, -dive.direction().z * 0.3);
+        player.hurtMarked = true;
+        ServerLevel level = player.serverLevel();
+        streak(level, player.position().subtract(dive.direction().scale(2)).add(0, 2, 0), target.position().add(0, 1, 0),
+                0.2F, 6);
+        level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
+                SoundSource.PLAYERS, 1.2F, 1.2F);
     }
 
     public static void tickTackle(ServerPlayer player) {

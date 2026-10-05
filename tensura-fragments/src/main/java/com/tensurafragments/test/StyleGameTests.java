@@ -219,4 +219,45 @@ public final class StyleGameTests {
         beside.discard();
         helper.succeed();
     }
+
+    /** From a normal jump: the dive homes in on the enemy in front and kicks it as you land beside it. */
+    @GameTest(template = "platform")
+    public static void swiftDiveKickFromAJump(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, FightingStyle.SWIFT, 4.5, 1.5);
+        Husk husk = dummy(helper, 5.5, 4.5);
+        Vec3 jump = helper.absoluteVec(new Vec3(4.5, GROUND + 1.2, 1.5));
+        player.teleportTo(jump.x, jump.y, jump.z);
+        player.setOnGround(false);
+        helper.assertTrue(CombatMode.airSpecial(player), "diving");
+        Vec3 dir = player.getDeltaMovement();
+        helper.assertTrue(dir.z > 0.5 && dir.x > 0.1 && dir.y < 0, "homing in on the husk, " + dir);
+        // It lands just short of the husk.
+        Vec3 land = helper.absoluteVec(new Vec3(5.2, GROUND, 3.6));
+        player.teleportTo(land.x, land.y, land.z);
+        player.setOnGround(true);
+        StyleMoves.tickDive(player);
+        helper.assertTrue(husk.getHealth() < 1000, "kicked on landing");
+        helper.assertFalse(StyleMoves.isDiving(player), "and the dive's over");
+        husk.discard();
+        helper.succeed();
+    }
+
+    /** Fast as it is, a dive can't fly through something between two ticks without hitting it. */
+    @GameTest(template = "platform")
+    public static void swiftDiveKickDoesntSkipPast(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, FightingStyle.SWIFT, 4.5, 1.5);
+        Husk husk = dummy(helper, 4.5, 4.0);
+        Vec3 start = helper.absoluteVec(new Vec3(4.5, GROUND + 2.5, 1.5));
+        player.teleportTo(start.x, start.y, start.z);
+        player.setOnGround(false);
+        player.setXRot(80);
+        helper.assertTrue(CombatMode.airSpecial(player), "diving");
+        // Next tick it's already past the husk, still in the air.
+        Vec3 past = helper.absoluteVec(new Vec3(4.5, GROUND + 0.6, 6.2));
+        player.teleportTo(past.x, past.y, past.z);
+        StyleMoves.tickDive(player);
+        helper.assertTrue(husk.getHealth() < 1000, "hit on the way past");
+        husk.discard();
+        helper.succeed();
+    }
 }

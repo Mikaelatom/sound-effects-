@@ -562,7 +562,43 @@ public final class VisualCheck {
                                 h.getDeltaMovement())));
                 shot(mc, "28_ki_burst");
             }
-            case 882 -> mc.stop();
+            case 878 -> onServer(mc, player -> {
+                player.serverLevel().getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
+                com.tensurafragments.combat.CombatMode.setStyle(player, com.tensurafragments.combat.FightingStyle.SWIFT);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), 0, 20);
+                Husk husk = EntityType.HUSK.create(player.serverLevel());
+                husk.moveTo(player.getX() + 0.8, player.getY(), player.getZ() + 3.2, 180, 0);
+                husk.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 10, false, false));
+                husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);
+                husk.setHealth(500);
+                husk.setPersistenceRequired();
+                player.serverLevel().addFreshEntity(husk);
+            });
+            case 884 -> mc.player.jumpFromGround();
+            case 885 -> mc.options.keyShift.setDown(true);
+            case 886 -> {
+                org.slf4j.LoggerFactory.getLogger("visualcheck").warn("COMBAT dive try: onGround {} style {} shift {} pos {}",
+                        mc.player.onGround(), com.tensurafragments.client.ClientCombat.style(), mc.player.isShiftKeyDown(),
+                        mc.player.position());
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            }
+            case 887, 889, 891, 892 -> onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn(
+                    "COMBAT dive t{}: diving {} pos {} ground {} motion {} husks {}", ticks,
+                    com.tensurafragments.combat.StyleMoves.isDiving(player), player.position(), player.onGround(),
+                    player.getDeltaMovement(), player.serverLevel().getEntitiesOfClass(Husk.class,
+                            player.getBoundingBox().inflate(10)).stream().map(h -> h.position().toString()).toList()));
+            case 888 -> {
+                shot(mc, "29_dive_kick");
+                onServer(mc, player -> org.slf4j.LoggerFactory.getLogger("visualcheck").warn(
+                        "COMBAT dive t888: diving {} pos {} ground {}", com.tensurafragments.combat.StyleMoves.isDiving(player),
+                        player.position(), player.onGround()));
+            }
+            case 890 -> mc.options.keyShift.setDown(false);
+            case 894 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                    player.getBoundingBox().inflate(10)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                    .warn("COMBAT after dive kick: husk hp {}", h.getHealth())));
+            case 898 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
