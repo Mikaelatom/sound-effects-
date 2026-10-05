@@ -176,7 +176,7 @@ public final class BoxingAnimator {
         model.hat.copyFrom(model.head);
     }
 
-    /** Blends a part toward the animation's pose (the head's rotation is added to where it's looking). */
+    /** Blends a part toward the animation's pose (the head's rotation is added on top of where it's looking). */
     private static void part(ModelPart part, Anim anim, int index, float seconds, float weight, boolean additive,
                              Vector3f pos, Quaternionf rot) {
         if (weight <= 0) {
@@ -185,10 +185,9 @@ public final class BoxingAnimator {
         anim.sample(seconds, index, pos, rot);
         PartPose initial = part.getInitialPose();
         Quaternionf current = new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot);
-        Quaternionf target = new Quaternionf(rot);
-        if (additive) {
-            target.mul(current);
-        }
+        // The head keeps looking where the player looks; the animation's nod is added in the head's own frame (added
+        // in the body's frame instead, a nod on a head turned to the side would come out as a sideways tilt).
+        Quaternionf target = additive ? new Quaternionf(current).mul(rot) : new Quaternionf(rot);
         current.slerp(target, weight);
         float x = current.x;
         float y = current.y;
