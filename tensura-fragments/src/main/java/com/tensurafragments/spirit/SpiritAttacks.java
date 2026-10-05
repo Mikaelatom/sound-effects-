@@ -65,6 +65,7 @@ final class SpiritAttacks {
             dir = Vec3.directionFromRotation(0, spirit.getYRot());
         }
         projectile.setPos(hand.x, hand.y, hand.z);
+        com.tensurafragments.skill.EpScaling.markScaled(projectile);
         projectile.setDamage(damage);
         projectile.setSpeed(speed);
         projectile.shoot(dir.x, dir.y, dir.z, speed, 0);

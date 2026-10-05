@@ -310,6 +310,7 @@ public final class SpiritCommunion {
 
     private static void launch(ServerPlayer player, TensuraFlyingProjectile projectile, SpiritElement element, int spirits,
                                boolean earth, float power, float speed) {
+        com.tensurafragments.skill.EpScaling.markScaled(projectile);
         projectile.setDamage(2 * com.tensurafragments.skill.EpScaling.multiplier(player));
         projectile.setSpeed(speed);
         projectile.setPosAndShoot(player);
@@ -440,6 +441,7 @@ public final class SpiritCommunion {
         boolean wind = player.getData(ModRegistries.YIFA_JUTSU) == 1;
         TensuraFlyingProjectile projectile = wind ? new WindBladeProjectile(player.level(), player)
                 : new FireBoltProjectile(player.level(), player);
+        com.tensurafragments.skill.EpScaling.markScaled(projectile);
         projectile.setDamage((wind ? 2.5F : 3.0F) * com.tensurafragments.skill.EpScaling.multiplier(player));
         projectile.setSpeed(1.6F);
         if (!wind) {

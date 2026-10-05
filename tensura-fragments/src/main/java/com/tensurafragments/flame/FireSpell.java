@@ -55,7 +55,7 @@ public enum FireSpell {
 
     /** Builds Tensura's projectile for this spell, aimed and positioned from the caster. */
     public TensuraFlyingProjectile create(ServerPlayer caster) {
-        TensuraFlyingProjectile projectile = factory.apply(caster.level(), caster);
+        TensuraFlyingProjectile projectile = com.tensurafragments.skill.EpScaling.markScaled(factory.apply(caster.level(), caster));
         projectile.setDamage(damage * com.tensurafragments.skill.EpScaling.multiplier(caster));
         projectile.setSpeed(speed);
         projectile.setBurnTicks(burnSeconds * 20);

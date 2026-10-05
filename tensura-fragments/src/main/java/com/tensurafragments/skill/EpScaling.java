@@ -24,8 +24,8 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Damage that grows with EP: this addon's skills (and their summons) and Combat Mode's punches hit harder the more EP
- * whoever's behind them has. Each tenfold of EP above the base adds a fixed step to the multiplier (by default 100 EP
+ * Damage that grows with EP: this addon's skills (and their summons), Tensura's own skills and magic when a player uses
+ * them, and Combat Mode's punches hit harder the more EP whoever's behind them has. Each tenfold of EP above the base adds a fixed step to the multiplier (by default 100 EP
  * hits normally, 1,000 at 1.6x, 10,000 at 2.2x, 100,000 at 2.8x, a million at 3.4x), up to a cap.
  */
 @EventBusSubscriber(modid = TensuraFragments.MODID)
@@ -59,6 +59,14 @@ public final class EpScaling {
         return (float) Math.min(Config.EP_SCALING_MAX.get(), 1 + steps * Config.EP_SCALING_PER_TENFOLD.get());
     }
 
+    /** Marks one of Tensura's projectiles fired by this addon's skills: its damage is already scaled. */
+    private static final String SCALED_KEY = "tensurafragments_ep_scaled";
+
+    public static <T extends Entity> T markScaled(T projectile) {
+        projectile.getPersistentData().putBoolean(SCALED_KEY, true);
+        return projectile;
+    }
+
     /** Hurts the target with damage scaled by the caster's EP. */
     public static boolean hurt(@Nullable Entity caster, LivingEntity target, DamageSource source, float amount) {
         return target.hurt(source, amount * multiplier(caster));
@@ -78,6 +86,8 @@ public final class EpScaling {
         if (attacker instanceof ServerPlayer player && source.getDirectEntity() == player
                 && source.is(DamageTypes.PLAYER_ATTACK) && CombatMode.isOn(player)) {
             event.setAmount(event.getAmount() * multiplier(player));
+        } else if (attacker instanceof Player player && isTensuraAbility(source, player)) {
+            event.setAmount(event.getAmount() * multiplier(player));
         } else if (attacker != null && source.getDirectEntity() == attacker
                 && (source.is(DamageTypes.MOB_ATTACK) || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO))) {
             Entity owner = summoner(attacker);
@@ -86,6 +96,27 @@ public final class EpScaling {
             }
         }
     }
+
+    /**
+     * Whether a player's damage comes from one of Tensura's own skills or spells: one of Tensura's damage types (black
+     * lightning, the elements, breaths, aura slashes...), or dealt through one of Tensura's projectiles, beams or magic
+     * fields. Not ones this addon fired (already scaled), nor reflected damage.
+     */
+    static boolean isTensuraAbility(DamageSource source, Player player) {
+        Entity direct = source.getDirectEntity();
+        if (direct != null && direct.getPersistentData().getBoolean(SCALED_KEY)) {
+            return false;
+        }
+        var type = source.typeHolder().unwrapKey();
+        if (type.isPresent() && TENSURA.equals(type.get().location().getNamespace())) {
+            String path = type.get().location().getPath();
+            return !path.equals("reflected") && !path.equals("suicide");
+        }
+        return direct != null && direct != player
+                && TENSURA.equals(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(direct.getType()).getNamespace());
+    }
+
+    private static final String TENSURA = "tensura";
 
     /** Who summoned this creature with one of this addon's skills, if anyone (and they're around). */
     @Nullable

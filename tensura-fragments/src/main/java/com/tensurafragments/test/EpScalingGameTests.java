@@ -89,4 +89,53 @@ public final class EpScalingGameTests {
         b.discard();
         helper.succeed();
     }
+
+    private static net.minecraft.world.damagesource.DamageSource tensuraMagic(GameTestHelper helper, ServerPlayer player) {
+        var types = helper.getLevel().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE);
+        var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE,
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("tensura", "magic"));
+        return new net.minecraft.world.damagesource.DamageSource(types.getHolderOrThrow(key), player);
+    }
+
+    /** Tensura's own skills and magic a player uses scale too: its damage types, and its projectiles. */
+    @GameTest(template = "platform")
+    public static void tensuraAbilitiesScaleWithEp(GameTestHelper helper) {
+        ServerPlayer weak = TestPlayers.spawn(helper, 1.5, 1.5);
+        ServerPlayer strong = TestPlayers.spawn(helper, 7.5, 1.5);
+        setEp(weak, 0);
+        setEp(strong, 100_000);
+        float expected = EpScaling.multiplierFor(100_000);
+        Husk a = dummy(helper, 2.5, 6.0);
+        Husk b = dummy(helper, 6.5, 6.0);
+        a.hurt(tensuraMagic(helper, weak), 5);
+        b.hurt(tensuraMagic(helper, strong), 5);
+        float weakHit = 1000 - a.getHealth();
+        float strongHit = 1000 - b.getHealth();
+        helper.assertTrue(weakHit > 0 && Math.abs(strongHit / weakHit - expected) < 0.05,
+                "Tensura magic " + weakHit + " vs " + strongHit);
+
+        // Through one of Tensura's projectiles.
+        var ball = new io.github.manasmods.tensura.entity.projectile.magic.FireBallProjectile(helper.getLevel(), strong);
+        a.setHealth(1000);
+        b.setHealth(1000);
+        a.invulnerableTime = 0;
+        b.invulnerableTime = 0;
+        var plainBall = new io.github.manasmods.tensura.entity.projectile.magic.FireBallProjectile(helper.getLevel(), weak);
+        a.hurt(helper.getLevel().damageSources().indirectMagic(plainBall, weak), 5);
+        b.hurt(helper.getLevel().damageSources().indirectMagic(ball, strong), 5);
+        weakHit = 1000 - a.getHealth();
+        strongHit = 1000 - b.getHealth();
+        helper.assertTrue(weakHit > 0 && Math.abs(strongHit / weakHit - expected) < 0.05,
+                "Tensura projectile " + weakHit + " vs " + strongHit);
+
+        // One this addon fired (its damage already scaled when it was made) isn't scaled again.
+        b.setHealth(1000);
+        b.invulnerableTime = 0;
+        EpScaling.markScaled(ball);
+        b.hurt(helper.getLevel().damageSources().indirectMagic(ball, strong), 5);
+        helper.assertTrue(Math.abs((1000 - b.getHealth()) - weakHit) < 0.05, "not scaled twice, " + (1000 - b.getHealth()));
+        a.discard();
+        b.discard();
+        helper.succeed();
+    }
 }

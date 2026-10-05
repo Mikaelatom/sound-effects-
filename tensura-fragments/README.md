@@ -360,7 +360,8 @@ Numbers are in the `[runes]` section of the server config (`drawMagicules`, `wea
 
 ## EP scaling
 
-Every skill this addon adds, and Combat Mode's punches, hit harder the more EP you have. It covers every attack each
+Every skill this addon adds, Tensura's own skills and magic, and Combat Mode's punches hit harder the more EP you
+have. It covers every attack each
 skill has: spells, cards, talismans, runes, Hell Storm and its burn, Spirit Control's spirits, Yifa's spirits and
 jutsu, Shikigami Control's beasts and block golems, and creatures you release from a Sealing Grimoire or summon with
 Soul Reaper (theirs scales with *your* EP). The multiplier goes up by the same step each time your EP
@@ -376,7 +377,12 @@ grows tenfold:
 | 10,000,000 | 4.0x |
 
 It tops out at 10x. The base EP, the step and the cap (or turning it off) are in the `[epScaling]` section of the
-server config. Tensura's own skills are left as Tensura balances them.
+server config.
+
+**Tensura's own skills and magic scale the same way** when a player uses them: anything dealing one of Tensura's
+damage types (Black Lightning, the elemental magics, breaths, aura slashes, Megiddo, gravity...) or hitting through
+one of Tensura's projectiles, beams or magic fields. Monsters' skills aren't scaled (that would make high-EP bosses
+far deadlier), and reflected damage isn't either.
 
 ## Combat Mode
 
