@@ -74,7 +74,7 @@ public final class CombatPoses {
             return;
         }
         int pose = pose(entity);
-        if (pose == CombatPosePayload.NONE) {
+        if (pose != CombatPosePayload.BLOCK && pose != CombatPosePayload.GRAB) {
             return;
         }
         float t = ease(entity, ageInTicks);
@@ -105,7 +105,7 @@ public final class CombatPoses {
             return;
         }
         int pose = pose(mc.player);
-        if (pose == CombatPosePayload.NONE) {
+        if (pose != CombatPosePayload.BLOCK && pose != CombatPosePayload.GRAB) {
             return;
         }
         event.setCanceled(true);

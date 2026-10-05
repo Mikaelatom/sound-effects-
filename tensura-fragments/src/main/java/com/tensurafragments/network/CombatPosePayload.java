@@ -8,11 +8,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/** A player's Combat Mode stance (none, blocking or grabbing), for everyone who can see them to draw their arms. */
+/** A player's Combat Mode stance (none, guard, blocking or grabbing), for everyone who can see them to draw it. */
 public record CombatPosePayload(int entityId, int pose) implements CustomPacketPayload {
     public static final int NONE = 0;
     public static final int BLOCK = 1;
     public static final int GRAB = 2;
+    /** Combat Mode on, nothing else going on: the boxing guard. */
+    public static final int STANCE = 3;
     public static final Type<CombatPosePayload> TYPE = new Type<>(TensuraFragments.id("combat_pose"));
     public static final StreamCodec<ByteBuf, CombatPosePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, CombatPosePayload::entityId, ByteBufCodecs.VAR_INT, CombatPosePayload::pose,

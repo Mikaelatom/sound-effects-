@@ -598,7 +598,20 @@ public final class VisualCheck {
             case 894 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
                     player.getBoundingBox().inflate(10)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
                     .warn("COMBAT after dive kick: husk hp {}", h.getHealth())));
-            case 898 -> mc.stop();
+            case 898 -> onServer(mc, player -> {
+                player.serverLevel().getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(30)).forEach(Husk::discard);
+                com.tensurafragments.combat.CombatMode.setStyle(player, com.tensurafragments.combat.FightingStyle.BRAWLER);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), 0, 0);
+            });
+            case 900 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+            case 906 -> shot(mc, "30_guard");
+            case 910, 922 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 913 -> shot(mc, "31_hook_a");
+            case 925 -> shot(mc, "32_hook_b");
+            case 935 -> shot(mc, "33_guard_again");
+            case 936 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 938 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

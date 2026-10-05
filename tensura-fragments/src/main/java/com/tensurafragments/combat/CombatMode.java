@@ -769,7 +769,7 @@ public final class CombatMode {
 
     public static int pose(ServerPlayer player) {
         return isGrabbing(player) ? CombatPosePayload.GRAB : isBlocking(player) ? CombatPosePayload.BLOCK
-                : CombatPosePayload.NONE;
+                : isOn(player) ? CombatPosePayload.STANCE : CombatPosePayload.NONE;
     }
 
     /** Tells the player and everyone watching them when their stance changes. */
