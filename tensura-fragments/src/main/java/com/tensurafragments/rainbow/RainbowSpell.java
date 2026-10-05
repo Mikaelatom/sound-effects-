@@ -43,7 +43,7 @@ public enum RainbowSpell {
     /** Builds Tensura's projectile for this spell, aimed and positioned from the caster. */
     public TensuraFlyingProjectile create(ServerPlayer caster) {
         TensuraFlyingProjectile projectile = factory.apply(caster.level(), caster);
-        projectile.setDamage(damage);
+        projectile.setDamage(damage * com.tensurafragments.skill.EpScaling.multiplier(caster));
         projectile.setSpeed(speed);
         projectile.setPosAndShoot(caster);
         return projectile;

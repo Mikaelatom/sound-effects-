@@ -159,7 +159,7 @@ public final class Barrier {
                     entity.hurtMarked = true;
                 }
                 if (inside && damageTick && living instanceof Enemy && Config.BARRIER_DAMAGE_PER_SECOND.get() > 0) {
-                    living.hurt(level.damageSources().indirectMagic(leader, owner), Config.BARRIER_DAMAGE_PER_SECOND.get().floatValue());
+                    com.tensurafragments.skill.EpScaling.hurt(owner, living, level.damageSources().indirectMagic(leader, owner), Config.BARRIER_DAMAGE_PER_SECOND.get().floatValue());
                 }
             }
             seen.put(entity.getId(), entity.position());

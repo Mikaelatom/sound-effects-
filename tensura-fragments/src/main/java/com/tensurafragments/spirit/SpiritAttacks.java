@@ -31,7 +31,7 @@ final class SpiritAttacks {
 
     static void strike(SpiritEntity spirit, ServerLevel level, ServerPlayer owner) {
         SpiritKind kind = spirit.getKind();
-        float damage = Config.SPIRIT_DAMAGE.get().floatValue() * kind.damageMultiplier();
+        float damage = Config.SPIRIT_DAMAGE.get().floatValue() * kind.damageMultiplier() * com.tensurafragments.skill.EpScaling.multiplier(owner);
         switch (kind) {
             case IFRIT -> {
                 TensuraFlyingProjectile ball = new FireBallProjectile(level, owner);

@@ -310,7 +310,7 @@ public final class SpiritCommunion {
 
     private static void launch(ServerPlayer player, TensuraFlyingProjectile projectile, SpiritElement element, int spirits,
                                boolean earth, float power, float speed) {
-        projectile.setDamage(2);
+        projectile.setDamage(2 * com.tensurafragments.skill.EpScaling.multiplier(player));
         projectile.setSpeed(speed);
         projectile.setPosAndShoot(player);
         CARRIERS.put(projectile.getUUID(), new Carried(player.getUUID(), element, spirits, earth, power));
@@ -412,7 +412,7 @@ public final class SpiritCommunion {
     static void hit(ServerPlayer player, LivingEntity target, float damage, boolean earth) {
         DamageSource source = player.damageSources().indirectMagic(player, player);
         target.invulnerableTime = 0;
-        target.hurt(source, damage);
+        com.tensurafragments.skill.EpScaling.hurt(player, target, source, damage);
         if (earth) {
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 2), player);
         }
@@ -440,7 +440,7 @@ public final class SpiritCommunion {
         boolean wind = player.getData(ModRegistries.YIFA_JUTSU) == 1;
         TensuraFlyingProjectile projectile = wind ? new WindBladeProjectile(player.level(), player)
                 : new FireBoltProjectile(player.level(), player);
-        projectile.setDamage(wind ? 2.5F : 3.0F);
+        projectile.setDamage((wind ? 2.5F : 3.0F) * com.tensurafragments.skill.EpScaling.multiplier(player));
         projectile.setSpeed(1.6F);
         if (!wind) {
             projectile.setBurnTicks(40);

@@ -421,7 +421,7 @@ public final class SpellCards {
             return;
         }
         target.invulnerableTime = 0;
-        target.hurt(owner.damageSources().indirectMagic(owner, owner), damage);
+        com.tensurafragments.skill.EpScaling.hurt(owner, target, owner.damageSources().indirectMagic(owner, owner), damage);
     }
 
     /** A real-looking lightning strike that hurts nothing by itself (the spell does the damage). */

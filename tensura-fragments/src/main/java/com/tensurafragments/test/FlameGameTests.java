@@ -64,6 +64,8 @@ public final class FlameGameTests {
         husk.setHealth(1000);
         player.lookAt(EntityAnchorArgument.Anchor.EYES, husk.position().add(0, 1, 0));
         helper.assertTrue(FlameEmperor.hellStorm(player), "hell storm cast");
+        // These test the burn itself, not EP scaling: the caster's spent magicules shouldn't multiply the damage.
+        TestPlayers.clearEp(player);
 
         helper.runAfterDelay(15, () -> helper.assertTrue(helper.getLevel().getEntitiesOfClass(HellStormEntity.class,
                 new AABB(player.blockPosition()).inflate(4)).isEmpty(), "the circle charges before the storm comes"));
@@ -137,6 +139,8 @@ public final class FlameGameTests {
         blaze.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, MobEffectInstance.INFINITE_DURATION, 3));
         player.lookAt(EntityAnchorArgument.Anchor.EYES, blaze.position().add(0, 1, 0));
         helper.assertTrue(FlameEmperor.hellStorm(player), "hell storm cast");
+        // These test the burn itself, not EP scaling: the caster's spent magicules shouldn't multiply the damage.
+        TestPlayers.clearEp(player);
         helper.runAfterDelay(45, () -> {
             helper.assertTrue(blaze.getHealth() <= 1000 - 100, "fireproof, armoured blaze still burns, at " + blaze.getHealth());
             helper.assertTrue(blaze.hasEffect(ModRegistries.DRACONIC_HELLFIRE), "Draconic Hellfire applied");

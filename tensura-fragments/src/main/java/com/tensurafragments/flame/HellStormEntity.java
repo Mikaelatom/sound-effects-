@@ -135,9 +135,11 @@ public class HellStormEntity extends Entity implements GeoEntity {
                 continue;
             }
             target.invulnerableTime = 0;
-            target.hurt(source, Config.HELL_STORM_DAMAGE.get().floatValue());
+            com.tensurafragments.skill.EpScaling.hurt(caster, target, source, Config.HELL_STORM_DAMAGE.get().floatValue());
             target.setRemainingFireTicks(Math.max(target.getRemainingFireTicks(), 100));
-            target.addEffect(new MobEffectInstance(ModRegistries.DRACONIC_HELLFIRE, MobEffectInstance.INFINITE_DURATION, 0,
+            // The lasting burn scales too, through its level.
+            int burnLevel = Math.min(9, Math.max(0, Math.round(com.tensurafragments.skill.EpScaling.multiplier(caster)) - 1));
+            target.addEffect(new MobEffectInstance(ModRegistries.DRACONIC_HELLFIRE, MobEffectInstance.INFINITE_DURATION, burnLevel,
                     false, true, true), caster);
         }
     }

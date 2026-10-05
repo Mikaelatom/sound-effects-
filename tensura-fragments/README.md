@@ -358,12 +358,33 @@ paper. Rune Magic users know every rune and draw them instantly.
 Numbers are in the `[runes]` section of the server config (`drawMagicules`, `weaponCharges`, `runePower`,
 `inscribeSecondsWithoutSkill`, `runeTomeChestChance` 15%, `runePaperChestChance` 10%).
 
+## EP scaling
+
+Every skill this addon adds, and Combat Mode's punches, hit harder the more EP you have. It covers every attack each
+skill has: spells, cards, talismans, runes, Hell Storm and its burn, Spirit Control's spirits, Yifa's spirits and
+jutsu, Shikigami Control's beasts and block golems, and creatures you release from a Sealing Grimoire or summon with
+Soul Reaper (theirs scales with *your* EP). The multiplier goes up by the same step each time your EP
+grows tenfold:
+
+| Your EP | Damage |
+|---|---|
+| 100 or less | 1x |
+| 1,000 | 1.6x |
+| 10,000 | 2.2x |
+| 100,000 | 2.8x |
+| 1,000,000 | 3.4x |
+| 10,000,000 | 4.0x |
+
+It tops out at 10x. The base EP, the step and the cap (or turning it off) are in the `[epScaling]` section of the
+server config. Tensura's own skills are left as Tensura balances them.
+
 ## Combat Mode
 
 A melee fighting style you can turn on and off: press **G** or use `/combat`. "Combat" shows under the crosshair
 while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): **G** on/off, **H** block (hold),
 **J** grab / throw, **K** dash.
 
+- **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or
   tool); every hit steps you in a little and leaves a **white swish** in the air: a solid

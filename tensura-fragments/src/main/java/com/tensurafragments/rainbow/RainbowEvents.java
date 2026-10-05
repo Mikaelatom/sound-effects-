@@ -28,7 +28,8 @@ public final class RainbowEvents {
         if (target.level().isClientSide || !RainbowMagic.isRainbow(direct) || target == event.getSource().getEntity()) {
             return;
         }
-        event.setAmount(event.getAmount() + RainbowMagic.prismDamage());
+        event.setAmount(event.getAmount()
+                + RainbowMagic.prismDamage() * com.tensurafragments.skill.EpScaling.multiplier(event.getSource().getEntity()));
         RainbowMagic.applyElements(target);
     }
 

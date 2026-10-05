@@ -74,7 +74,7 @@ public enum EnergySpell {
     /** Builds the spell's projectile, aimed from the caster, at {@code power} times its normal damage. */
     public TensuraFlyingProjectile create(LivingEntity caster, float power) {
         TensuraFlyingProjectile projectile = factory.apply(caster.level(), caster);
-        projectile.setDamage(damage * power);
+        projectile.setDamage(damage * power * com.tensurafragments.skill.EpScaling.multiplier(caster));
         projectile.setSpeed(speed);
         if (burnSeconds > 0) {
             projectile.setBurnTicks(burnSeconds * 20);

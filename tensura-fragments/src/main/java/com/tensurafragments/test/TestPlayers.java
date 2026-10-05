@@ -70,6 +70,16 @@ final class TestPlayers {
         return player;
     }
 
+    /** No EP at all (so damage that scales with EP isn't multiplied). */
+    static void clearEp(ServerPlayer player) {
+        IExistence existence = TensuraStorages.getExistenceFrom(player);
+        if (existence != null) {
+            existence.setMagicule(0);
+            existence.setAura(0);
+            existence.setEP(0);
+        }
+    }
+
     static void giveMagicules(ServerPlayer player, double amount) {
         IExistence existence = TensuraStorages.getExistenceFrom(player);
         if (existence != null) {

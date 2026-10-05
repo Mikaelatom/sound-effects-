@@ -36,7 +36,7 @@ public final class Blast {
                 continue;
             }
             float falloff = (float) (1.0 - distance / radius);
-            float amount = damage * power * falloff;
+            float amount = damage * power * falloff * com.tensurafragments.skill.EpScaling.multiplier(owner);
             if (victim == owner) {
                 amount *= selfDamageMultiplier;
             }

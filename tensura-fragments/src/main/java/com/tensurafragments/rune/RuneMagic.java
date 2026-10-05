@@ -189,7 +189,7 @@ public final class RuneMagic {
                     effect(target, MobEffects.FIRE_RESISTANCE, 180, 0);
                 } else {
                     target.igniteForSeconds(8 * power());
-                    target.hurt(player.damageSources().indirectMagic(player, player), damage);
+                    com.tensurafragments.skill.EpScaling.hurt(player, target, player.damageSources().indirectMagic(player, player), damage);
                 }
             }
             case FROST -> {
@@ -199,7 +199,7 @@ public final class RuneMagic {
                 } else {
                     effect(target, MobEffects.MOVEMENT_SLOWDOWN, 6, 3);
                     target.setTicksFrozen(Math.max(target.getTicksFrozen(), target.getTicksRequiredToFreeze() + ticks(6)));
-                    target.hurt(player.damageSources().freeze(), damage * 0.7F);
+                    com.tensurafragments.skill.EpScaling.hurt(player, target, player.damageSources().freeze(), damage * 0.7F);
                 }
             }
             case THUNDER -> {
@@ -214,7 +214,7 @@ public final class RuneMagic {
                         bolt.setVisualOnly(true);
                         level.addFreshEntity(bolt);
                     }
-                    target.hurt(player.damageSources().indirectMagic(player, player), damage * 1.4F);
+                    com.tensurafragments.skill.EpScaling.hurt(player, target, player.damageSources().indirectMagic(player, player), damage * 1.4F);
                 }
             }
             case LIFE -> {
@@ -295,7 +295,7 @@ public final class RuneMagic {
             case FIRE -> {
                 target.igniteForSeconds(4 * power);
                 target.invulnerableTime = 0;
-                target.hurt(attacker.damageSources().onFire(), 2 * power);
+                com.tensurafragments.skill.EpScaling.hurt(attacker, target, attacker.damageSources().onFire(), 2 * power);
             }
             case FROST -> {
                 target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks(3), 1));
@@ -310,7 +310,7 @@ public final class RuneMagic {
                         level.addFreshEntity(bolt);
                     }
                     target.invulnerableTime = 0;
-                    target.hurt(attacker.damageSources().lightningBolt(), 6 * power);
+                    com.tensurafragments.skill.EpScaling.hurt(attacker, target, attacker.damageSources().lightningBolt(), 6 * power);
                 }
             }
             case LIFE -> attacker.heal(damage * 0.25F * power);

@@ -459,6 +459,23 @@ public final class Config {
             .defineInRange("dashCooldownTicks", 20, 0, 600);
 
     static {
+        BUILDER.pop().comment("EP scaling: this addon's skills, their summons and Combat Mode punches hit harder with more EP").push("epScaling");
+    }
+
+    public static final ModConfigSpec.BooleanValue EP_SCALING = BUILDER
+            .comment("Whether damage scales with EP at all.")
+            .define("enabled", true);
+    public static final ModConfigSpec.DoubleValue EP_SCALING_BASE = BUILDER
+            .comment("EP at or below this hits normally (1x).")
+            .defineInRange("baseEP", 100.0, 1.0, 1.0E12);
+    public static final ModConfigSpec.DoubleValue EP_SCALING_PER_TENFOLD = BUILDER
+            .comment("How much the multiplier grows for each tenfold of EP above the base (0.6: 10x the base EP hits 1.6x as hard).")
+            .defineInRange("perTenfold", 0.6, 0.0, 100.0);
+    public static final ModConfigSpec.DoubleValue EP_SCALING_MAX = BUILDER
+            .comment("The highest the multiplier goes.")
+            .defineInRange("maxMultiplier", 10.0, 1.0, 1000.0);
+
+    static {
         BUILDER.pop().comment("Starting skill: after picking a race, new players pick one of this addon's skills").push("startingSkill");
     }
 

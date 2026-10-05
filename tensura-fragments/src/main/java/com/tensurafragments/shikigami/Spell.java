@@ -58,7 +58,7 @@ public enum Spell {
         @Override
         void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
             for (LivingEntity target : enemies(level, owner, at, radius())) {
-                target.hurt(magic(level, talisman, owner), 4.0F * potency);
+                com.tensurafragments.skill.EpScaling.hurt(owner, target, magic(level, talisman, owner), 4.0F * potency);
                 target.igniteForSeconds(5 * potency);
             }
         }
@@ -74,7 +74,7 @@ public enum Spell {
         @Override
         void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
             for (LivingEntity target : enemies(level, owner, at, radius())) {
-                target.hurt(magic(level, talisman, owner), 2.0F * potency);
+                com.tensurafragments.skill.EpScaling.hurt(owner, target, magic(level, talisman, owner), 2.0F * potency);
                 Vec3 push = target.position().subtract(at).multiply(1, 0, 1);
                 push = push.lengthSqr() < 1.0E-4 ? Vec3.ZERO : push.normalize().scale(1.4 * potency);
                 target.push(push.x, 0.35, push.z);
@@ -132,7 +132,7 @@ public enum Spell {
                     break;
                 }
                 hit.add(next);
-                next.hurt(magic(level, talisman, owner), damage);
+                com.tensurafragments.skill.EpScaling.hurt(owner, next, magic(level, talisman, owner), damage);
                 LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
                 if (bolt != null) {
                     bolt.moveTo(next.getX(), next.getY(), next.getZ());
@@ -155,7 +155,7 @@ public enum Spell {
         @Override
         void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
             for (LivingEntity target : enemies(level, owner, at, radius())) {
-                target.hurt(magic(level, talisman, owner), 5.0F * potency);
+                com.tensurafragments.skill.EpScaling.hurt(owner, target, magic(level, talisman, owner), 5.0F * potency);
                 target.setDeltaMovement(target.getDeltaMovement().x * 0.2, 0.9 * potency, target.getDeltaMovement().z * 0.2);
                 target.hurtMarked = true;
                 target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, Math.round(40 * potency), 1));
@@ -180,7 +180,7 @@ public enum Spell {
         @Override
         void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
             for (LivingEntity target : enemies(level, owner, at, radius())) {
-                target.hurt(magic(level, talisman, owner), 3.0F * potency);
+                com.tensurafragments.skill.EpScaling.hurt(owner, target, magic(level, talisman, owner), 3.0F * potency);
                 freeze(target, potency);
             }
             // Water nearby freezes over (it melts again like Frost Walker ice), and fire goes out.
@@ -206,7 +206,7 @@ public enum Spell {
         @Override
         void effect(ServerLevel level, Entity talisman, @Nullable Entity owner, Vec3 at, float potency) {
             for (LivingEntity target : enemies(level, owner, at, radius())) {
-                target.hurt(magic(level, talisman, owner), 2.0F * potency);
+                com.tensurafragments.skill.EpScaling.hurt(owner, target, magic(level, talisman, owner), 2.0F * potency);
                 Vec3 push = target.position().subtract(at).multiply(1, 0, 1);
                 push = push.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : push.normalize();
                 target.setDeltaMovement(push.x * 1.8 * potency, 0.55 * potency, push.z * 1.8 * potency);
