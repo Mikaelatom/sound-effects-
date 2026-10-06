@@ -647,8 +647,26 @@ public final class VisualCheck {
                     com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
             case 1109 -> shot(mc, "48_swish_fp_4");
             case 1110 -> shot(mc, "49_swish_fp_5");
-            case 1114 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 1116 -> mc.stop();
+            case 1112 -> onServer(mc, player -> {
+                // The Punch Swish mod's own punches (Combat Mode off, empty hand) to compare swishes.
+                player.setData(com.tensurafragments.ModRegistries.COMBAT_MODE, false);
+                com.tensurafragments.combat.CombatMode.sync(player, 0);
+                player.getInventory().clearContent();
+                player.inventoryMenu.broadcastChanges();
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0);
+            });
+            case 1116 -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            case 1120, 1150, 1154, 1158, 1215, 1219 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 1123, 1124, 1125, 1126, 1127 -> shot(mc, "5" + (ticks - 1123) + "_mod_jab_t" + (ticks - 1120));
+            case 1161, 1162, 1163, 1164, 1165 -> shot(mc, "6" + (ticks - 1161) + "_mod_chain_t" + (ticks - 1158));
+            case 1200 -> onServer(mc, player -> {
+                player.setData(com.tensurafragments.ModRegistries.COMBAT_MODE, true);
+                com.tensurafragments.combat.CombatMode.sync(player, 0);
+            });
+            case 1222, 1223, 1224, 1225, 1226 -> shot(mc, "7" + (ticks - 1222) + "_ours_t" + (ticks - 1219));
+            case 1244 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 1246 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

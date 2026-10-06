@@ -119,8 +119,10 @@ public final class BoxingAnimator {
     private static final Map<String, SwishStyle> SWISHES = Map.of(
             "punch_jab_right", new SwishStyle(1.0, 0.22, -0.3, 25, 0.45, false),
             "punch_jab_left", new SwishStyle(1.0, -0.22, -0.3, -25, 0.45, true),
-            "punch_hook_right", new SwishStyle(1.1, 0, -0.3, 0, 0.85, false),
-            "punch_hook_left", new SwishStyle(1.1, 0, -0.3, 0, 0.85, true),
+            // The hooks take the jab swish the mod shows on ordinary punches: small, low beside the fist, tilted (its
+            // own big hook arch peaks right over the crosshair).
+            "punch_hook_right", new SwishStyle(1.0, 0.22, -0.3, 25, 0.45, false),
+            "punch_hook_left", new SwishStyle(1.0, -0.22, -0.3, -25, 0.45, true),
             "punch_uppercut_left", new SwishStyle(0.95, -0.18, -0.35, -90, 0.7, false));
     /** The swish comes this many ticks before the punch lands. */
     private static final float SWISH_LEAD_TICKS = 2;
