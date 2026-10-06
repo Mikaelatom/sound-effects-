@@ -678,9 +678,31 @@ public final class VisualCheck {
             case 1293, 1294, 1295, 1296, 1297, 1298, 1299, 1300, 1301 -> shot(mc, "sweep_" + ticks);
             case 1313, 1314, 1315, 1316, 1317, 1318, 1319, 1320, 1321 -> shot(mc, "sweepL_" + ticks);
             case 1340 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 1342 -> mc.stop();
             default -> {
-                if (ticks > 418 && ticks < 638) {
+                if (ticks >= 1350 && ticks < 1350 + 4 * 30) {
+                    // The uppercut in first person, side on (the body turned a quarter while the camera keeps looking
+                    // the same way), from behind and from the front.
+                    int run = (ticks - 1350) / 30;
+                    int t = (ticks - 1350) % 30;
+                    if (run == 1) {
+                        mc.player.yBodyRot = mc.player.getYRot() + 90;
+                        mc.player.yBodyRotO = mc.player.yBodyRot;
+                    }
+                    if (t == 0) {
+                        mc.options.setCameraType(run == 0 ? net.minecraft.client.CameraType.FIRST_PERSON
+                                : run == 3 ? net.minecraft.client.CameraType.THIRD_PERSON_FRONT
+                                : net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                    } else if (t == 10) {
+                        mc.player.jumpFromGround();
+                    } else if (t == 11) {
+                        net.minecraft.client.KeyMapping.click(
+                                com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+                    } else if (t >= 12 && t <= 22) {
+                        shot(mc, "upper_r" + run + "_t" + (t - 11));
+                    }
+                } else if (ticks == 1350 + 4 * 30 + 5) {
+                    mc.stop();
+                } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
                     onServer(mc, player -> {
                         var beast = com.tensurafragments.shikigami.PaperBeasts.possessed(player);
