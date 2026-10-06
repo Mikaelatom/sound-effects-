@@ -148,39 +148,7 @@ public final class StyleMoves {
         CombatMode.arc(level, points, thickness, life, sweep);
     }
 
-    /** A straight white streak. */
-    static void streak(ServerLevel level, Vec3 from, Vec3 to, float thickness, int life) {
-        List<Vec3> points = new ArrayList<>();
-        for (int i = 0; i <= 12; i++) {
-            points.add(from.lerp(to, i / 12.0));
-        }
-        CombatMode.arc(level, points, thickness, life, true);
-    }
-
     // ---- Launchers (jump + attack) ----
-
-    /** The swish each style's jumping move draws as it's thrown. */
-    static void launcherVisual(ServerLevel level, ServerPlayer player, FightingStyle style) {
-        Vec3 forward = forward(player);
-        switch (style) {
-            case SWIFT -> ring(level, player.position().add(0, 0.9, 0), 1.6, 0.18F, 6, true);
-            case TITAN -> {
-                // An overhead swing down in front.
-                List<Vec3> points = new ArrayList<>();
-                Vec3 base = player.position().add(forward.scale(0.9));
-                for (int i = 0; i < 24; i++) {
-                    double t = i / 23.0;
-                    points.add(base.add(forward.scale(Math.sin(t * Math.PI) * 0.6)).add(0, 2.6 - t * 2.4, 0));
-                }
-                CombatMode.arc(level, points, 0.28F, 6, true);
-            }
-            case KI -> {
-                Vec3 hand = player.getEyePosition().subtract(0, 0.4, 0);
-                streak(level, hand, hand.add(player.getLookAngle().scale(3.5)), 0.22F, 6);
-            }
-            default -> CombatMode.upswish(level, player);
-        }
-    }
 
     /** What a jumping punch does to what it hits, by style (Brawler's uppercut is in CombatMode). */
     static void launcher(ServerPlayer player, LivingEntity target, FightingStyle style, boolean finisher) {
@@ -233,8 +201,6 @@ public final class StyleMoves {
             case SWIFT -> {
                 // Whirlwind: everything around you, the target hardest.
                 CombatMode.launch(player, target);
-                ring(level, player.position().add(0, 0.6, 0), 2.4, 0.24F, 7, true);
-                ring(level, player.position().add(0, 1.3, 0), 2.0, 0.18F, 7, true);
                 for (LivingEntity other : enemiesAround(player, player.position(), 2.6)) {
                     if (other != target && CombatMode.strike(player, other, CombatMode.punchDamage(player), 15, stun)) {
                         push(other, other.position().subtract(player.position()), 0.9, 0.45);
@@ -257,8 +223,6 @@ public final class StyleMoves {
             case KI -> {
                 // Ki blast: a beam that throws it far away.
                 push(target, player.getLookAngle(), 2.6, 0.5);
-                Vec3 hand = player.getEyePosition().subtract(0, 0.4, 0);
-                streak(level, hand, hand.add(player.getLookAngle().scale(7)), 0.34F, 8);
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FIREWORK_ROCKET_LARGE_BLAST,
                         SoundSource.PLAYERS, 1.2F, 0.6F);
             }
@@ -327,7 +291,6 @@ public final class StyleMoves {
             return false;
         }
         Vec3 at = hit.getLocation();
-        streak(level, player.getEyePosition().subtract(0, 0.5, 0), at, 0.26F, 6);
         ring(level, at.add(0, 0.15, 0), 1.5, 0.18F, 8, false);
         ring(level, at.add(0, 0.15, 0), 3.0, 0.18F, 8, false);
         level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.2, at.z, 16, 1.2, 0.1, 1.2, 0.06);
@@ -387,7 +350,6 @@ public final class StyleMoves {
         ServerLevel level = player.serverLevel();
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 8, 0.3, 0.5, 0.3, 0.02);
         warp(player, behind, yawToward(behind, attacker.position()), 0);
-        CombatMode.swish(level, player, true, true);
         CombatMode.strike(player, attacker, CombatMode.punchDamage(player) * 1.5F + 2, 35, Config.COMBAT_STUN_TICKS.get() + 10);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS,
                 1.2F, 1.2F);
@@ -557,8 +519,6 @@ public final class StyleMoves {
         player.setDeltaMovement(-dive.direction().x * 0.3, 0.6, -dive.direction().z * 0.3);
         player.hurtMarked = true;
         ServerLevel level = player.serverLevel();
-        streak(level, player.position().subtract(dive.direction().scale(2)).add(0, 2, 0), target.position().add(0, 1, 0),
-                0.2F, 6);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
                 SoundSource.PLAYERS, 1.2F, 1.2F);
     }

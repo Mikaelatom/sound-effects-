@@ -37,7 +37,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 /**
- * Combat Mode, toggled per player: melee hits chain into combos (left and right jabs, a little lunge, white swishes),
+ * Combat Mode, toggled per player: melee hits chain into combos (left and right hooks, a little lunge),
  * every hit stuns what it hits (it can't move or hurt anyone for a moment, and hangs in the air if it's airborne), the
  * last hit of a combo is a finisher that launches, a jumping punch is an uppercut that carries you up with the target,
  * and attacking while sneaking in mid-air slams you down into a shockwave. You can also block (a block started just
@@ -378,8 +378,6 @@ public final class CombatMode {
         } else {
             FINISHING.remove(player.getUUID());
         }
-        // (Which hand jabs is the client's: it alternates left and right itself.)
-        boolean left = count % 2 == 0;
         Long asked = UPPERCUT_ASKED.remove(player.getUUID());
         boolean uppercut = asked != null && player.level().getGameTime() - asked <= 5;
         if (uppercut) {
@@ -389,14 +387,12 @@ public final class CombatMode {
             if (style == FightingStyle.BRAWLER) {
                 // You go up with it, a touch slower so it stays just above you for the next hit.
                 player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
-                upswish((ServerLevel) player.level(), player);
                 // Everyone watching sees the uppercut (the puncher's own client already started it).
                 PacketDistributor.sendToPlayersTrackingEntity(player, new com.tensurafragments.network.CombatAnimPayload(
                         player.getId(), com.tensurafragments.network.CombatAnimPayload.UPPERCUT));
             } else {
                 // The other styles' jumping moves keep you hanging in the air a moment.
                 player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
-                StyleMoves.launcherVisual((ServerLevel) player.level(), player, style);
             }
             player.hurtMarked = true;
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
@@ -414,7 +410,6 @@ public final class CombatMode {
                 AIR_SAFE.put(player.getUUID(), player.level().getGameTime() + 100);
             }
             player.hurtMarked = true;
-            swish((ServerLevel) player.level(), player, left, count >= finisher);
         }
         int shown = count >= finisher ? finisher : count;
         LAST_COMBO.put(player.getUUID(), shown);
@@ -534,18 +529,6 @@ public final class CombatMode {
         target.hurtMarked = true;
     }
 
-    /** A white swish rising from the hip up past the head, in front of the player. */
-    static void upswish(ServerLevel level, ServerPlayer player) {
-        Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
-        Vec3 base = player.position().add(forward.scale(0.9));
-        java.util.List<Vec3> points = new java.util.ArrayList<>();
-        for (int i = 0; i < 24; i++) {
-            double t = i / 23.0;
-            double arc = Math.sin(t * Math.PI) * 0.45;
-            points.add(base.add(forward.scale(arc)).add(0, 0.4 + t * 2.0, 0));
-        }
-        arc(level, points, 0.2F, 6, true);
-    }
 
     /** A solid white pixel arc through these points, drawn by everyone nearby. */
     static void arc(ServerLevel level, java.util.List<Vec3> points, float thickness, int life, boolean sweep) {
@@ -562,20 +545,6 @@ public final class CombatMode {
         target.hurtMarked = true;
     }
 
-    /** A white swish across the front of the player, right to left or left to right. */
-    static void swish(ServerLevel level, ServerPlayer player, boolean fromLeft, boolean big) {
-        Vec3 eye = player.getEyePosition().subtract(0, 0.35, 0);
-        float yaw = player.getYRot();
-        int count = big ? 32 : 24;
-        double radius = big ? 1.7 : 1.25;
-        java.util.List<Vec3> points = new java.util.ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            double t = i / (double) (count - 1);
-            double angle = Math.toRadians(yaw + (fromLeft ? -1 : 1) * (70 - 140 * t));
-            points.add(eye.add(-Math.sin(angle) * radius, (t - 0.5) * (big ? 0.5 : 0.25), Math.cos(angle) * radius));
-        }
-        arc(level, points, big ? 0.26F : 0.17F, big ? 7 : 5, true);
-    }
 
     static void hitSpark(ServerLevel level, LivingEntity target) {
         level.sendParticles(WHITE, target.getX(), target.getY() + target.getBbHeight() * 0.6, target.getZ(), 8,
@@ -968,7 +937,6 @@ public final class CombatMode {
                 1 - target.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE));
         target.setDeltaMovement(forward.x * 1.5 * resist, 0.5 * resist, forward.z * 1.5 * resist);
         target.hurtMarked = true;
-        swish(level, player, true, true);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
                 SoundSource.PLAYERS, 1.2F, 0.7F);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PHANTOM_SWOOP, SoundSource.PLAYERS,

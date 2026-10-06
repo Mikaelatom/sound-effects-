@@ -396,16 +396,16 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 - **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or
-  tool); every hit steps you in a little and leaves a **white swish** in the air: a solid
-  white pixel arc that sweeps across in front of you (guards and slam shockwaves are drawn the same way).
+  tool); every hit steps you in a little. (Shockwaves, guards and knockdowns show as solid white pixel
+  rings.)
 - **Hit stun:** whatever you hit is stunned for a moment (about half a second): it can't move or hurt anyone. Combo
   hits barely knock it back, so you can keep going. It works in the air too: something stunned in mid-air hangs
   there, sinking slowly, instead of falling, and each punch you throw in mid-air keeps you up as well, so you can
   juggle it.
 - **Finisher:** the 4th hit of a combo (x4!) hits much harder (1.5 times, plus 3) and launches the target up and
-  away, with a big swish and a crack.
+  away, with a crack.
 - **Uppercut:** **jump and punch** on the way up to throw an uppercut: it hits a bit harder, launches the target
-  straight up into the air (higher still if it's your finisher) and stuns it a little longer, with a rising swish.
+  straight up into the air (higher still if it's your finisher) and stuns it a little longer.
   **You go up with it**, just below it, ready to keep hitting it in the air. No fall damage on the way back down.
 - **Block:** hold **H** to put your guard up ("Blocking" under the crosshair): your forearms come up crossed in
   front of your face (in first person too, and everyone around sees it). Hits from the front do a quarter of
