@@ -303,9 +303,9 @@ public final class ModelSwish {
         float yBottom = -(cube.origin()[1] - pivot[1]);
         float z0 = cube.origin()[2] - pivot[2];
         float z1 = z0 + cube.size()[2];
-        // The whole frame of the swish strip on the sheet.
-        float u0 = 0;
-        float u1 = 1;
+        // The whole frame of the swish strip on the sheet, laid so the arc sweeps the way the fist travels.
+        float u0 = 1;
+        float u1 = 0;
         float v0 = frame / (float) FRAMES;
         float v1 = (frame + 1) / (float) FRAMES;
         for (Face face : cube.faces()) {

@@ -675,7 +675,8 @@ public final class VisualCheck {
             case 1290, 1310, 1330 -> {
                 net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
             }
-            case 1297, 1298, 1299, 1317, 1318, 1319, 1337, 1338, 1339 -> shot(mc, "tilt_" + ticks);
+            case 1293, 1294, 1295, 1296, 1297, 1298, 1299, 1300, 1301 -> shot(mc, "sweep_" + ticks);
+            case 1313, 1314, 1315, 1316, 1317, 1318, 1319, 1320, 1321 -> shot(mc, "sweepL_" + ticks);
             case 1340 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
             case 1342 -> mc.stop();
             default -> {
