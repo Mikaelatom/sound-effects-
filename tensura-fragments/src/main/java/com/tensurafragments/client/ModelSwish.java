@@ -21,6 +21,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,9 +31,9 @@ import org.jetbrains.annotations.Nullable;
  * a jab's runs along the punching arm; the uppercut's rises in front.
  */
 public final class ModelSwish {
-    public static final ResourceLocation TEXTURE = TensuraFragments.id("textures/entity/swish.png");
-    private static final float TEX_W = 64;
-    private static final float TEX_H = 128;
+    /** The swish: 14 frames of 48x48, top to bottom (the arc growing, sweeping across, and fading). */
+    public static final ResourceLocation TEXTURE = TensuraFragments.id("textures/entity/swish_strip.png");
+    private static final int FRAMES = 14;
 
     /** A face of a swish cube: which way it faces and its texture area (pixels; a negative size is mirrored). */
     private record Face(String side, float u, float v, float du, float dv) {
@@ -46,6 +47,24 @@ public final class ModelSwish {
 
     /** A scale track: time (seconds) to the scale before and after that key. */
     private record Track(TreeMap<Float, float[]> keys, float constant) {
+        /** When the sheet is first shown and when it's last hidden (seconds), or null if never. */
+        float[] shown() {
+            if (keys == null) {
+                return null;
+            }
+            Float on = null;
+            Float off = null;
+            for (Map.Entry<Float, float[]> key : keys.entrySet()) {
+                if (key.getValue()[1] > 0 && on == null) {
+                    on = key.getKey();
+                }
+                if (on != null && key.getValue()[1] <= 0) {
+                    off = key.getKey();
+                }
+            }
+            return on == null ? null : new float[] {on, off == null ? on + 0.3F : off};
+        }
+
         float at(float time) {
             if (keys == null) {
                 return constant;
@@ -207,47 +226,76 @@ public final class ModelSwish {
         if (perBone == null) {
             return;
         }
+        // Each swish (a group like swish_hook_r) plays the swish strip's frames over the time its sheets are shown.
+        Map<String, float[]> windows = new HashMap<>();
         for (Map.Entry<String, Track> entry : perBone.entrySet()) {
             Bone bone = bones.get(entry.getKey());
-            if (bone == null || bone.cubes().isEmpty() || entry.getValue().at(seconds) <= 0) {
+            float[] shown = entry.getValue().shown();
+            if (bone == null || bone.parent() == null || shown == null) {
                 continue;
             }
-            // The chain from the model part down to this bone.
-            List<Bone> chain = new ArrayList<>();
-            Bone b = bone;
-            while (b != null && b.name().startsWith("swish")) {
-                chain.add(0, b);
-                b = b.parent() == null ? null : bones.get(b.parent());
+            windows.merge(bone.parent(), shown, (x, y) -> new float[] {Math.min(x[0], y[0]), Math.max(x[1], y[1])});
+        }
+        for (Map.Entry<String, float[]> window : windows.entrySet()) {
+            float[] w = window.getValue();
+            if (seconds < w[0] || seconds >= w[1]) {
+                continue;
             }
-            String root = b == null ? "body" : b.name();
-            stack.pushPose();
-            anchor(model, root).translateAndRotate(stack);
-            float[] from = anchorPivot(root);
-            for (Bone link : chain) {
-                float[] p = link.pivot();
-                // Geo coordinates (y up from the feet) to the model's (y down from the neck).
-                stack.translate((p[0] - from[0]) / 16F, -(p[1] - from[1]) / 16F, (p[2] - from[2]) / 16F);
-                float[] r = link.rotation();
-                if (r[2] != 0) {
-                    stack.mulPose(Axis.ZP.rotationDegrees(r[2]));
-                }
-                if (r[1] != 0) {
-                    stack.mulPose(Axis.YP.rotationDegrees(r[1]));
-                }
-                if (r[0] != 0) {
-                    stack.mulPose(Axis.XP.rotationDegrees(r[0]));
-                }
-                from = p;
+            int frame = Mth.clamp((int) ((seconds - w[0]) / (w[1] - w[0]) * FRAMES), 0, FRAMES - 1);
+            Bone group = bones.get(window.getKey());
+            if (group == null) {
+                continue;
             }
-            for (Cube cube : bone.cubes()) {
-                drawCube(stack.last(), out, cube, from);
+            // Every sheet of it that's on right now (a hook's are stacked on one spot, so they build it up as it goes;
+            // a jab's are pieces along the arm).
+            for (Bone bone : bones.values()) {
+                Track track = perBone.get(bone.name());
+                if (!window.getKey().equals(bone.parent()) || bone.cubes().isEmpty() || track == null
+                        || track.at(seconds) <= 0) {
+                    continue;
+                }
+                stack.pushPose();
+                float[] from = place(model, bone, stack);
+                for (Cube cube : bone.cubes()) {
+                    drawCube(stack.last(), out, cube, from, frame);
+                }
+                stack.popPose();
             }
-            stack.popPose();
         }
     }
 
+    /** Moves the pose to a swish bone (through its parents, from the model part it hangs off); returns its pivot. */
+    private static float[] place(HumanoidModel<?> model, Bone bone, PoseStack stack) {
+        List<Bone> chain = new ArrayList<>();
+        Bone b = bone;
+        while (b != null && b.name().startsWith("swish")) {
+            chain.add(0, b);
+            b = b.parent() == null ? null : bones.get(b.parent());
+        }
+        String root = b == null ? "body" : b.name();
+        anchor(model, root).translateAndRotate(stack);
+        float[] from = anchorPivot(root);
+        for (Bone link : chain) {
+            float[] p = link.pivot();
+            // Geo coordinates (y up from the feet) to the model's (y down from the neck).
+            stack.translate((p[0] - from[0]) / 16F, -(p[1] - from[1]) / 16F, (p[2] - from[2]) / 16F);
+            float[] r = link.rotation();
+            if (r[2] != 0) {
+                stack.mulPose(Axis.ZP.rotationDegrees(r[2]));
+            }
+            if (r[1] != 0) {
+                stack.mulPose(Axis.YP.rotationDegrees(r[1]));
+            }
+            if (r[0] != 0) {
+                stack.mulPose(Axis.XP.rotationDegrees(r[0]));
+            }
+            from = p;
+        }
+        return from;
+    }
+
     /** A flat swish cube: its south face (for a sheet in x and y) or west face (in z and y), seen from both sides. */
-    private static void drawCube(PoseStack.Pose pose, VertexConsumer out, Cube cube, float[] pivot) {
+    private static void drawCube(PoseStack.Pose pose, VertexConsumer out, Cube cube, float[] pivot, int frame) {
         float x0 = cube.origin()[0] - pivot[0];
         float x1 = x0 + cube.size()[0];
         // y up in the geo; the model's y runs down.
@@ -255,11 +303,12 @@ public final class ModelSwish {
         float yBottom = -(cube.origin()[1] - pivot[1]);
         float z0 = cube.origin()[2] - pivot[2];
         float z1 = z0 + cube.size()[2];
+        // The whole frame of the swish strip on the sheet.
+        float u0 = 0;
+        float u1 = 1;
+        float v0 = frame / (float) FRAMES;
+        float v1 = (frame + 1) / (float) FRAMES;
         for (Face face : cube.faces()) {
-            float u0 = face.u() / TEX_W;
-            float u1 = (face.u() + face.du()) / TEX_W;
-            float v0 = face.v() / TEX_H;
-            float v1 = (face.v() + face.dv()) / TEX_H;
             if (face.side().equals("south") && cube.size()[2] == 0) {
                 quad(pose, out, x0, yTop, z0, x1, yTop, z0, x1, yBottom, z0, x0, yBottom, z0, u0, v0, u1, v1, 0, 0, 1);
             } else if (face.side().equals("west") && cube.size()[0] == 0) {
