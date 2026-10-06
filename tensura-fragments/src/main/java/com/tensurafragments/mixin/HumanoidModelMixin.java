@@ -34,7 +34,10 @@ public abstract class HumanoidModelMixin {
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void tensurafragments$combatPose(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch, CallbackInfo ci) {
-        com.tensurafragments.client.BoxingAnimator.apply((HumanoidModel<?>) (Object) this, entity, ageInTicks, limbSwingAmount);
-        CombatPoses.apply((HumanoidModel<?>) (Object) this, entity, ageInTicks);
+        // The combat animations; the simple block and grab poses only if they couldn't be drawn.
+        if (!com.tensurafragments.client.BoxingAnimator.apply((HumanoidModel<?>) (Object) this, entity, ageInTicks,
+                limbSwingAmount)) {
+            CombatPoses.apply((HumanoidModel<?>) (Object) this, entity, ageInTicks);
+        }
     }
 }

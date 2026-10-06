@@ -29,20 +29,44 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Combat Mode's boxing look (animations from the Punch Swish mod): while Combat Mode is on you stand in a boxing guard,
- * and each punch is a left or right hook, whichever hand threw it. Everyone around sees it in third person.
+ * Combat Mode's body animations (made with the Punch Swish mod), seen by everyone in third person. What plays, most
+ * important first:
+ * <ol>
+ * <li>a one-off move (a finisher, a launcher, a dash, a throw, a block hit, getting hit...) until it's done;</li>
+ * <li>the state the player is in (blocking, holding, held, knocked down, juggled, thrown, diving, tackling...), looped
+ * or held on its last frame;</li>
+ * <li>with Combat Mode on, the boxing guard, with a left or right hook for each punch.</li>
+ * </ol>
+ * Switching between them crossfades over a few ticks.
  */
 @EventBusSubscriber(modid = TensuraFragments.MODID, value = Dist.CLIENT)
 public final class BoxingAnimator {
     private static final String[] PARTS = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
+    /** Ticks a switch between animations takes. */
+    private static final float BLEND_TICKS = 3;
+
+    enum Mode {
+        /** Plays through, then back to whatever's underneath. */
+        ONCE,
+        /** Repeats. */
+        LOOP,
+        /** Plays through, then stays on its last frame. */
+        HOLD
+    }
 
     /** A keyframed animation: for each part, frames of [x, y, z offset (pixels), rotation quaternion x, y, z, w]. */
-    record Anim(float length, float fps, float[][][] parts) {
+    record Anim(String name, float length, float fps, Mode mode, float[][][] parts) {
         float lengthTicks() {
             return length * 20;
         }
 
-        void sample(float seconds, int part, Vector3f pos, Quaternionf rot) {
+        /** Where in the animation (seconds) it is after this many ticks of playing. */
+        float time(float ticks) {
+            float seconds = Math.max(0, ticks) / 20F;
+            return mode == Mode.LOOP && length > 0 ? seconds % length : Math.min(seconds, length);
+        }
+
+        void sample(float seconds, int part, float[] out) {
             float[][] frames = parts[part];
             float f = Mth.clamp(seconds * fps, 0, frames.length - 1);
             int i0 = (int) f;
@@ -50,35 +74,75 @@ public final class BoxingAnimator {
             float t = f - i0;
             float[] a = frames[i0];
             float[] b = frames[i1];
-            pos.set(Mth.lerp(t, a[0], b[0]), Mth.lerp(t, a[1], b[1]), Mth.lerp(t, a[2], b[2]));
-            rot.set(a[3], a[4], a[5], a[6]).slerp(new Quaternionf(b[3], b[4], b[5], b[6]), t);
+            out[0] = Mth.lerp(t, a[0], b[0]);
+            out[1] = Mth.lerp(t, a[1], b[1]);
+            out[2] = Mth.lerp(t, a[2], b[2]);
+            Quaternionf q = new Quaternionf(a[3], a[4], a[5], a[6]).slerp(new Quaternionf(b[3], b[4], b[5], b[6]), t);
+            out[3] = q.x;
+            out[4] = q.y;
+            out[5] = q.z;
+            out[6] = q.w;
         }
     }
 
-    private static Anim hookLeft;
-    private static Anim hookRight;
-    /** Other animations, loaded when first played. */
-    private static final Map<String, Anim> OTHERS = new HashMap<>();
-    /** Until when (tick) a move's own animation shouldn't be replaced by the hook its arm swing would start. */
-    private static final Map<Integer, Integer> HELD = new HashMap<>();
+    private static final Map<String, Anim> ANIMS = new HashMap<>();
 
-    private record Punch(Anim anim, int start) {
+    /** The state animation for each synced pose. */
+    private static String stateAnimation(int pose) {
+        return switch (pose) {
+            case CombatPosePayload.BLOCK -> "block";
+            case CombatPosePayload.GRAB -> "brawler_hold";
+            case CombatPosePayload.HELD -> "held";
+            case CombatPosePayload.DOWN -> "knocked_down";
+            case CombatPosePayload.THROWN -> "thrown";
+            case CombatPosePayload.JUGGLE -> "air_juggle";
+            case CombatPosePayload.SLAM_DIVE -> "brawler_slam_dive";
+            case CombatPosePayload.METEOR_DIVE -> "titan_meteor_dive";
+            case CombatPosePayload.DIVE_KICK -> "swift_dive_kick";
+            case CombatPosePayload.TACKLE -> "titan_tackle";
+            case CombatPosePayload.IRON_BODY -> "titan_iron_body";
+            case CombatPosePayload.COUNTER -> "swift_counter_stance";
+            default -> null;
+        };
+    }
+
+    private record Action(Anim anim, int start) {
     }
 
     private record Swing(boolean swinging, int time) {
     }
 
-    private static final Map<Integer, Punch> PUNCHES = new HashMap<>();
+    /** What each player was last drawn doing: which animation and the pose it ended up in, for crossfading. */
+    private static final class Track {
+        String source = "none";
+        float switchedAt;
+        /** The targets last drawn (per part), or null if nothing was. */
+        float[][] last;
+        /** The targets when the switch happened, to blend from (null: blend from the ordinary pose). */
+        float[][] from;
+        int lastPose = CombatPosePayload.NONE;
+        int stateSince;
+    }
+
+    private static final Map<Integer, Action> ACTIONS = new HashMap<>();
     private static final Map<Integer, Swing> SWINGS = new HashMap<>();
-    /** When each player's stance started (for easing into it). */
-    private static final Map<Integer, Integer> STANCE_SINCE = new HashMap<>();
+    private static final Map<Integer, Track> TRACKS = new HashMap<>();
+    /** Until when (tick) a move's own animation shouldn't be replaced by the hook its arm swing would start. */
+    private static final Map<Integer, Integer> HELD = new HashMap<>();
 
     private BoxingAnimator() {
+    }
+
+    static Anim anim(String name) {
+        return ANIMS.computeIfAbsent(name, BoxingAnimator::load);
     }
 
     private static Anim load(String name) {
         String path = "/assets/" + TensuraFragments.MODID + "/animations/" + name + ".json";
         try (InputStream in = BoxingAnimator.class.getResourceAsStream(path)) {
+            if (in == null) {
+                return null;
+            }
             JsonObject json = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
             JsonObject parts = json.getAsJsonObject("parts");
             float[][][] data = new float[PARTS.length][][];
@@ -92,45 +156,51 @@ public final class BoxingAnimator {
                     }
                 }
             }
-            return new Anim(json.get("length").getAsFloat(), json.get("fps").getAsFloat(), data);
+            Mode mode = switch (json.has("mode") ? json.get("mode").getAsString() : "once") {
+                case "loop" -> Mode.LOOP;
+                case "hold" -> Mode.HOLD;
+                default -> Mode.ONCE;
+            };
+            return new Anim(name, json.get("length").getAsFloat(), json.get("fps").getAsFloat(), mode, data);
         } catch (Exception e) {
-            com.mojang.logging.LogUtils.getLogger().error("Couldn't load boxing animation {}", path, e);
+            com.mojang.logging.LogUtils.getLogger().error("Couldn't load combat animation {}", path, e);
             return null;
         }
     }
 
-    private static boolean loaded() {
-        if (hookLeft == null || hookRight == null) {
-            hookLeft = load("punch_hook_left");
-            hookRight = load("punch_hook_right");
-        }
-        return hookLeft != null && hookRight != null;
-    }
-
-    /** Plays a move's own animation (like the uppercut) on this player, instead of a hook. */
+    /** Plays a one-off animation on this player (from the server, or started here for your own uppercut). */
     public static void play(int entityId, String name) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || !(mc.level.getEntity(entityId) instanceof Player player)) {
             return;
         }
-        Anim anim = OTHERS.computeIfAbsent(name, BoxingAnimator::load);
-        if (anim != null) {
-            PUNCHES.put(entityId, new Punch(anim, player.tickCount));
-            HELD.put(entityId, player.tickCount + 3);
+        Anim anim = anim(name);
+        if (anim == null) {
+            return;
         }
+        Action current = ACTIONS.get(entityId);
+        if (current != null && current.anim() == anim && player.tickCount - current.start() < 4) {
+            // Already playing it (started here a moment before the server said so).
+            return;
+        }
+        ACTIONS.put(entityId, new Action(anim, player.tickCount));
+        HELD.put(entityId, player.tickCount + 3);
     }
 
-    /** Whether this player stands in the boxing guard right now. */
+    /** Whether this player stands in the boxing guard (Combat Mode on, bare-handed, on their feet). */
     static boolean inStance(Player player) {
         Minecraft mc = Minecraft.getInstance();
         boolean on = player == mc.player ? ClientCombat.isOn() : CombatPoses.pose(player) == CombatPosePayload.STANCE;
-        int pose = CombatPoses.pose(player);
-        return on && pose != CombatPosePayload.BLOCK && pose != CombatPosePayload.GRAB && player.isAlive()
-                && !player.isSpectator() && !player.isPassenger() && !player.isSwimming() && !player.isFallFlying()
-                && !player.isSleeping() && !player.isCrouching() && !player.getMainHandItem().isDamageableItem();
+        return on && !player.isCrouching() && !player.getMainHandItem().isDamageableItem();
     }
 
-    /** Spots each new punch (a new arm swing) and starts the hook for that hand. */
+    /** Animations aren't drawn at all while riding, swimming, gliding or asleep. */
+    private static boolean animatable(Player player) {
+        return player.isAlive() && !player.isSpectator() && !player.isPassenger() && !player.isSwimming()
+                && !player.isFallFlying() && !player.isSleeping();
+    }
+
+    /** Spots each new punch (a new arm swing) and starts the hook for that hand; starts the get-up after a knockdown. */
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
@@ -141,72 +211,132 @@ public final class BoxingAnimator {
             Swing last = SWINGS.get(player.getId());
             boolean started = player.swinging && (last == null || !last.swinging() || player.swingTime < last.time());
             SWINGS.put(player.getId(), new Swing(player.swinging, player.swingTime));
-            if (inStance(player)) {
-                STANCE_SINCE.putIfAbsent(player.getId(), player.tickCount);
-                boolean held = player.tickCount <= HELD.getOrDefault(player.getId(), Integer.MIN_VALUE);
-                if (started && !held && loaded()) {
-                    HumanoidArm arm = player.swingingArm == InteractionHand.MAIN_HAND ? player.getMainArm()
-                            : player.getMainArm().getOpposite();
-                    PUNCHES.put(player.getId(), new Punch(arm == HumanoidArm.RIGHT ? hookRight : hookLeft,
-                            player.tickCount - Math.max(0, player.swingTime)));
+            Track track = TRACKS.computeIfAbsent(player.getId(), id -> new Track());
+            int pose = CombatPoses.pose(player);
+            if (pose != track.lastPose) {
+                if (track.lastPose == CombatPosePayload.DOWN && pose != CombatPosePayload.HELD) {
+                    play(player.getId(), "get_up");
                 }
-            } else {
-                STANCE_SINCE.remove(player.getId());
-                PUNCHES.remove(player.getId());
+                track.lastPose = pose;
+                track.stateSince = player.tickCount;
+            }
+            boolean held = player.tickCount <= HELD.getOrDefault(player.getId(), Integer.MIN_VALUE);
+            if (started && !held && stateAnimation(pose) == null && inStance(player)) {
+                HumanoidArm arm = player.swingingArm == InteractionHand.MAIN_HAND ? player.getMainArm()
+                        : player.getMainArm().getOpposite();
+                Anim hook = anim(arm == HumanoidArm.RIGHT ? "punch_hook_right" : "punch_hook_left");
+                if (hook != null) {
+                    ACTIONS.put(player.getId(), new Action(hook, player.tickCount - Math.max(0, player.swingTime)));
+                }
             }
         }
         if (mc.level.getGameTime() % 200 == 0) {
             SWINGS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
+            TRACKS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
+            ACTIONS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
         }
     }
 
-    /** Third person: after the usual animation, the guard (and any hook being thrown) is laid over it. */
-    public static void apply(HumanoidModel<?> model, LivingEntity entity, float ageInTicks, float limbSwingAmount) {
-        if (!(entity instanceof Player player) || !inStance(player) || !loaded()) {
-            return;
+    /**
+     * Third person: after the usual animation, the combat animation is laid over it. Returns whether it drew one (if
+     * not, the simple block and grab poses are used).
+     */
+    public static boolean apply(HumanoidModel<?> model, LivingEntity entity, float ageInTicks, float limbSwingAmount) {
+        // First-person arms are set up with everything at 0: leave those alone.
+        if (!(entity instanceof Player player) || ageInTicks == 0) {
+            return false;
         }
-        Integer since = STANCE_SINCE.get(player.getId());
-        float in = since == null ? 0 : Mth.clamp((ageInTicks - since) / 4F, 0, 1);
-        float weight = in * in * (3 - 2 * in);
-        if (weight <= 0) {
-            return;
-        }
-        Anim anim = hookRight;
-        float seconds = 0;
-        Punch punch = PUNCHES.get(player.getId());
-        if (punch != null) {
-            float ticks = ageInTicks - punch.start();
-            if (ticks >= 0 && ticks < punch.anim().lengthTicks()) {
-                anim = punch.anim();
-                seconds = ticks / 20F;
+        Track track = TRACKS.computeIfAbsent(player.getId(), id -> new Track());
+        Anim anim = null;
+        float ticks = 0;
+        String source = "none";
+        if (animatable(player)) {
+            Action action = ACTIONS.get(player.getId());
+            int pose = CombatPoses.pose(player);
+            String state = stateAnimation(pose);
+            if (action != null && ageInTicks - action.start() < action.anim().lengthTicks()) {
+                anim = action.anim();
+                ticks = ageInTicks - action.start();
+                source = "action:" + anim.name() + ":" + action.start();
+            } else if (state != null && anim(state) != null) {
+                anim = anim(state);
+                ticks = ageInTicks - track.stateSince;
+                source = "state:" + state + ":" + track.stateSince;
+            } else if (inStance(player) && anim("punch_hook_right") != null) {
+                // The guard: the rest frame the punches start and end on.
+                anim = anim("punch_hook_right");
+                ticks = 0;
+                source = "stance";
             }
         }
-        // Walking keeps its own legs.
-        float legs = weight * (1 - Mth.clamp(limbSwingAmount * 1.5F, 0, 1));
-        Vector3f pos = new Vector3f();
-        Quaternionf rot = new Quaternionf();
-        part(model.head, anim, 0, seconds, weight, true, pos, rot);
-        part(model.body, anim, 1, seconds, weight, false, pos, rot);
-        part(model.rightArm, anim, 2, seconds, weight, false, pos, rot);
-        part(model.leftArm, anim, 3, seconds, weight, false, pos, rot);
-        part(model.rightLeg, anim, 4, seconds, legs, false, pos, rot);
-        part(model.leftLeg, anim, 5, seconds, legs, false, pos, rot);
+        if (!source.equals(track.source)) {
+            track.from = track.last;
+            track.switchedAt = ageInTicks;
+            track.source = source;
+        }
+        float blend = Mth.clamp((ageInTicks - track.switchedAt) / BLEND_TICKS, 0, 1);
+        blend = blend * blend * (3 - 2 * blend);
+        float[][] targets;
+        float weight;
+        if (anim != null) {
+            targets = new float[PARTS.length][7];
+            float seconds = anim.time(ticks);
+            for (int p = 0; p < PARTS.length; p++) {
+                anim.sample(seconds, p, targets[p]);
+                if (track.from != null && blend < 1) {
+                    mix(track.from[p], targets[p], blend);
+                }
+            }
+            weight = track.from == null ? blend : 1;
+        } else if (track.from != null && blend < 1) {
+            // Nothing to play any more: ease back out to the ordinary pose.
+            targets = track.from;
+            weight = 1 - blend;
+        } else {
+            track.last = null;
+            return false;
+        }
+        track.last = targets;
+        if (weight <= 0) {
+            return true;
+        }
+        boolean walking = source.equals("stance") || source.startsWith("action:punch_");
+        // While walking in the guard, the legs keep walking.
+        float legs = walking ? weight * (1 - Mth.clamp(limbSwingAmount * 1.5F, 0, 1)) : weight;
+        part(model.head, targets[0], weight, true);
+        part(model.body, targets[1], weight, false);
+        part(model.rightArm, targets[2], weight, false);
+        part(model.leftArm, targets[3], weight, false);
+        part(model.rightLeg, targets[4], legs, false);
+        part(model.leftLeg, targets[5], legs, false);
         model.hat.copyFrom(model.head);
+        return true;
     }
 
-    /** Blends a part toward the animation's pose (the head's rotation is added on top of where it's looking). */
-    private static void part(ModelPart part, Anim anim, int index, float seconds, float weight, boolean additive,
-                             Vector3f pos, Quaternionf rot) {
+    /** Blends one target toward another (positions lerped, rotations slerped), in place into {@code to}. */
+    private static void mix(float[] from, float[] to, float t) {
+        for (int i = 0; i < 3; i++) {
+            to[i] = Mth.lerp(t, from[i], to[i]);
+        }
+        Quaternionf q = new Quaternionf(from[3], from[4], from[5], from[6]).slerp(new Quaternionf(to[3], to[4], to[5], to[6]), t);
+        to[3] = q.x;
+        to[4] = q.y;
+        to[5] = q.z;
+        to[6] = q.w;
+    }
+
+    /** Blends a part toward a target (the head's rotation is added on top of where it's looking). */
+    private static void part(ModelPart part, float[] target, float weight, boolean additive) {
         if (weight <= 0) {
             return;
         }
-        anim.sample(seconds, index, pos, rot);
         PartPose initial = part.getInitialPose();
         Quaternionf current = new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot);
+        Quaternionf rot = new Quaternionf(target[3], target[4], target[5], target[6]);
         // The head keeps looking where the player looks; the animation's nod is added in the head's own frame (added
         // in the body's frame instead, a nod on a head turned to the side would come out as a sideways tilt).
-        Quaternionf target = additive ? new Quaternionf(current).mul(rot) : new Quaternionf(rot);
-        current.slerp(target, weight);
+        Quaternionf goal = additive ? new Quaternionf(current).mul(rot) : rot;
+        current.slerp(goal, weight);
         float x = current.x;
         float y = current.y;
         float z = current.z;
@@ -219,16 +349,16 @@ public final class BoxingAnimator {
         part.xRot = (float) Math.atan2(m21, m22);
         part.yRot = (float) Math.asin(Mth.clamp(-m20, -1, 1));
         part.zRot = (float) Math.atan2(m10, m00);
-        part.x = Mth.lerp(weight, part.x, initial.x + pos.x());
-        part.y = Mth.lerp(weight, part.y, initial.y + pos.y());
-        part.z = Mth.lerp(weight, part.z, initial.z + pos.z());
+        part.x = Mth.lerp(weight, part.x, initial.x + target[0]);
+        part.y = Mth.lerp(weight, part.y, initial.y + target[1]);
+        part.z = Mth.lerp(weight, part.z, initial.z + target[2]);
     }
 
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        PUNCHES.clear();
+        ACTIONS.clear();
         HELD.clear();
         SWINGS.clear();
-        STANCE_SINCE.clear();
+        TRACKS.clear();
     }
 }

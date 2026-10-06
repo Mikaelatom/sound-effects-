@@ -615,8 +615,24 @@ public final class VisualCheck {
                     com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
             case 944 -> shot(mc, "34_uppercut_a");
             case 947 -> shot(mc, "35_uppercut_b");
-            case 956 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 958 -> mc.stop();
+            case 958 -> net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), true);
+            case 964 -> shot(mc, "36_block");
+            case 966 -> net.minecraft.client.KeyMapping.set(com.tensurafragments.client.ClientCombat.BLOCK.getKey(), false);
+            case 972 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.DASH.getKey());
+            case 975 -> shot(mc, "37_dash");
+            case 980 -> onServer(mc, player -> com.tensurafragments.combat.CombatMode.setStyle(player,
+                    com.tensurafragments.combat.FightingStyle.KI));
+            case 984 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
+            case 990 -> shot(mc, "38_ki_burst");
+            case 1000 -> onServer(mc, player -> com.tensurafragments.combat.CombatMode.knockDown(player, null));
+            case 1010 -> shot(mc, "39_knocked_down");
+            case 1034 -> shot(mc, "40_get_up");
+            case 1044 -> onServer(mc, player -> com.tensurafragments.combat.CombatMode.setStyle(player,
+                    com.tensurafragments.combat.FightingStyle.TITAN));
+            case 1048 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.DASH.getKey());
+            case 1060 -> shot(mc, "41_iron_body");
+            case 1070 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 1072 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

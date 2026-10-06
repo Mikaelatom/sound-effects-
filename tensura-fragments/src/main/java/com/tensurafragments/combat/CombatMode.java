@@ -268,15 +268,16 @@ public final class CombatMode {
         return entity.getPersistentData().getLong(STUN_KEY) > entity.level().getGameTime();
     }
 
-    public static void stun(LivingEntity target, int ticks) {
+    public static boolean stun(LivingEntity target, int ticks) {
         if (ticks <= 0 || isDowned(target) || target instanceof ServerPlayer player && StyleMoves.isArmored(player)) {
-            return;
+            return false;
         }
         target.getPersistentData().putLong(STUN_KEY, target.level().getGameTime() + ticks);
         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks, 6, false, false, false));
         if (target instanceof Mob mob) {
             mob.getNavigation().stop();
         }
+        return true;
     }
 
     /** Stunned creatures stay put, and hang in the air if they're airborne (so they can be juggled). */
@@ -388,11 +389,15 @@ public final class CombatMode {
                 // You go up with it, a touch slower so it stays just above you for the next hit.
                 player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
                 // Everyone watching sees the uppercut (the puncher's own client already started it).
-                PacketDistributor.sendToPlayersTrackingEntity(player, new com.tensurafragments.network.CombatAnimPayload(
-                        player.getId(), com.tensurafragments.network.CombatAnimPayload.UPPERCUT));
+                animate(player, com.tensurafragments.network.CombatAnimPayload.UPPERCUT);
             } else {
                 // The other styles' jumping moves keep you hanging in the air a moment.
                 player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
+                animate(player, switch (style) {
+                    case SWIFT -> "swift_spin_kick";
+                    case TITAN -> "titan_hammer_fist";
+                    default -> "ki_palm";
+                });
             }
             player.hurtMarked = true;
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
@@ -410,6 +415,14 @@ public final class CombatMode {
                 AIR_SAFE.put(player.getUUID(), player.level().getGameTime() + 100);
             }
             player.hurtMarked = true;
+            if (count >= finisher) {
+                animate(player, switch (style) {
+                    case BRAWLER -> "brawler_finisher";
+                    case SWIFT -> "swift_whirlwind";
+                    case TITAN -> "titan_ground_pound";
+                    case KI -> "ki_blast";
+                });
+            }
         }
         int shown = count >= finisher ? finisher : count;
         LAST_COMBO.put(player.getUUID(), shown);
@@ -437,7 +450,9 @@ public final class CombatMode {
         FightingStyle style = style(player);
         if (pendingDown >= 0) {
             // A special move's strike: its own stun and down power.
-            stun(target, pendingStun);
+            if (stun(target, pendingStun) && target instanceof ServerPlayer hit) {
+                animate(hit, "hit_stun");
+            }
             sync(player, LAST_COMBO.getOrDefault(player.getUUID(), 0), (int) addDown(target, pendingDown, player));
             hitSpark(level, target);
             return;
@@ -458,7 +473,9 @@ public final class CombatMode {
         } else {
             level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_STRONG,
                     SoundSource.PLAYERS, 0.8F, 1.3F);
-            stun(target, Config.COMBAT_STUN_TICKS.get());
+            if (stun(target, Config.COMBAT_STUN_TICKS.get()) && target instanceof ServerPlayer hit) {
+                animate(hit, "hit_stun");
+            }
             target.invulnerableTime = 0;
         }
         hitSpark(level, target);
@@ -590,6 +607,7 @@ public final class CombatMode {
         ServerLevel level = player.serverLevel();
         player.resetFallDistance();
         player.getPersistentData().putLong(LANDED_KEY, level.getGameTime());
+        animate(player, slam.power() > 1 ? "titan_meteor_land" : "brawler_slam_land");
         double height = Math.max(0, slam.fromY() - player.getY());
         double radius = Config.COMBAT_SLAM_RADIUS.get() * slam.power();
         float damage = (float) ((Config.COMBAT_SLAM_DAMAGE.get() + Math.min(height, 30) * 0.4) * slam.power());
@@ -740,8 +758,40 @@ public final class CombatMode {
     private static final Map<UUID, Integer> SHOWN_POSE = new HashMap<>();
 
     public static int pose(ServerPlayer player) {
-        return isGrabbing(player) ? CombatPosePayload.GRAB : isBlocking(player) ? CombatPosePayload.BLOCK
-                : isOn(player) ? CombatPosePayload.STANCE : CombatPosePayload.NONE;
+        boolean airborne = !player.onGround() && !player.isInWater();
+        if (isHeld(player)) {
+            return CombatPosePayload.HELD;
+        } else if (isDowned(player)) {
+            return CombatPosePayload.DOWN;
+        } else if (airborne && player.getPersistentData().getLong(THROWN_KEY) > player.level().getGameTime()) {
+            return CombatPosePayload.THROWN;
+        } else if (airborne && isStunned(player)) {
+            return CombatPosePayload.JUGGLE;
+        } else if (isGrabbing(player)) {
+            return CombatPosePayload.GRAB;
+        } else if (isBlocking(player)) {
+            return CombatPosePayload.BLOCK;
+        } else if (StyleMoves.isTackling(player)) {
+            return CombatPosePayload.TACKLE;
+        } else if (StyleMoves.isDiving(player)) {
+            return CombatPosePayload.DIVE_KICK;
+        } else if (isSlamming(player)) {
+            return SLAMS.get(player.getUUID()).power() > 1 ? CombatPosePayload.METEOR_DIVE : CombatPosePayload.SLAM_DIVE;
+        } else if (StyleMoves.isIronBody(player)) {
+            return CombatPosePayload.IRON_BODY;
+        } else if (StyleMoves.isCountering(player)) {
+            return CombatPosePayload.COUNTER;
+        }
+        return isOn(player) ? CombatPosePayload.STANCE : CombatPosePayload.NONE;
+    }
+
+    /** Thrown players tumble through the air until this time. */
+    static final String THROWN_KEY = "tensurafragments_thrown_until";
+
+    /** A one-off animation on this player, for them and everyone watching. */
+    static void animate(ServerPlayer player, String animation) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new com.tensurafragments.network.CombatAnimPayload(player.getId(), animation));
     }
 
     /** Tells the player and everyone watching them when their stance changes. */
@@ -804,6 +854,7 @@ public final class CombatMode {
                 stun(living, Config.COMBAT_STUN_TICKS.get() + 15);
             }
             guard(level, blocker, true);
+            animate(blocker, "parry");
             level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS,
                     1.0F, 1.6F);
             level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.PLAYER_ATTACK_CRIT,
@@ -816,6 +867,7 @@ public final class CombatMode {
             // A finisher breaks the guard: full damage, and the blocker's stunned.
             BLOCKING.remove(blocker.getUUID());
             stun(blocker, Config.COMBAT_STUN_TICKS.get() + 13);
+            animate(blocker, "guard_break");
             level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.SHIELD_BREAK, SoundSource.PLAYERS,
                     1.0F, 1.0F);
             blocker.displayClientMessage(Component.translatable("tensurafragments.combat.guard_break")
@@ -823,6 +875,7 @@ public final class CombatMode {
             return;
         }
         event.setAmount((float) (event.getAmount() * (1 - Config.COMBAT_BLOCK_REDUCTION.get())));
+        animate(blocker, "block_hit");
         level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS,
                 0.8F, 1.1F);
         guard(level, blocker, false);
@@ -875,6 +928,7 @@ public final class CombatMode {
             GRABS.remove(blocker.getUUID());
         }
         GRABS.put(player.getUUID(), new Grab(target, player.level().getGameTime()));
+        animate(player, "brawler_grab");
         stun(target, GRAB_TICKS + 5);
         ServerLevel level = player.serverLevel();
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ARMOR_EQUIP_LEATHER.value(),
@@ -931,6 +985,8 @@ public final class CombatMode {
         LivingEntity target = grab.target();
         ServerLevel level = player.serverLevel();
         strike(player, target, Config.COMBAT_THROW_DAMAGE.get().floatValue(), 35, Config.COMBAT_STUN_TICKS.get() + 10);
+        animate(player, "brawler_throw");
+        target.getPersistentData().putLong(THROWN_KEY, level.getGameTime() + 20);
         // After the hurt, so its knockback doesn't eat the throw.
         Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
         double resist = Math.max(0.3,
@@ -961,6 +1017,7 @@ public final class CombatMode {
         }
         DASHED.put(player.getUUID(), now);
         BLOCKING.remove(player.getUUID());
+        animate(player, swift ? "swift_quick_step" : "brawler_dash");
         player.resetFallDistance();
         Vec3 dir = direction.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0, player.getYRot()) : direction.normalize();
         ServerLevel level = player.serverLevel();

@@ -291,6 +291,7 @@ public final class StyleMoves {
             return false;
         }
         Vec3 at = hit.getLocation();
+        CombatMode.animate(player, "ki_bomb");
         ring(level, at.add(0, 0.15, 0), 1.5, 0.18F, 8, false);
         ring(level, at.add(0, 0.15, 0), 3.0, 0.18F, 8, false);
         level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.2, at.z, 16, 1.2, 0.1, 1.2, 0.06);
@@ -350,6 +351,7 @@ public final class StyleMoves {
         ServerLevel level = player.serverLevel();
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 8, 0.3, 0.5, 0.3, 0.02);
         warp(player, behind, yawToward(behind, attacker.position()), 0);
+        CombatMode.animate(player, "swift_counter_strike");
         CombatMode.strike(player, attacker, CombatMode.punchDamage(player) * 1.5F + 2, 35, Config.COMBAT_STUN_TICKS.get() + 10);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS,
                 1.2F, 1.2F);
@@ -383,6 +385,7 @@ public final class StyleMoves {
         player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
         CombatMode.GRABS.values().removeIf(grab -> grab.target() == player);
         Vec3 centre = player.position().add(0, 0.9, 0);
+        CombatMode.animate(player, "ki_burst");
         ring(level, centre, 1.5, 0.22F, 7, false);
         ring(level, centre, 3.0, 0.2F, 7, false);
         ring(level, centre, 4.5, 0.18F, 7, false);
@@ -456,6 +459,7 @@ public final class StyleMoves {
         CombatMode.DASHED.put(player.getUUID(), now(player));
         CombatMode.BLOCKING.remove(player.getUUID());
         warp(player, to, yaw, player.getXRot());
+        CombatMode.animate(player, "ki_vanish");
         level.sendParticles(ParticleTypes.CLOUD, to.x, to.y + 1, to.z, 10, 0.3, 0.6, 0.3, 0.02);
         return true;
     }
