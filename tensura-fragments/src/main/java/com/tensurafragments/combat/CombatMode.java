@@ -389,7 +389,8 @@ public final class CombatMode {
                 // You go up with it, a touch slower so it stays just above you for the next hit.
                 player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
                 // Everyone watching sees the uppercut (the puncher's own client already started it).
-                animate(player, com.tensurafragments.network.CombatAnimPayload.UPPERCUT);
+                PacketDistributor.sendToPlayersTrackingEntity(player,
+                        new com.tensurafragments.combatanim.CombatAnimPayloads.PlayS2C(player.getId(), UPPERCUT_ANIMATION));
             } else {
                 // The other styles' jumping moves keep you hanging in the air a moment.
                 player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
@@ -624,15 +625,7 @@ public final class CombatMode {
             target.setDeltaMovement(away.x, 0.65 * falloff + 0.2, away.z);
             target.hurtMarked = true;
         }
-        // A ring of white, dust and a thud.
-        for (double r = 1; r <= radius; r += radius / 2.5) {
-            java.util.List<Vec3> ring = new java.util.ArrayList<>();
-            for (int i = 0; i <= 48; i++) {
-                double angle = i * Math.PI * 2 / 48;
-                ring.add(new Vec3(player.getX() + Math.cos(angle) * r, player.getY() + 0.15, player.getZ() + Math.sin(angle) * r));
-            }
-            arc(level, ring, 0.16F, 8, false);
-        }
+        // Dust and a thud (the landing animation draws the shockwave on the ground).
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 20, radius / 3, 0.1,
                 radius / 3, 0.08);
         level.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK,
@@ -788,10 +781,12 @@ public final class CombatMode {
     /** Thrown players tumble through the air until this time. */
     static final String THROWN_KEY = "tensurafragments_thrown_until";
 
+    /** The Brawler's jumping punch. */
+    public static final String UPPERCUT_ANIMATION = "punch_uppercut_left";
+
     /** A one-off animation on this player, for them and everyone watching. */
     static void animate(ServerPlayer player, String animation) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
-                new com.tensurafragments.network.CombatAnimPayload(player.getId(), animation));
+        com.tensurafragments.combatanim.CombatAnim.play(player, animation);
     }
 
     /** Tells the player and everyone watching them when their stance changes. */

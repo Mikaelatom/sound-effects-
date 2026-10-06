@@ -71,13 +71,6 @@ public final class ModRegistries {
             () -> RuneLootModifier.CODEC);
     private static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, TensuraFragments.MODID);
-    private static final DeferredRegister<net.minecraft.core.particles.ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(net.minecraft.core.registries.Registries.PARTICLE_TYPE, TensuraFragments.MODID);
-
-    /** Combat Mode's punch swish (the Punch Swish mod's animated swish). */
-    public static final DeferredHolder<net.minecraft.core.particles.ParticleType<?>, net.minecraft.core.particles.SimpleParticleType>
-            SWISH = PARTICLE_TYPES.register("swish", () -> new net.minecraft.core.particles.SimpleParticleType(false));
-
     private static final DeferredRegister<MobEffect> MOB_EFFECTS =
             DeferredRegister.create(Registries.MOB_EFFECT, TensuraFragments.MODID);
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
@@ -349,7 +342,6 @@ public final class ModRegistries {
         ITEMS.register(modEventBus);
         LOOT_MODIFIERS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
-        PARTICLE_TYPES.register(modEventBus);
         COMPONENTS.register(modEventBus);
         modEventBus.addListener((EntityAttributeCreationEvent event) -> {
             event.put(SHIKIGAMI.get(), ShikigamiEntity.createAttributes().build());

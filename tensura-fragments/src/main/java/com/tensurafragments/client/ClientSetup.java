@@ -42,11 +42,6 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
-    public static void registerParticles(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(com.tensurafragments.ModRegistries.SWISH.get(), SwishParticle.Provider::new);
-    }
-
-    @SubscribeEvent
     public static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(TensuraFragments.id("combat_hud"), ClientCombat::render);
         event.registerAboveAll(TensuraFragments.id("card_hud"), CardHud::render);

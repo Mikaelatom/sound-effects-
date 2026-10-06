@@ -20,12 +20,6 @@ public final class CombatClientHooks {
         }
     }
 
-    public static void animation(int entityId, String animation) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            com.tensurafragments.client.BoxingAnimator.play(entityId, animation);
-        }
-    }
-
     public static void pose(int entityId, int pose) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             com.tensurafragments.client.CombatPoses.set(entityId, pose);

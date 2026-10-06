@@ -392,16 +392,15 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 
 - **Boxing stance and hooks:** while Combat Mode is on (and you're not holding a weapon or tool) you stand in a
   boxing guard, and every punch is a **right or left hook**, whichever hand threw it, with your body twisting into
-  it; the Brawler's jumping punch is a real **uppercut**. Each punch draws the Punch Swish mod's
-  **swish** exactly as that mod does: its 8-frame white swish particle, spawned two ticks before the punch lands in
-  front of your eyes with each punch's own offset, turn, size and mirroring (jabs, hooks and the uppercut). Everyone
-  sees it, you included in first person. The idle
-  stance is the pack's breathing guard. Every move has its own animation too: each style's
-  finisher, launcher, air dive and landing, dash, tackle, iron body, counter, grab, hold and throw, ki moves, and the
-  block (with block-hit, parry and guard-break reactions). Getting hit flinches you, a juggle leaves you hanging limp,
-  a throw sends you tumbling, a grab leaves you dangling, and a knockdown drops you to the ground, then you get back
-  up. Everyone around sees it, and moves blend smoothly into each other. (Animations from the Punch Swish mod; you
-  don't need that mod installed.)
+  it; the Brawler's jumping punch is a real **uppercut**. All of Combat Mode's animations come from the **Combat
+  Animation Kit** (41 animations baked from Blockbench, built into this mod): each punch shows its Blockbench
+  **swish trail** (arcs around the body for hooks and the uppercut, streaks along the arm for jabs) and the slam
+  landings and ground pound show a white/blue **shockwave** on the ground. The idle stance is the breathing guard.
+  Every move has its own animation too: each style's finisher, launcher, air dive and landing, dash, tackle, iron
+  body, counter, grab, hold and throw, ki moves, and the block (with block-hit, parry and guard-break reactions).
+  Getting hit flinches you, a juggle leaves you hanging limp, a throw sends you tumbling, a grab leaves you dangling,
+  and a knockdown drops you to the ground, then you get back up. Everyone around sees it (third person; your
+  first-person arm stays vanilla). `/tensurafragments_anim <name>` previews any of them on yourself (F5 to watch).
 - **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or

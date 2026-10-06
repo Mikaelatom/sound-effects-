@@ -18,6 +18,8 @@ public class TensuraFragments {
         ModSkills.init();
         SpiritRaces.init();
         modEventBus.addListener(ModNetwork::registerPayloads);
+        // Combat Mode's player animations, swish trails and slam shockwaves (the combat animation kit).
+        com.tensurafragments.combatanim.CombatAnim.init(modEventBus, MODID);
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
 

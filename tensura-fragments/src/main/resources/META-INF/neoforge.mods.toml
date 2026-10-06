@@ -14,6 +14,9 @@ the magic from their parts into new, skill-based abilities.
 [[mixins]]
 config="tensurafragments.mixins.json"
 
+[[mixins]]
+config = "tensurafragments.combatanim.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
