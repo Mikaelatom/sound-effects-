@@ -631,8 +631,24 @@ public final class VisualCheck {
                     com.tensurafragments.combat.FightingStyle.TITAN));
             case 1048 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.DASH.getKey());
             case 1060 -> shot(mc, "41_iron_body");
+            case 1062 -> onServer(mc, player -> com.tensurafragments.combat.CombatMode.setStyle(player,
+                    com.tensurafragments.combat.FightingStyle.BRAWLER));
             case 1070 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 1072 -> mc.stop();
+            case 1080, 1092 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 1082 -> shot(mc, "42_swish_back_1");
+            case 1083 -> shot(mc, "43_swish_back_2");
+            case 1084 -> shot(mc, "44_swish_back_3");
+            case 1090 -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            case 1095 -> shot(mc, "45_swish_fp_1");
+            case 1096 -> shot(mc, "46_swish_fp_2");
+            case 1097 -> shot(mc, "47_swish_fp_3");
+            case 1104 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 1109 -> shot(mc, "48_swish_fp_4");
+            case 1110 -> shot(mc, "49_swish_fp_5");
+            case 1114 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 1116 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

@@ -392,7 +392,9 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 
 - **Boxing stance and hooks:** while Combat Mode is on (and you're not holding a weapon or tool) you stand in a
   boxing guard, and every punch is a **right or left hook**, whichever hand threw it, with your body twisting into
-  it; the Brawler's jumping punch is a real **uppercut**. Every move has its own animation too: each style's
+  it; the Brawler's jumping punch is a real **uppercut**. Each punch throws the Punch Swish mod's
+  animated **swish** just before it lands (a sideways one for each hook, mirrored for the left, a rising one for the
+  uppercut). Every move has its own animation too: each style's
   finisher, launcher, air dive and landing, dash, tackle, iron body, counter, grab, hold and throw, ki moves, and the
   block (with block-hit, parry and guard-break reactions). Getting hit flinches you, a juggle leaves you hanging limp,
   a throw sends you tumbling, a grab leaves you dangling, and a knockdown drops you to the ground, then you get back

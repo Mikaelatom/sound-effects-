@@ -55,7 +55,7 @@ public final class BoxingAnimator {
     }
 
     /** A keyframed animation: for each part, frames of [x, y, z offset (pixels), rotation quaternion x, y, z, w]. */
-    record Anim(String name, float length, float fps, Mode mode, float[][][] parts) {
+    record Anim(String name, float length, float fps, Mode mode, float strike, float[][][] parts) {
         float lengthTicks() {
             return length * 20;
         }
@@ -109,6 +109,24 @@ public final class BoxingAnimator {
     private record Action(Anim anim, int start) {
     }
 
+    /**
+     * Where each punch's swish goes, as the Punch Swish mod has it: how far in front of the eyes, to the side and down,
+     * its roll (degrees), size, and whether it's mirrored (left hand).
+     */
+    private record SwishStyle(double forward, double side, double up, double roll, double size, boolean mirror) {
+    }
+
+    private static final Map<String, SwishStyle> SWISHES = Map.of(
+            "punch_jab_right", new SwishStyle(1.0, 0.22, -0.3, 25, 0.45, false),
+            "punch_jab_left", new SwishStyle(1.0, -0.22, -0.3, -25, 0.45, true),
+            "punch_hook_right", new SwishStyle(1.1, 0, -0.3, 0, 0.85, false),
+            "punch_hook_left", new SwishStyle(1.1, 0, -0.3, 0, 0.85, true),
+            "punch_uppercut_left", new SwishStyle(0.95, -0.18, -0.35, -90, 0.7, false));
+    /** The swish comes this many ticks before the punch lands. */
+    private static final float SWISH_LEAD_TICKS = 2;
+    /** Each player's punch whose swish has been drawn (by its start tick). */
+    private static final Map<Integer, Integer> SWISHED = new HashMap<>();
+
     private record Swing(boolean swinging, int time) {
     }
 
@@ -161,7 +179,8 @@ public final class BoxingAnimator {
                 case "hold" -> Mode.HOLD;
                 default -> Mode.ONCE;
             };
-            return new Anim(name, json.get("length").getAsFloat(), json.get("fps").getAsFloat(), mode, data);
+            float strike = json.has("strike") ? json.get("strike").getAsFloat() : 0;
+            return new Anim(name, json.get("length").getAsFloat(), json.get("fps").getAsFloat(), mode, strike, data);
         } catch (Exception e) {
             com.mojang.logging.LogUtils.getLogger().error("Couldn't load combat animation {}", path, e);
             return null;
@@ -230,11 +249,38 @@ public final class BoxingAnimator {
                 }
             }
         }
+        for (AbstractClientPlayer player : mc.level.players()) {
+            swish(mc, player);
+        }
         if (mc.level.getGameTime() % 200 == 0) {
+            SWISHED.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             SWINGS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             TRACKS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             ACTIONS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
         }
+    }
+
+    /** A punch's swish, just before it lands, for everyone to see (you included, in first person). */
+    private static void swish(Minecraft mc, AbstractClientPlayer player) {
+        Action action = ACTIONS.get(player.getId());
+        SwishStyle style = action == null ? null : SWISHES.get(action.anim().name());
+        if (style == null || player.isInvisible() || SWISHED.getOrDefault(player.getId(), Integer.MIN_VALUE) == action.start()) {
+            return;
+        }
+        int elapsed = player.tickCount - action.start();
+        if (elapsed < action.anim().strike() * 20 - SWISH_LEAD_TICKS) {
+            return;
+        }
+        SWISHED.put(player.getId(), action.start());
+        if (elapsed > action.anim().lengthTicks()) {
+            return;
+        }
+        net.minecraft.world.phys.Vec3 look = net.minecraft.world.phys.Vec3.directionFromRotation(player.getXRot(), player.getYRot());
+        net.minecraft.world.phys.Vec3 side = net.minecraft.world.phys.Vec3.directionFromRotation(0, player.getYRot() + 90);
+        net.minecraft.world.phys.Vec3 at = player.getEyePosition().add(look.scale(style.forward())).add(side.scale(style.side()))
+                .add(0, style.up(), 0);
+        mc.level.addParticle(com.tensurafragments.ModRegistries.SWISH.get(), true, at.x, at.y, at.z,
+                Math.toRadians(style.roll()), style.size(), style.mirror() ? 1 : 0);
     }
 
     /**
@@ -357,6 +403,7 @@ public final class BoxingAnimator {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ACTIONS.clear();
+        SWISHED.clear();
         HELD.clear();
         SWINGS.clear();
         TRACKS.clear();
