@@ -41,9 +41,14 @@ public final class ClientSetup {
         event.register(ClientCombat.STYLE);
     }
 
+    /** The punch swish, drawn on every player's model. */
     @SubscribeEvent
-    public static void registerParticles(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(com.tensurafragments.ModRegistries.SWISH.get(), SwishParticle.Provider::new);
+    public static void addLayers(net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers event) {
+        for (net.minecraft.client.resources.PlayerSkin.Model skin : event.getSkins()) {
+            if (event.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer renderer) {
+                renderer.addLayer(new SwishLayer(renderer));
+            }
+        }
     }
 
     @SubscribeEvent

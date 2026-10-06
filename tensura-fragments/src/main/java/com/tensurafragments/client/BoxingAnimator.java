@@ -109,25 +109,6 @@ public final class BoxingAnimator {
     private record Action(Anim anim, int start) {
     }
 
-    /**
-     * Where each punch's swish goes, as the Punch Swish mod has it: how far in front of the eyes, to the side and down,
-     * its roll (degrees), size, and whether it's mirrored (left hand).
-     */
-    private record SwishStyle(double forward, double side, double up, double roll, double size, boolean mirror) {
-    }
-
-    private static final Map<String, SwishStyle> SWISHES = Map.of(
-            "punch_jab_right", new SwishStyle(1.0, 0.22, -0.3, 25, 0.45, false),
-            "punch_jab_left", new SwishStyle(1.0, -0.22, -0.3, -25, 0.45, true),
-            // The hooks take the jab swish the mod shows on ordinary punches: small, low beside the fist, tilted (its
-            // own big hook arch peaks right over the crosshair).
-            "punch_hook_right", new SwishStyle(1.0, 0.22, -0.3, 25, 0.45, false),
-            "punch_hook_left", new SwishStyle(1.0, -0.22, -0.3, -25, 0.45, true),
-            "punch_uppercut_left", new SwishStyle(0.95, -0.18, -0.35, -90, 0.7, false));
-    /** The swish comes this many ticks before the punch lands. */
-    private static final float SWISH_LEAD_TICKS = 2;
-    /** Each player's punch whose swish has been drawn (by its start tick). */
-    private static final Map<Integer, Integer> SWISHED = new HashMap<>();
 
     private record Swing(boolean swinging, int time) {
     }
@@ -251,42 +232,27 @@ public final class BoxingAnimator {
                 }
             }
         }
-        for (AbstractClientPlayer player : mc.level.players()) {
-            swish(mc, player);
-        }
         if (mc.level.getGameTime() % 200 == 0) {
-            SWISHED.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             SWINGS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             TRACKS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
             ACTIONS.keySet().removeIf(id -> mc.level.getEntity(id) == null);
         }
     }
 
-    /** A punch's swish, just before it lands, for everyone to see (you included, in first person). */
-    private static void swish(Minecraft mc, AbstractClientPlayer player) {
+    /** The one-off animation playing on this player right now and how far into it (seconds), or null. */
+    public static Playing playing(Player player, float partialTick) {
         Action action = ACTIONS.get(player.getId());
-        SwishStyle style = action == null ? null : SWISHES.get(action.anim().name());
-        if (style == null || player.isInvisible() || SWISHED.getOrDefault(player.getId(), Integer.MIN_VALUE) == action.start()) {
-            return;
+        if (action == null || !animatable(player)) {
+            return null;
         }
-        int elapsed = player.tickCount - action.start();
-        if (elapsed < action.anim().strike() * 20 - SWISH_LEAD_TICKS) {
-            return;
+        float ticks = player.tickCount + partialTick - action.start();
+        if (ticks < 0 || ticks >= action.anim().lengthTicks()) {
+            return null;
         }
-        SWISHED.put(player.getId(), action.start());
-        if (elapsed > action.anim().lengthTicks()) {
-            return;
-        }
-        net.minecraft.world.phys.Vec3 look = net.minecraft.world.phys.Vec3.directionFromRotation(player.getXRot(), player.getYRot());
-        net.minecraft.world.phys.Vec3 side = net.minecraft.world.phys.Vec3.directionFromRotation(0, player.getYRot() + 90);
-        net.minecraft.world.phys.Vec3 at = player.getEyePosition().add(look.scale(style.forward())).add(side.scale(style.side()))
-                .add(0, style.up(), 0);
-        net.minecraft.client.particle.Particle particle = mc.particleEngine.createParticle(
-                com.tensurafragments.ModRegistries.SWISH.get(), at.x, at.y, at.z, Math.toRadians(style.roll()), style.size(),
-                style.mirror() ? 1 : 0);
-        if (particle instanceof SwishParticle swish) {
-            swish.face(player.getYRot(), player.getXRot());
-        }
+        return new Playing(action.anim().name(), ticks / 20F);
+    }
+
+    public record Playing(String animation, float seconds) {
     }
 
     /**
@@ -314,10 +280,10 @@ public final class BoxingAnimator {
                 anim = anim(state);
                 ticks = ageInTicks - track.stateSince;
                 source = "state:" + state + ":" + track.stateSince;
-            } else if (inStance(player) && anim("punch_hook_right") != null) {
-                // The guard: the rest frame the punches start and end on.
-                anim = anim("punch_hook_right");
-                ticks = 0;
+            } else if (inStance(player) && anim("idle_guard") != null) {
+                // The guard, gently breathing.
+                anim = anim("idle_guard");
+                ticks = ageInTicks;
                 source = "stance";
             }
         }
@@ -409,7 +375,6 @@ public final class BoxingAnimator {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ACTIONS.clear();
-        SWISHED.clear();
         HELD.clear();
         SWINGS.clear();
         TRACKS.clear();
