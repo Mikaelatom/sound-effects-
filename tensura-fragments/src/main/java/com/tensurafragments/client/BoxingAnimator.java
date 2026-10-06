@@ -281,8 +281,12 @@ public final class BoxingAnimator {
         net.minecraft.world.phys.Vec3 side = net.minecraft.world.phys.Vec3.directionFromRotation(0, player.getYRot() + 90);
         net.minecraft.world.phys.Vec3 at = player.getEyePosition().add(look.scale(style.forward())).add(side.scale(style.side()))
                 .add(0, style.up(), 0);
-        mc.level.addParticle(com.tensurafragments.ModRegistries.SWISH.get(), true, at.x, at.y, at.z,
-                Math.toRadians(style.roll()), style.size(), style.mirror() ? 1 : 0);
+        net.minecraft.client.particle.Particle particle = mc.particleEngine.createParticle(
+                com.tensurafragments.ModRegistries.SWISH.get(), at.x, at.y, at.z, Math.toRadians(style.roll()), style.size(),
+                style.mirror() ? 1 : 0);
+        if (particle instanceof SwishParticle swish) {
+            swish.face(player.getYRot(), player.getXRot());
+        }
     }
 
     /**
