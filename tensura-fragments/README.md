@@ -392,7 +392,7 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 
 - **Boxing stance and hooks:** while Combat Mode is on (and you're not holding a weapon or tool) you stand in a
   boxing guard, and every punch is a **right or left hook**, whichever hand threw it, with your body twisting into
-  it. Everyone around sees it. (Animations from the Punch Swish mod; you don't need that mod installed.)
+  it; the Brawler's jumping punch is a real **uppercut**. Everyone around sees it. (Animations from the Punch Swish mod; you don't need that mod installed.)
 - **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or

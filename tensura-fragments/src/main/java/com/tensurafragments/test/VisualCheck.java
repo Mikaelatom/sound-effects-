@@ -610,8 +610,13 @@ public final class VisualCheck {
             case 913 -> shot(mc, "31_hook_a");
             case 925 -> shot(mc, "32_hook_b");
             case 935 -> shot(mc, "33_guard_again");
-            case 936 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 938 -> mc.stop();
+            case 940 -> mc.player.jumpFromGround();
+            case 941 -> net.minecraft.client.KeyMapping.click(
+                    com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            case 944 -> shot(mc, "34_uppercut_a");
+            case 947 -> shot(mc, "35_uppercut_b");
+            case 956 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 958 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

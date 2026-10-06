@@ -185,6 +185,9 @@ public final class ClientCombat {
                 && !mc.player.getAbilities().flying) {
             // Sent before the attack itself, so the server knows this punch is the uppercut.
             PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.UPPERCUT));
+            if (style == com.tensurafragments.combat.FightingStyle.BRAWLER) {
+                BoxingAnimator.play(mc.player.getId(), com.tensurafragments.network.CombatAnimPayload.UPPERCUT);
+            }
             jabs = 0;
             return;
         }

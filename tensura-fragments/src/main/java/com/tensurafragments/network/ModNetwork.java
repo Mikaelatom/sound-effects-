@@ -9,7 +9,7 @@ public final class ModNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("23");
+        PayloadRegistrar registrar = event.registrar(TensuraFragments.MODID).versioned("24");
         registrar.playToClient(SyncDeckPayload.TYPE, SyncDeckPayload.STREAM_CODEC, SyncDeckPayload::handle);
         registrar.playToClient(EnergyEntityPayload.TYPE, EnergyEntityPayload.STREAM_CODEC, EnergyEntityPayload::handle);
         registrar.playToClient(RainbowEntityPayload.TYPE, RainbowEntityPayload.STREAM_CODEC, RainbowEntityPayload::handle);
@@ -27,6 +27,7 @@ public final class ModNetwork {
         registrar.playToClient(SyncKnownRunesPayload.TYPE, SyncKnownRunesPayload.STREAM_CODEC, SyncKnownRunesPayload::handle);
         registrar.playToClient(SyncCombatPayload.TYPE, SyncCombatPayload.STREAM_CODEC, SyncCombatPayload::handle);
         registrar.playToClient(ArcPayload.TYPE, ArcPayload.STREAM_CODEC, ArcPayload::handle);
+        registrar.playToClient(CombatAnimPayload.TYPE, CombatAnimPayload.STREAM_CODEC, CombatAnimPayload::handle);
         registrar.playToClient(CombatPosePayload.TYPE, CombatPosePayload.STREAM_CODEC, CombatPosePayload::handle);
         registrar.playToServer(CombatInputPayload.TYPE, CombatInputPayload.STREAM_CODEC, CombatInputPayload::handle);
         registrar.playToServer(PickSkillPayload.TYPE, PickSkillPayload.STREAM_CODEC, PickSkillPayload::handle);

@@ -57,6 +57,10 @@ public final class BoxingAnimator {
 
     private static Anim hookLeft;
     private static Anim hookRight;
+    /** Other animations, loaded when first played. */
+    private static final Map<String, Anim> OTHERS = new HashMap<>();
+    /** Until when (tick) a move's own animation shouldn't be replaced by the hook its arm swing would start. */
+    private static final Map<Integer, Integer> HELD = new HashMap<>();
 
     private record Punch(Anim anim, int start) {
     }
@@ -103,6 +107,19 @@ public final class BoxingAnimator {
         return hookLeft != null && hookRight != null;
     }
 
+    /** Plays a move's own animation (like the uppercut) on this player, instead of a hook. */
+    public static void play(int entityId, String name) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || !(mc.level.getEntity(entityId) instanceof Player player)) {
+            return;
+        }
+        Anim anim = OTHERS.computeIfAbsent(name, BoxingAnimator::load);
+        if (anim != null) {
+            PUNCHES.put(entityId, new Punch(anim, player.tickCount));
+            HELD.put(entityId, player.tickCount + 3);
+        }
+    }
+
     /** Whether this player stands in the boxing guard right now. */
     static boolean inStance(Player player) {
         Minecraft mc = Minecraft.getInstance();
@@ -126,7 +143,8 @@ public final class BoxingAnimator {
             SWINGS.put(player.getId(), new Swing(player.swinging, player.swingTime));
             if (inStance(player)) {
                 STANCE_SINCE.putIfAbsent(player.getId(), player.tickCount);
-                if (started && loaded()) {
+                boolean held = player.tickCount <= HELD.getOrDefault(player.getId(), Integer.MIN_VALUE);
+                if (started && !held && loaded()) {
                     HumanoidArm arm = player.swingingArm == InteractionHand.MAIN_HAND ? player.getMainArm()
                             : player.getMainArm().getOpposite();
                     PUNCHES.put(player.getId(), new Punch(arm == HumanoidArm.RIGHT ? hookRight : hookLeft,
@@ -209,6 +227,7 @@ public final class BoxingAnimator {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         PUNCHES.clear();
+        HELD.clear();
         SWINGS.clear();
         STANCE_SINCE.clear();
     }

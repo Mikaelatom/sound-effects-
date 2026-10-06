@@ -390,6 +390,9 @@ public final class CombatMode {
                 // You go up with it, a touch slower so it stays just above you for the next hit.
                 player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
                 upswish((ServerLevel) player.level(), player);
+                // Everyone watching sees the uppercut (the puncher's own client already started it).
+                PacketDistributor.sendToPlayersTrackingEntity(player, new com.tensurafragments.network.CombatAnimPayload(
+                        player.getId(), com.tensurafragments.network.CombatAnimPayload.UPPERCUT));
             } else {
                 // The other styles' jumping moves keep you hanging in the air a moment.
                 player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
