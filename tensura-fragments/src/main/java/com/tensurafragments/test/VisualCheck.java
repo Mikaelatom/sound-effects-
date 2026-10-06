@@ -671,8 +671,13 @@ public final class VisualCheck {
             case 1249, 1250, 1251 -> shot(mc, "8" + (ticks - 1249) + "_swish_back_t" + (ticks - 1245));
             case 1260 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
             case 1269, 1270, 1271 -> shot(mc, "9" + (ticks - 1269) + "_swish_front_t" + (ticks - 1265));
-            case 1286 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
-            case 1288 -> mc.stop();
+            case 1286 -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            case 1290, 1310, 1330 -> {
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+            }
+            case 1297, 1298, 1299, 1317, 1318, 1319, 1337, 1338, 1339 -> shot(mc, "tilt_" + ticks);
+            case 1340 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            case 1342 -> mc.stop();
             default -> {
                 if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

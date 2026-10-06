@@ -41,6 +41,12 @@ public class SwishParticle extends TextureSheetParticle {
         setSpriteFromAge(sprites);
     }
 
+    /**
+     * Laid back from facing the puncher's eyes (60 degrees), so the swoosh sweeps out forward in front of the fist
+     * instead of standing up across the view.
+     */
+    private static final float TILT = (float) Math.toRadians(-60);
+
     /** Points the swish the way the puncher faces. */
     public void face(float yaw, float pitch) {
         facing = new float[] {yaw, pitch};
@@ -54,7 +60,7 @@ public class SwishParticle extends TextureSheetParticle {
         }
         // Exactly how it looks from the puncher's own eyes (as a camera there would turn it), fixed in the world.
         Quaternionf rotation = new Quaternionf().rotationYXZ((float) Math.PI - facing[0] * Mth.DEG_TO_RAD,
-                -facing[1] * Mth.DEG_TO_RAD, 0).rotateZ(Mth.lerp(partialTicks, oRoll, roll));
+                -facing[1] * Mth.DEG_TO_RAD, 0).rotateX(TILT).rotateZ(Mth.lerp(partialTicks, oRoll, roll));
         renderRotatedQuad(buffer, camera, rotation, partialTicks);
         // And its back, so it shows from in front of the puncher too.
         renderRotatedQuad(buffer, camera, new Quaternionf(rotation).rotateY((float) Math.PI), partialTicks);
