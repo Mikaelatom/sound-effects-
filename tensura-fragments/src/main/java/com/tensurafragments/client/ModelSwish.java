@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ModelSwish {
     /** The swish: 14 frames of 48x48, top to bottom (the arc growing, sweeping across, and fading). */
     public static final ResourceLocation TEXTURE = TensuraFragments.id("textures/entity/swish_strip.png");
-    private static final int FRAMES = 14;
+    static final int FRAMES = 14;
 
     /** A face of a swish cube: which way it faces and its texture area (pixels; a negative size is mirrored). */
     private record Face(String side, float u, float v, float du, float dv) {
@@ -238,7 +238,8 @@ public final class ModelSwish {
         }
         for (Map.Entry<String, float[]> window : windows.entrySet()) {
             float[] w = window.getValue();
-            if (seconds < w[0] || seconds >= w[1]) {
+            // The uppercut's swish faces the camera, as the Punch Swish mod draws it (SwishLayer.drawUppercut).
+            if (seconds < w[0] || seconds >= w[1] || window.getKey().startsWith("swish_upper")) {
                 continue;
             }
             int frame = Mth.clamp((int) ((seconds - w[0]) / (w[1] - w[0]) * FRAMES), 0, FRAMES - 1);
@@ -256,10 +257,8 @@ public final class ModelSwish {
                 }
                 stack.pushPose();
                 float[] from = place(model, bone, stack);
-                int flip = window.getKey().startsWith("swish_upper") ? uppercutFlip : HOOK_FLIP;
-                int shownFrame = (flip & REVERSE) != 0 ? FRAMES - 1 - frame : frame;
                 for (Cube cube : bone.cubes()) {
-                    drawCube(stack.last(), out, cube, from, shownFrame, flip);
+                    drawCube(stack.last(), out, cube, from, frame);
                 }
                 stack.popPose();
             }
@@ -297,21 +296,7 @@ public final class ModelSwish {
     }
 
     /** A flat swish cube: its south face (for a sheet in x and y) or west face (in z and y), seen from both sides. */
-    /** How a swish's frame is laid on its sheet: mirrored side to side, and/or upside down. */
-    static final int FLIP_U = 1;
-    static final int FLIP_V = 2;
-    /** The frames played last to first. */
-    static final int REVERSE = 4;
-    /** The hooks' arcs sweep across the body the way the fist goes with the frame mirrored. */
-    private static final int HOOK_FLIP = FLIP_U;
-    /**
-     * The uppercut's sheet stands upright beside the rising fist with the frame laid as the pack has it, but the
-     * strip's arc grows downward on it, so it plays last to first to rise with the fist.
-     */
-    public static int uppercutFlip = REVERSE;
-
-    private static void drawCube(PoseStack.Pose pose, VertexConsumer out, Cube cube, float[] pivot, int frame,
-                                 int flip) {
+    private static void drawCube(PoseStack.Pose pose, VertexConsumer out, Cube cube, float[] pivot, int frame) {
         float x0 = cube.origin()[0] - pivot[0];
         float x1 = x0 + cube.size()[0];
         // y up in the geo; the model's y runs down.
@@ -320,15 +305,10 @@ public final class ModelSwish {
         float z0 = cube.origin()[2] - pivot[2];
         float z1 = z0 + cube.size()[2];
         // The whole frame of the swish strip on the sheet, laid so the arc sweeps the way the fist travels.
-        float u0 = (flip & FLIP_U) != 0 ? 1 : 0;
-        float u1 = 1 - u0;
+        float u0 = 1;
+        float u1 = 0;
         float v0 = frame / (float) FRAMES;
         float v1 = (frame + 1) / (float) FRAMES;
-        if ((flip & FLIP_V) != 0) {
-            float v = v0;
-            v0 = v1;
-            v1 = v;
-        }
         for (Face face : cube.faces()) {
             if (face.side().equals("south") && cube.size()[2] == 0) {
                 quad(pose, out, x0, yTop, z0, x1, yTop, z0, x1, yBottom, z0, x0, yBottom, z0, u0, v0, u1, v1, 0, 0, 1);

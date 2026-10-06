@@ -700,7 +700,24 @@ public final class VisualCheck {
                     } else if (t >= 12 && t <= 22) {
                         shot(mc, "upper_r" + run + "_t" + (t - 11));
                     }
-                } else if (ticks == 1350 + 4 * 30 + 5) {
+                } else if (ticks >= 1480 && ticks < 1480 + 3 * 20) {
+                    // The Punch Swish mod's own swish particle, as its uppercut and hooks spawn it (roll, scale,
+                    // mirror), straight ahead of the camera.
+                    int run = (ticks - 1480) / 20;
+                    int t = (ticks - 1480) % 20;
+                    double[][] styles = {{-90, 0.70, 0}, {0, 0.85, 0}, {0, 0.85, 1}};
+                    var type = net.minecraft.core.registries.BuiltInRegistries.PARTICLE_TYPE.get(
+                            net.minecraft.resources.ResourceLocation.parse("punchswish:swish"));
+                    if (t == 0) {
+                        mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+                    } else if (t == 2 && type instanceof net.minecraft.core.particles.SimpleParticleType simple) {
+                        var at = mc.player.getEyePosition().add(mc.player.getLookAngle().scale(1.2));
+                        mc.level.addParticle(simple, true, at.x, at.y, at.z, Math.toRadians(styles[run][0]),
+                                styles[run][1], styles[run][2]);
+                    } else if (t >= 3 && t <= 10) {
+                        shot(mc, "modswish_r" + run + "_t" + (t - 2));
+                    }
+                } else if (ticks == 1480 + 3 * 20 + 5) {
                     mc.stop();
                 } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
