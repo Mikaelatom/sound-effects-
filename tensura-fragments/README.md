@@ -392,10 +392,10 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 
 - **Boxing stance and hooks:** while Combat Mode is on (and you're not holding a weapon or tool) you stand in a
   boxing guard, and every punch is a **right or left hook**, whichever hand threw it, with your body twisting into
-  it; the Brawler's jumping punch is a real **uppercut**. Each punch draws its **swish**, built
-  the way the combat animation pack models it: a trail sheet on the player model that sweeps flat across the front
-  at shoulder height for a hook (mirrored for the left), rises in front for the uppercut, and runs along the arm for
-  a jab, flicking through its frames as the punch goes. In first person you see it sweep out ahead of you. The idle
+  it; the Brawler's jumping punch is a real **uppercut**. Each punch draws the Punch Swish mod's
+  **swish** exactly as that mod does: its 8-frame white swish particle, spawned two ticks before the punch lands in
+  front of your eyes with each punch's own offset, turn, size and mirroring (jabs, hooks and the uppercut). Everyone
+  sees it, you included in first person. The idle
   stance is the pack's breathing guard. Every move has its own animation too: each style's
   finisher, launcher, air dive and landing, dash, tackle, iron body, counter, grab, hold and throw, ki moves, and the
   block (with block-hit, parry and guard-break reactions). Getting hit flinches you, a juggle leaves you hanging limp,
