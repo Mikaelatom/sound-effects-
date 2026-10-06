@@ -44,6 +44,7 @@ public final class CombatGameTests {
         float last = husk.getHealth();
         for (int hit = 1; hit <= 3; hit++) {
             player.attack(husk);
+            CombatMode.landNow(player);
             helper.assertTrue(husk.getHealth() < last, "hit " + hit + " landed");
             helper.assertTrue(CombatMode.isStunned(husk), "hit " + hit + " stunned it");
             helper.assertTrue(CombatMode.combo(player) == hit, "combo at " + hit + ", is " + CombatMode.combo(player));
@@ -51,6 +52,7 @@ public final class CombatGameTests {
         }
         husk.setDeltaMovement(Vec3.ZERO);
         player.attack(husk);
+        CombatMode.landNow(player);
         float finisherDamage = last - husk.getHealth();
         helper.assertTrue(finisherDamage >= 3, "the finisher hit hard, " + finisherDamage);
         helper.assertTrue(husk.getDeltaMovement().y > 0.3, "and launched it, " + husk.getDeltaMovement());
@@ -58,6 +60,22 @@ public final class CombatGameTests {
         // Launched husks fly into neighbouring tests otherwise.
         husk.discard();
         helper.succeed();
+    }
+
+    /** A punch lands when the fist does in its hook animation (0.22 s in), with the charge it was thrown with. */
+    @GameTest(template = "platform", timeoutTicks = 40)
+    public static void punchLandsWithTheAnimation(GameTestHelper helper) {
+        ServerPlayer player = fighter(helper, true);
+        Husk husk = dummy(helper, 4.5, 3.0);
+        player.attack(husk);
+        helper.assertTrue(husk.getHealth() == 1000 && CombatMode.hasPending(player), "not yet: the fist is still coming");
+        helper.runAfterDelay(3, () -> helper.assertTrue(husk.getHealth() == 1000, "still not at 3 ticks"));
+        helper.runAfterDelay(5, () -> {
+            helper.assertTrue(husk.getHealth() < 1000 && CombatMode.isStunned(husk), "landed by the strike");
+            helper.assertFalse(CombatMode.hasPending(player), "nothing left waiting");
+            husk.discard();
+            helper.succeed();
+        });
     }
 
     /** A punch thrown while jumping is an uppercut: it launches the target straight up. */
@@ -68,6 +86,7 @@ public final class CombatGameTests {
         husk.setDeltaMovement(Vec3.ZERO);
         CombatMode.markUppercut(player);
         player.attack(husk);
+        CombatMode.landNow(player);
         Vec3 motion = husk.getDeltaMovement();
         helper.assertTrue(motion.y > 0.9, "launched up, " + motion);
         helper.assertTrue(Math.abs(motion.x) < 0.3 && Math.abs(motion.z) < 0.3, "straight up, " + motion);
@@ -108,6 +127,7 @@ public final class CombatGameTests {
         player.setOnGround(false);
         player.setDeltaMovement(0, -0.4, 0);
         player.attack(husk);
+        CombatMode.landNow(player);
         helper.assertTrue(player.getDeltaMovement().y > 0.2, "lifted, " + player.getDeltaMovement());
         husk.discard();
         helper.succeed();
@@ -156,6 +176,8 @@ public final class CombatGameTests {
         helper.assertTrue(CombatMode.isHeld(husk) && CombatMode.isStunned(husk), "held and stunned");
         helper.assertTrue(husk.distanceTo(player) < 2.5 && husk.getZ() > player.getZ(), "in front of you");
         CombatMode.grabOrThrow(player);
+        helper.assertTrue(CombatMode.isHeld(husk), "held on through the wind-up");
+        CombatMode.landNow(player);
         helper.assertFalse(CombatMode.isHeld(husk), "let go");
         helper.assertTrue(husk.getHealth() < 1000, "the throw hurt");
         helper.assertTrue(husk.getDeltaMovement().z > 0.8 && husk.getDeltaMovement().y > 0.2, "and flung it forward, "
@@ -168,6 +190,7 @@ public final class CombatGameTests {
         helper.assertTrue(CombatMode.grab(player, other), "grabbed a blocking player");
         helper.assertFalse(CombatMode.isBlocking(other), "breaking the block");
         CombatMode.throwHeld(player);
+        CombatMode.landNow(player);
         other.discard();
         helper.succeed();
     }
@@ -230,6 +253,7 @@ public final class CombatGameTests {
         ServerPlayer player = fighter(helper, false);
         Husk husk = dummy(helper, 4.5, 3.0);
         player.attack(husk);
+        CombatMode.landNow(player);
         helper.assertFalse(CombatMode.isStunned(husk), "no stun");
         helper.assertTrue(CombatMode.combo(player) == 0, "no combo");
         helper.assertFalse(CombatMode.slam(player), "no slam");

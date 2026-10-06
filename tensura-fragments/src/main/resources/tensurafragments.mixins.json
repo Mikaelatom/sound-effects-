@@ -12,6 +12,7 @@
   },
   "mixins": [
     "ChunkMapMixin",
+    "LivingEntityAccessor",
     "DeathPenaltyMixin",
     "ExistenceStorageMixin",
     "FollowOwnerGoalMixin",

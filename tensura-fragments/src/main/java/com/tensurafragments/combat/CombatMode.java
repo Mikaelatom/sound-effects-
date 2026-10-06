@@ -361,7 +361,7 @@ public final class CombatMode {
     @SubscribeEvent
     public static void onAttack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || !isOn(player) || !(event.getTarget() instanceof LivingEntity)
-                || Allies.isFriendly(event.getTarget(), player)) {
+                || Allies.isFriendly(event.getTarget(), player) || LANDING.contains(player.getUUID())) {
             return;
         }
         if (GRABS.containsKey(player.getUUID())) {
@@ -386,8 +386,7 @@ public final class CombatMode {
             AIR_SAFE.put(player.getUUID(), player.level().getGameTime() + 100);
             Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
             if (style == FightingStyle.BRAWLER) {
-                // You go up with it, a touch slower so it stays just above you for the next hit.
-                player.setDeltaMovement(forward.x * 0.1, uppercutPower(count >= finisher) * 0.95, forward.z * 0.1);
+                // You go up with it when the fist lands (in landPunch), a touch slower so it stays just above you.
                 // Everyone watching sees the uppercut (the puncher's own client already started it).
                 PacketDistributor.sendToPlayersTrackingEntity(player,
                         new com.tensurafragments.combatanim.CombatAnimPayloads.PlayS2C(player.getId(), UPPERCUT_ANIMATION));
@@ -428,6 +427,127 @@ public final class CombatMode {
         int shown = count >= finisher ? finisher : count;
         LAST_COMBO.put(player.getUUID(), shown);
         sync(player, shown);
+        // The hit lands when the fist (or foot) does in the animation.
+        int delay = hitDelay(player, style, uppercut, count >= finisher);
+        if (delay > 0) {
+            event.setCanceled(true);
+            LivingEntity target = (LivingEntity) event.getTarget();
+            float strength = player.getAttackStrengthScale(0.5F);
+            boolean finishing = count >= finisher;
+            double lift = uppercut && style == FightingStyle.BRAWLER ? uppercutPower(finishing) * 0.95 : -1;
+            later(player, delay, () -> landPunch(player, target, strength, finishing, uppercut, lift));
+        }
+    }
+
+    // ---- Hits that land with the animation ----
+
+    private record Delayed(ServerPlayer player, int due, Runnable action) {
+    }
+
+    private static final java.util.List<Delayed> DELAYED = new java.util.ArrayList<>();
+    /** Players whose held-back punch is landing right now (so it isn't held back again). */
+    private static final java.util.Set<UUID> LANDING = new java.util.HashSet<>();
+
+    /** Does this for the player after so many ticks (now, for 0), unless they've left or died by then. */
+    static void later(ServerPlayer player, int ticks, Runnable action) {
+        if (ticks <= 0) {
+            action.run();
+        } else {
+            DELAYED.add(new Delayed(player, player.server.getTickCount() + ticks, action));
+        }
+    }
+
+    /** Lands everything this player has held back right now, in order (for tests). */
+    public static void landNow(ServerPlayer player) {
+        java.util.List<Delayed> mine = new java.util.ArrayList<>();
+        DELAYED.removeIf(d -> d.player() == player && mine.add(d));
+        mine.forEach(d -> d.action().run());
+    }
+
+    /** Whether this player has a hit or move effect still waiting for its animation (for tests). */
+    public static boolean hasPending(ServerPlayer player) {
+        return DELAYED.stream().anyMatch(d -> d.player() == player);
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        if (DELAYED.isEmpty()) {
+            return;
+        }
+        int now = event.getServer().getTickCount();
+        java.util.List<Delayed> due = new java.util.ArrayList<>();
+        DELAYED.removeIf(d -> {
+            if (d.player().isRemoved() || !d.player().isAlive()) {
+                return true;
+            }
+            if (d.due() <= now) {
+                due.add(d);
+                return true;
+            }
+            return false;
+        });
+        due.forEach(d -> d.action().run());
+    }
+
+    /**
+     * Ticks from the click to the moment the punch connects in its animation (the kit's strike time, or where the
+     * striking limb's swing ends); 0 when no animation plays (a weapon swing).
+     */
+    static int hitDelay(ServerPlayer player, FightingStyle style, boolean uppercut, boolean finisher) {
+        if (uppercut) {
+            return switch (style) {
+                case BRAWLER -> 5;   // punch_uppercut_left, strike 0.25 s
+                case SWIFT -> 8;     // swift_spin_kick, the kick comes round at 0.4 s
+                case TITAN -> 7;     // titan_hammer_fist, 0.35 s
+                case KI -> 4;        // ki_palm, 0.2 s
+            };
+        }
+        if (finisher) {
+            return switch (style) {
+                case BRAWLER -> 6;   // brawler_finisher, 0.3 s
+                case SWIFT -> 9;     // swift_whirlwind, facing front again at 0.45 s
+                case TITAN -> 10;    // titan_ground_pound, the shockwave at 0.5 s
+                case KI -> 10;       // ki_blast, 0.5 s
+            };
+        }
+        // A hook (punch_hook_right/left, strike 0.22 s), when bare-handed in the guard.
+        return !player.isCrouching() && !player.getMainHandItem().isDamageableItem() ? 4 : 0;
+    }
+
+    /** The held-back punch lands, with the charge it was thrown with. */
+    private static void landPunch(ServerPlayer player, LivingEntity target, float strength, boolean finishing,
+            boolean launching, double lift) {
+        if (!target.isAlive() || target.isRemoved() || target.level() != player.level() || player.distanceTo(target) > 6) {
+            return;
+        }
+        if (finishing) {
+            FINISHING.put(player.getUUID(), true);
+        } else {
+            FINISHING.remove(player.getUUID());
+        }
+        if (launching) {
+            LAUNCHING.put(player.getUUID(), true);
+        } else {
+            LAUNCHING.remove(player.getUUID());
+        }
+        if (lift >= 0) {
+            Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());
+            player.setDeltaMovement(forward.x * 0.1, lift, forward.z * 0.1);
+            player.hurtMarked = true;
+        }
+        com.tensurafragments.mixin.LivingEntityAccessor charge = (com.tensurafragments.mixin.LivingEntityAccessor) player;
+        int saved = charge.tensurafragments$getAttackStrengthTicker();
+        float full = player.getCurrentItemAttackStrengthDelay();
+        charge.tensurafragments$setAttackStrengthTicker(strength >= 1 ? (int) full * 2 + 1
+                : (int) Math.ceil(strength * full - 0.5F));
+        LANDING.add(player.getUUID());
+        try {
+            player.attack(target);
+        } finally {
+            LANDING.remove(player.getUUID());
+            // The next punch charges from when it was thrown, as usual.
+            charge.tensurafragments$setAttackStrengthTicker(saved);
+        }
     }
 
     /** The combo count last shown to each player (sent again with the down power once the hit lands). */
@@ -733,6 +853,8 @@ public final class CombatMode {
         UPPERCUT_ASKED.remove(event.getEntity().getUUID());
         LAUNCHING.remove(event.getEntity().getUUID());
         FINISHING.remove(event.getEntity().getUUID());
+        THROWING.remove(event.getEntity().getUUID());
+        DELAYED.removeIf(d -> d.player() == event.getEntity());
         BLOCKING.remove(event.getEntity().getUUID());
         GRABS.remove(event.getEntity().getUUID());
         GRABS.values().removeIf(grab -> grab.target() == event.getEntity());
@@ -972,15 +1094,32 @@ public final class CombatMode {
     }
 
     /** Throws what you're holding: forward and up, hard. */
+    /** Ticks into brawler_throw when it lets go (where the throwing arm's swing ends, 0.3 s). */
+    static final int THROW_RELEASE_TICKS = 6;
+    /** Players winding up a throw (still holding on until the release). */
+    private static final java.util.Set<UUID> THROWING = new java.util.HashSet<>();
+
     public static void throwHeld(ServerPlayer player) {
-        Grab grab = GRABS.remove(player.getUUID());
-        if (grab == null || !grab.target().isAlive()) {
+        Grab grab = GRABS.get(player.getUUID());
+        if (grab == null || !grab.target().isAlive() || !THROWING.add(player.getUUID())) {
             return;
         }
-        LivingEntity target = grab.target();
+        animate(player, "brawler_throw");
+        later(player, THROW_RELEASE_TICKS, () -> {
+            THROWING.remove(player.getUUID());
+            if (GRABS.get(player.getUUID()) == grab) {
+                GRABS.remove(player.getUUID());
+                release(player, grab.target());
+            }
+        });
+    }
+
+    private static void release(ServerPlayer player, LivingEntity target) {
+        if (!target.isAlive()) {
+            return;
+        }
         ServerLevel level = player.serverLevel();
         strike(player, target, Config.COMBAT_THROW_DAMAGE.get().floatValue(), 35, Config.COMBAT_STUN_TICKS.get() + 10);
-        animate(player, "brawler_throw");
         target.getPersistentData().putLong(THROWN_KEY, level.getGameTime() + 20);
         // After the hurt, so its knockback doesn't eat the throw.
         Vec3 forward = Vec3.directionFromRotation(0, player.getYRot());

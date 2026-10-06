@@ -450,10 +450,13 @@ public final class VisualCheck {
                         mc.hitResult == null ? null : mc.hitResult.getType());
                 net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
             }
-            case 781 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
-                    player.getBoundingBox().inflate(6)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
-                    .warn("COMBAT husk after uppercut: y-speed {} height {}", h.getDeltaMovement().y,
-                            h.getY() - player.getY())));
+            case 781, 782, 783, 785, 787, 788 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+                    player.getBoundingBox().inflate(4, 30, 4)).stream()
+                    .min(java.util.Comparator.comparingDouble(h -> h.distanceToSqr(player.getX(), h.getY(), player.getZ())))
+                    .ifPresent(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
+                    .warn("COMBAT uppercut t{}: you dy {} y {}; husk dy {} height {} hp {}", ticks,
+                            player.getDeltaMovement().y, player.getY(), h.getDeltaMovement().y, h.getY() - player.getY(),
+                            h.getHealth())));
             case 770 -> shot(mc, "20_combo");
             case 784 -> shot(mc, "21_uppercut");
             case 786 -> {
@@ -502,7 +505,7 @@ public final class VisualCheck {
             case 819 -> shot(mc, "23b_grab_first_person");
             case 820 -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
             case 822 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
-            case 823 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
+            case 829 -> onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
                     player.getBoundingBox().inflate(8)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
                     .warn("COMBAT thrown husk: motion {} hp {}", h.getDeltaMovement(), h.getHealth())));
             case 825 -> shot(mc, "24_throw");
@@ -555,7 +558,7 @@ public final class VisualCheck {
                 shot(mc, "27_ki_down_bar");
             }
             case 872 -> net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
-            case 874 -> {
+            case 877 -> {
                 onServer(mc, player -> player.serverLevel().getEntitiesOfClass(Husk.class,
                         player.getBoundingBox().inflate(10)).forEach(h -> org.slf4j.LoggerFactory.getLogger("visualcheck")
                         .warn("COMBAT after ki burst: downed {} motion {}", com.tensurafragments.combat.CombatMode.isDowned(h),

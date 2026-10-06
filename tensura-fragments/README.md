@@ -401,6 +401,12 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
   Getting hit flinches you, a juggle leaves you hanging limp, a throw sends you tumbling, a grab leaves you dangling,
   and a knockdown drops you to the ground, then you get back up. Everyone around sees it (third person; your
   first-person arm stays vanilla). `/tensurafragments_anim <name>` previews any of them on yourself (F5 to watch).
+- **Hits land with the animation:** a punch connects when the fist does in its animation, not the moment you click:
+  hooks 0.22 s in, the uppercut 0.25 s, and each style's launcher and finisher at its own impact (Brawler finisher
+  0.3 s, Swift's spin kick 0.4 s and whirlwind 0.45 s, Titan's hammer fist 0.35 s and ground pound 0.5 s with its
+  shockwave, Ki palm 0.2 s and ki blast 0.5 s). It still hits as hard as when you threw it. The same goes for the
+  counter strike, ki bomb, ki burst and the throw (you hold on through the wind-up). Moving more than 6 blocks
+  away from the target before it lands lets the punch fall short.
 - **EP:** your punches, slams and throws hit harder the more EP you have (see EP scaling above).
 - **Combos:** your hits chain into a combo (shown as x1, x2, x3 by the crosshair) as long as each comes within 1.5
   seconds of the last. Your punches alternate between your right and left hands (unless you're holding a weapon or

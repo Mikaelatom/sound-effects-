@@ -292,16 +292,19 @@ public final class StyleMoves {
         }
         Vec3 at = hit.getLocation();
         CombatMode.animate(player, "ki_bomb");
-        ring(level, at.add(0, 0.15, 0), 1.5, 0.18F, 8, false);
-        ring(level, at.add(0, 0.15, 0), 3.0, 0.18F, 8, false);
-        level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.2, at.z, 16, 1.2, 0.1, 1.2, 0.06);
-        level.playSound(null, at.x, at.y, at.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.8F, 1.4F);
-        float damage = Config.COMBAT_SLAM_DAMAGE.get().floatValue() * 0.8F;
-        for (LivingEntity target : enemiesAround(player, at, 3.0)) {
-            if (CombatMode.strike(player, target, damage, 20, Config.COMBAT_STUN_TICKS.get())) {
-                push(target, target.position().subtract(at), 0.5, 0.55);
+        // It goes off when the animation throws it down (0.35 s in).
+        CombatMode.later(player, 7, () -> {
+            ring(level, at.add(0, 0.15, 0), 1.5, 0.18F, 8, false);
+            ring(level, at.add(0, 0.15, 0), 3.0, 0.18F, 8, false);
+            level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.2, at.z, 16, 1.2, 0.1, 1.2, 0.06);
+            level.playSound(null, at.x, at.y, at.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.8F, 1.4F);
+            float damage = Config.COMBAT_SLAM_DAMAGE.get().floatValue() * 0.8F;
+            for (LivingEntity target : enemiesAround(player, at, 3.0)) {
+                if (CombatMode.strike(player, target, damage, 20, Config.COMBAT_STUN_TICKS.get())) {
+                    push(target, target.position().subtract(at), 0.5, 0.55);
+                }
             }
-        }
+        });
         player.setDeltaMovement(player.getDeltaMovement().x * 0.5, 0.35, player.getDeltaMovement().z * 0.5);
         player.hurtMarked = true;
         CombatMode.AIR_SAFE.put(player.getUUID(), now(player) + 100);
@@ -352,9 +355,13 @@ public final class StyleMoves {
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 8, 0.3, 0.5, 0.3, 0.02);
         warp(player, behind, yawToward(behind, attacker.position()), 0);
         CombatMode.animate(player, "swift_counter_strike");
-        CombatMode.strike(player, attacker, CombatMode.punchDamage(player) * 1.5F + 2, 35, Config.COMBAT_STUN_TICKS.get() + 10);
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS,
-                1.2F, 1.2F);
+        // The strike lands with the animation's (0.25 s in).
+        CombatMode.later(player, 5, () -> {
+            CombatMode.strike(player, attacker, CombatMode.punchDamage(player) * 1.5F + 2, 35,
+                    Config.COMBAT_STUN_TICKS.get() + 10);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_CRIT,
+                    SoundSource.PLAYERS, 1.2F, 1.2F);
+        });
         player.displayClientMessage(Component.translatable("tensurafragments.combat.counter").withStyle(ChatFormatting.GOLD),
                 true);
         return true;
@@ -384,19 +391,22 @@ public final class StyleMoves {
         player.getPersistentData().remove("tensurafragments_stun_until");
         player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
         CombatMode.GRABS.values().removeIf(grab -> grab.target() == player);
-        Vec3 centre = player.position().add(0, 0.9, 0);
         CombatMode.animate(player, "ki_burst");
-        ring(level, centre, 1.5, 0.22F, 7, false);
-        ring(level, centre, 3.0, 0.2F, 7, false);
-        ring(level, centre, 4.5, 0.18F, 7, false);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS,
                 1.0F, 1.6F);
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(),
-                SoundSource.PLAYERS, 0.5F, 1.6F);
-        for (LivingEntity target : enemiesAround(player, player.position(), 4.5)) {
-            CombatMode.strike(player, target, 3, 100, 0);
-            push(target, target.position().subtract(player.position()), 1.3, 0.45);
-        }
+        // It bursts out when the animation flings its arms open (0.25 s in).
+        CombatMode.later(player, 5, () -> {
+            Vec3 centre = player.position().add(0, 0.9, 0);
+            ring(level, centre, 1.5, 0.22F, 7, false);
+            ring(level, centre, 3.0, 0.2F, 7, false);
+            ring(level, centre, 4.5, 0.18F, 7, false);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(),
+                    SoundSource.PLAYERS, 0.5F, 1.6F);
+            for (LivingEntity target : enemiesAround(player, player.position(), 4.5)) {
+                CombatMode.strike(player, target, 3, 100, 0);
+                push(target, target.position().subtract(player.position()), 1.3, 0.45);
+            }
+        });
         return true;
     }
 

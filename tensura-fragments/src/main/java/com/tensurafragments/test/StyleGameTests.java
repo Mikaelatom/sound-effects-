@@ -46,6 +46,8 @@ public final class StyleGameTests {
     private static void punch(ServerPlayer player, Husk husk) {
         husk.invulnerableTime = 0;
         player.attack(husk);
+        // The hit lands with the animation's strike; don't wait for it here.
+        CombatMode.landNow(player);
     }
 
     /** Hits fill the down gauge; a full one knocks down: no stun, no grab, and the gauge starts over. */
@@ -105,6 +107,7 @@ public final class StyleGameTests {
         helper.assertTrue(StyleMoves.grabKey(player) && StyleMoves.isCountering(player), "counter stance");
         float health = player.getHealth();
         husk.doHurtTarget(player);
+        CombatMode.landNow(player);
         helper.assertTrue(player.getHealth() == health, "the hit is turned aside");
         helper.assertTrue(husk.getHealth() < 1000 && CombatMode.isStunned(husk), "and answered");
         helper.assertTrue(player.getZ() > husk.getZ(), "from behind it");
@@ -148,6 +151,7 @@ public final class StyleGameTests {
         Husk husk = dummy(helper, 4.5, 3.5);
         CombatMode.stun(player, 60);
         helper.assertTrue(StyleMoves.grabKey(player), "burst while stunned");
+        CombatMode.landNow(player);
         helper.assertFalse(CombatMode.isStunned(player), "free");
         helper.assertTrue(CombatMode.isDowned(husk) && husk.getHealth() < 1000, "the husk is knocked down");
         helper.assertTrue(husk.getDeltaMovement().z > 0.8, "and thrown off, " + husk.getDeltaMovement());
@@ -196,6 +200,7 @@ public final class StyleGameTests {
         player.teleportTo(up.x, up.y, up.z);
         player.setOnGround(false);
         helper.assertTrue(CombatMode.airSpecial(player), "ki bomb");
+        CombatMode.landNow(player);
         helper.assertTrue(husk.getHealth() < 1000, "hit the ground below");
         helper.assertTrue(player.getDeltaMovement().y > 0.3, "you hang in the air");
         husk.discard();

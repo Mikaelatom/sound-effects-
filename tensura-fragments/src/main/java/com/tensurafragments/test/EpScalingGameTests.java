@@ -61,6 +61,8 @@ public final class EpScalingGameTests {
         Husk b = dummy(helper, 6.5, 3.0);
         weak.attack(a);
         strong.attack(b);
+        com.tensurafragments.combat.CombatMode.landNow(weak);
+        com.tensurafragments.combat.CombatMode.landNow(strong);
         float weakHit = 1000 - a.getHealth();
         float strongHit = 1000 - b.getHealth();
         helper.assertTrue(weakHit > 0 && Math.abs(strongHit / weakHit - EpScaling.multiplierFor(1_000_000)) < 0.05,
