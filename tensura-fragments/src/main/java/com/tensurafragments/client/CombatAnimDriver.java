@@ -125,8 +125,10 @@ public final class CombatAnimDriver {
             play(player, arm == HumanoidArm.RIGHT ? "punch_hook_right" : "punch_hook_left");
             return;
         }
-        if (current != null && !DRIVEN.contains(current) && once(current)) {
-            // A one-off move plays out first.
+        // A one-off move plays out first, except a hook when a state comes up: a key that starts a state (J's
+        // tackle, grab or counter stance) swings the hand too, and that hook mustn't hold the state back.
+        if (current != null && !DRIVEN.contains(current) && once(current)
+                && !(state != null && current.startsWith("punch_hook_"))) {
             return;
         }
         String wanted = state != null ? state : inStance(player) ? STANCE : null;

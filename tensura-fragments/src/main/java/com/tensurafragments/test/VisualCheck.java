@@ -752,7 +752,35 @@ public final class VisualCheck {
                     } else if (t == 30) {
                         mc.options.keyShift.setDown(false);
                     }
-                } else if (ticks == 1645) {
+                } else if (ticks >= 1650 && ticks < 1700) {
+                    // Titan's tackle (J) while running.
+                    int t = ticks - 1650;
+                    if (t == 0) {
+                        onServer(mc, player -> com.tensurafragments.combat.CombatMode.setStyle(player,
+                                com.tensurafragments.combat.FightingStyle.TITAN));
+                        mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                        mc.player.setXRot(20);
+                    } else if (t == 4) {
+                        mc.options.keyUp.setDown(true);
+                        mc.options.keySprint.setDown(true);
+                    } else if (t == 12) {
+                        net.minecraft.client.KeyMapping.click(com.tensurafragments.client.ClientCombat.GRAB.getKey());
+                        // As on a server with lag: the hand's swing starts a hook before the tackle's state arrives.
+                        com.tensurafragments.client.CombatAnimDriver.play(mc.player, "punch_hook_right");
+                    } else if (t == 30) {
+                        mc.options.keyUp.setDown(false);
+                        mc.options.keySprint.setDown(false);
+                    }
+                    if (t >= 10 && t <= 26) {
+                        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("TACKLE t{}: pose {} anim {} sprinting {} speed {}",
+                                t, com.tensurafragments.client.CombatPoses.pose(mc.player),
+                                com.tensurafragments.combatanim.client.CombatAnimator.current(mc.player), mc.player.isSprinting(),
+                                mc.player.getDeltaMovement().horizontalDistance());
+                        if (t >= 13 && t <= 21 && t % 2 == 1) {
+                            shot(mc, "tackle_run_t" + t);
+                        }
+                    }
+                } else if (ticks == 1705) {
                     mc.stop();
                 } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
