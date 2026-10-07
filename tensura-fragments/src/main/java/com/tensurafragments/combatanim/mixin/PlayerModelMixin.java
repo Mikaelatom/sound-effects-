@@ -54,8 +54,16 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
         pose.apply(this.body, CombatAnimations.BODY, false);
         pose.apply(this.rightArm, CombatAnimations.RIGHT_ARM, false);
         pose.apply(this.leftArm, CombatAnimations.LEFT_ARM, false);
-        pose.apply(this.rightLeg, CombatAnimations.RIGHT_LEG, false);
-        pose.apply(this.leftLeg, CombatAnimations.LEFT_LEG, false);
+        // Tensura: Fragments - in the guard, punching, blocking or holding, the legs keep walking while you move.
+        CombatAnimator.Pose legs = pose;
+        String name = CombatAnimator.current(player);
+        if (name != null && (name.equals("idle_guard") || name.startsWith("punch_") || name.equals("block")
+                || name.equals("brawler_hold"))) {
+            float walking = net.minecraft.util.Mth.clamp(limbSwingAmount * 1.5F, 0F, 1F);
+            legs = new CombatAnimator.Pose(pose.anim(), pose.seconds(), pose.weight() * (1F - walking));
+        }
+        legs.apply(this.rightLeg, CombatAnimations.RIGHT_LEG, false);
+        legs.apply(this.leftLeg, CombatAnimations.LEFT_LEG, false);
 
         this.hat.copyFrom(this.head);
         this.jacket.copyFrom(this.body);

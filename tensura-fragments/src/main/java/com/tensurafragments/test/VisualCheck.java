@@ -720,7 +720,25 @@ public final class VisualCheck {
                     } else if (t >= 3 && t <= 10) {
                         shot(mc, "modswish_r" + run + "_t" + (t - 2));
                     }
-                } else if (ticks == 1480 + 3 * 20 + 5) {
+                } else if (ticks >= 1550 && ticks < 1590) {
+                    // Walking in the guard: the legs should keep their walk.
+                    int t = ticks - 1550;
+                    if (t == 0) {
+                        mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                        onServer(mc, player -> player.connection.teleport(player.getX(), player.getY(), player.getZ(),
+                                player.getYRot(), 0));
+                    } else if (t == 5) {
+                        mc.options.keyUp.setDown(true);
+                    } else if (t >= 12 && t < 30) {
+                        mc.player.yBodyRot = mc.player.getYRot() + 90;
+                        mc.player.yBodyRotO = mc.player.yBodyRot;
+                        if (t % 2 == 0) {
+                            shot(mc, "walk_t" + t);
+                        }
+                    } else if (t == 30) {
+                        mc.options.keyUp.setDown(false);
+                    }
+                } else if (ticks == 1595) {
                     mc.stop();
                 } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.
