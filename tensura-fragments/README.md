@@ -401,6 +401,12 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
   Getting hit flinches you, a juggle leaves you hanging limp, a throw sends you tumbling, a grab leaves you dangling,
   and a knockdown drops you to the ground, then you get back up. Everyone around sees it (third person; your
   first-person arm stays vanilla). `/tensurafragments_anim <name>` previews any of them on yourself (F5 to watch).
+- **Combat effects:** the kit's 25 Blockbench effects in white and pale blue: a hit spark on every punch that lands,
+  a big finisher impact, a knockdown slam, stars over stunned heads, the guard shield while blocking (with block-hit
+  ripples, a parry flash and a guard shatter), dash trails, the vanish and counter afterimages, grab and throw flashes,
+  dive and meteor trails, the spin kick ring and whirlwind, the hammer fist crater, iron body's hex aura, the tackle's
+  bow wave, and the ki palm, ki blast beam, ki bomb and ki burst. Each plays in time with its move.
+  `/tensurafragments_fx <clip>` previews the hit effects on what you look at.
 - **Hits land with the animation:** a punch connects when the fist does in its animation, not the moment you click:
   hooks 0.22 s in, the uppercut 0.25 s, and each style's launcher and finisher at its own impact (Brawler finisher
   0.3 s, Swift's spin kick 0.4 s and whirlwind 0.45 s, Titan's hammer fist 0.35 s and ground pound 0.5 s with its

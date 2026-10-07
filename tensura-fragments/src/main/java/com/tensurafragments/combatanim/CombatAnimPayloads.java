@@ -18,6 +18,7 @@ public final class CombatAnimPayloads {
     static void createTypes(String modId) {
         PlayC2S.TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(modId, "combat_anim"));
         PlayS2C.TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(modId, "combat_anim_seen"));
+        EffectS2C.TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(modId, "combat_fx"));
     }
 
     static void register(RegisterPayloadHandlersEvent event) {
@@ -34,6 +35,22 @@ public final class CombatAnimPayloads {
 
         registrar.playToClient(PlayS2C.TYPE, PlayS2C.STREAM_CODEC,
                 (payload, context) -> CombatAnimClient.onPlaySeen(payload.entityId(), payload.name()));
+
+        registrar.playToClient(EffectS2C.TYPE, EffectS2C.STREAM_CODEC,
+                (payload, context) -> CombatAnimClient.onEffectSeen(payload.entityId(), payload.name(), payload.yaw(), payload.durationTicks()));
+    }
+
+    /** Server -> client: "play effect clip {@code name} on entity {@code entityId}" (duration -1 = stop it). */
+    public record EffectS2C(int entityId, String name, float yaw, int durationTicks) implements CustomPacketPayload {
+        public static Type<EffectS2C> TYPE;
+        public static final StreamCodec<RegistryFriendlyByteBuf, EffectS2C> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, EffectS2C::entityId, ByteBufCodecs.stringUtf8(64), EffectS2C::name,
+                ByteBufCodecs.FLOAT, EffectS2C::yaw, ByteBufCodecs.VAR_INT, EffectS2C::durationTicks, EffectS2C::new);
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
     }
 
     /** Client -> server: "I started animation {@code name}" (empty = stopped). */

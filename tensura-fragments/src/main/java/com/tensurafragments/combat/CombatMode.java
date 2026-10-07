@@ -208,12 +208,11 @@ public final class CombatMode {
             target.setDeltaMovement(away.x, 0.3, away.z);
         }
         target.hurtMarked = true;
-        java.util.List<Vec3> ring = new java.util.ArrayList<>();
-        for (int i = 0; i <= 32; i++) {
-            double angle = i * Math.PI * 2 / 32;
-            ring.add(new Vec3(target.getX() + Math.cos(angle) * 1.2, target.getY() + 0.1, target.getZ() + Math.sin(angle) * 1.2));
+        com.tensurafragments.combatanim.CombatAnim.stopEffect(target, "fx_stun_mark");
+        if (!(target instanceof ServerPlayer)) {
+            // A knocked-down player's knocked_down animation shows the slam itself.
+            com.tensurafragments.combatanim.CombatAnim.effect(target, "fx_knockdown", null);
         }
-        arc(level, ring, 0.14F, 8, false);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.GENERIC_BIG_FALL, SoundSource.PLAYERS,
                 1.0F, 0.6F);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK,
@@ -274,6 +273,9 @@ public final class CombatMode {
         }
         target.getPersistentData().putLong(STUN_KEY, target.level().getGameTime() + ticks);
         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks, 6, false, false, false));
+        // The stars over its head, for as long as the stun lasts (a fresh stun replaces the last one's).
+        com.tensurafragments.combatanim.CombatAnim.stopEffect(target, "fx_stun_mark");
+        com.tensurafragments.combatanim.CombatAnim.effect(target, "fx_stun_mark", Float.NaN, ticks);
         if (target instanceof Mob mob) {
             mob.getNavigation().stop();
         }
@@ -564,8 +566,7 @@ public final class CombatMode {
         boolean finisher = FINISHING.containsKey(player.getUUID());
         ServerLevel level = player.serverLevel();
         if (target instanceof ServerPlayer blocker && isBlocking(blocker)) {
-            // A held block isn't stunned (a broken one already was).
-            hitSpark(level, target);
+            // A held block isn't stunned (a broken one already was); its block_hit animation shows the ripple.
             return;
         }
         FightingStyle style = style(player);
@@ -575,17 +576,14 @@ public final class CombatMode {
                 animate(hit, "hit_stun");
             }
             sync(player, LAST_COMBO.getOrDefault(player.getUUID(), 0), (int) addDown(target, pendingDown, player));
-            hitSpark(level, target);
+            hitSpark(target, player);
             return;
         }
         float down = style.downPerHit() + (finisher ? 25 : 0) + (LAUNCHING.containsKey(player.getUUID()) ? 12 : 0);
         sync(player, LAST_COMBO.getOrDefault(player.getUUID(), 0), (int) addDown(target, down, player));
         if (finisher) {
             // The launch itself comes with the knockback, just after this.
-            level.sendParticles(ParticleTypes.SWEEP_ATTACK, target.getX(), target.getY() + target.getBbHeight() / 2,
-                    target.getZ(), 1, 0, 0, 0, 0);
-            level.sendParticles(ParticleTypes.CRIT, target.getX(), target.getY() + target.getBbHeight() / 2, target.getZ(),
-                    16, 0.3, 0.3, 0.3, 0.4);
+            com.tensurafragments.combatanim.CombatAnim.effect(target, "fx_finisher", player);
             level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_CRIT,
                     SoundSource.PLAYERS, 1.2F, 0.7F);
             level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.GENERIC_EXPLODE.value(),
@@ -599,7 +597,9 @@ public final class CombatMode {
             }
             target.invulnerableTime = 0;
         }
-        hitSpark(level, target);
+        if (!finisher) {
+            hitSpark(target, player);
+        }
     }
 
     /** Combo hits keep the target close; the finisher launches it up and away instead. */
@@ -684,9 +684,9 @@ public final class CombatMode {
     }
 
 
-    static void hitSpark(ServerLevel level, LivingEntity target) {
-        level.sendParticles(WHITE, target.getX(), target.getY() + target.getBbHeight() * 0.6, target.getZ(), 8,
-                0.15, 0.15, 0.15, 0.05);
+    /** The kit's hit spark on what was hit, facing whoever hit it. */
+    static void hitSpark(LivingEntity target, Entity attacker) {
+        com.tensurafragments.combatanim.CombatAnim.effect(target, "fx_hit_spark", attacker);
     }
 
     // ---- Down slam ----
@@ -773,10 +773,9 @@ public final class CombatMode {
             applyAttackSpeed(player);
         }
         if (isBlocking(player)) {
+            // The guard shield shows with the block animation.
             if (!isOn(player) || !player.isAlive() || isStunned(player)) {
                 BLOCKING.remove(player.getUUID());
-            } else if (player.tickCount % 4 == 0) {
-                guard(player.serverLevel(), player, false);
             }
         }
         if (player.onGround() && AIR_SAFE.containsKey(player.getUUID())
@@ -943,7 +942,6 @@ public final class CombatMode {
         BLOCKING.put(player.getUUID(), player.level().getGameTime());
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARMOR_EQUIP_GENERIC.value(),
                 SoundSource.PLAYERS, 0.6F, 1.4F);
-        guard(player.serverLevel(), player, false);
     }
 
     public static boolean isBlocking(ServerPlayer player) {
@@ -970,7 +968,6 @@ public final class CombatMode {
             if (attacker instanceof LivingEntity living && !Allies.isFriendly(living, blocker)) {
                 stun(living, Config.COMBAT_STUN_TICKS.get() + 15);
             }
-            guard(level, blocker, true);
             animate(blocker, "parry");
             level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS,
                     1.0F, 1.6F);
@@ -995,10 +992,9 @@ public final class CombatMode {
         animate(blocker, "block_hit");
         level.playSound(null, blocker.getX(), blocker.getY(), blocker.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS,
                 0.8F, 1.1F);
-        guard(level, blocker, false);
     }
 
-    /** A white arc in front of a blocking player (a burst of them for a parry). */
+    /** A white arc in front of the player (Swift's counter stance; the block, parry and guard break have the kit's). */
     static void guard(ServerLevel level, ServerPlayer player, boolean parry) {
         Vec3 centre = player.getEyePosition().subtract(0, 0.5, 0);
         float yaw = player.getYRot();
@@ -1052,7 +1048,6 @@ public final class CombatMode {
                 SoundSource.PLAYERS, 1.0F, 0.7F);
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_WEAK, SoundSource.PLAYERS,
                 1.0F, 0.8F);
-        hitSpark(level, target);
         hold(player, target);
         return true;
     }
@@ -1153,13 +1148,8 @@ public final class CombatMode {
         BLOCKING.remove(player.getUUID());
         animate(player, swift ? "swift_quick_step" : "brawler_dash");
         player.resetFallDistance();
-        Vec3 dir = direction.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0, player.getYRot()) : direction.normalize();
+        // The dash trail comes with its animation.
         ServerLevel level = player.serverLevel();
-        for (int i = 0; i < 10; i++) {
-            Vec3 at = player.position().add(dir.scale(-i * 0.35)).add(0, 0.2 + (i % 3) * 0.35, 0);
-            level.sendParticles(WHITE, at.x, at.y, at.z, 1, 0.05, 0.05, 0.05, 0);
-        }
-        level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.1, player.getZ(), 5, 0.2, 0.05, 0.2, 0.03);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP,
                 SoundSource.PLAYERS, 0.7F, 1.7F);
         return true;

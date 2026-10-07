@@ -2,7 +2,10 @@ package com.tensurafragments.combatanim;
 
 import com.tensurafragments.combatanim.client.CombatAnimClient;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -24,7 +27,8 @@ import java.util.regex.Pattern;
  *       so other players see it.</li>
  * </ul>
  *
- * <p>The punch animations also show the swish trails modelled in Blockbench (third person).
+ * <p>The punch animations also show the swish trails modelled in Blockbench (third person), and the moves show
+ * their combat effects (guard, dash trails, ki beam, ...). Hit effects on a target: {@link #effect}.
  *
  * <p>Each animation has a built-in ending ({@link CombatAnimations.Mode}). "once" blends back to normal
  * by itself, "hold" stays on its last frame and "loop" repeats. Hold and loop keep going until you call
@@ -70,6 +74,40 @@ public final class CombatAnim {
         } else if (player instanceof ServerPlayer serverPlayer) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, new CombatAnimPayloads.PlayS2C(serverPlayer.getId(), name));
         }
+    }
+
+    /**
+     * Play an effect clip on any entity (mob or player), e.g. when a punch lands:
+     * <pre>{@code
+     * CombatAnim.effect(target, "fx_hit_spark", attacker);   // on every normal hit
+     * CombatAnim.effect(target, "fx_finisher", attacker);    // last hit of a combo
+     * CombatAnim.effect(mob, "fx_knockdown", null);          // a mob hits the floor (players: play "knocked_down")
+     * CombatAnim.effect(target, "fx_stun_mark", Float.NaN, stunTicks);  // loops for stunTicks
+     * }</pre>
+     * The effect follows the entity, scales with its height, and faces {@code facing} (null = the entity's own
+     * facing). From the server everyone tracking the entity sees it; from the client only that client does.
+     */
+    public static void effect(Entity target, String clip, @Nullable Entity facing) {
+        float yaw = Float.NaN;
+        if (facing != null && facing != target) {
+            yaw = (float) (Mth.atan2(facing.getZ() - target.getZ(), facing.getX() - target.getX()) * Mth.RAD_TO_DEG) - 90f;
+        }
+        effect(target, clip, yaw, 0);
+    }
+
+    /** Like {@link #effect(Entity, String, Entity)} with a yaw in degrees (NaN = the entity's own) and, for looping clips, a duration in ticks. */
+    public static void effect(Entity target, String clip, float yaw, int durationTicks) {
+        if (!VALID_NAME.matcher(clip).matches()) throw new IllegalArgumentException("Bad effect name: " + clip);
+        if (target.level().isClientSide()) {
+            CombatAnimClient.effectLocal(target, clip, yaw, durationTicks);
+        } else {
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(target, new CombatAnimPayloads.EffectS2C(target.getId(), clip, yaw, durationTicks));
+        }
+    }
+
+    /** Stop a looping effect clip early (e.g. the stun ended). */
+    public static void stopEffect(Entity target, String clip) {
+        effect(target, clip, Float.NaN, -1);
     }
 
     /** True for a well-formed animation name, or the empty string (which means "stop"). */

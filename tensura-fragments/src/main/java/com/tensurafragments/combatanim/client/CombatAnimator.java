@@ -48,7 +48,14 @@ public final class CombatAnimator {
         // Blend in from the vanilla pose unless we're chaining straight from another animation.
         s.fromRest = old == null || old.stopAt >= 0;
         STATES.put(player.getId(), s);
+        CombatFx.onPlay(player, name, anim, s.start);
         return true;
+    }
+
+    /** True while this player is still on the animation started at {@code start} (not stopped or replaced). */
+    static boolean isPlaying(Player player, String name, float start) {
+        State s = STATES.get(player.getId());
+        return s != null && s.stopAt < 0 && s.start == start && s.name.equals(name);
     }
 
     /** Blend this player back to the normal pose. */

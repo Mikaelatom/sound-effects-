@@ -171,7 +171,6 @@ public final class StyleMoves {
                 target.setDeltaMovement(motion.x * 0.2, target.onGround() ? 0.55 : -1.6, motion.z * 0.2);
                 target.hurtMarked = true;
                 CombatMode.stun(target, stun + 14);
-                ring(level, target.position().add(0, 0.1, 0), 2.0, 0.16F, 6, false);
                 level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ANVIL_LAND,
                         SoundSource.PLAYERS, 0.5F, 0.7F);
                 for (LivingEntity other : enemiesAround(player, target.position(), 2.0)) {
@@ -210,8 +209,6 @@ public final class StyleMoves {
             case TITAN -> {
                 // Ground pound: flung far, and a shockwave round where it stood.
                 push(target, target.position().subtract(player.position()), 1.7, 0.8);
-                ring(level, target.position().add(0, 0.1, 0), 2.5, 0.2F, 8, false);
-                ring(level, target.position().add(0, 0.1, 0), 1.4, 0.2F, 8, false);
                 level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.GENERIC_EXPLODE.value(),
                         SoundSource.PLAYERS, 0.6F, 0.8F);
                 for (LivingEntity other : enemiesAround(player, target.position(), 2.5)) {
@@ -294,9 +291,6 @@ public final class StyleMoves {
         CombatMode.animate(player, "ki_bomb");
         // It goes off when the animation throws it down (0.35 s in).
         CombatMode.later(player, 7, () -> {
-            ring(level, at.add(0, 0.15, 0), 1.5, 0.18F, 8, false);
-            ring(level, at.add(0, 0.15, 0), 3.0, 0.18F, 8, false);
-            level.sendParticles(ParticleTypes.CLOUD, at.x, at.y + 0.2, at.z, 16, 1.2, 0.1, 1.2, 0.06);
             level.playSound(null, at.x, at.y, at.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.8F, 1.4F);
             float damage = Config.COMBAT_SLAM_DAMAGE.get().floatValue() * 0.8F;
             for (LivingEntity target : enemiesAround(player, at, 3.0)) {
@@ -352,9 +346,9 @@ public final class StyleMoves {
         away = away.lengthSqr() < 1.0E-4 ? forward(player) : away.normalize();
         Vec3 behind = attacker.position().add(away.scale(attacker.getBbWidth() / 2 + 0.9));
         ServerLevel level = player.serverLevel();
-        level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 8, 0.3, 0.5, 0.3, 0.02);
-        warp(player, behind, yawToward(behind, attacker.position()), 0);
+        // Started before the step, so its afterimage stays where you stood.
         CombatMode.animate(player, "swift_counter_strike");
+        warp(player, behind, yawToward(behind, attacker.position()), 0);
         // The strike lands with the animation's (0.25 s in).
         CombatMode.later(player, 5, () -> {
             CombatMode.strike(player, attacker, CombatMode.punchDamage(player) * 1.5F + 2, 35,
@@ -389,6 +383,7 @@ public final class StyleMoves {
         }
         ServerLevel level = player.serverLevel();
         player.getPersistentData().remove("tensurafragments_stun_until");
+        com.tensurafragments.combatanim.CombatAnim.stopEffect(player, "fx_stun_mark");
         player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
         CombatMode.GRABS.values().removeIf(grab -> grab.target() == player);
         CombatMode.animate(player, "ki_burst");
@@ -396,10 +391,6 @@ public final class StyleMoves {
                 1.0F, 1.6F);
         // It bursts out when the animation flings its arms open (0.25 s in).
         CombatMode.later(player, 5, () -> {
-            Vec3 centre = player.position().add(0, 0.9, 0);
-            ring(level, centre, 1.5, 0.22F, 7, false);
-            ring(level, centre, 3.0, 0.2F, 7, false);
-            ring(level, centre, 4.5, 0.18F, 7, false);
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(),
                     SoundSource.PLAYERS, 0.5F, 1.6F);
             for (LivingEntity target : enemiesAround(player, player.position(), 4.5)) {
@@ -463,27 +454,22 @@ public final class StyleMoves {
             to = new Vec3(stop.x, player.getY(), stop.z);
             yaw = player.getYRot();
         }
-        level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 10, 0.3, 0.6, 0.3, 0.02);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS,
                 0.7F, 1.8F);
         CombatMode.DASHED.put(player.getUUID(), now(player));
         CombatMode.BLOCKING.remove(player.getUUID());
-        warp(player, to, yaw, player.getXRot());
+        // Started before the jump, so the vanish shows where you were and the appear where you land.
         CombatMode.animate(player, "ki_vanish");
-        level.sendParticles(ParticleTypes.CLOUD, to.x, to.y + 1, to.z, 10, 0.3, 0.6, 0.3, 0.02);
+        warp(player, to, yaw, player.getXRot());
         return true;
     }
 
     // ---- Every tick ----
 
-    /** Keeps dives and tackles going, and shows iron body. */
+    /** Keeps dives and tackles going (iron body's aura comes with its animation). */
     public static void tick(ServerPlayer player) {
         tickDive(player);
         tickTackle(player);
-        if (isIronBody(player) && player.tickCount % 4 == 0) {
-            ring(player.serverLevel(), player.position().add(0, 0.2, 0), 0.8, 0.08F, 5, false);
-            ring(player.serverLevel(), player.position().add(0, 1.2, 0), 0.7, 0.08F, 5, false);
-        }
     }
 
     public static void tickDive(ServerPlayer player) {
@@ -550,7 +536,6 @@ public final class StyleMoves {
         player.setDeltaMovement(dir.x * 1.1, Math.min(player.getDeltaMovement().y, 0), dir.z * 1.1);
         player.hurtMarked = true;
         ServerLevel level = player.serverLevel();
-        level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 2, 0.2, 0.05, 0.2, 0.01);
         for (LivingEntity target : player.level().getEntitiesOfClass(LivingEntity.class,
                 player.getBoundingBox().expandTowards(dir.scale(1.2)).inflate(0.5),
                 e -> e != player && e.isAlive() && !e.isSpectator() && !Allies.isFriendly(e, player))) {
