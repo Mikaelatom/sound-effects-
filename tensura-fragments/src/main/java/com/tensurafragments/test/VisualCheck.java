@@ -738,7 +738,21 @@ public final class VisualCheck {
                     } else if (t == 30) {
                         mc.options.keyUp.setDown(false);
                     }
-                } else if (ticks == 1595) {
+                } else if (ticks >= 1600 && ticks < 1640) {
+                    // A crouched ground pound: the shockwave must lie on the floor, not under it.
+                    int t = ticks - 1600;
+                    if (t == 0) {
+                        mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                        mc.player.setXRot(35);
+                        mc.options.keyShift.setDown(true);
+                    } else if (t == 5) {
+                        com.tensurafragments.combatanim.client.CombatAnimClient.playLocal(mc.player, "titan_ground_pound", false);
+                    } else if (t == 17 || t == 20 || t == 24) {
+                        shot(mc, "pound_crouched_t" + t);
+                    } else if (t == 30) {
+                        mc.options.keyShift.setDown(false);
+                    }
+                } else if (ticks == 1645) {
                     mc.stop();
                 } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

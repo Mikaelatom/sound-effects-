@@ -91,6 +91,28 @@ public final class SwishTrails {
         return v;
     }
 
+    /** Tensura: Fragments - how far above the floor the ground shockwave lies (blocks), so it never sinks into it. */
+    private static final double FLOOR_LIFT = 0.1;
+
+    /**
+     * Tensura: Fragments - puts the ground shockwave (drawn at the model's feet) on the floor under the player, a hair
+     * above it: not sunk in by the crouch (sneaking lowers the model), not hanging in the air when the move is thrown
+     * mid-air, and not hidden under the blocks around a lower one (a path, a slab).
+     */
+    private static void onFloor(PoseStack poseStack, AbstractClientPlayer player, float partialTick) {
+        net.minecraft.world.phys.Vec3 at = player.getPosition(partialTick);
+        net.minecraft.world.phys.HitResult hit = player.level().clip(new net.minecraft.world.level.ClipContext(
+                at.add(0, 0.5, 0), at.subtract(0, 4, 0), net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                net.minecraft.world.level.ClipContext.Fluid.NONE, player));
+        double floor = hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS ? at.y : hit.getLocation().y;
+        double offset = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player)
+                .getRenderOffset(player, partialTick).y;
+        // Model space: y runs down, in blocks scaled by the player renderer (0.9375) and the player's own scale.
+        float scale = 0.9375F * player.getScale();
+        double drawnAt = at.y + offset + (1.501 - 23.9 / 16) * scale;
+        poseStack.translate(0, -(floor + FLOOR_LIFT - drawnAt) / scale, 0);
+    }
+
     /** Draws the trails on the player model after it has been posed. */
     public static class Layer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
         public Layer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
@@ -118,6 +140,7 @@ public final class SwishTrails {
                 };
                 poseStack.pushPose();
                 if (part != null) part.translateAndRotate(poseStack);
+                else onFloor(poseStack, player, partialTick);
                 PoseStack.Pose pose = poseStack.last();
                 for (Quad q : w.segment().quads()) {
                     for (int i = 0; i < 4; i++) {

@@ -268,6 +268,8 @@ public final class CombatFx {
                 Part part = w.segment().part();
                 boolean anchored = part == Part.START || part == Part.FLOOR;
                 Vec3 base = anchored ? in.anchor : in.lastPos;
+                // Tensura: Fragments - floor effects lie a hair above the floor they're snapped to, not in it.
+                if (part == Part.FLOOR) base = base.add(0, 0.1, 0);
                 float yaw = anchored ? in.anchorYaw : Float.isNaN(in.yaw) ? in.lastYaw : in.yaw;
                 poseStack.pushPose();
                 poseStack.translate(base.x - cam.x, base.y - cam.y, base.z - cam.z);
