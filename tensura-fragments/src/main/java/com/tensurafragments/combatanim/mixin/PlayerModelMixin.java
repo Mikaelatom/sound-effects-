@@ -58,7 +58,8 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
         CombatAnimator.Pose legs = pose;
         String name = CombatAnimator.current(player);
         if (name != null && (name.equals("idle_guard") || name.startsWith("punch_") || name.equals("block")
-                || name.equals("brawler_hold"))) {
+                || name.equals("brawler_hold") || name.equals("explosion_idle") || name.startsWith("explosion_blast_")
+                || name.equals("explosion_hold"))) {
             float walking = net.minecraft.util.Mth.clamp(limbSwingAmount * 1.5F, 0F, 1F);
             legs = new CombatAnimator.Pose(pose.anim(), pose.seconds(), pose.weight() * (1F - walking));
         }

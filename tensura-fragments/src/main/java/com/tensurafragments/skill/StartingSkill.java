@@ -39,7 +39,7 @@ public final class StartingSkill {
     public static final List<RegistrySupplier<? extends ManasSkill>> CHOICES = List.of(
             ModSkills.GAMBIT_CARDS, ModSkills.SHIKIGAMI_CONTROL, ModSkills.SEALING_GRIMOIRE, ModSkills.RAINBOW_MAGIC,
             ModSkills.FLAME_EMPEROR, ModSkills.SPIRIT_CONTROL, ModSkills.SPIRIT_COMMUNION, ModSkills.ENERGY_MAGIC,
-            ModSkills.SOUL_REAPER, ModSkills.RUNE_MAGIC);
+            ModSkills.SOUL_REAPER, ModSkills.RUNE_MAGIC, ModSkills.EXPLOSION);
     /** How often the choice is shown again while it hasn't been made (the screen may have been covered). */
     private static final int ASK_AGAIN_TICKS = 200;
     private static final Map<UUID, Integer> LAST_ASKED = new HashMap<>();
@@ -135,6 +135,7 @@ public final class StartingSkill {
         if (Config.GRANT_RUNE_MAGIC.get()) {
             RuneMagic.grantSkill(player);
         }
+        com.tensurafragments.explosion.ExplosionSkill.grantSkill(player);
     }
 
     public static void forget(ServerPlayer player) {

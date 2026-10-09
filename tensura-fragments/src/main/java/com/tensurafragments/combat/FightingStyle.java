@@ -11,12 +11,16 @@ import com.tensurafragments.Config;
  * <li>dash key: Brawler dash, Swift quick step, Titan iron body, Ki vanish</li>
  * <li>the finisher: Brawler launch, Swift whirlwind, Titan ground pound, Ki blast</li>
  * </ul>
+ * Explosion (with the Explosion skill): blast punches from each hand, rising blast, explosive dive, grab and detonate,
+ * burst dash in any direction, hover on blasts (hold jump in mid-air), and a two-handed point-blank finisher.
  */
 public enum FightingStyle {
     BRAWLER("brawler", 0, 1.0F, 0.25F, 12, 0),
     SWIFT("swift", 1, 0.8F, 0.2F, 8, 1.0),
     TITAN("titan", -1, 1.35F, 0.6F, 18, -0.6),
-    KI("ki", 0, 0.9F, 0.3F, 11, 0);
+    KI("ki", 0, 0.9F, 0.3F, 11, 0),
+    /** Only with the Explosion skill: every punch goes off, and you fly on blasts. */
+    EXPLOSION("explosion", 0, 1.1F, 0.35F, 14, 0.3);
 
     private final String id;
     private final int finisherOffset;

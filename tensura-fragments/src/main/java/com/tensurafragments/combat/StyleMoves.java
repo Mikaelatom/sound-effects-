@@ -179,6 +179,7 @@ public final class StyleMoves {
                     }
                 }
             }
+            case EXPLOSION -> ExplosionMoves.risingBlast(player, target, finisher);
             case KI -> {
                 // Ki palm: blasted straight away.
                 push(target, player.getLookAngle(), finisher ? 2.6 : 2.2, 0.3);
@@ -223,6 +224,7 @@ public final class StyleMoves {
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FIREWORK_ROCKET_LARGE_BLAST,
                         SoundSource.PLAYERS, 1.2F, 0.6F);
             }
+            case EXPLOSION -> ExplosionMoves.finisher(player, target);
             default -> CombatMode.launch(player, target);
         }
     }

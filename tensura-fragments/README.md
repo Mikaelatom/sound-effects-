@@ -12,7 +12,7 @@ Abilities are meant to take practice: momentum, placement, aim, time limits and 
 
 After you pick your race (the first time you join a world), a screen asks you to **pick one of this addon's skills**
 to start with: Gambit Cards, Shikigami Control, Sealing Grimoire, Rainbow Magic, Flame Emperor, Spirit Control,
-Spirit Communion, Energy Magic, Soul Reaper or Rune Magic (hover a button for what it does). You get only that one.
+Spirit Communion, Energy Magic, Soul Reaper, Rune Magic or Explosion (hover a button for what it does). You get only that one.
 Players who already had this addon's skills from before keep them all and aren't asked. Turn the choice off with
 `pickOneSkill` in the `[startingSkill]` section of the server config, and everyone gets every skill again (each has
 its own `grant...` option).
@@ -358,6 +358,19 @@ paper. Rune Magic users know every rune and draw them instantly.
 Numbers are in the `[runes]` section of the server config (`drawMagicules`, `weaponCharges`, `runePower`,
 `inscribeSecondsWithoutSkill`, `runeTomeChestChance` 15%, `runePaperChestChance` 10%).
 
+## Skill 11: Explosion
+
+Explosions from your palms (a hero who fights and flies on them). Its skill key, in three modes:
+
+- **AP Shot**: a focused blast that flies straight to what you aim at, up to 32 blocks, and blows up there
+  (40 magicules, 2 s cooldown).
+- **Stun Grenade**: a blinding flash in front of you: everything it catches is stunned and blinded (60 magicules, 8 s).
+- **Howitzer Impact**: launch up and forward, spinning in little blasts, and come down as a huge explosion that hits
+  everything around (250 magicules, 30 s).
+
+It also unlocks the **Explosion fighting style** in Combat Mode (below). Explosions hurt and throw creatures but break
+no blocks, and scale with your EP. Each move's blast goes off at its animation's strike, so it lands with the palm.
+
 ## EP scaling
 
 Every skill this addon adds, Tensura's own skills and magic, and Combat Mode's punches hit harder the more EP you
@@ -453,14 +466,18 @@ while it's on. Its keys (all rebindable in Controls, under Tensura: Fragments): 
 Press **Y** (or `/combat style <name>`) to switch styles. Each changes your punches and what your moves do (H block
 works the same in all of them):
 
-| | Brawler | Swift | Titan | Ki |
-|---|---|---|---|---|
-| Punches | normal | faster, 0.8x damage | slower, 1.35x damage, more knockback | 0.9x damage |
-| Finisher | 4th hit: launch | 5th hit: **whirlwind**, hits everything around you | 3rd hit: **ground pound**, flings it and a shockwave hits those around it | 4th hit: **ki blast**, a beam that throws it far |
-| Jump + attack | **uppercut**, you ride up with it | **spin kick**, the target and everything around you | **hammer fist**, spikes it out of the air or bounces it off the ground | **ki palm**, blasts it straight away |
-| Sneak + attack in mid-air | **down slam** | **dive kick**, kicks down at a slant (homing in on the nearest enemy in front of you, within 7 blocks), spikes the first thing it meets (even as you land beside it) and bounces you off | **meteor slam**, a bigger, harder slam | **ki bomb**, a blast at the ground below while you hang in the air |
-| J | **grab & throw** | **counter stance**: a hit in the next moment is turned aside, and you appear behind the attacker and strike | **tackle**: charge forward with super armour, bowling over everything | **ki burst**: knocks down everything around and throws it off; works even while you're stunned or held, so it **breaks combos** (10 s cooldown) |
-| K | **dash** with i-frames | **quick step**: a short dash, ready again almost at once | **iron body**: 2 seconds of no stun, no knockback and 40% less damage | **vanish**: reappear behind what you're looking at (up to 16 blocks), untouchable for a moment |
+| | Brawler | Swift | Titan | Ki | Explosion (with the Explosion skill) |
+|---|---|---|---|---|---|
+| Punches | normal | faster, 0.8x damage | slower, 1.35x damage, more knockback | 0.9x damage | 1.1x damage, a palm **blast** from each hand that goes off in its face and catches what's right behind it |
+| Finisher | 4th hit: launch | 5th hit: **whirlwind**, hits everything around you | 3rd hit: **ground pound**, flings it and a shockwave hits those around it | 4th hit: **ki blast**, a beam that throws it far | 4th hit: both palms **point-blank**, a big blast that sends it flying |
+| Jump + attack | **uppercut**, you ride up with it | **spin kick**, the target and everything around you | **hammer fist**, spikes it out of the air or bounces it off the ground | **ki palm**, blasts it straight away | **rising blast**: blown straight up from below, and you rocket up after it |
+| Sneak + attack in mid-air | **down slam** | **dive kick**, kicks down at a slant (homing in on the nearest enemy in front of you, within 7 blocks), spikes the first thing it meets (even as you land beside it) and bounces you off | **meteor slam**, a bigger, harder slam | **ki bomb**, a blast at the ground below while you hang in the air | **explosive dive**: rocket down and blow up where you land |
+| J | **grab & throw** | **counter stance**: a hit in the next moment is turned aside, and you appear behind the attacker and strike | **tackle**: charge forward with super armour, bowling over everything | **ki burst**: knocks down everything around and throws it off; works even while you're stunned or held, so it **breaks combos** (10 s cooldown) | **grab & detonate**: grab, then J or attack again blows it up in your hands and flings it |
+| K | **dash** with i-frames | **quick step**: a short dash, ready again almost at once | **iron body**: 2 seconds of no stun, no knockback and 40% less damage | **vanish**: reappear behind what you're looking at (up to 16 blocks), untouchable for a moment | **burst dash**: blasted whichever way you look (up, down, through the air), with i-frames |
+
+In the Explosion style, **hold jump in mid-air to hover**: blasts from your palms hold you up and carry you the way
+you look, for up to 5 seconds before you have to land (a little magicules as you go, and no fall damage). Punching
+while hovering throws normal blast punches. Y only offers the Explosion style if you have the skill.
 
 Your allies and their creatures are never hit by it. Numbers (and turning it off for the whole server) are in the
 `[combat]` section of the server config.

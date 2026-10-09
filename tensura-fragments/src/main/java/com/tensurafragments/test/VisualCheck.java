@@ -780,7 +780,50 @@ public final class VisualCheck {
                             shot(mc, "tackle_run_t" + t);
                         }
                     }
-                } else if (ticks == 1705) {
+                } else if (ticks >= 1710 && ticks < 1810) {
+                    // The Explosion style: a blast punch, AP Shot, then hovering on blasts.
+                    int t = ticks - 1710;
+                    if (t == 0) {
+                        onServer(mc, player -> {
+                            io.github.manasmods.tensura.ability.SkillHelper.learnSkill(player,
+                                    com.tensurafragments.skill.ModSkills.EXPLOSION.get());
+                            player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+                            com.tensurafragments.combat.CombatMode.setStyle(player,
+                                    com.tensurafragments.combat.FightingStyle.EXPLOSION);
+                            net.minecraft.world.phys.Vec3 at = player.position().add(net.minecraft.world.phys.Vec3.directionFromRotation(0, player.getYRot()).scale(2.5));
+                            Husk husk = net.minecraft.world.entity.EntityType.HUSK.create(player.level());
+                            husk.moveTo(at.x, player.getY(), at.z, player.getYRot() + 180, 0);
+                            husk.setNoAi(true);
+                            husk.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);
+                            husk.setHealth(500);
+                            player.level().addFreshEntity(husk);
+                        });
+                        mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                    } else if (t == 8) {
+                        mc.level.getEntitiesOfClass(Husk.class, mc.player.getBoundingBox().inflate(4)).stream()
+                                .min(java.util.Comparator.comparingDouble(h -> h.distanceToSqr(mc.player)))
+                                .ifPresent(h -> mc.player.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,
+                                        h.position().add(0, 1.0, 0)));
+                        mc.gameRenderer.pick(1.0F);
+                        net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(0));
+                    } else if (t == 11 || t == 13) {
+                        shot(mc, "explosion_punch_t" + (t - 8));
+                    } else if (t == 25) {
+                        mc.player.setXRot(0);
+                        onServer(mc, player -> com.tensurafragments.combat.ExplosionMoves.apShot(player));
+                    } else if (t == 32 || t == 34) {
+                        shot(mc, "explosion_ap_t" + (t - 25));
+                    } else if (t == 45) {
+                        mc.player.jumpFromGround();
+                        mc.options.keyJump.setDown(true);
+                    } else if (t == 60 || t == 75) {
+                        org.slf4j.LoggerFactory.getLogger("visualcheck").warn("EXPLOSION hover t{}: y above ground {}", t,
+                                mc.player.getY() - 231);
+                        shot(mc, "explosion_hover_t" + t);
+                    } else if (t == 80) {
+                        mc.options.keyJump.setDown(false);
+                    }
+                } else if (ticks == 1815) {
                     mc.stop();
                 } else if (ticks > 418 && ticks < 638) {
                     // Fly the possessed owl 330 blocks east, a bit faster than it flies on its own.

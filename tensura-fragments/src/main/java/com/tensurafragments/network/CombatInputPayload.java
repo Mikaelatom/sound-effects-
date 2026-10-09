@@ -26,6 +26,8 @@ public record CombatInputPayload(int action, float x, float z) implements Custom
     public static final int DASH = 6;
     /** Next fighting style. */
     public static final int STYLE = 7;
+    /** Still hovering on blasts (sent every few ticks while it lasts). */
+    public static final int HOVER = 8;
     public static final Type<CombatInputPayload> TYPE = new Type<>(TensuraFragments.id("combat_input"));
     public static final StreamCodec<ByteBuf, CombatInputPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, CombatInputPayload::action, ByteBufCodecs.FLOAT, CombatInputPayload::x,
@@ -52,6 +54,7 @@ public record CombatInputPayload(int action, float x, float z) implements Custom
                     case GRAB -> com.tensurafragments.combat.StyleMoves.grabKey(player);
                     case DASH -> com.tensurafragments.combat.StyleMoves.dashKey(player, new Vec3(payload.x(), 0, payload.z()));
                     case STYLE -> CombatMode.cycleStyle(player);
+                    case HOVER -> com.tensurafragments.combat.ExplosionMoves.hover(player);
                     default -> {
                     }
                 }

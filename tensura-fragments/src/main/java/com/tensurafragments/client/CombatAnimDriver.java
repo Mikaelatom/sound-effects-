@@ -47,14 +47,37 @@ public final class CombatAnimDriver {
             case CombatPosePayload.TACKLE -> "titan_tackle";
             case CombatPosePayload.IRON_BODY -> "titan_iron_body";
             case CombatPosePayload.COUNTER -> "swift_counter_stance";
+            case CombatPosePayload.EXPLOSION_HOLD -> pick("explosion_hold", "brawler_hold");
+            case CombatPosePayload.EXPLOSION_DIVE -> pick("explosion_dive", "brawler_slam_dive");
+            case CombatPosePayload.HOVER -> pick("explosion_hover", null);
             default -> null;
         };
+    }
+
+    /** {@code name} if that animation has been made, else {@code standIn}. */
+    private static String pick(String name, String standIn) {
+        return CombatAnimations.get(name) != null ? name : standIn;
+    }
+
+    /** Whether this player fights in the Explosion style (yours from your own state, others' from their stance). */
+    private static boolean explosive(Player player) {
+        Minecraft mc = Minecraft.getInstance();
+        return player == mc.player ? ClientCombat.style() == com.tensurafragments.combat.FightingStyle.EXPLOSION
+                : CombatPoses.pose(player) == CombatPosePayload.EXPLOSION_STANCE;
+    }
+
+    private static boolean isStance(String name) {
+        return name.equals(STANCE) || name.equals("explosion_idle");
+    }
+
+    private static boolean isPunch(String name) {
+        return name.startsWith("punch_hook_") || name.startsWith("explosion_blast_");
     }
 
     /** The animations this driver starts and stops by itself (the guard and the states). */
     private static final Set<String> DRIVEN = Set.of(STANCE, "block", "brawler_hold", "held", "knocked_down", "thrown",
             "air_juggle", "brawler_slam_dive", "titan_meteor_dive", "swift_dive_kick", "titan_tackle", "titan_iron_body",
-            "swift_counter_stance");
+            "swift_counter_stance", "explosion_idle", "explosion_hold", "explosion_dive", "explosion_hover");
 
     private record Swing(boolean swinging, int time) {
     }
@@ -73,7 +96,9 @@ public final class CombatAnimDriver {
     /** Whether this player stands in the boxing guard (Combat Mode on, bare-handed, on their feet). */
     static boolean inStance(Player player) {
         Minecraft mc = Minecraft.getInstance();
-        boolean on = player == mc.player ? ClientCombat.isOn() : CombatPoses.pose(player) == CombatPosePayload.STANCE;
+        int pose = CombatPoses.pose(player);
+        boolean on = player == mc.player ? ClientCombat.isOn()
+                : pose == CombatPosePayload.STANCE || pose == CombatPosePayload.EXPLOSION_STANCE;
         return on && !player.isCrouching() && !player.getMainHandItem().isDamageableItem();
     }
 
@@ -118,20 +143,25 @@ public final class CombatAnimDriver {
             return;
         }
         // A new punch in the guard is a hook with the hand that threw it (it can cut off the last hook, not a move).
+        // (In the Explosion style it's a palm blast from that hand.)
+        boolean explosive = explosive(player);
         if (swung && state == null && inStance(player)
-                && (current == null || current.equals(STANCE) || current.startsWith("punch_hook_"))) {
+                && (current == null || isStance(current) || isPunch(current))) {
             HumanoidArm arm = player.swingingArm == InteractionHand.MAIN_HAND ? player.getMainArm()
                     : player.getMainArm().getOpposite();
-            play(player, arm == HumanoidArm.RIGHT ? "punch_hook_right" : "punch_hook_left");
+            boolean right = arm == HumanoidArm.RIGHT;
+            play(player, explosive ? pick(right ? "explosion_blast_right" : "explosion_blast_left",
+                    right ? "punch_hook_right" : "punch_hook_left") : right ? "punch_hook_right" : "punch_hook_left");
             return;
         }
         // A one-off move plays out first, except a hook when a state comes up: a key that starts a state (J's
         // tackle, grab or counter stance) swings the hand too, and that hook mustn't hold the state back.
         if (current != null && !DRIVEN.contains(current) && once(current)
-                && !(state != null && current.startsWith("punch_hook_"))) {
+                && !(state != null && isPunch(current))) {
             return;
         }
-        String wanted = state != null ? state : inStance(player) ? STANCE : null;
+        String stance = explosive ? pick("explosion_idle", STANCE) : STANCE;
+        String wanted = state != null ? state : inStance(player) ? stance : null;
         if (wanted != null && !wanted.equals(current)) {
             play(player, wanted);
         } else if (wanted == null && current != null && DRIVEN.contains(current)) {

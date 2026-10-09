@@ -33,6 +33,8 @@ public final class ModSkills {
             register("spirit_communion", SpiritCommunionSkill::new);
     public static final RegistrySupplier<SoulReaperSkill> SOUL_REAPER = register("soul_reaper", SoulReaperSkill::new);
     public static final RegistrySupplier<RuneMagicSkill> RUNE_MAGIC = register("rune_magic", RuneMagicSkill::new);
+    public static final RegistrySupplier<com.tensurafragments.explosion.ExplosionSkill> EXPLOSION =
+            register("explosion", com.tensurafragments.explosion.ExplosionSkill::new);
     /** The Spirit race's own skill (a race skill, not given to everyone). */
     public static final RegistrySupplier<SpiritReleaseSkill> SPIRIT_RELEASE =
             register("spirit_release", SpiritReleaseSkill::new);

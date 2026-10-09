@@ -137,7 +137,12 @@ public final class CombatMode {
 
     public static void cycleStyle(ServerPlayer player) {
         if (Config.COMBAT_ENABLED.get()) {
-            setStyle(player, style(player).next());
+            FightingStyle next = style(player).next();
+            if (next == FightingStyle.EXPLOSION && !ExplosionMoves.hasSkill(player)) {
+                // The Explosion style comes with the Explosion skill.
+                next = next.next();
+            }
+            setStyle(player, next);
         }
     }
 
@@ -393,11 +398,13 @@ public final class CombatMode {
                 PacketDistributor.sendToPlayersTrackingEntity(player,
                         new com.tensurafragments.combatanim.CombatAnimPayloads.PlayS2C(player.getId(), UPPERCUT_ANIMATION));
             } else {
-                // The other styles' jumping moves keep you hanging in the air a moment.
-                player.setDeltaMovement(forward.x * 0.1, AIR_HIT_LIFT, forward.z * 0.1);
+                // The other styles' jumping moves keep you hanging in the air a moment (Explosion blasts you up).
+                player.setDeltaMovement(forward.x * 0.1, style == FightingStyle.EXPLOSION ? 0.8 : AIR_HIT_LIFT,
+                        forward.z * 0.1);
                 animate(player, switch (style) {
                     case SWIFT -> "swift_spin_kick";
                     case TITAN -> "titan_hammer_fist";
+                    case EXPLOSION -> ExplosionMoves.anim(ExplosionMoves.RISING);
                     default -> "ki_palm";
                 });
             }
@@ -423,6 +430,7 @@ public final class CombatMode {
                     case SWIFT -> "swift_whirlwind";
                     case TITAN -> "titan_ground_pound";
                     case KI -> "ki_blast";
+                    case EXPLOSION -> ExplosionMoves.anim(ExplosionMoves.FINISHER);
                 });
             }
         }
@@ -502,6 +510,7 @@ public final class CombatMode {
                 case SWIFT -> 8;     // swift_spin_kick, the kick comes round at 0.4 s
                 case TITAN -> 7;     // titan_hammer_fist, 0.35 s
                 case KI -> 4;        // ki_palm, 0.2 s
+                case EXPLOSION -> ExplosionMoves.strikeTicks(ExplosionMoves.RISING, 0.2F);
             };
         }
         if (finisher) {
@@ -510,7 +519,12 @@ public final class CombatMode {
                 case SWIFT -> 9;     // swift_whirlwind, facing front again at 0.45 s
                 case TITAN -> 10;    // titan_ground_pound, the shockwave at 0.5 s
                 case KI -> 10;       // ki_blast, 0.5 s
+                case EXPLOSION -> ExplosionMoves.strikeTicks(ExplosionMoves.FINISHER, 0.35F);
             };
+        }
+        if (style == FightingStyle.EXPLOSION && !player.isCrouching() && !player.getMainHandItem().isDamageableItem()) {
+            // A palm blast (explosion_blast_right/left).
+            return ExplosionMoves.strikeTicks(ExplosionMoves.BLAST_RIGHT, 0.15F);
         }
         // A hook (punch_hook_right/left, strike 0.22 s), when bare-handed in the guard.
         return !player.isCrouching() && !player.getMainHandItem().isDamageableItem() ? 4 : 0;
@@ -596,6 +610,10 @@ public final class CombatMode {
                 animate(hit, "hit_stun");
             }
             target.invulnerableTime = 0;
+            if (style == FightingStyle.EXPLOSION) {
+                // It goes off in its face.
+                later(player, 1, () -> ExplosionMoves.punchPop(player, target));
+            }
         }
         if (!finisher) {
             hitSpark(target, player);
@@ -700,6 +718,7 @@ public final class CombatMode {
             case BRAWLER, TITAN -> slam(player);
             case SWIFT -> StyleMoves.diveKick(player);
             case KI -> StyleMoves.kiBomb(player);
+            case EXPLOSION -> slam(player);
         };
     }
 
@@ -728,9 +747,14 @@ public final class CombatMode {
         ServerLevel level = player.serverLevel();
         player.resetFallDistance();
         player.getPersistentData().putLong(LANDED_KEY, level.getGameTime());
-        animate(player, slam.power() > 1 ? "titan_meteor_land" : "brawler_slam_land");
+        boolean explosive = style(player) == FightingStyle.EXPLOSION;
+        animate(player, slam.power() > 1 ? "titan_meteor_land"
+                : explosive ? ExplosionMoves.anim(ExplosionMoves.DIVE_LAND) : "brawler_slam_land");
         double height = Math.max(0, slam.fromY() - player.getY());
         double radius = Config.COMBAT_SLAM_RADIUS.get() * slam.power();
+        if (explosive) {
+            ExplosionMoves.diveLanded(player, radius);
+        }
         float damage = (float) ((Config.COMBAT_SLAM_DAMAGE.get() + Math.min(height, 30) * 0.4) * slam.power());
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(radius, 1.5, radius),
                 e -> e != player && e.isAlive() && !Allies.isFriendly(e, player))) {
@@ -853,6 +877,9 @@ public final class CombatMode {
         LAUNCHING.remove(event.getEntity().getUUID());
         FINISHING.remove(event.getEntity().getUUID());
         THROWING.remove(event.getEntity().getUUID());
+        if (event.getEntity() instanceof ServerPlayer leaving) {
+            ExplosionMoves.clear(leaving);
+        }
         DELAYED.removeIf(d -> d.player() == event.getEntity());
         BLOCKING.remove(event.getEntity().getUUID());
         GRABS.remove(event.getEntity().getUUID());
@@ -882,7 +909,7 @@ public final class CombatMode {
         } else if (airborne && isStunned(player)) {
             return CombatPosePayload.JUGGLE;
         } else if (isGrabbing(player)) {
-            return CombatPosePayload.GRAB;
+            return style(player) == FightingStyle.EXPLOSION ? CombatPosePayload.EXPLOSION_HOLD : CombatPosePayload.GRAB;
         } else if (isBlocking(player)) {
             return CombatPosePayload.BLOCK;
         } else if (StyleMoves.isTackling(player)) {
@@ -890,13 +917,19 @@ public final class CombatMode {
         } else if (StyleMoves.isDiving(player)) {
             return CombatPosePayload.DIVE_KICK;
         } else if (isSlamming(player)) {
-            return SLAMS.get(player.getUUID()).power() > 1 ? CombatPosePayload.METEOR_DIVE : CombatPosePayload.SLAM_DIVE;
+            return SLAMS.get(player.getUUID()).power() > 1 ? CombatPosePayload.METEOR_DIVE
+                    : style(player) == FightingStyle.EXPLOSION ? CombatPosePayload.EXPLOSION_DIVE : CombatPosePayload.SLAM_DIVE;
         } else if (StyleMoves.isIronBody(player)) {
             return CombatPosePayload.IRON_BODY;
         } else if (StyleMoves.isCountering(player)) {
             return CombatPosePayload.COUNTER;
+        } else if (ExplosionMoves.isHovering(player)) {
+            return CombatPosePayload.HOVER;
         }
-        return isOn(player) ? CombatPosePayload.STANCE : CombatPosePayload.NONE;
+        if (!isOn(player)) {
+            return CombatPosePayload.NONE;
+        }
+        return style(player) == FightingStyle.EXPLOSION ? CombatPosePayload.EXPLOSION_STANCE : CombatPosePayload.STANCE;
     }
 
     /** Thrown players tumble through the air until this time. */
@@ -1041,7 +1074,7 @@ public final class CombatMode {
             GRABS.remove(blocker.getUUID());
         }
         GRABS.put(player.getUUID(), new Grab(target, player.level().getGameTime()));
-        animate(player, "brawler_grab");
+        animate(player, style(player) == FightingStyle.EXPLOSION ? ExplosionMoves.anim(ExplosionMoves.GRAB) : "brawler_grab");
         stun(target, GRAB_TICKS + 5);
         ServerLevel level = player.serverLevel();
         level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ARMOR_EQUIP_LEATHER.value(),
@@ -1099,12 +1132,18 @@ public final class CombatMode {
         if (grab == null || !grab.target().isAlive() || !THROWING.add(player.getUUID())) {
             return;
         }
-        animate(player, "brawler_throw");
-        later(player, THROW_RELEASE_TICKS, () -> {
+        // The Explosion style detonates what it holds instead of throwing it.
+        boolean explosive = style(player) == FightingStyle.EXPLOSION;
+        animate(player, explosive ? ExplosionMoves.anim(ExplosionMoves.DETONATE) : "brawler_throw");
+        later(player, explosive ? ExplosionMoves.strikeTicks(ExplosionMoves.DETONATE, 0.3F) : THROW_RELEASE_TICKS, () -> {
             THROWING.remove(player.getUUID());
             if (GRABS.get(player.getUUID()) == grab) {
                 GRABS.remove(player.getUUID());
-                release(player, grab.target());
+                if (explosive) {
+                    ExplosionMoves.detonate(player, grab.target());
+                } else {
+                    release(player, grab.target());
+                }
             }
         });
     }
@@ -1138,15 +1177,19 @@ public final class CombatMode {
         long now = player.level().getGameTime();
         Long last = DASHED.get(player.getUUID());
         boolean swift = style(player) == FightingStyle.SWIFT;
-        // Swift's quick step: shorter, but ready again almost at once.
-        int cooldown = swift ? 8 : Config.COMBAT_DASH_COOLDOWN.get();
+        boolean explosive = style(player) == FightingStyle.EXPLOSION;
+        // Swift's quick step: shorter, but ready again almost at once (Explosion's burst dash, soon after).
+        int cooldown = swift ? 8 : explosive ? 12 : Config.COMBAT_DASH_COOLDOWN.get();
         if (!isOn(player) || isStunned(player) || GRABS.containsKey(player.getUUID())
                 || last != null && now - last < cooldown) {
             return false;
         }
         DASHED.put(player.getUUID(), now);
         BLOCKING.remove(player.getUUID());
-        animate(player, swift ? "swift_quick_step" : "brawler_dash");
+        animate(player, swift ? "swift_quick_step" : explosive ? ExplosionMoves.anim(ExplosionMoves.BURST_DASH) : "brawler_dash");
+        if (explosive) {
+            ExplosionMoves.burstDashed(player);
+        }
         player.resetFallDistance();
         // The dash trail comes with its animation.
         ServerLevel level = player.serverLevel();

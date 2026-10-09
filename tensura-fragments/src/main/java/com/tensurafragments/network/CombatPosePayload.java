@@ -29,6 +29,14 @@ public record CombatPosePayload(int entityId, int pose) implements CustomPacketP
     public static final int TACKLE = 11;
     public static final int IRON_BODY = 12;
     public static final int COUNTER = 13;
+    /** The Explosion style's guard (Combat Mode on, Explosion style). */
+    public static final int EXPLOSION_STANCE = 14;
+    /** Holding something in the Explosion style's grab, ready to detonate. */
+    public static final int EXPLOSION_HOLD = 15;
+    /** Rocketing down in the Explosion style's dive. */
+    public static final int EXPLOSION_DIVE = 16;
+    /** Hovering on blasts from the palms. */
+    public static final int HOVER = 17;
     public static final Type<CombatPosePayload> TYPE = new Type<>(TensuraFragments.id("combat_pose"));
     public static final StreamCodec<ByteBuf, CombatPosePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, CombatPosePayload::entityId, ByteBufCodecs.VAR_INT, CombatPosePayload::pose,

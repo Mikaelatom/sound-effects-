@@ -37,6 +37,46 @@ public final class ClientCombat {
     private static final int DASH_TICKS = 4;
     private static final double DASH_SPEED = 0.9;
     private static final int DASH_COOLDOWN = 20;
+    /** The Explosion style's burst dash speed (blocks a tick, any direction). */
+    private static final double BURST_SPEED = 1.2;
+    private static boolean burst;
+    /** Ticks spent hovering on blasts since you last touched the ground. */
+    private static int hoverTicks;
+    /** How long you can hover before you have to land (ticks). */
+    private static final int HOVER_LIMIT = 100;
+
+    /**
+     * The Explosion style's flight: hold jump in mid-air and blasts from your palms hold you up and carry you the way
+     * you look, for up to 5 seconds before you have to land again.
+     */
+    private static void hover(Minecraft mc, boolean able) {
+        if (mc.player == null) {
+            return;
+        }
+        if (mc.player.onGround() || mc.player.isInWater()) {
+            hoverTicks = 0;
+            return;
+        }
+        if (!able || style != com.tensurafragments.combat.FightingStyle.EXPLOSION || !mc.options.keyJump.isDown()
+                || mc.player.getAbilities().flying || mc.player.isPassenger() || hoverTicks >= HOVER_LIMIT) {
+            return;
+        }
+        hoverTicks++;
+        net.minecraft.world.phys.Vec3 motion = mc.player.getDeltaMovement();
+        net.minecraft.world.phys.Vec3 look = mc.player.getLookAngle().multiply(1, 0, 1);
+        double x = motion.x + look.x * 0.06;
+        double z = motion.z + look.z * 0.06;
+        double speed = Math.sqrt(x * x + z * z);
+        if (speed > 0.8) {
+            x *= 0.8 / speed;
+            z *= 0.8 / speed;
+        }
+        mc.player.setDeltaMovement(x, Math.max(motion.y, 0.22), z);
+        mc.player.fallDistance = 0;
+        if (hoverTicks % 4 == 1) {
+            PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.HOVER));
+        }
+    }
     private static boolean on;
     private static boolean blocking;
     private static int dashTicks;
@@ -116,10 +156,18 @@ public final class ClientCombat {
         if (dashTicks > 0 && mc.player != null) {
             dashTicks--;
             net.minecraft.world.phys.Vec3 motion = mc.player.getDeltaMovement();
-            // Along the ground, or straight across in mid-air.
-            mc.player.setDeltaMovement(dashDirection.x * DASH_SPEED, mc.player.onGround() ? motion.y : Math.max(motion.y, 0),
-                    dashDirection.z * DASH_SPEED);
+            if (burst) {
+                mc.player.setDeltaMovement(dashDirection.scale(BURST_SPEED));
+            } else {
+                // Along the ground, or straight across in mid-air.
+                mc.player.setDeltaMovement(dashDirection.x * DASH_SPEED, mc.player.onGround() ? motion.y : Math.max(motion.y, 0),
+                        dashDirection.z * DASH_SPEED);
+            }
+            if (dashTicks == 0) {
+                burst = false;
+            }
         }
+        hover(mc, able);
     }
 
     /** Dash the way you're moving (forward if you aren't). */
@@ -131,7 +179,19 @@ public final class ClientCombat {
             return;
         }
         boolean swift = style == com.tensurafragments.combat.FightingStyle.SWIFT;
-        if (now - lastDash < (swift ? 8 : DASH_COOLDOWN) || mc.player.isPassenger() || mc.player.getAbilities().flying) {
+        boolean explosive = style == com.tensurafragments.combat.FightingStyle.EXPLOSION;
+        if (now - lastDash < (swift ? 8 : explosive ? 12 : DASH_COOLDOWN) || mc.player.isPassenger()
+                || mc.player.getAbilities().flying) {
+            return;
+        }
+        if (explosive) {
+            // The burst dash: blasted whichever way you look, up and down included.
+            lastDash = now;
+            dashDirection = mc.player.getLookAngle();
+            dashTicks = DASH_TICKS + 1;
+            burst = true;
+            PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.DASH, (float) dashDirection.x,
+                    (float) dashDirection.z));
             return;
         }
         lastDash = now;
@@ -181,8 +241,10 @@ public final class ClientCombat {
             event.setCanceled(true);
             return;
         }
+        boolean hovering = style == com.tensurafragments.combat.FightingStyle.EXPLOSION && hoverTicks > 0
+                && mc.options.keyJump.isDown();
         if (!mc.player.onGround() && mc.player.getDeltaMovement().y > 0 && !mc.player.isInWater()
-                && !mc.player.getAbilities().flying) {
+                && !mc.player.getAbilities().flying && !hovering) {
             // Sent before the attack itself, so the server knows this punch is the uppercut.
             PacketDistributor.sendToServer(new CombatInputPayload(CombatInputPayload.UPPERCUT));
             if (style == com.tensurafragments.combat.FightingStyle.BRAWLER) {

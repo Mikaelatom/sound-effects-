@@ -398,6 +398,9 @@ public final class Config {
     public static final ModConfigSpec.BooleanValue GRANT_RUNE_MAGIC = BUILDER
             .comment("Give every player Rune Magic (only used when [startingSkill] pickOneSkill is off).")
             .define("grantRuneMagic", true);
+    public static final ModConfigSpec.BooleanValue GRANT_EXPLOSION = BUILDER
+            .comment("Give every player the Explosion skill (when the starting skill choice is off).")
+            .define("grantExplosion", true);
     public static final ModConfigSpec.DoubleValue RUNE_DRAW_MAGICULES = BUILDER
             .comment("Magicules to draw one rune (plus one paper).")
             .defineInRange("drawMagicules", 30.0, 0.0, 1.0E6);
