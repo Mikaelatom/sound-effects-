@@ -1,4 +1,13 @@
 <title>Claude Voice</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.178.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.178.0/examples/jsm/",
+    "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.5/lib/three-vrm.module.js"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -9,6 +18,7 @@
     --line:#d5dedc; --line-2:#c2cecb;
     --accent:#0d6e66; --accent-ink:#ffffff; --accent-deep:#0a5952;
     --live:#b45f06; --live-soft:#fbead6;
+    --stage-top:#dfeeeb; --stage-bottom:#f4f8f7;
     --shadow:0 2px 4px rgba(15,26,25,.07), 0 14px 34px rgba(13,110,102,.16);
   }
   @media (prefers-color-scheme: dark){
@@ -18,6 +28,7 @@
       --line:#233433; --line-2:#2f4442;
       --accent:#4fd1c2; --accent-ink:#06201e; --accent-deep:#3bb8aa;
       --live:#f0a860; --live-soft:#2c1f10;
+      --stage-top:#15302d; --stage-bottom:#101e1d;
       --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.45);
     }
   }
@@ -27,6 +38,7 @@
     --line:#233433; --line-2:#2f4442;
     --accent:#4fd1c2; --accent-ink:#06201e; --accent-deep:#3bb8aa;
     --live:#f0a860; --live-soft:#2c1f10;
+    --stage-top:#15302d; --stage-bottom:#101e1d;
     --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.45);
   }
 
@@ -39,20 +51,49 @@
     -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
   }
   .wrap{
-    max-width:560px; margin:0 auto; padding-inline:16px; padding-block:26px 44px;
-    display:flex; flex-direction:column; gap:20px;
+    max-width:560px; margin:0 auto; padding-inline:16px; padding-block:22px 44px;
+    display:flex; flex-direction:column; gap:18px;
   }
 
-  h1{font-size:clamp(25px,6.5vw,32px); font-weight:800; letter-spacing:-.028em; margin:0; text-wrap:balance}
+  h1{font-size:clamp(24px,6vw,30px); font-weight:800; letter-spacing:-.028em; margin:0; text-wrap:balance}
   .tagline{margin:5px 0 0; color:var(--ink-2); font-size:15px}
 
-  /* the one big tap target */
+  /* ---------------------------------------------------------- the avatar */
+  .stage{
+    position:relative; width:100%; aspect-ratio:4/3; max-height:46vh;
+    border-radius:18px; overflow:hidden; border:1px solid var(--line);
+    background:linear-gradient(170deg, var(--stage-top), var(--stage-bottom));
+    box-shadow:var(--shadow);
+  }
+  .stage canvas{display:block; width:100%; height:100%; max-width:100%}
+  .stage-note{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px; text-align:center;
+    padding:20px; color:var(--ink-2); font-size:14.5px;
+  }
+  .bar{width:min(220px,70%); height:5px; border-radius:99px; background:var(--line-2); overflow:hidden}
+  .bar i{display:block; height:100%; width:0%; background:var(--accent); transition:width .25s ease}
+  .badge{
+    position:absolute; left:12px; bottom:12px;
+    display:flex; align-items:center; gap:7px;
+    padding:6px 11px; border-radius:99px;
+    background:color-mix(in srgb, var(--surface) 82%, transparent);
+    border:1px solid var(--line); color:var(--ink-2);
+    font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:10.5px;
+    letter-spacing:.09em; text-transform:uppercase; backdrop-filter:blur(6px);
+  }
+  .badge i{width:7px; height:7px; border-radius:50%; background:var(--ink-3); display:block}
+  .badge[data-on="1"]{color:var(--live); border-color:var(--live)}
+  .badge[data-on="1"] i{background:var(--live); animation:pulse .9s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ---------------------------------------------------------- the button */
   .big{
     width:100%; border:none; border-radius:18px; cursor:pointer;
     background:var(--accent); color:var(--accent-ink);
-    font-family:inherit; font-weight:800; font-size:clamp(21px,5.4vw,26px); letter-spacing:-.02em;
-    padding:clamp(34px,9vw,44px) 20px; box-shadow:var(--shadow);
-    display:flex; flex-direction:column; align-items:center; gap:9px;
+    font-family:inherit; font-weight:800; font-size:clamp(20px,5.2vw,25px); letter-spacing:-.02em;
+    padding:clamp(28px,7vw,36px) 20px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
     -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     transition:transform .12s ease, background .12s ease;
   }
@@ -62,7 +103,7 @@
   .big small{font-weight:500; font-size:15px; opacity:.9; letter-spacing:0}
   .big[data-speaking="1"]{background:var(--live)}
 
-  .say{min-height:46px; display:flex; align-items:center; gap:10px; color:var(--ink-2); font-size:15px}
+  .say{min-height:44px; display:flex; align-items:center; gap:10px; color:var(--ink-2); font-size:15px}
   .say[data-on="1"]{color:var(--ink)}
   .wave{display:inline-flex; gap:3px; align-items:flex-end; height:18px; flex:none}
   .wave i{width:3px; height:5px; background:var(--live); border-radius:2px; display:block}
@@ -71,7 +112,7 @@
   .say[data-on="1"] .wave i:nth-child(3){animation-delay:.24s}
   .say[data-on="1"] .wave i:nth-child(4){animation-delay:.36s}
   @keyframes bounce{0%,100%{height:5px}50%{height:17px}}
-  @media (prefers-reduced-motion: reduce){ .wave i{animation:none !important} }
+  @media (prefers-reduced-motion: reduce){ .wave i, .badge i{animation:none !important} }
 
   .card{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:17px 18px}
   .label{
@@ -80,7 +121,6 @@
   }
   .card ol{margin:0; padding-left:21px; display:flex; flex-direction:column; gap:8px; color:var(--ink-2); font-size:15px}
   .card ol b{color:var(--ink); font-weight:600}
-
   .swap{
     background:none; border:none; padding:0; margin-top:12px; cursor:pointer;
     font:inherit; font-size:14px; color:var(--accent); text-decoration:underline; text-underline-offset:3px;
@@ -96,7 +136,7 @@
   .btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
   textarea{
-    font:inherit; font-size:16px; width:100%; min-height:96px; resize:vertical; line-height:1.5;
+    font:inherit; font-size:16px; width:100%; min-height:92px; resize:vertical; line-height:1.5;
     color:var(--ink); background:var(--surface); border:1px solid var(--line-2);
     border-radius:11px; padding:13px;
   }
@@ -109,6 +149,7 @@
     border:1px solid var(--line-2); border-radius:9px; padding:10px; max-width:100%; min-height:44px;
   }
   input[type=range]{accent-color:var(--accent); width:130px; height:34px}
+  input[type=checkbox]{accent-color:var(--accent); width:18px; height:18px}
   .mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12px; color:var(--ink-3)}
 
   .tip{background:var(--live-soft); border:1px solid var(--live); border-radius:11px; padding:14px 15px; font-size:15px; color:var(--ink); margin:0}
@@ -121,7 +162,16 @@
 
   <div>
     <h1>Claude Voice</h1>
-    <p class="tagline">Copy what Claude says, tap once, hear it.</p>
+    <p class="tagline">Zeno reads Claude's replies out loud.</p>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="avatar-canvas"></canvas>
+    <div class="stage-note" id="stage-note">
+      <span id="stage-note-text">Waking Zeno up&hellip;</span>
+      <span class="bar"><i id="stage-bar"></i></span>
+    </div>
+    <div class="badge" id="badge" data-on="0"><i></i><span id="badge-text">Listening</span></div>
   </div>
 
   <button class="big" id="go" data-speaking="0">
@@ -138,20 +188,17 @@
 
   <div class="card">
     <p class="label" id="steps-label">On your phone</p>
-
     <ol id="steps-phone">
       <li>In the Claude app, press and hold a reply and tap <b>Copy</b>.</li>
       <li>Come back here and tap the big button.</li>
       <li>If a little <b>Paste</b> bubble appears, tap it. That's your phone asking permission.</li>
       <li>Keep this page open while it reads &mdash; phones stop audio when you leave.</li>
     </ol>
-
     <ol id="steps-desktop" hidden>
       <li>In Claude, select a reply and press <b>Ctrl&nbsp;+&nbsp;C</b>.</li>
       <li>Click back to this tab. It starts reading on its own.</li>
       <li>Or press the big button any time to read what you copied.</li>
     </ol>
-
     <button class="swap" id="swap">I'm on a computer instead</button>
   </div>
 
@@ -172,8 +219,11 @@
   <div class="opts">
     <label for="rate">Speed <input type="range" id="rate" min="0.6" max="1.8" step="0.1" value="1"> <span class="mono" id="rate-val">1.0&times;</span></label>
   </div>
+  <div class="opts">
+    <label for="show-avatar"><input type="checkbox" id="show-avatar" checked> Show Zeno</label>
+  </div>
 
-  <div class="card" id="hands-free">
+  <div class="card">
     <p class="label">Want it fully hands-free on your phone?</p>
     <p class="aside" id="hands-free-text"></p>
   </div>
@@ -196,7 +246,9 @@
     rateVal: document.getElementById('rate-val'), tip: document.getElementById('tip'),
     stepsPhone: document.getElementById('steps-phone'), stepsDesktop: document.getElementById('steps-desktop'),
     stepsLabel: document.getElementById('steps-label'), swap: document.getElementById('swap'),
-    handsFree: document.getElementById('hands-free-text'), homeScreen: document.getElementById('home-screen')
+    handsFree: document.getElementById('hands-free-text'), homeScreen: document.getElementById('home-screen'),
+    badge: document.getElementById('badge'), badgeText: document.getElementById('badge-text'),
+    stage: document.getElementById('stage'), showAvatar: document.getElementById('show-avatar')
   };
 
   var synth = window.speechSynthesis;
@@ -216,14 +268,11 @@
     els.go.disabled = true;
   }
 
-  // ------------------------------------------------- what to tell this device
-
   function showSteps(phone) {
     els.stepsPhone.hidden = !phone;
     els.stepsDesktop.hidden = phone;
     els.stepsLabel.textContent = phone ? 'On your phone' : 'On your computer';
     els.swap.textContent = phone ? "I'm on a computer instead" : "I'm on a phone instead";
-    els.goSub.textContent = phone ? 'Reads whatever you last copied' : 'Reads whatever you last copied';
   }
   showSteps(isPhone);
   els.swap.addEventListener('click', function () { showSteps(els.stepsPhone.hidden); });
@@ -239,8 +288,6 @@
     : isPhone
       ? '<b>Tip</b> — open the browser menu and tap <b>Add to Home screen</b> to keep this one tap away, like an app.'
       : '';
-
-  // ---------------------------------------------------------------- voices
 
   function loadVoices() {
     if (!synth) return;
@@ -259,8 +306,6 @@
     els.voice.value = voices[keep] ? keep : String(pick);
   }
 
-  // ------------------------------------------------------ markdown -> speech
-
   function forSpeech(text) {
     if (!text) return '';
     var t = String(text);
@@ -277,13 +322,19 @@
     return t.replace(/\s+/g, ' ').trim();
   }
 
-  // --------------------------------------------------------------- speaking
-
   async function keepAwake(on) {
     try {
       if (on && navigator.wakeLock && !wakeLock) wakeLock = await navigator.wakeLock.request('screen');
       else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
-    } catch (e) { /* not supported, or denied - speech still works */ }
+    } catch (e) { /* unsupported or denied - speech still works */ }
+  }
+
+  /* The avatar module registers itself here. Guarded everywhere so the voice
+     keeps working even if the 3D model never loads. */
+  function avatarSpeaking(on) {
+    if (window.ClaudeAvatar && window.ClaudeAvatar.setSpeaking) window.ClaudeAvatar.setSpeaking(on);
+    els.badge.dataset.on = on ? '1' : '0';
+    els.badgeText.textContent = on ? 'Speaking' : 'Listening';
   }
 
   function speak(text) {
@@ -303,9 +354,10 @@
       var chosen = voices[Number(els.voice.value)];
       if (chosen) { u.voice = chosen; u.lang = chosen.lang; }
       u.rate = Number(els.rate.value) || 1;
-      if (i === 0) u.onstart = function () { showSpeaking(text); keepAwake(true); };
+      if (i === 0) u.onstart = function () { showSpeaking(text); avatarSpeaking(true); keepAwake(true); };
+      u.onboundary = function () { if (window.ClaudeAvatar && window.ClaudeAvatar.accent) window.ClaudeAvatar.accent(); };
       if (i === chunks.length - 1) {
-        u.onend = u.onerror = function () { showIdle(); keepAwake(false); };
+        u.onend = u.onerror = function () { showIdle(); avatarSpeaking(false); keepAwake(false); };
       }
       synth.speak(u);
     });
@@ -323,8 +375,6 @@
     els.sayText.textContent = 'Finished.';
   }
 
-  // -------------------------------------------------------------- the button
-
   /* On a phone the browser shows a Paste prompt and readText() simply waits -
      forever, if it's ignored. Never let that hang the button. */
   function readClipboard() {
@@ -338,7 +388,7 @@
     var typed = forSpeech(els.box.value);
     if (typed) { els.tip.hidden = true; speak(typed); return; }
 
-    els.sayText.textContent = 'Checking what you copied\u2026';
+    els.sayText.textContent = 'Checking what you copied…';
     var clip = forSpeech(await readClipboard());
     if (clip) { lastClip = clip; els.tip.hidden = true; speak(clip); return; }
 
@@ -351,12 +401,22 @@
   }
 
   els.go.addEventListener('click', go);
-  els.stop.addEventListener('click', function () { if (synth) synth.cancel(); showIdle(); keepAwake(false); });
+  els.stop.addEventListener('click', function () {
+    if (synth) synth.cancel();
+    showIdle(); avatarSpeaking(false); keepAwake(false);
+  });
   els.again.addEventListener('click', function () { if (last) speak(last); });
-  els.test.addEventListener('click', function () { speak('This is how I will read Claude to you.'); });
+  els.test.addEventListener('click', function () { speak('Hi, I am Zeno. This is how I will read Claude to you.'); });
 
   els.rate.addEventListener('input', function () {
     els.rateVal.textContent = Number(els.rate.value).toFixed(1) + '×';
+  });
+
+  els.showAvatar.addEventListener('change', function () {
+    els.stage.hidden = !els.showAvatar.checked;
+    if (window.ClaudeAvatar && window.ClaudeAvatar.setVisible) {
+      window.ClaudeAvatar.setVisible(els.showAvatar.checked);
+    }
   });
 
   // On a computer, coming back to this tab reads what you copied.
@@ -377,4 +437,190 @@
     setTimeout(loadVoices, 400);
   }
 })();
+</script>
+
+<script type="module">
+/* Zeno - the VRM avatar. Idles, blinks, and moves his mouth while Claude talks.
+   If anything here fails the page carries on as a plain voice reader. */
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+
+const canvas = document.getElementById('avatar-canvas');
+const stage = document.getElementById('stage');
+const note = document.getElementById('stage-note');
+const noteText = document.getElementById('stage-note-text');
+const bar = document.getElementById('stage-bar');
+
+const VISEMES = ['aa', 'ih', 'ou', 'ee', 'oh'];
+const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let renderer, scene, camera, vrm = null;
+let speaking = false, visible = true;
+let mouth = { current: 0, target: 0, shape: 'aa', timer: 0 };
+let blink = { value: 0, next: 2 + Math.random() * 3 };
+let clock, lookTarget;
+
+function fail(message) {
+  note.hidden = false;
+  bar.parentElement.hidden = true;
+  noteText.textContent = message;
+}
+
+function setProgress(fraction) {
+  bar.style.width = Math.round(fraction * 100) + '%';
+  noteText.textContent = 'Waking Zeno up… ' + Math.round(fraction * 100) + '%';
+}
+
+function resize() {
+  if (!renderer) return;
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+/* Models ship in a T-pose. Drop the arms so he reads as someone sitting
+   and talking, not a mannequin. */
+function relaxPose() {
+  const bone = (n) => vrm.humanoid && vrm.humanoid.getNormalizedBoneNode(n);
+  const set = (name, z, x) => {
+    const b = bone(name);
+    if (!b) return;
+    b.rotation.z = z;
+    if (x !== undefined) b.rotation.x = x;
+  };
+  set('leftUpperArm', -1.28, 0.06);
+  set('rightUpperArm', 1.28, 0.06);
+  set('leftLowerArm', -0.22, 0.14);
+  set('rightLowerArm', 0.22, 0.14);
+  set('leftShoulder', -0.08);
+  set('rightShoulder', 0.08);
+}
+
+/* Frame the shot on the head, wherever this model happens to put it. */
+function frameOnHead() {
+  const head = vrm.humanoid && vrm.humanoid.getNormalizedBoneNode('head');
+  const focus = new THREE.Vector3();
+  if (head) head.getWorldPosition(focus);
+  else new THREE.Box3().setFromObject(vrm.scene).getCenter(focus);
+
+  camera.position.set(focus.x, focus.y - 0.06, focus.z + 0.86);
+  camera.lookAt(focus.x, focus.y - 0.06, focus.z);
+  lookTarget.position.copy(camera.position);
+}
+
+function updateIdle(dt, t) {
+  const em = vrm.expressionManager;
+
+  blink.next -= dt;
+  if (blink.next <= 0) { blink.value = 1; blink.next = 2.2 + Math.random() * 3.5; }
+  if (blink.value > 0) blink.value = Math.max(0, blink.value - dt * 9);
+  if (em) em.setValue('blink', blink.value);
+
+  if (calm) return;
+  const chest = vrm.humanoid && vrm.humanoid.getNormalizedBoneNode('chest');
+  if (chest) chest.rotation.x = Math.sin(t * 1.1) * 0.022;
+  const head = vrm.humanoid && vrm.humanoid.getNormalizedBoneNode('head');
+  if (head) {
+    head.rotation.y = Math.sin(t * 0.42) * 0.07;
+    head.rotation.z = Math.sin(t * 0.33) * 0.03;
+    if (speaking) head.rotation.x = Math.sin(t * 2.3) * 0.02;
+  }
+}
+
+/* No audio stream to analyse, so the mouth is driven by a speech-paced
+   flutter through the model's five vowel shapes. Reads as talking. */
+function updateMouth(dt) {
+  const em = vrm.expressionManager;
+  if (!em) return;
+
+  if (speaking) {
+    mouth.timer -= dt;
+    if (mouth.timer <= 0) {
+      mouth.shape = VISEMES[(Math.random() * VISEMES.length) | 0];
+      mouth.target = 0.32 + Math.random() * 0.55;
+      mouth.timer = 0.07 + Math.random() * 0.08;
+    }
+  } else {
+    mouth.target = 0;
+  }
+
+  mouth.current += (mouth.target - mouth.current) * Math.min(1, dt * 18);
+  VISEMES.forEach((v) => em.setValue(v, v === mouth.shape ? mouth.current : 0));
+  em.setValue('happy', speaking ? Math.min(0.25, mouth.current * 0.3) : 0);
+}
+
+function tick() {
+  requestAnimationFrame(tick);
+  const dt = Math.min(clock.getDelta(), 0.1);
+  if (document.hidden || !visible) return;
+  if (vrm) {
+    const t = clock.elapsedTime;
+    updateIdle(dt, t);
+    updateMouth(dt);
+    vrm.update(dt);
+  }
+  renderer.render(scene, camera);
+}
+
+function start() {
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  } catch (e) {
+    return fail('This browser can’t show 3D, so Zeno is sitting this one out. The voice still works.');
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(30, 1, 0.08, 20);
+  lookTarget = new THREE.Object3D();
+  scene.add(lookTarget);
+
+  const key = new THREE.DirectionalLight(0xffffff, 2.1); key.position.set(1, 1.6, 2.4);
+  const rim = new THREE.DirectionalLight(0x9fd8d0, 0.8); rim.position.set(-1.6, 0.9, -1.2);
+  scene.add(key, rim, new THREE.AmbientLight(0xffffff, 1.3));
+
+  clock = new THREE.Clock();
+  resize();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  else window.addEventListener('resize', resize);
+
+  const loader = new GLTFLoader();
+  loader.register((parser) => new VRMLoaderPlugin(parser));
+  // The model is a .vrm (binary glTF). It ships with a .wasm name only because
+  // that is a byte-exact file type the host will serve; the loader reads the
+  // raw bytes, so the extension makes no difference to it.
+  loader.load(
+    'zeno-model.wasm',
+    (gltf) => {
+      vrm = gltf.userData.vrm;
+      if (!vrm) return fail('That file loaded, but it isn’t a VRM avatar.');
+
+      VRMUtils.removeUnnecessaryVertices(gltf.scene);
+      VRMUtils.combineSkeletons(gltf.scene);
+      vrm.scene.traverse((o) => { o.frustumCulled = false; });
+      if (vrm.lookAt) vrm.lookAt.target = lookTarget;
+
+      scene.add(vrm.scene);
+      relaxPose();
+      vrm.update(0);
+      frameOnHead();
+      note.hidden = true;
+      tick();
+    },
+    (ev) => { if (ev.lengthComputable) setProgress(ev.loaded / ev.total); },
+    () => fail('Couldn’t load Zeno. The voice still works — try reloading the page.')
+  );
+
+  window.ClaudeAvatar = {
+    setSpeaking(on) { speaking = !!on; if (!on) mouth.target = 0; },
+    accent() { if (speaking) { mouth.timer = 0; mouth.target = 0.75; } },
+    setVisible(on) { visible = !!on; }
+  };
+}
+
+start();
 </script>
