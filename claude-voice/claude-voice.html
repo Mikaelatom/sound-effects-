@@ -354,8 +354,20 @@
       var chosen = voices[Number(els.voice.value)];
       if (chosen) { u.voice = chosen; u.lang = chosen.lang; }
       u.rate = Number(els.rate.value) || 1;
-      if (i === 0) u.onstart = function () { showSpeaking(text); avatarSpeaking(true); keepAwake(true); };
-      u.onboundary = function () { if (window.ClaudeAvatar && window.ClaudeAvatar.accent) window.ClaudeAvatar.accent(); };
+      u.onstart = function () {
+        if (i === 0) { showSpeaking(text); keepAwake(true); }
+        avatarSpeaking(true);
+        // hand the avatar the exact words it is about to say, so the mouth
+        // shapes the real sounds instead of guessing
+        if (window.ClaudeAvatar && window.ClaudeAvatar.setScript) {
+          window.ClaudeAvatar.setScript(u.text, u.rate);
+        }
+      };
+      u.onboundary = function (ev) {
+        if (window.ClaudeAvatar && window.ClaudeAvatar.syncTo && typeof ev.charIndex === 'number') {
+          window.ClaudeAvatar.syncTo(ev.charIndex);
+        }
+      };
       if (i === chunks.length - 1) {
         u.onend = u.onerror = function () { showIdle(); avatarSpeaking(false); keepAwake(false); };
       }
@@ -458,6 +470,7 @@ const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let renderer, scene, camera, vrm = null;
 let speaking = false, visible = true;
 let mouth = { current: 0, target: 0, shape: 'aa', timer: 0, open: false };
+let script = [], scriptPos = 0, soundDur = 0.19;
 let blink = { value: 0, next: 2 + Math.random() * 3 };
 let clock, lookTarget;
 
@@ -530,28 +543,62 @@ function updateIdle(dt, t) {
   }
 }
 
-/* There is no audio stream behind the Web Speech API to measure, so the mouth
-   runs at the pace of syllables: one shape per syllable, closing in between,
-   at roughly four a second. Word boundaries, where the browser reports them,
-   restart the cycle so each word opens cleanly. */
+/* Lip sync off the words themselves. There is no audio stream behind the Web
+   Speech API, but we do know the exact text, so the mouth plays one shape per
+   vowel sound in each word and closes in the gaps between words. The browser's
+   word-boundary events pull the mouth back into step with the voice. */
+const VOWEL_SHAPE = { a: 'aa', e: 'ee', i: 'ih', o: 'oh', u: 'ou', y: 'ih' };
+
+function buildScript(text, rate) {
+  const sounds = [];
+  const words = /[A-Za-z']+/g;
+  let w;
+  while ((w = words.exec(text)) !== null) {
+    const word = w[0];
+    const vowels = /[aeiouy]+/gi;
+    let v, found = 0;
+    while ((v = vowels.exec(word)) !== null) {
+      sounds.push({ at: w.index + v.index, shape: VOWEL_SHAPE[v[0][0].toLowerCase()] || 'aa' });
+      found++;
+    }
+    if (!found) sounds.push({ at: w.index, shape: 'aa' });   // e.g. "hmm"
+    sounds.push({ at: w.index + word.length, shape: null }); // mouth shuts between words
+  }
+  script = sounds;
+  scriptPos = 0;
+  soundDur = 0.19 / Math.max(0.5, rate || 1);
+  mouth.open = false;
+  mouth.timer = 0;
+}
+
+function nextSound() {
+  if (mouth.open) {                       // short consonant close after each vowel
+    mouth.target = 0.08;
+    mouth.timer = soundDur * 0.35;
+    mouth.open = false;
+    return;
+  }
+  const sound = script[scriptPos];
+  if (!sound) { mouth.target = 0.02; mouth.timer = 0.1; return; }   // ahead of the voice
+  scriptPos++;
+  if (sound.shape === null) {             // the gap between two words
+    mouth.target = 0.02;
+    mouth.timer = soundDur * 0.5;
+    return;
+  }
+  mouth.shape = sound.shape;
+  mouth.target = 0.45 + Math.random() * 0.28;
+  mouth.timer = soundDur;
+  mouth.open = true;
+}
+
 function updateMouth(dt) {
   const em = vrm.expressionManager;
   if (!em) return;
 
-  if (speaking) {
+  if (speaking && script.length) {
     mouth.timer -= dt;
-    if (mouth.timer <= 0) {
-      if (mouth.open) {
-        mouth.target = 0.05;                              // close between syllables
-        mouth.timer = 0.07 + Math.random() * 0.04;
-        mouth.open = false;
-      } else {
-        mouth.shape = VISEMES[(Math.random() * VISEMES.length) | 0];
-        mouth.target = 0.4 + Math.random() * 0.45;        // one syllable
-        mouth.timer = 0.10 + Math.random() * 0.05;
-        mouth.open = true;
-      }
-    }
+    if (mouth.timer <= 0) nextSound();
   } else {
     mouth.target = 0;
     mouth.open = false;
@@ -626,8 +673,20 @@ function start() {
   );
 
   window.ClaudeAvatar = {
-    setSpeaking(on) { speaking = !!on; if (!on) { mouth.target = 0; mouth.open = false; } },
-    accent() { if (speaking) { mouth.open = false; mouth.timer = 0; } },
+    setSpeaking(on) {
+      speaking = !!on;
+      if (!on) { mouth.target = 0; mouth.open = false; script = []; }
+    },
+    setScript(text, rate) { buildScript(text || '', rate); },
+    /* The voice tells us which character it has reached; step the mouth to
+       the sound at that point so they can't drift apart. */
+    syncTo(charIndex) {
+      let i = 0;
+      while (i < script.length && script[i].at < charIndex) i++;
+      scriptPos = i;
+      mouth.open = false;
+      mouth.timer = 0;
+    },
     setVisible(on) { visible = !!on; }
   };
 }
