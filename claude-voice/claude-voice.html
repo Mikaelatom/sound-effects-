@@ -457,7 +457,7 @@ const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let renderer, scene, camera, vrm = null;
 let speaking = false, visible = true;
-let mouth = { current: 0, target: 0, shape: 'aa', timer: 0 };
+let mouth = { current: 0, target: 0, shape: 'aa', timer: 0, open: false };
 let blink = { value: 0, next: 2 + Math.random() * 3 };
 let clock, lookTarget;
 
@@ -530,8 +530,10 @@ function updateIdle(dt, t) {
   }
 }
 
-/* No audio stream to analyse, so the mouth is driven by a speech-paced
-   flutter through the model's five vowel shapes. Reads as talking. */
+/* There is no audio stream behind the Web Speech API to measure, so the mouth
+   runs at the pace of syllables: one shape per syllable, closing in between,
+   at roughly four a second. Word boundaries, where the browser reports them,
+   restart the cycle so each word opens cleanly. */
 function updateMouth(dt) {
   const em = vrm.expressionManager;
   if (!em) return;
@@ -539,17 +541,25 @@ function updateMouth(dt) {
   if (speaking) {
     mouth.timer -= dt;
     if (mouth.timer <= 0) {
-      mouth.shape = VISEMES[(Math.random() * VISEMES.length) | 0];
-      mouth.target = 0.32 + Math.random() * 0.55;
-      mouth.timer = 0.07 + Math.random() * 0.08;
+      if (mouth.open) {
+        mouth.target = 0.05;                              // close between syllables
+        mouth.timer = 0.07 + Math.random() * 0.04;
+        mouth.open = false;
+      } else {
+        mouth.shape = VISEMES[(Math.random() * VISEMES.length) | 0];
+        mouth.target = 0.4 + Math.random() * 0.45;        // one syllable
+        mouth.timer = 0.10 + Math.random() * 0.05;
+        mouth.open = true;
+      }
     }
   } else {
     mouth.target = 0;
+    mouth.open = false;
   }
 
-  mouth.current += (mouth.target - mouth.current) * Math.min(1, dt * 18);
+  mouth.current += (mouth.target - mouth.current) * Math.min(1, dt * 26);
   VISEMES.forEach((v) => em.setValue(v, v === mouth.shape ? mouth.current : 0));
-  em.setValue('happy', speaking ? Math.min(0.25, mouth.current * 0.3) : 0);
+  em.setValue('happy', speaking ? Math.min(0.22, mouth.current * 0.28) : 0);
 }
 
 function tick() {
@@ -616,8 +626,8 @@ function start() {
   );
 
   window.ClaudeAvatar = {
-    setSpeaking(on) { speaking = !!on; if (!on) mouth.target = 0; },
-    accent() { if (speaking) { mouth.timer = 0; mouth.target = 0.75; } },
+    setSpeaking(on) { speaking = !!on; if (!on) { mouth.target = 0; mouth.open = false; } },
+    accent() { if (speaking) { mouth.open = false; mouth.timer = 0; } },
     setVisible(on) { visible = !!on; }
   };
 }
