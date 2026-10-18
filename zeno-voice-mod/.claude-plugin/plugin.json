@@ -1,0 +1,6 @@
+{
+  "name": "zeno-voice",
+  "version": "0.1.0",
+  "description": "Reads Claude's replies out loud as soon as each turn ends.",
+  "author": { "name": "Mikael Myburgh" }
+}
