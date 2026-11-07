@@ -1,0 +1,21 @@
+{
+  "name": "gemini-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that connects Google Gemini to Claude Code",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^3.25.76"
+  },
+  "type": "module",
+  "bin": {
+    "gemini-mcp": "server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
